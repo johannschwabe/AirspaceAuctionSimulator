@@ -14,11 +14,33 @@ envi = EnvironmentA()
 simi = Simulator(agentGeni, alloci, envi)
 
 
-# envi.get_field(Coords(1,2,0,0),True).reserved_for = envi.agents[0]
-envi.block(Coords(0,2,0,0))
-envi.block(Coords(1,2,0,0))
-envi.block(Coords(2,2,0,0))
-envi.block(Coords(3,2,0,0))
+envi.block(Coords(0,4,0,0))
+envi.block(Coords(1,4,0,0))
+envi.block(Coords(2,4,0,0))
+envi.block(Coords(3,4,0,0))
 
+envi.block(Coords(0,6,0,0))
+envi.block(Coords(1,6,0,0))
+envi.block(Coords(2,6,0,0))
+envi.block(Coords(3,6,0,0))
+
+envi.block(Coords(3,1,0,0))
+envi.block(Coords(3,2,0,0))
+envi.block(Coords(3,3,0,0))
+envi.block(Coords(3,7,0,0))
+envi.block(Coords(3,8,0,0))
+envi.block(Coords(3,9,0,0))
+
+envi.block(Coords(5,1,0,0))
+envi.block(Coords(5,2,0,0))
+envi.block(Coords(5,3,0,0))
+envi.block(Coords(5,4,0,0))
+envi.block(Coords(5,5,0,0))
+envi.block(Coords(5,6,0,0))
+envi.block(Coords(5,7,0,0))
+envi.block(Coords(5,8,0,0))
+envi.block(Coords(5,9,0,0))
+
+envi.visualize(0)
 for _ in range(10):
 	simi.tick()

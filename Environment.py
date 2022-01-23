@@ -88,7 +88,7 @@ class Environment(ABC):
 			closed.append(current_node)
 			if current_node.posi.intertemporal_equal(end.posi):
 				path = []
-				while current_node != start_node:
+				while not current_node.posi.intertemporal_equal(start):
 					path.append(current_node.posi)
 					current_node = current_node.parent
 				return path[::-1]
@@ -101,10 +101,6 @@ class Environment(ABC):
 						 not field.blocked):
 					neighbor = Node(next, current_node)
 					if neighbor in closed:
-						other = closed[closed.index(neighbor)]
-						if other.posi.t > neighbor.posi.t:
-							other.parent = neighbor.parent
-							other.posi.t = neighbor.posi.t
 						continue
 
 					neighbor.g = current_node.g + 1
@@ -133,7 +129,7 @@ class Node:
 		self.f = 0      # Total cost
 
 	def __eq__(self, other):
-		return self.posi.intertemporal_equal(other.posi)
+		return self.posi == other.posi
 
 	def __lt__(self, other):
 		return self.f < other.f

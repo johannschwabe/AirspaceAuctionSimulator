@@ -27,7 +27,7 @@ class Coords:
 		       self.z == other.z
 
 	def adjacent(self, delta_t):
-		res = []
+		res = [Coords(self.x, self.y, self.z, self.t + 1)]
 		if self.x > 0:
 			res.append(Coords(self.x-1, self.y, self.z, self.t + delta_t))
 		if self.y > 0:

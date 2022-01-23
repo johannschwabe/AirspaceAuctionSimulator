@@ -9,11 +9,8 @@ class AgentGeneratorA(AgentGenerator):
 		super().__init__()
 
 		self.agents = [
-			[AgentA(Coords(1,1,0,0),Coords(8,6,0,0))],
-			[],
-			[],
-			[],
-			[AgentA(Coords(5, 5, 0, 4),Coords(8,7,0,0))],
+			[AgentA(Coords(0,5,0,0),Coords(4,1,0,0)),AgentA(Coords(4,9,0,0),Coords(4,1,0,0))],
+
 		]
 
 	def reset(self):
