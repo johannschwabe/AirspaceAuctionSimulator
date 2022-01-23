@@ -6,14 +6,15 @@ from Field import Field
 class EnvironmentA(Environment):
 
 	def __init__(self, dim_x, dim_y, dim_z, dim_t):
-		super().__init__()
+		super().__init__(dim_x, dim_y, dim_z, dim_t)
 		self.field = {}         # x_y_z_t -> Field
 
 	def reset(self):
 		self.agents = []
 
 	def get_field(self, x, y, z, t, creating):
-		if not self.field[f"{x}_{y}_{z}_{t}"]:
+		key = f"{x}_{y}_{z}_{t}"
+		if key not in self.field:
 			if creating:
 				new_field = Field()
 				self.field[f"{x}_{y}_{z}_{t}"] = new_field
@@ -31,22 +32,27 @@ class EnvironmentA(Environment):
 		loci.occupied_by_agent = agent
 
 	def visualize(self, t):
+		print(f"t={t:03}", end="")
+		for i in range(self.dim_x):
+			print(f" {i:02} ", end="")
+		print("  -> X")
 		for z in range(self.dim_z):
-			for x in range(self.dim_x):
-				for y in range(self.dim_y):
+			for y in range(self.dim_y):
+				print(f"  {y:02} ", end="")
+				for x in range(self.dim_x):
 					field = self.get_field(x,y,z,t, False)
 					if field:
 						if field.occupied_by_agent:
-							print(f"|{field.occupied_by_agent.id}|", end="")
+							print(f"|{field.occupied_by_agent.id}| ", end="")
 						elif field.reserved_for:
-							print(f"{field.reserved_for.id} ", end="")
+							print(f" {field.reserved_for.id}  ", end="")
 						elif field.blocked:
-							print("_", end="")
+							print(" ✖  ", end="")
 					else:
-						print(". ", end="")
+						print(" .  ", end="")
 				print("")
 			print("")
-		print("")
+		print("↓\nY")
 
 	def move(self):
 		pass
