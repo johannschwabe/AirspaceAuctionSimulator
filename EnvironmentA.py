@@ -32,13 +32,14 @@ class EnvironmentA(Environment):
 		loci.occupied_by_agent = agent
 
 	def visualize(self, t):
-		print(f"t={t:03}", end="")
-		for i in range(self.dim_x):
-			print(f" {i:02} ", end="")
-		print("  -> X")
+		print(f"t = {t}")
 		for z in range(self.dim_z):
+			print(f"z={z: >2}", end="")
+			for i in range(self.dim_x):
+				print(f" {i: >2} ", end="")
+			print("  -> X")
 			for y in range(self.dim_y):
-				print(f"  {y:02} ", end="")
+				print(f"  {y: >2} ", end="")
 				for x in range(self.dim_x):
 					field = self.get_field(x,y,z,t, False)
 					if field:
@@ -52,7 +53,7 @@ class EnvironmentA(Environment):
 						print(" .  ", end="")
 				print("")
 			print("")
-		print("↓\nY")
+		print(" ↓\n Y")
 
 	def move(self):
 		pass
