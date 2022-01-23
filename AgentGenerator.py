@@ -1,13 +1,11 @@
 from abc import abstractmethod, ABC
 
+from coords import Coords
+
 
 class AgentGenerator(ABC):
-	def __init__(self, dim_x, dim_y, dim_z, dim_t):
-		self.dim_x = dim_x
-		self.dim_y = dim_y
-		self.dim_z = dim_z
-		self.dim_t = dim_t
-
+	def __init__(self):
+		pass
 	@abstractmethod
 	def reset(self):
 		pass

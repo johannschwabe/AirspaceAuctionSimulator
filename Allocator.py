@@ -12,5 +12,5 @@ class Allocator(ABC):
 		pass
 
 	@abstractmethod
-	def allocate(self, env: Environment):
+	def allocate(self, env: Environment, new_agents):
 		pass
