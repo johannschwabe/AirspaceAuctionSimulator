@@ -19,6 +19,7 @@ class Simulator:
 	def tick(self):
 		new_agents = self.agentGenerator.update_agents(self.time_step)
 		for agent in new_agents:
-			self.env.add_agent(agent)
+			self.env.add_agent(agent, self.time_step)
 		self.allocator.allocate(self.env)
+		self.env.move()
 		self.time_step += 1
