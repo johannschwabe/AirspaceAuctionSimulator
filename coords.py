@@ -18,7 +18,7 @@ class Coords:
 	def __eq__(self, other):
 		return self.x == other.x and \
 		       self.y == other.y and \
-		       self.z == other.y and \
+		       self.z == other.z and \
 		       self.t == other.t
 
 	def intertemporal_equal(self, other):

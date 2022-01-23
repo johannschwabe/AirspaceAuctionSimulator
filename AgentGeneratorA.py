@@ -5,8 +5,8 @@ from coords import Coords
 
 class AgentGeneratorA(AgentGenerator):
 
-	def __init__(self):
-		super().__init__()
+	def __init__(self, env):
+		super().__init__(env)
 
 		self.agents = [
 			[AgentA(Coords(0,5,0,0),Coords(4,1,0,0)),AgentA(Coords(4,9,0,0),Coords(4,1,0,0))],

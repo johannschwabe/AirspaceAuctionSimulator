@@ -1,11 +1,12 @@
 from abc import abstractmethod, ABC
 
+from Environment import Environment
 from coords import Coords
 
 
 class AgentGenerator(ABC):
-	def __init__(self):
-		pass
+	def __init__(self, env: Environment):
+		self.env = env
 	@abstractmethod
 	def reset(self):
 		pass
