@@ -4,13 +4,13 @@ from Environment import Environment
 
 
 class Allocator(ABC):
-	def __init__(self):
-		pass
+    def __init__(self):
+        pass
 
-	@abstractmethod
-	def reset(self):
-		pass
+    @abstractmethod
+    def reset(self):
+        pass
 
-	@abstractmethod
-	def allocate(self, env: Environment, new_agents):
-		pass
+    @abstractmethod
+    def allocate(self, env: Environment, new_agents):
+        pass

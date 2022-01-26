@@ -1,5 +1,6 @@
 from Allocator import Allocator
 from Environment import Environment
+from PathFinding import astar
 
 
 class AllocatorA(Allocator):
@@ -8,7 +9,7 @@ class AllocatorA(Allocator):
 
 	def allocate(self, env: Environment, new_agents):
 		for agent in new_agents:
-			path = env.astar(agent.start, agent.target, agent)
+			path = astar(agent.start, agent.target, agent, env)
 			if not path:
 				return
 			for coord in path:

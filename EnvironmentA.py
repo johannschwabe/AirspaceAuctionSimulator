@@ -1,28 +1,21 @@
 from Agent import Agent
 from Environment import Environment
-from Field import Field
-from coords import Coords
 
 
 class EnvironmentA(Environment):
 
-	def __init__(self):
-		super().__init__()
+    def __init__(self):
+        super().__init__()
 
-	def reset(self):
-		self.agents = []
+    def reset(self):
+        self.agents = []
 
+    def add_agent(self, agent: Agent, time_step):
+        self.agents.append(agent)
+        agent.start.t = time_step
+        loci = self.get_field(agent.start,
+                              creating=True)
+        loci.reserved_for = agent
 
-
-	def add_agent(self, agent: Agent, time_step):
-		self.agents.append(agent)
-		agent.start.t = time_step
-		loci = self.get_field(agent.start,
-		                      creating=True)
-		loci.reserved_for = agent
-
-
-
-	def move(self):
-		pass
-
+    def move(self):
+        pass
