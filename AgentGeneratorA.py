@@ -9,7 +9,7 @@ class AgentGeneratorA(AgentGenerator):
 		super().__init__(env)
 
 		self.agents = [
-			[AgentA(Coords(0,5,0,0),Coords(4,1,0,0)),AgentA(Coords(4,9,0,0),Coords(4,1,0,0))],
+			[AgentA(Coords(4,1,0,0),Coords(4,8,0,0)),AgentA(Coords(4,8,0,0),Coords(4,1,0,0))],
 
 		]
 

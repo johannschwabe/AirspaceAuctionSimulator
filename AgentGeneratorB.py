@@ -10,7 +10,7 @@ class AgentGeneratorB(AgentGenerator):
 
 	def __init__(self, env: Environment):
 		super().__init__(env)
-		self.probs = [0,0,0,0,1,1,2]
+		self.probs = [0,0,1,0,2]
 
 	def reset(self):
 		pass

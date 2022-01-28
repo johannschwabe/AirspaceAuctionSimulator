@@ -1,5 +1,5 @@
-from abc import ABC
-
+from abc import ABC, abstractmethod
+from typing import List
 from coords import Coords
 
 
@@ -10,3 +10,7 @@ class Agent(ABC):
 		self.target = target
 		self.id = Agent.id
 		Agent.id += 1
+
+	@abstractmethod
+	def value(self, path:List[Coords]):
+		pass
