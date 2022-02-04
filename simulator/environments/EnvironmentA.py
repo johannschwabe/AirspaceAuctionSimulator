@@ -4,4 +4,4 @@ from Environment import Environment
 
 class EnvironmentA(Environment):
     def __init__(self, dimension: Coordinates):
-        super().__init__(dimension)
+        super().__init__(dimension, [])

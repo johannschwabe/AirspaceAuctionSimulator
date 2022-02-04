@@ -1,25 +1,39 @@
 from typing import List, Dict
 
 from simulator.agents import Agent
+from simulator.blocker.Blocker import Blocker
 from simulator.fields.Field import Field
 from simulator.coordinates.Coordinates import Coordinates
 from simulator.coordinates.TimeCoordinates import TimeCoordinates
 
 
 class Environment:
-    def __init__(self, dimension: Coordinates):
+    def __init__(self, dimension: Coordinates, blocker: List[Blocker]):
         self.dimension: Coordinates = dimension
         self.agents: List[Agent] = []
         self.relevant_fields: Dict[str, Field] = {}  # x_y_z_t -> Field
+        self.blocker: List[Blocker] = blocker
 
     def is_blocked(self, coords: TimeCoordinates) -> bool:
-        pass
+        for blocker in self.blocker:
+            if blocker.is_blocked(coords):
+                return True
+        return False
 
     def will_be_blocked(self, coords: TimeCoordinates, t: int) -> float:
-        pass
+        probs = 1
+        for blocker in self.blocker:
+            probs *= (1 - blocker.will_be_blocked(coords, t))
+        return 1 - probs
 
-    def get_field_at(self, coords: TimeCoordinates) -> Field:
-        pass
+    def get_field_at(self, coords: TimeCoordinates, creating: bool) -> Field:
+        if coords.get_key() in self.relevant_fields :
+            return self.relevant_fields[coords.get_key()]
+        new_field = Field(coords)
+        if creating:
+            self.relevant_fields[coords.get_key()] = new_field
+        return new_field
+
 
     def visualize(self, current_time_step, before=0, nr_steps=1):
         for t in range(current_time_step - before, current_time_step + nr_steps):
@@ -35,14 +49,11 @@ class Environment:
                         coord = TimeCoordinates(x, y, z, t)
                         field = self.get_field_at(coord)
                         if field:
-                            if field.reserved_for and t == current_time_step and coord.inter_temporal_equal(
-                                    field.reserved_for.target):
-                                print(f"»{field.reserved_for.id}« ".rjust(5, ' '), end="")
-                            elif field.reserved_for and t == current_time_step:
-                                print(f"|{field.reserved_for.id}| ".rjust(5, ' '), end="")
-                            elif field.reserved_for:
-                                print(f"{field.reserved_for.id}  ".rjust(5, ' '), end="")
-                            elif field.blocked:
+                            if field.allocated_to and t == current_time_step:
+                                print(f"|{field.allocated_to.uuid}| ".rjust(5, ' '), end="")
+                            elif field.allocated_to:
+                                print(f"{field.allocated_to.uuid}  ".rjust(5, ' '), end="")
+                            elif self.is_blocked(field.coordinates):
                                 print("✖  ".rjust(5, ' '), end="")
                         else:
                             print(".  ".rjust(5, ' '), end="")

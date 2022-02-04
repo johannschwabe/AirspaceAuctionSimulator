@@ -14,7 +14,7 @@ class Field:
 		self.bid: Optional[Bid] = None
 
 	def is_occupied(self) -> bool:
-		return self.occupied_by is None
+		return self.occupied_by is not None
 
 	def is_allocated(self) -> bool:
-		return self.allocated_to is None
+		return self.allocated_to is not None

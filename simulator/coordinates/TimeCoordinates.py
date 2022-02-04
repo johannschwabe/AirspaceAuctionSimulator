@@ -23,3 +23,15 @@ class TimeCoordinates(Coordinates):
         return self.x == other.x and \
                self.y == other.y and \
                self.z == other.z
+
+    def to_inter_temporal(self):
+        return Coordinates(self.x, self.y, self.z)
+
+    def __add__(self, other):
+        t_other = 0
+        if type(other).__name__ == "TimeCoordinates":
+            t_other = other.t
+        return TimeCoordinates(self.x + other.x, self.y + other.y, self.z + other.z, self.t + t_other)
+
+    def __sub__(self, other):
+        return Coordinates(self.x - other.x, self.y - other.y, self.z - other.z)
