@@ -61,6 +61,8 @@ class AllocatorA(Allocator):
 					# 	field = local_env.get_field_at(coord, True)
 					# 	field.allocated_to = None               # Doesn't work
 				# temporary_allocations[agent] = TravelPath(optimal_path)
+				if len(optimal_path) == 0:
+					print("no path found")
 				start = optimal_path[-1]
 
 				continue

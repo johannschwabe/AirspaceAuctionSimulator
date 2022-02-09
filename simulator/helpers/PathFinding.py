@@ -34,6 +34,7 @@ def astar(start: TimeCoordinates,
             while not current_node.position.inter_temporal_equal(start):
                 path.append(current_node.position)
                 current_node = current_node.parent
+            path.append(current_node.position)
             return path[::-1]
 
         neighbors = current_node.adjacent_coordinates(speed, env.dimension)

@@ -9,11 +9,11 @@ from simulator.statistics.Statistics import Statistics
 dim = Coordinates(10,10,1)
 envi = EnvironmentA(dim)
 alloci = AllocatorA(envi)
-owner1 = OwnerA(envi)
-owner2 = OwnerA(envi)
+owners = [OwnerA(envi), OwnerA(envi), OwnerA(envi), OwnerA(envi), OwnerA(envi), OwnerA(envi)]
+
 histi = History()
 stats = Statistics()
-simi = Simulator([owner1, owner2], alloci, envi, histi, [], stats)
+simi = Simulator(owners, alloci, envi, histi, [], stats)
 simi.setup()
 envi.visualize(0)
 while simi.tick():
