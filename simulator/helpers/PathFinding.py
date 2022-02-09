@@ -1,19 +1,19 @@
 from typing import List
 
 from simulator.agents import Agent
-from simulator.coordinates.Coordinates import Coordinates
-from simulator.coordinates.TimeCoordinates import TimeCoordinates
+from simulator.Coordinates.Coordinate import Coordinate
+from simulator.Coordinates.TimeCoordinates import TimeCoordinate
 from simulator.environments.Environment import Environment
 
 
 # Implemented based on https://www.annytab.com/a-star-search-algorithm-in-python/
-def astar(start: TimeCoordinates,
-          end: TimeCoordinates,
+def astar(start: TimeCoordinate,
+          end: TimeCoordinate,
           agent: Agent,
           env: Environment,
           ignore_collisions=False,
-          assume_coords_free: List[TimeCoordinates] = [],
-          assume_coords_blocked: List[TimeCoordinates] = [],
+          assume_coords_free: List[TimeCoordinate] = [],
+          assume_coords_blocked: List[TimeCoordinate] = [],
           speed=1):
     open_nodes = []
     closed_nodes = []
@@ -58,12 +58,12 @@ def astar(start: TimeCoordinates,
                     open_nodes.append(neighbor)
 
 
-def distance(start: Coordinates, end: Coordinates):
+def distance(start: Coordinate, end: Coordinate):
     return abs(start.x - end.x) + abs(start.y - end.y) + abs(start.z - end.z)
 
 
 class Node:
-    def __init__(self, position: TimeCoordinates, parent):
+    def __init__(self, position: TimeCoordinate, parent):
         self.position = position
         self.parent = parent
         self.g = 0  # Distance to start node
@@ -79,5 +79,5 @@ class Node:
     def __repr__(self):
         return f"{self.position}: {self.f}"
 
-    def adjacent_coordinates(self, speed) -> List[TimeCoordinates]:
+    def adjacent_coordinates(self, speed) -> List[TimeCoordinate]:
         pass

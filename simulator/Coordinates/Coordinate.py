@@ -1,4 +1,7 @@
-class Coordinates:
+import math
+
+
+class Coordinate:
 
     def __init__(self, x: int, y: int, z: int):
         self.x: int = x
@@ -17,7 +20,15 @@ class Coordinates:
                self.z == other.z
 
     def __add__(self, other):
-        return Coordinates(self.x + other.x, self.y + other.y, self.z + other.z)
+        return Coordinate(self.x + other.x, self.y + other.y, self.z + other.z)
 
     def __sub__(self, other):
-        return Coordinates(self.x - other.x, self.y - other.y, self.z - other.z)
+        return Coordinate(self.x - other.x, self.y - other.y, self.z - other.z)
+
+    @property
+    def l1(self):
+        return abs(self.x) + abs(self.y) + abs(self.z)
+    
+    @property
+    def l2(self):
+        return math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)

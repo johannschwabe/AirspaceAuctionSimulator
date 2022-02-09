@@ -1,9 +1,10 @@
-from typing import Optional
-import sys
-from typing import List
-from simulator.coordinates.Coordinates import Coordinates
-from simulator.travel_path.TravelPath import TravelPath
+from typing import Optional, List
 
+import sys
+
+from ..Coordinates import Coordinate
+from ..Path import TravelPath
+from ..PointOfInterest import PointOfInterest
 
 class Agent:
     id = 0
@@ -26,7 +27,7 @@ class Agent:
     def get_welfare(self, t1: int, t2: int) -> float:
         pass
 
-    def get_location(self, t: int) -> Coordinates:
+    def get_location(self, t: int) -> Coordinate:
         pass
 
     def calculate_desired_path(self) -> List[TravelPath]:
@@ -61,7 +62,6 @@ class Agent:
     @staticmethod
     def cost_of_temporal_deviation(distance: float):
         return distance**3
-
 
     def buy_path(self, path: TravelPath):
         pass
