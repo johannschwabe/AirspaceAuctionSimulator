@@ -1,13 +1,20 @@
 from typing import List
 
 from simulator.agents import Agent
-from simulator.allocators.Allocator import Allocator
 from simulator.coordinates.Coordinates import Coordinates
 from simulator.coordinates.TimeCoordinates import TimeCoordinates
+from simulator.environments.Environment import Environment
 
 
 # Implemented based on https://www.annytab.com/a-star-search-algorithm-in-python/
-def astar(start: TimeCoordinates, end: TimeCoordinates, agent: Agent, allocator: Allocator, speed=1):
+def astar(start: TimeCoordinates,
+          end: TimeCoordinates,
+          agent: Agent,
+          env: Environment,
+          ignore_collisions=False,
+          assume_coords_free: List[TimeCoordinates] = [],
+          assume_coords_blocked: List[TimeCoordinates] = [],
+          speed=1):
     open_nodes = []
     closed_nodes = []
 
@@ -30,8 +37,10 @@ def astar(start: TimeCoordinates, end: TimeCoordinates, agent: Agent, allocator:
 
         neighbors = current_node.adjacent_coordinates(speed)
         for next_neighbour in neighbors:
-            field = allocator.get_field_at(next_neighbour)
-            if field.is_free_for_agent(agent):
+            if env.is_blocked(next_neighbour):
+                continue
+            field = env.get_field_at(next_neighbour, False)
+            if ignore_collisions or next_neighbour in assume_coords_free or ((field.allocated_to is None or field.allocated_to == agent) and next_neighbour not in assume_coords_blocked):
                 neighbor = Node(next_neighbour, current_node)
                 if neighbor in closed_nodes:
                     continue

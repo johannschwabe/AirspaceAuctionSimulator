@@ -35,3 +35,10 @@ class TimeCoordinates(Coordinates):
 
     def __sub__(self, other):
         return Coordinates(self.x - other.x, self.y - other.y, self.z - other.z)
+
+    def distance(self, other, l2: bool):
+        temp = abs(self.t - other.t)
+        if l2:
+            return ((self.x - other.x)**2 + (self.y - other.y)**2 + (self.z - other.xz)**2)**0.5, temp
+        else:
+            return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z), temp
