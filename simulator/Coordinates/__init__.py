@@ -1,2 +1,2 @@
 from .Coordinate import Coordinate
-from .TimeCoordinates import TimeCoordinate
+from .TimeCoordinate import TimeCoordinate

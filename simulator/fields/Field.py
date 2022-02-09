@@ -2,7 +2,7 @@ from typing import Optional
 
 from simulator.agents import Agent
 from simulator.bids.Bid import Bid
-from simulator.Coordinates.TimeCoordinates import TimeCoordinate
+from simulator.Coordinates.TimeCoordinate import TimeCoordinate
 
 
 class Field:

@@ -1,7 +1,7 @@
 from typing import List, Dict
 
 from simulator.Coordinates.Coordinate import Coordinate
-from simulator.Coordinates.TimeCoordinates import TimeCoordinate
+from simulator.Coordinates.TimeCoordinate import TimeCoordinate
 
 
 class Blocker:

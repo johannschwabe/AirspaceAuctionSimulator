@@ -1,11 +1,12 @@
-from Coordinates import Coordinates
+from .Coordinate import Coordinate
+from ..Time import Tick
 
 
-class TimeCoordinates(Coordinates):
+class TimeCoordinate(Coordinate):
 
-    def __init__(self, x: int, y: int, z: int, t: int):
+    def __init__(self, x: int, y: int, z: int, t: Tick):
         super().__init__(x, y, z)
-        self.t: int = t
+        self.t: Tick = t
 
     def get_key(self):
         return f"{self.x}_{self.y}_{self.z}_{self.t}"
@@ -25,19 +26,21 @@ class TimeCoordinates(Coordinates):
                self.z == other.z
 
     def to_inter_temporal(self):
-        return Coordinates(self.x, self.y, self.z)
+        return Coordinate(self.x, self.y, self.z)
 
     def __add__(self, other):
         t_other = 0
         if type(other).__name__ == "TimeCoordinates":
             t_other = other.t
-        return TimeCoordinates(self.x + other.x, self.y + other.y, self.z + other.z, self.t + t_other)
+        return TimeCoordinate(self.x + other.x, self.y + other.y, self.z + other.z, self.t + t_other)
 
     def __sub__(self, other):
-        return Coordinates(self.x - other.x, self.y - other.y, self.z - other.z)
+        return Coordinate(self.x - other.x, self.y - other.y, self.z - other.z)
 
     def distance(self, other, l2: bool):
-        temp = abs(self.t - other.t)
+        temp = 0
+        if isinstance(other, TimeCoordinate):
+            temp = abs(self.t - other.t)
         if l2:
             return ((self.x - other.x)**2 + (self.y - other.y)**2 + (self.z - other.xz)**2)**0.5, temp
         else:

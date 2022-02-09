@@ -2,7 +2,7 @@ from typing import List
 
 from simulator.agents import Agent
 from simulator.Coordinates.Coordinate import Coordinate
-from simulator.Coordinates.TimeCoordinates import TimeCoordinate
+from simulator.Coordinates.TimeCoordinate import TimeCoordinate
 from simulator.environments.Environment import Environment
 
 
