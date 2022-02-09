@@ -41,6 +41,6 @@ class TimeCoordinates(Coordinates):
         if isinstance(other, TimeCoordinates):
             temp = abs(self.t - other.t)
         if l2:
-            return ((self.x - other.x)**2 + (self.y - other.y)**2 + (self.z - other.xz)**2)**0.5, temp
+            return ((self.x - other.x)**2 + (self.y - other.y)**2 + (self.z - other.z)**2)**0.5, temp
         else:
             return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z), temp

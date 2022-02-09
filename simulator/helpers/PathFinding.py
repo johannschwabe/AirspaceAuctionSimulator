@@ -11,9 +11,10 @@ def astar(start: TimeCoordinates,
           end: TimeCoordinates,
           agent: Agent,
           env: Environment,
+          assume_coords_free: List[TimeCoordinates],
+          assume_coords_blocked: List[TimeCoordinates],
           ignore_collisions=False,
-          assume_coords_free: List[TimeCoordinates] = [],
-          assume_coords_blocked: List[TimeCoordinates] = [],
+
           speed=1):
     open_nodes = []
     closed_nodes = []
@@ -28,14 +29,14 @@ def astar(start: TimeCoordinates,
         open_nodes.sort()
         current_node = open_nodes.pop(0)
         closed_nodes.append(current_node)
-        if current_node.position.inter_temporal_equal(end.position):
+        if current_node.position == end.position or (current_node.position.t >= end.position.t and current_node.position.inter_temporal_equal(end.position)):
             path = []
             while not current_node.position.inter_temporal_equal(start):
                 path.append(current_node.position)
                 current_node = current_node.parent
             return path[::-1]
 
-        neighbors = current_node.adjacent_coordinates(speed)
+        neighbors = current_node.adjacent_coordinates(speed, env.dimension)
         for next_neighbour in neighbors:
             if env.is_blocked(next_neighbour):
                 continue
@@ -56,10 +57,11 @@ def astar(start: TimeCoordinates,
                         open_nodes[alternative_index] = neighbor
                 else:
                     open_nodes.append(neighbor)
+    print("Astar failed")
 
 
-def distance(start: Coordinates, end: Coordinates):
-    return abs(start.x - end.x) + abs(start.y - end.y) + abs(start.z - end.z)
+def distance(start: TimeCoordinates, end: TimeCoordinates):
+    return abs(start.x - end.x) + abs(start.y - end.y) + abs(start.z - end.z) + abs(start.t - end.t)
 
 
 class Node:
@@ -79,5 +81,18 @@ class Node:
     def __repr__(self):
         return f"{self.position}: {self.f}"
 
-    def adjacent_coordinates(self, speed) -> List[TimeCoordinates]:
-        pass
+    def adjacent_coordinates(self, speed: int, dim: Coordinates) -> List[TimeCoordinates]:
+        res = [TimeCoordinates(self.position.x, self.position.y, self.position.z, self.position.t + speed)]
+        if self.position.x > 0:
+            res.append(TimeCoordinates(self.position.x - 1, self.position.y, self.position.z, self.position.t + speed))
+        if self.position.y > 0:
+            res.append(TimeCoordinates(self.position.x, self.position.y - 1, self.position.z, self.position.t + speed))
+        if self.position.z > 0:
+            res.append(TimeCoordinates(self.position.x, self.position.y, self.position.z - 1, self.position.t + speed))
+        if self.position.x < dim.x - 1:
+            res.append(TimeCoordinates(self.position.x + 1, self.position.y, self.position.z, self.position.t + speed))
+        if self.position.y < dim.y - 1:
+            res.append(TimeCoordinates(self.position.x, self.position.y + 1, self.position.z, self.position.t + speed))
+        if self.position.z < dim.z - 1:
+            res.append(TimeCoordinates(self.position.x, self.position.y, self.position.z + 1, self.position.t + speed))
+        return res

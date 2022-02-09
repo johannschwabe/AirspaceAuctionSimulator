@@ -18,3 +18,9 @@ class Field:
 
 	def is_allocated(self) -> bool:
 		return self.allocated_to is not None
+
+	def __repr__(self):
+		if self.allocated_to is None:
+			return f"{self.coordinates.__repr__()}, empty"
+		return f"{self.coordinates.__repr__()}, {self.allocated_to.__repr__()}"
+

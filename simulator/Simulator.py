@@ -37,6 +37,7 @@ class Simulator:
         for agent in newcommers:
             self.allocator.allocate_for_agent(agent)
         self.time_step+=1
+        self.environment.visualize(self.time_step)
         if self.time_step > 100:
             return False
         return True

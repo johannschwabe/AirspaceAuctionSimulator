@@ -48,7 +48,7 @@ class Environment:
                     for x in range(self.dimension.x):
                         coord = TimeCoordinates(x, y, z, t)
                         field = self.get_field_at(coord, False)
-                        if field:
+                        if field.allocated_to is not None and not self.is_blocked(field.coordinates):
                             if field.allocated_to and t == current_time_step:
                                 print(f"|{field.allocated_to.uuid}| ".rjust(5, ' '), end="")
                             elif field.allocated_to:
