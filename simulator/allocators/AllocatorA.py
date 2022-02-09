@@ -25,8 +25,8 @@ class AllocatorA(Allocator):
 
 	# It's magic trust me bro
 	def allocate_for_agent_rec(self, agent: Agent, local_env: Environment, temporary_allocations: Dict[Agent, TravelPath],
-	                           assume_coords_blocked: List[TimeCoordinates] = [],
-	                           assume_coords_free: List[TimeCoordinates] = []) -> (Dict[Agent, TravelPath], Environment):
+	                           assume_coords_blocked: List[TimeCoordinates],
+	                           assume_coords_free: List[TimeCoordinates]) -> (Dict[Agent, TravelPath], Environment):
 		desired_path = agent.calculate_desired_path()[0]  # Todo check for all
 		start = desired_path.locations[0]
 		for i in range(len(desired_path.locations) - 1):
@@ -52,6 +52,8 @@ class AllocatorA(Allocator):
 						field = local_env.get_field_at(coord, True)
 						field.allocated_to = None
 				temporary_allocations[agent] = TravelPath(optimal_path)
+				start = desired_path.locations[i+1]
+
 				continue
 
 			collision = collisions[0]  # other collisions will be resolved in next recursive call

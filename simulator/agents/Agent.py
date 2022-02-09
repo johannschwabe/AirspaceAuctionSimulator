@@ -7,14 +7,15 @@ from simulator.travel_path.TravelPath import TravelPath
 
 
 class Agent:
+    id = 0
     def __init__(self,
-                 uuid: str,
                  revenue: float,
                  opportunity_cost: float,
                  risk_aversion: float,
                  desired_path: TravelPath,
                  ):
-        self.uuid = uuid
+        self.uuid = Agent.id
+        Agent.id += 1
         self.revenue: float = revenue
         self.opportunity_cost: float = opportunity_cost
         self.risk_aversion: float = risk_aversion
