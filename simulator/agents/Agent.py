@@ -65,3 +65,6 @@ class Agent:
 
     def buy_path(self, path: TravelPath):
         pass
+
+    def __repr__(self):
+        return str(self.uuid)
