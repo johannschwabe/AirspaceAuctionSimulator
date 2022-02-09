@@ -31,4 +31,12 @@ class Simulator:
         pass
 
     def tick(self) -> bool:
-        pass
+        newcommers = []
+        for owner in self.owners:
+            newcommers += owner.generate_agents(self.time_step)
+        for agent in newcommers:
+            self.allocator.allocate_for_agent(agent)
+        self.time_step+=1
+        if self.time_step > 100:
+            return False
+        return True

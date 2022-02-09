@@ -1,6 +1,5 @@
 from typing import Optional
 import sys
-from simulator.allocators.Allocator import Allocator
 from typing import List
 from simulator.coordinates.Coordinates import Coordinates
 from simulator.travel_path.TravelPath import TravelPath

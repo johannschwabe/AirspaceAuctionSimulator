@@ -1,7 +1,7 @@
 from typing import Dict
 
 from simulator.agents import Agent
-from Field import Field
+from simulator.fields.Field import Field
 
 
 class EnrichedField:

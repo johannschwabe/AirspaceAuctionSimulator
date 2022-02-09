@@ -1,4 +1,4 @@
-from Coordinates import Coordinates
+from simulator.coordinates.Coordinates import Coordinates
 
 
 class TimeCoordinates(Coordinates):
@@ -37,7 +37,9 @@ class TimeCoordinates(Coordinates):
         return Coordinates(self.x - other.x, self.y - other.y, self.z - other.z)
 
     def distance(self, other, l2: bool):
-        temp = abs(self.t - other.t)
+        temp = 0
+        if isinstance(other, TimeCoordinates):
+            temp = abs(self.t - other.t)
         if l2:
             return ((self.x - other.x)**2 + (self.y - other.y)**2 + (self.z - other.xz)**2)**0.5, temp
         else:

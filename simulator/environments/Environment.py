@@ -47,7 +47,7 @@ class Environment:
                     print(f"  {y: >2} ", end="")
                     for x in range(self.dimension.x):
                         coord = TimeCoordinates(x, y, z, t)
-                        field = self.get_field_at(coord)
+                        field = self.get_field_at(coord, False)
                         if field:
                             if field.allocated_to and t == current_time_step:
                                 print(f"|{field.allocated_to.uuid}| ".rjust(5, ' '), end="")

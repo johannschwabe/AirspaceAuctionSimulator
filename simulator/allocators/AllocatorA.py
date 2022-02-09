@@ -1,7 +1,7 @@
 from typing import Dict, List
 
-from Allocator import Allocator
 from simulator.agents.Agent import Agent
+from simulator.allocators.Allocator import Allocator
 from simulator.coordinates.TimeCoordinates import TimeCoordinates
 from simulator.environments import Environment
 from simulator.helpers.PathFinding import astar
@@ -28,9 +28,9 @@ class AllocatorA(Allocator):
 	                           assume_coords_blocked: List[TimeCoordinates],
 	                           assume_coords_free: List[TimeCoordinates]) -> (Dict[Agent, TravelPath], Environment):
 		desired_path = agent.calculate_desired_path()[0]  # Todo check for all
-		start = desired_path.locations[0]
-		for i in range(len(desired_path.locations) - 1):
-			end_location = desired_path.locations[i + 1]
+		start = desired_path[0]
+		for i in range(len(desired_path) - 1):
+			end_location = desired_path[i + 1]
 			optimal_path = astar(start,
 			                     end_location,
 			                     agent,
@@ -52,7 +52,7 @@ class AllocatorA(Allocator):
 						field = local_env.get_field_at(coord, True)
 						field.allocated_to = None
 				temporary_allocations[agent] = TravelPath(optimal_path)
-				start = desired_path.locations[i+1]
+				start = optimal_path[-1]
 
 				continue
 
