@@ -1,3 +1,5 @@
+import random
+
 from simulator.owners.OwnerA import OwnerA
 from simulator.allocators.AllocatorA import AllocatorA
 from simulator.environments.EnvironmentA import EnvironmentA
@@ -6,10 +8,14 @@ from Simulator import Simulator
 from simulator.coordinates.Coordinates import Coordinates
 from simulator.statistics.Statistics import Statistics
 
+random.seed(2)
+
 dim = Coordinates(10,10,1)
 envi = EnvironmentA(dim)
 alloci = AllocatorA(envi)
-owners = [OwnerA(envi), OwnerA(envi), OwnerA(envi), OwnerA(envi), OwnerA(envi), OwnerA(envi)]
+owners = []
+for _ in range(3):
+    owners.append(OwnerA(envi))
 
 histi = History()
 stats = Statistics()

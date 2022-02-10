@@ -10,7 +10,7 @@ from simulator.owners.Owner import Owner
 class OwnerA(Owner):
     def __init__(self, env: Environment):
         super().__init__(env)
-        self.nr_agents = random.randint(5,12)
+        self.nr_agents = random.randint(5,10)
 
     def generate_agents(self, t: int) -> List[Agent]:
         res = []

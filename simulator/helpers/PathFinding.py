@@ -42,7 +42,7 @@ def astar(start: TimeCoordinates,
             if env.is_blocked(next_neighbour):
                 continue
             field = env.get_field_at(next_neighbour, False)
-            if ignore_collisions or next_neighbour in assume_coords_free or ((field.allocated_to is None or field.allocated_to == agent) and next_neighbour not in assume_coords_blocked):
+            if next_neighbour not in assume_coords_blocked and (ignore_collisions or next_neighbour in assume_coords_free or field.allocated_to is None or field.allocated_to == agent): #ToDo Fix
                 neighbor = Node(next_neighbour, current_node)
                 if neighbor in closed_nodes:
                     continue

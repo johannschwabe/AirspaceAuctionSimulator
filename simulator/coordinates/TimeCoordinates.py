@@ -44,3 +44,6 @@ class TimeCoordinates(Coordinates):
             return ((self.x - other.x)**2 + (self.y - other.y)**2 + (self.z - other.z)**2)**0.5, temp
         else:
             return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z), temp
+
+    def clone(self):
+        return TimeCoordinates(self.x, self.y, self.z, self.t)

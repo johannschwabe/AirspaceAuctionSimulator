@@ -37,6 +37,10 @@ class AllocatorA(Allocator):
 		start = desired_path.locations[0]
 		for i in range(len(desired_path.locations) - 1):
 			end_location = desired_path.locations[i + 1]
+			while start in assume_coords_blocked:  # Illegal start/end positions ugly fix
+				start.t += 1
+			while end_location in assume_coords_blocked:
+				end_location.t += 1
 			optimal_path = astar(start,
 			                     end_location,
 			                     agent,
@@ -70,25 +74,25 @@ class AllocatorA(Allocator):
 				collision = collisions[0]  # other collisions will be resolved in next recursive call
 				field = local_env.get_field_at(collision, False)
 				collision_with = field.allocated_to
-
+				print(f"Collision at {collision} between {collision_with} and {agent}")
 				# Case if the new agent gets the field
 				possible_env_1 = local_env.clone()
 				possible_allocations_1, new_agents_winning_env = self.allocate_for_agent_rec(agent, possible_env_1,
 				                                                                             temporary_allocations,
 				                                                                             assume_coords_blocked,
-				                                                                             [collision] + assume_coords_free)
+				                                                                             [collision.clone()] + assume_coords_free)
 				possible_allocations_1, new_agents_winning_env = self.allocate_for_agent_rec(collision_with,
 				                                                                             new_agents_winning_env,
 				                                                                             possible_allocations_1,
-				                                                                             [collision], [])
-				value_for_new_agents_winning_path = agent.value_of_path(possible_allocations_1[agent])
+				                                                                             [collision.clone()] + assume_coords_free, [])
+				value_for_new_agents_winning_path = agent.value_of_path(possible_allocations_1[agent]) # Value of all agent for total welfare
 				value_for_current_agent_losing_path = collision_with.value_of_path(possible_allocations_1[collision_with])
 
-				# Value if the new agent doesn't get the field
+				# Case if the new agent doesn't get the field
 				possible_env_2 = local_env.clone()
 				possible_allocations_2, new_agents_losing_env = self.allocate_for_agent_rec(agent, possible_env_2,
 				                                                                            temporary_allocations,
-				                                                                            assume_coords_blocked + [collision],
+				                                                                            assume_coords_blocked + [collision.clone()],
 				                                                                            assume_coords_free)
 				value_for_new_agents_losing_path = agent.value_of_path(possible_allocations_2[agent])
 				value_for_current_agent_winning_path = collision_with.value_of_path(possible_allocations_2[collision_with])
