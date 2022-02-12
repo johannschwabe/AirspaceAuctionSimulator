@@ -4,7 +4,7 @@ from Simulator import Agent, Environment, Allocator, TravelPath
 cutoff_depth = 6
 
 
-class AllocatorB(Allocator):
+class FCFSAllocator(Allocator):
     def __init__(self):
         super().__init__()
 

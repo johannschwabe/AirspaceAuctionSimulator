@@ -4,14 +4,14 @@ from Simulator.Coordinate import Coordinate
 from Simulator.helpers.History import History
 from Simulator import Simulator, Statistics, Environment
 
-from owners.OwnerB import OwnerB
-from allocators.AllocatorB import AllocatorB
+from owners.ThomasOwner import OwnerB
+from allocators.FCFSAllocator import FCFSAllocator
 
 random.seed(2)
 
 dimensions = Coordinate(10, 10, 1)
 environment = Environment(dimensions, [])
-allocator = AllocatorB()
+allocator = FCFSAllocator()
 owners = [OwnerB([1, 2, 2, 5, 6, 10, 15])]
 
 history = History()

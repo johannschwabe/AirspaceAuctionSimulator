@@ -33,7 +33,7 @@ class Coordinate:
     def l2(self):
         return math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
-    def distance(self, other, l2: bool):
+    def distance(self, other, l2: bool = False):
         if l2:
             return ((self.x - other.x) ** 2 + (self.y - other.y) ** 2 + (self.z - other.xz) ** 2) ** 0.5
         else:

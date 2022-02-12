@@ -2,7 +2,7 @@ import random
 from typing import List
 
 from Simulator import Agent, Environment, Owner
-from agents.AgentA import AgentA
+from agents.JohannAgent import RandomStepsAgent
 
 
 class OwnerA(Owner):
@@ -17,6 +17,6 @@ class OwnerA(Owner):
             random.shuffle(options)
             nr_new_agents = max(min(options[0], self.nr_agents - len(self.agents)), 0)
             for _ in range(nr_new_agents):
-                res.append(AgentA(env.dimension, t))
+                res.append(RandomStepsAgent(env.dimension, t))
             self.agents += res
         return res

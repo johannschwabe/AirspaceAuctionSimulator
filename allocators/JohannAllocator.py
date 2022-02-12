@@ -7,7 +7,7 @@ from Simulator.Coordinate import TimeCoordinate
 cutoff_depth = 6
 
 
-class AllocatorA(Allocator):
+class JohannAllocator(Allocator):
     def __init__(self):
         super().__init__()
 
