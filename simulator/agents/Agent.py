@@ -1,17 +1,19 @@
-from typing import Optional
-import sys
-from typing import List
-from simulator.coordinates.Coordinates import Coordinates
-from simulator.travel_path.TravelPath import TravelPath
+from typing import Optional, List
+
+from ..Path import TravelPath
+from ..PointOfInterest import PointOfInterest
+from ..Value import RangeValueFunction
+from ..coordinates import Coordinate
 
 
 class Agent:
     id = 0
+
     def __init__(self,
                  revenue: float,
                  opportunity_cost: float,
                  risk_aversion: float,
-                 desired_path: TravelPath,
+                 points_of_interest: List[PointOfInterest],
                  ):
         self.uuid = Agent.id
         Agent.id += 1
@@ -20,48 +22,35 @@ class Agent:
         self.risk_aversion: float = risk_aversion
 
         self.traveled_path: TravelPath = TravelPath([])
-        self.desired_path: TravelPath = desired_path
+        self.points_of_interest: List[PointOfInterest] = points_of_interest
         self.allocated_path: Optional[TravelPath] = None
+
+        self.value_of_flight_time = RangeValueFunction(0, 30)  # After 30 ticks, drone is dead and the value is always 0
 
     def get_welfare(self, t1: int, t2: int) -> float:
         pass
 
-    def get_location(self, t: int) -> Coordinates:
+    def get_location(self, t: int) -> Coordinate:
         pass
 
-    def calculate_desired_path(self) -> List[TravelPath]:
-        return [self.desired_path]
+    def calculate_desired_path(self) -> List[PointOfInterest]:
+        return self.points_of_interest
 
     def cost_of_deviation(self):
         pass
 
+    def value_of_flight_time(self):
+        return
+
     def value_of_path(self, path: TravelPath) -> float:
-        min_path_cost = sys.float_info.max
-        min_path = None
-        for desired_path in self.calculate_desired_path():
-            path_cost = 0.0
-            for desired_location in desired_path.locations:
-                min_cost = sys.float_info.max
-                for path_location in path.locations:
-                    spacial_error, temporal_error = desired_location.distance(path_location, True)
-                    cost = Agent.cost_of_temporal_deviation(temporal_error) + Agent.cost_of_spacial_deviation(spacial_error)
-                    min_cost = min(min_cost, cost)
+        path_value = 1
+        for pos in self.points_of_interest:
+            path_value *= pos.value_of_path(path)
 
-                path_cost += min_cost
-            if path_cost < min_path_cost:
-                min_path_cost = path_cost
-                min_path = desired_path
+        flight_time = path[-1].t - path[0].t
+        flight_time_value = self.value_of_flight_time(flight_time)
 
-        return min_path_cost
-
-    @staticmethod
-    def cost_of_spacial_deviation(distance: float):
-        return distance**2
-
-    @staticmethod
-    def cost_of_temporal_deviation(distance: float):
-        return distance**3
-
+        return path_value * self.revenue * flight_time_value
 
     def buy_path(self, path: TravelPath):
         pass

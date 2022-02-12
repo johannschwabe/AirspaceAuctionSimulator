@@ -2,31 +2,29 @@ from typing import List, Dict
 
 from simulator.agents import Agent
 from simulator.blocker.Blocker import Blocker
+from simulator.coordinates import TimeCoordinate, Coordinate
 from simulator.fields.Field import Field
-from simulator.coordinates.Coordinates import Coordinates
-from simulator.coordinates.TimeCoordinates import TimeCoordinates
-
 
 class Environment:
-    def __init__(self, dimension: Coordinates, blocker: List[Blocker]):
-        self.dimension: Coordinates = dimension
+    def __init__(self, dimension: Coordinate, blocker: List[Blocker]):
+        self.dimension: Coordinate = dimension
         self.agents: List[Agent] = []
         self.relevant_fields: Dict[str, Field] = {}  # x_y_z_t -> Field
         self.blocker: List[Blocker] = blocker
 
-    def is_blocked(self, coords: TimeCoordinates) -> bool:
+    def is_blocked(self, coords: TimeCoordinate) -> bool:
         for blocker in self.blocker:
             if blocker.is_blocked(coords):
                 return True
         return False
 
-    def will_be_blocked(self, coords: TimeCoordinates, t: int) -> float:
+    def will_be_blocked(self, coords: TimeCoordinate, t: int) -> float:
         probs = 1
         for blocker in self.blocker:
             probs *= (1 - blocker.will_be_blocked(coords, t))
         return 1 - probs
 
-    def get_field_at(self, coords: TimeCoordinates, creating: bool) -> Field:
+    def get_field_at(self, coords: TimeCoordinate, creating: bool) -> Field:
         if coords.get_key() in self.relevant_fields :
             return self.relevant_fields[coords.get_key()]
         new_field = Field(coords)
@@ -46,7 +44,7 @@ class Environment:
                 for y in range(self.dimension.y):
                     print(f"  {y: >2} ", end="")
                     for x in range(self.dimension.x):
-                        coord = TimeCoordinates(x, y, z, t)
+                        coord = TimeCoordinate(x, y, z, t)
                         field = self.get_field_at(coord, False)
                         if field.allocated_to is not None and not self.is_blocked(field.coordinates):
                             if field.allocated_to and t == current_time_step:

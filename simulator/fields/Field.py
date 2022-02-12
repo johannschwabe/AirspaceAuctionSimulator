@@ -2,12 +2,12 @@ from typing import Optional
 
 from simulator.agents import Agent
 from simulator.bids.Bid import Bid
-from simulator.coordinates.TimeCoordinates import TimeCoordinates
+from simulator.coordinates import TimeCoordinate
 
 
 class Field:
-	def __init__(self, coordinates: TimeCoordinates):
-		self.coordinates: TimeCoordinates = coordinates
+	def __init__(self, coordinates: TimeCoordinate):
+		self.coordinates: TimeCoordinate = coordinates
 
 		self.allocated_to: Optional[Agent.Agent] = None
 		self.occupied_by: Optional[Agent.Agent] = None
