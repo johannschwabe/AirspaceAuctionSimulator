@@ -9,19 +9,19 @@ from Simulator import Simulator, Statistics
 
 random.seed(2)
 
-dim = Coordinate(10, 10, 1)
-envi = EnvironmentA(dim)
-alloci = AllocatorA(envi)
+dimensions = Coordinate(10, 10, 1)
+environment = EnvironmentA(dimensions)
+allocator = AllocatorA()
 owners = []
 for _ in range(3):
-    owners.append(OwnerA(envi))
+    owners.append(OwnerA())
 
-histi = History()
-stats = Statistics()
-simi = Simulator(owners, alloci, envi, histi, [])
-simi.setup()
-envi.visualize(0)
-while simi.tick():
+history = History()
+simulator = Simulator(owners, allocator, environment, history, [])
+simulator.setup()
+while simulator.time_step < 100:
+    environment.visualize(simulator.time_step)
+    simulator.tick()
     pass
 
 print("done")

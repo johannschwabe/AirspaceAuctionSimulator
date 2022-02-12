@@ -10,17 +10,17 @@ cutoff_depth = 6
 
 
 class AllocatorA(Allocator):
-    def __init__(self, env: Environment):
-        super().__init__(env)
+    def __init__(self):
+        super().__init__()
 
-    def allocate_for_agent(self, agent):
+    def allocate_for_agent(self, agent: Agent, env: Environment):
         temporary_allocations: Dict[Agent, TravelPath] = {}
-        for _agent in self.env.agents:
+        for _agent in env.agents:
             temporary_allocations[_agent] = _agent.allocated_path
         resulting_allocations, new_environment = \
-            self.allocate_for_agent_rec(agent, self.env, temporary_allocations, [], [])
-        self.env.relevant_fields = new_environment.relevant_fields
-        self.env.add_agent(agent)
+            self.allocate_for_agent_rec(agent, env, temporary_allocations, [], [])
+        env.relevant_fields = new_environment.relevant_fields
+        env.add_agent(agent)
         for _agent, path in resulting_allocations.items():
             _agent.allocated_path = path
 

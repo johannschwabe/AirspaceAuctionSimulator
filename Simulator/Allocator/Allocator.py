@@ -8,10 +8,10 @@ from ..Field import EnrichedField
 
 
 class Allocator:
-    def __init__(self, env: Environment):
-        self.env = env
+    def __init__(self):
+        pass
 
-    def allocate_for_agent(self, agent):
+    def allocate_for_agent(self, agent: Agent, env: Environment):
         pass
 
     def get_welfare(self, t1: int, t2: int) -> float:
