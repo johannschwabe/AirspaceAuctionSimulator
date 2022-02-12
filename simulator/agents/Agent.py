@@ -1,3 +1,4 @@
+import random
 from typing import Optional, List
 
 from ..Path import TravelPath
@@ -54,6 +55,11 @@ class Agent:
 
     def buy_path(self, path: TravelPath):
         pass
+
+    def clone(self):
+        new_agent = Agent(self.revenue, self.opportunity_cost, self.risk_aversion, [poi.clone() for poi in self.points_of_interest])
+        new_agent.uuid = self.uuid + 10000 * random.randint(1,1000)
+        return new_agent
 
     def __repr__(self):
         return str(self.uuid)

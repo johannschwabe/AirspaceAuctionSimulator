@@ -19,3 +19,4 @@ class AgentA(Agent):
             desired_path.append(PointOfInterest(poi.to_inter_temporal(), poi.t))
 
         super().__init__(100, 0, 0, desired_path)
+

@@ -12,6 +12,9 @@ class Allocator:
     def __init__(self, env: Environment):
         self.env = env
 
+    def clone(self):
+        pass
+
     def allocate_for_agent(self, agent):
         pass
 

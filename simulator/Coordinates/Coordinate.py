@@ -39,3 +39,6 @@ class Coordinate:
             return ((self.x - other.x)**2 + (self.y - other.y)**2 + (self.z - other.xz)**2)**0.5
         else:
             return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z)
+
+    def clone(self):
+        return Coordinate(self.x, self.y, self.z)

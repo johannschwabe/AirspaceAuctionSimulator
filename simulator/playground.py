@@ -18,11 +18,11 @@ for _ in range(3):
     owners.append(OwnerA(envi))
 
 histi = History()
-stats = Statistics()
-simi = Simulator(owners, alloci, envi, histi, [], stats)
+simi = Simulator(owners, alloci, envi, histi)
 simi.setup()
 envi.visualize(0)
 while simi.tick():
     pass
-
+stats = Statistics(simi)
+stats.non_colliding_values()
 print("done")
