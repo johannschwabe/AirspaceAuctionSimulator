@@ -81,13 +81,14 @@ class AllocatorA(Allocator):
 				                                                                             temporary_allocations,
 				                                                                             assume_coords_blocked,
 				                                                                             [collision.clone()] + assume_coords_free)
+				print(f"Allocation for {agent} found")
 				possible_allocations_1, new_agents_winning_env = self.allocate_for_agent_rec(collision_with,
 				                                                                             new_agents_winning_env,
 				                                                                             possible_allocations_1,
 				                                                                             [collision.clone()] + assume_coords_free, [])
 				value_for_new_agents_winning_path = agent.value_of_path(possible_allocations_1[agent]) # Value of all agent for total welfare
 				value_for_current_agent_losing_path = collision_with.value_of_path(possible_allocations_1[collision_with])
-
+				print("Case 2")
 				# Case if the new agent doesn't get the field
 				possible_env_2 = local_env.clone()
 				possible_allocations_2, new_agents_losing_env = self.allocate_for_agent_rec(agent, possible_env_2,
