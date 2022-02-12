@@ -1,11 +1,9 @@
 from typing import Dict, List
 
-from ..helpers.PathFinding import astar
-from ..Agent import Agent
-from ..Path import TravelPath
-from ..Environment import Environment
-from ..Coordinate import TimeCoordinate
-from ..Allocator import Allocator
+from Simulator.helpers.PathFinding import astar
+from Simulator import Agent, TravelPath, Environment, Allocator
+from Simulator.Coordinate import TimeCoordinate
+
 cutoff_depth = 6
 
 
@@ -29,7 +27,7 @@ class AllocatorA(Allocator):
                                temporary_allocations: Dict[Agent, TravelPath],
                                assume_coords_blocked: List[TimeCoordinate],
                                assume_coords_free: List[TimeCoordinate], search_depth=0) -> (
-    Dict[Agent, TravelPath], Environment):
+            Dict[Agent, TravelPath], Environment):
         if agent in temporary_allocations:
             for coord in temporary_allocations[agent].locations:
                 field = local_env.get_field_at(coord, True)
@@ -118,6 +116,3 @@ class AllocatorA(Allocator):
                     return possible_allocations_1, new_agents_losing_env
 
         return temporary_allocations, local_env
-
-    def clone(self):
-        return AllocatorA(self.env)

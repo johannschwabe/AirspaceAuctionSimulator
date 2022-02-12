@@ -1,10 +1,8 @@
 import random
 from typing import List
 
-from ..Agent import Agent
-from ..Environment import Environment
-from ..Owner import Owner
-from ..Agent.AgentA import AgentA
+from Simulator import Agent, Environment, Owner
+from agents.AgentA import AgentA
 
 
 class OwnerA(Owner):

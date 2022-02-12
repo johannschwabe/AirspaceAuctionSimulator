@@ -1,5 +1,5 @@
-from ..Coordinate import Coordinate
-from .Environment import Environment
+from Simulator.Coordinate import Coordinate
+from Simulator import Environment
 
 
 class EnvironmentA(Environment):

@@ -1,9 +1,9 @@
 import random
 
 from Simulator.Coordinate import Coordinate
-from Simulator.Owner.OwnerA import OwnerA
-from Simulator.Allocator.AllocatorA import AllocatorA
-from Simulator.Environment.EnvironmentA import EnvironmentA
+from owners.OwnerA import OwnerA
+from allocators.AllocatorA import AllocatorA
+from environments.EnvironmentA import EnvironmentA
 from Simulator.helpers.History import History
 from Simulator import Simulator, Statistics
 

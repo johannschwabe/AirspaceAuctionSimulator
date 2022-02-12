@@ -1,9 +1,7 @@
 import random
 
-from ..PointOfInterest import PointOfInterest
-from ..Time import Tick
-from ..Coordinate import Coordinate, TimeCoordinate
-from ..Agent import Agent
+from Simulator import Tick, Agent, PointOfInterest
+from Simulator.Coordinate import Coordinate, TimeCoordinate
 
 
 class AgentA(Agent):
