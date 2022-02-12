@@ -18,4 +18,4 @@ class AgentA(Agent):
             poi.t = desired_path[-1].tick + distance + random.randint(0, 5)
             desired_path.append(PointOfInterest(poi.to_inter_temporal(), poi.t))
 
-        super().__init__(100, 0, 0, desired_path)
+        super().__init__(100, desired_path)
