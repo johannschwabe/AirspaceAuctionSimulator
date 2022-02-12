@@ -1,7 +1,6 @@
 from typing import List
 
 from .Agent import Agent
-from .Blocker import Blocker
 from .Environment import Environment
 from .Allocator import Allocator
 from .Owner import Owner
@@ -13,13 +12,11 @@ class Simulator:
                  owners: List[Owner],
                  allocator: Allocator,
                  environment: Environment,
-                 history: History,
-                 blocker: List[Blocker]):
+                 history: History):
         self.owners: List[Owner] = owners
         self.allocator: Allocator = allocator
         self.environment: Environment = environment
         self.history: History = history
-        self.blocker: List[Blocker] = blocker
         self.agents: List[Agent] = []
         self.time_step = 0
 
@@ -36,6 +33,4 @@ class Simulator:
         for agent in newcomers:
             self.allocator.allocate_for_agent(agent, self.environment)
         self.time_step += 1
-        if self.time_step > 100:
-            return False
         return True

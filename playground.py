@@ -17,11 +17,14 @@ for _ in range(3):
     owners.append(OwnerA())
 
 history = History()
-simulator = Simulator(owners, allocator, environment, history, [])
+simulator = Simulator(owners, allocator, environment, history)
 simulator.setup()
+
 while simulator.time_step < 100:
     environment.visualize(simulator.time_step)
     simulator.tick()
     pass
 
+stats = Statistics(simulator)
+stats.non_colliding_values()
 print("done")
