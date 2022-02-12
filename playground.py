@@ -4,23 +4,21 @@ from Simulator.Coordinate import Coordinate
 from Simulator.helpers.History import History
 from Simulator import Simulator, Statistics, Environment
 
-from owners.OwnerA import OwnerA
-from allocators.AllocatorA import AllocatorA
+from owners.OwnerB import OwnerB
+from allocators.AllocatorB import AllocatorB
 
 random.seed(2)
 
 dimensions = Coordinate(10, 10, 1)
 environment = Environment(dimensions, [])
-allocator = AllocatorA()
-owners = []
-for _ in range(3):
-    owners.append(OwnerA())
+allocator = AllocatorB()
+owners = [OwnerB([1, 2, 2, 5, 6, 10, 15])]
 
 history = History()
 simulator = Simulator(owners, allocator, environment, history)
 simulator.setup()
 
-while simulator.time_step < 100:
+while simulator.time_step < 30:
     environment.visualize(simulator.time_step)
     simulator.tick()
     pass

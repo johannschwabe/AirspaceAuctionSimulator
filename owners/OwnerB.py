@@ -12,6 +12,7 @@ class OwnerB(Owner):
     def generate_agents(self, t: int, env: Environment) -> List[Agent]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
+            print(f"creating agent #{Agent.id}")
             res.append(AgentB(env.dimension, t))
 
         self.agents += res
