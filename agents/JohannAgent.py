@@ -4,7 +4,7 @@ from Simulator import Tick, Agent, PointOfInterest
 from Simulator.Coordinate import Coordinate, TimeCoordinate
 
 
-class RandomStepsAgent(Agent):
+class JohannAgent(Agent):
     def __init__(self, dimensions: Coordinate, now: int):
         steps = random.randint(1, 5)
         desired_path = [PointOfInterest(Coordinate(random.randint(0, dimensions.x - 1),
