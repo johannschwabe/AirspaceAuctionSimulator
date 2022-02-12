@@ -1,16 +1,16 @@
 import random
 
 from Simulator.Coordinate import Coordinate
+from Simulator.helpers.History import History
+from Simulator import Simulator, Statistics, Environment
+
 from owners.OwnerA import OwnerA
 from allocators.AllocatorA import AllocatorA
-from environments.EnvironmentA import EnvironmentA
-from Simulator.helpers.History import History
-from Simulator import Simulator, Statistics
 
 random.seed(2)
 
 dimensions = Coordinate(10, 10, 1)
-environment = EnvironmentA(dimensions)
+environment = Environment(dimensions, [])
 allocator = AllocatorA()
 owners = []
 for _ in range(3):

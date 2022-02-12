@@ -1,4 +1,3 @@
-from abc import abstractmethod, ABC
 from typing import List, Dict
 
 from ..Field import Field
@@ -8,7 +7,7 @@ from ..Time import Tick
 from ..Blocker import Blocker
 
 
-class Environment(ABC):
+class Environment:
     def __init__(self, dimension: Coordinate, blocker: List[Blocker]):
         self.dimension: Coordinate = dimension
         self.agents: List[Agent] = []
@@ -58,6 +57,8 @@ class Environment(ABC):
                 print("")
             print(" ↓\n Y")
 
-    @abstractmethod
     def clone(self):
-        pass
+        new_env = Environment(self.dimension, self.blocker)
+        new_env.relevant_fields = self.relevant_fields
+        new_env.agents = self.agents
+        return new_env
