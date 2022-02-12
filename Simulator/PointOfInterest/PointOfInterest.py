@@ -32,3 +32,6 @@ class PointOfInterest:
 
     def to_time_coordinate(self):
         return TimeCoordinate(self.location.x, self.location.y, self.location.z, self.tick)
+
+    def clone(self):
+        return PointOfInterest(self.location.clone(), self.tick)

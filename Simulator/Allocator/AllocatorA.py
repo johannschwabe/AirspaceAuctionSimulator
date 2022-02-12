@@ -118,3 +118,6 @@ class AllocatorA(Allocator):
                     return possible_allocations_1, new_agents_losing_env
 
         return temporary_allocations, local_env
+
+    def clone(self):
+        return AllocatorA(self.env)
