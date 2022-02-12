@@ -22,7 +22,7 @@ def astar(start: TimeCoordinate,
 
     open_nodes.append(start_node)
     steps = 0
-    while len(open_nodes) > 0 and steps < 400:
+    while len(open_nodes) > 0 and steps < 1000:
         steps += 1
         open_nodes.sort()
         current_node = open_nodes.pop(0)

@@ -1,5 +1,6 @@
 from typing import List, Dict
 
+from simulator.Time.Tick import Tick
 from simulator.agents import Agent
 from simulator.blocker.Blocker import Blocker
 from simulator.coordinates import TimeCoordinate, Coordinate
@@ -44,7 +45,7 @@ class Environment:
                 for y in range(self.dimension.y):
                     print(f"  {y: >2} ", end="")
                     for x in range(self.dimension.x):
-                        coord = TimeCoordinate(x, y, z, t)
+                        coord = TimeCoordinate(x, y, z, Tick(t))
                         field = self.get_field_at(coord, False)
                         if field.allocated_to is not None and not self.is_blocked(field.coordinates):
                             if field.allocated_to and t == current_time_step:
