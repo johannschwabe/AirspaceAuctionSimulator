@@ -44,4 +44,7 @@ class Agent(ABC):
         return new_agent
 
     def __repr__(self):
-        return str(self.uuid)
+        return f"{self.uuid}: {self.points_of_interest}"
+
+    def __str__(self):
+        return f"{self.uuid}: {self.points_of_interest}"

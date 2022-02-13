@@ -9,6 +9,7 @@ from agents.AToBAgent import AToBAgent
 class ThomasOwner(Owner):
     def __init__(self, creation_ticks: List[int]):
         super().__init__()
+
         self.creation_ticks = creation_ticks
 
     def generate_agents(self, t: int, env: Environment) -> List[Agent]:
@@ -28,7 +29,6 @@ class ThomasOwner(Owner):
             agent = AToBAgent(start, target)
             res.append(agent)
             print(f"Thomas created {agent}")
-
 
         self.agents += res
         return res

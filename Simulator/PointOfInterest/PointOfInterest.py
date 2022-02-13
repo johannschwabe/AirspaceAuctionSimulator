@@ -15,6 +15,12 @@ class PointOfInterest:
         self._spatial_value_function: ValueFunction = SpatialOnlyOneValue(self.location)
         self._temporal_value_function: ValueFunction = TemporalOnlyOneValue(self.tick)
 
+    def __repr__(self):
+        return f"<{self.location}, {self.tick}>"
+
+    def __str__(self):
+        return f"<{self.location}, {self.tick}>"
+
     def value_of_path(self, path: TravelPath):
         max_value = -1
         for time_cord in path.locations:

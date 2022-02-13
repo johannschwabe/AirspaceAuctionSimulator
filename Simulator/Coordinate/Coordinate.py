@@ -14,6 +14,9 @@ class Coordinate:
     def __repr__(self):
         return f"({self.x}, {self.y}, {self.z})"
 
+    def __str__(self):
+        return f"({self.x}, {self.y}, {self.z})"
+
     def __eq__(self, other):
         return self.x == other.x and \
                self.y == other.y and \
@@ -24,6 +27,20 @@ class Coordinate:
 
     def __sub__(self, other):
         return Coordinate(self.x - other.x, self.y - other.y, self.z - other.z)
+
+    def __ge__(self, other):
+        return self == other or self > other
+
+    def __gt__(self, other):
+        return self.x > other.x and \
+               self.y > other.y and \
+               self.z > other.z
+
+    def __lt__(self, other):
+        return not self >= other
+
+    def __le__(self, other):
+        return not self > other
 
     @property
     def l1(self):

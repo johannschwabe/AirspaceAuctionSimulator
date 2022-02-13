@@ -1,5 +1,3 @@
-import random
-
 from Simulator import Agent, PointOfInterest
 from Simulator.Coordinate import TimeCoordinate
 

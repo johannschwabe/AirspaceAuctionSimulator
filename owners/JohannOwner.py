@@ -8,6 +8,7 @@ from agents.JohannAgent import JohannAgent
 class JohannOwner(Owner):
     def __init__(self):
         super().__init__()
+
         self.nr_agents = random.randint(5, 10)
 
     def generate_agents(self, t: int, env: Environment) -> List[Agent]:
@@ -21,5 +22,5 @@ class JohannOwner(Owner):
                 res.append(agent)
                 print(f"Johann created {agent}")
 
-            self.agents += res
+        self.agents += res
         return res
