@@ -3,3 +3,4 @@ from .ExponentialDecreasingValueFunction import ExponentialDecreasingValueFuncti
 from .OnlyOneValueFunction import OnlyOneValueFunction
 from .RangeValueFunction import RangeValueFunction
 from .ValueFunction import ValueFunction
+from .IndifferentValueFunction import IndifferentValueFunction

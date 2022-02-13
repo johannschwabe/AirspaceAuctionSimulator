@@ -30,7 +30,10 @@ class Simulator:
         newcomers = []
         for owner in self.owners:
             newcomers += owner.generate_agents(self.time_step, self.environment)
-        for agent in newcomers:
-            self.allocator.allocate_for_agent(agent, self.environment)
+        allocated = False
+        while not allocated:
+            allocated = True
+            for agent in newcomers:
+                self.allocator.allocate_for_agent(agent)
         self.time_step += 1
         return True

@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import List
 
+from ..Path import TravelPath
+from ..Field import Field
 from ..Agent import Agent
 from ..Coordinate import TimeCoordinate
 from ..Environment import Environment
@@ -16,5 +19,12 @@ class Allocator(ABC):
                      self.env)
 
     @abstractmethod
-    def allocate_for_agent(self, agent: Agent, env: Environment):
+    def allocate_for_agent(self, agent: Agent):
         pass
+
+    def allocate(self, fields: List[Field], agent: Agent, path: List[TimeCoordinate]):
+        for field in fields:
+            field.allocated_to = agent
+
+        self.env.add_agent(agent)
+        agent.allocated_path = TravelPath(path)

@@ -3,6 +3,7 @@ from abc import ABC
 from typing import Optional, List
 
 from ..Allocator import Allocator
+from ..Field import EnrichedField
 from ..PointOfInterest import PointOfInterest
 from ..Path import TravelPath
 from ..Value import RangeValueFunction
@@ -25,7 +26,7 @@ class Agent(ABC):
 
         self.value_of_flight_time = RangeValueFunction(0, 30)  # After 30 ticks, drone is dead and the value is always 0
 
-    def calculate_desired_path(self, allocator: Allocator) -> List[PointOfInterest]:
+    def calculate_desired_path(self, allocator: Allocator, costs: List[EnrichedField]) -> List[PointOfInterest]:
         return self.points_of_interest
 
     def value_of_path(self, path: TravelPath) -> float:
