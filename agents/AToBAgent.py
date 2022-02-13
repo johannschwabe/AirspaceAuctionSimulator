@@ -15,5 +15,9 @@ class AToBAgent(Agent):
         start = self.points_of_interest[0]
         target = self.points_of_interest[1]
         in_between_pois = self.connect_pois(start, target)
+        if in_between_pois is None:
+            self.not_today = True
+            return []
         desired_path.extend(in_between_pois)
+        desired_path.sort(key=lambda x: x.tick)
         return desired_path

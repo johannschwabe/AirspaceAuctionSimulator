@@ -21,6 +21,7 @@ class HobbyPilotAgent(Agent):
     def calculate_desired_path(self, costs: Dict[str, float] = None) -> List[PointOfInterest]:
         desired_path = self.points_of_interest
         if costs is not None:
-            desired_path = filter(lambda poi: not poi.to_time_coordinate().get_key() in costs, desired_path)
+            desired_path = list(filter(lambda poi: not poi.to_time_coordinate().get_key() in costs, desired_path))
 
+        desired_path.sort(key=lambda x: x.tick)
         return desired_path

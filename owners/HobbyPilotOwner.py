@@ -24,7 +24,7 @@ class HobbyPilotOwner(Owner):
         if t == self.t_init:
             agent = HobbyPilotAgent(self.corner1, self.corner2, self.t_start, self.t_stop)
             res.append(agent)
-            print(f"Hobby pilot created {agent}")
+            print(f"Hobby pilot created {agent}: {agent.points_of_interest}")
 
         self.agents += res
         return res

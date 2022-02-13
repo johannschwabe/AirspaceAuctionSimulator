@@ -20,7 +20,7 @@ class JohannOwner(Owner):
             for _ in range(nr_new_agents):
                 agent = JohannAgent(env.dimension, t)
                 res.append(agent)
-                print(f"Johann created {agent}")
+                print(f"Johann created {agent}: {agent.points_of_interest}")
 
         self.agents += res
         return res

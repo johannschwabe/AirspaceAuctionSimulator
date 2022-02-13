@@ -1,5 +1,5 @@
 from .ValueFunction import ValueFunction
-from ..Coordinate import TimeCoordinate
+from ..Coordinate import TimeCoordinate, Coordinate
 
 
 class OnlyOneValueFunction(ValueFunction):
@@ -13,6 +13,8 @@ class OnlyOneValueFunction(ValueFunction):
 
     @staticmethod
     def is_same(val_1, val_2) -> bool:
-        if isinstance(val_1, TimeCoordinate) and isinstance(val_2, TimeCoordinate):
+        if (isinstance(val_1, TimeCoordinate) or isinstance(val_1, Coordinate)) and \
+                (isinstance(val_2, TimeCoordinate) or isinstance(val_2, Coordinate)):
             return val_1.inter_temporal_equal(val_2)
+
         return val_1 == val_2

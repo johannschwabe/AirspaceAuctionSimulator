@@ -17,15 +17,17 @@ class FCFSAllocator(Allocator):
             desired_path = agent.calculate_desired_path(costs)
             fields: List[Field] = list(
                 map(lambda poi: self.env.get_field_at(poi.to_time_coordinate(), True), desired_path))
-            allocated_fields = filter(lambda env_field: not env_field.coordinates.get_key() in costs
-                                                        and env_field.is_allocated()
-                                                        and not env_field.is_allocated_to == agent,
-                                      fields)
+            allocated_fields = list(filter(lambda env_field: not env_field.coordinates.get_key() in costs and
+                                                             env_field.is_allocated() and
+                                                             not env_field.allocated_to == agent,
+                                           fields))
 
-            for field in allocated_fields:
-                costs[field.coordinates.get_key()] = -1
+            if len(allocated_fields) > 0:
+                for field in allocated_fields:
+                    costs[field.coordinates.get_key()] = -1
 
             else:
-                path = list(map(lambda poi: poi.to_time_coordinate, desired_path))
+                print(agent, "->", desired_path)
+                path = list(map(lambda poi: poi.to_time_coordinate(), desired_path))
                 self.allocate(fields, agent, path)
                 allocated = True

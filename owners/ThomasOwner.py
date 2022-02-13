@@ -28,7 +28,7 @@ class ThomasOwner(Owner):
             target.t = start.t + distance + random.randint(0, 5)
             agent = AToBAgent(start, target)
             res.append(agent)
-            print(f"Thomas created {agent}")
+            print(f"Thomas created {agent}: {agent.points_of_interest}")
 
         self.agents += res
         return res

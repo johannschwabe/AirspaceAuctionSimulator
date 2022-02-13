@@ -23,7 +23,7 @@ def astar(start: TimeCoordinate,
     closed_nodes = []
 
     start_node = Node(start, None)
-    end = Node(end, None)
+    end_node = Node(end, None)
 
     open_nodes.append(start_node)
     steps = 0
@@ -32,8 +32,7 @@ def astar(start: TimeCoordinate,
         open_nodes.sort()
         current_node = open_nodes.pop(0)
         closed_nodes.append(current_node)
-        if current_node.position == end.position or (
-                current_node.position.t >= end.position.t and current_node.position.inter_temporal_equal(end.position)):
+        if current_node.position == end_node.position:
             path = []
             while not current_node.position.inter_temporal_equal(start):
                 path.append(current_node.position)
@@ -54,7 +53,7 @@ def astar(start: TimeCoordinate,
                     continue
 
                 neighbor.g = current_node.g + 1
-                neighbor.h = distance(neighbor.position, end.position)
+                neighbor.h = distance(neighbor.position, end_node.position)
                 neighbor.f = neighbor.g + neighbor.h
 
                 if neighbor in open_nodes:
@@ -64,7 +63,7 @@ def astar(start: TimeCoordinate,
                         open_nodes[alternative_index] = neighbor
                 else:
                     open_nodes.append(neighbor)
-    print("Astar failed")
+    return None
 
 
 def distance(start: Coordinate, end: Coordinate):

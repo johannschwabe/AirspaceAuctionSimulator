@@ -42,6 +42,9 @@ class Coordinate:
     def __le__(self, other):
         return not self > other
 
+    def inter_temporal_equal(self, other):
+        return self == other
+
     @property
     def l1(self):
         return abs(self.x) + abs(self.y) + abs(self.z)
@@ -55,6 +58,9 @@ class Coordinate:
             return ((self.x - other.x) ** 2 + (self.y - other.y) ** 2 + (self.z - other.xz) ** 2) ** 0.5
         else:
             return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z)
+
+    def inter_temporal_distance(self, other, l2: bool = False):
+        return self.distance(other, l2)
 
     def clone(self):
         return Coordinate(self.x, self.y, self.z)
