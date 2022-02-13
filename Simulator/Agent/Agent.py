@@ -1,12 +1,11 @@
-import random
 from abc import ABC
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 from ..Allocator import Allocator
 from ..Field import EnrichedField
 from ..PointOfInterest import PointOfInterest
 from ..Path import TravelPath
-from ..Value import RangeValueFunction
+from ..Value import RangeValueFunction, IndifferentValueFunction
 
 
 class Agent(ABC):
@@ -15,9 +14,11 @@ class Agent(ABC):
     def __init__(self,
                  revenue: float,
                  points_of_interest: List[PointOfInterest],
-                 ):
-        self.uuid = Agent.id
-        Agent.id += 1
+                 uuid: str = None):
+        self.allocator: Optional[Allocator] = None
+        if uuid is None:
+            self.uuid: str = str(Agent.id)
+            Agent.id += 1
         self.revenue: float = revenue
 
         self.traveled_path: TravelPath = TravelPath([])
@@ -26,8 +27,22 @@ class Agent(ABC):
 
         self.value_of_flight_time = RangeValueFunction(0, 30)  # After 30 ticks, drone is dead and the value is always 0
 
-    def calculate_desired_path(self, allocator: Allocator, costs: List[EnrichedField]) -> List[PointOfInterest]:
+    def register(self, allocator: Allocator):
+        self.allocator = allocator
+
+    def calculate_desired_path(self, costs: Dict[str, float] = None) -> List[PointOfInterest]:
         return self.points_of_interest
+
+    def connect_pois(self, poi_1, poi_2):
+        assert self.allocator is not None
+        start = poi_1.to_time_coordinate()
+        target = poi_2.to_time_coordinate()
+        in_between_coords = self.allocator.get_shortest_path(start, target)[1:-1]
+        in_between_pois = map(lambda tc: PointOfInterest(tc, tc.t), in_between_coords)
+        for ib_poi in in_between_pois:
+            ib_poi.set_spatial_value_function(IndifferentValueFunction())
+            ib_poi.set_temporal_value_function(IndifferentValueFunction())
+        return in_between_pois
 
     def value_of_path(self, path: TravelPath) -> float:
         path_value = 1
@@ -42,7 +57,7 @@ class Agent(ABC):
     def clone(self):
         new_agent = Agent(self.revenue,
                           [poi.clone() for poi in self.points_of_interest])
-        new_agent.uuid = self.uuid + 10000 * random.randint(1, 1000)
+        new_agent.uuid = f"clone({self.uuid})"
         return new_agent
 
     def __repr__(self):

@@ -3,7 +3,6 @@ import random
 from Simulator.Coordinate import Coordinate
 from Simulator.helpers.History import History
 from Simulator import Simulator, Statistics, Environment
-from allocators.JohannAllocator import JohannAllocator
 from owners.HobbyPilotOwner import HobbyPilotOwner
 from owners.JohannOwner import JohannOwner
 from owners.ThomasOwner import ThomasOwner
@@ -20,13 +19,11 @@ owners = [ThomasOwner([1, 2, 2, 5, 6, 10, 15]),
           HobbyPilotOwner(Coordinate(2, 2, 0), Coordinate(4, 4, 0), 10, 20, 2)]
 
 history = History()
-simulator = Simulator(owners, allocator, environment, history)
+simulator = Simulator(50, owners, allocator, environment, history)
 simulator.setup()
 
-while simulator.time_step < 50:
+while simulator.tick():
     environment.visualize(simulator.time_step)
-    simulator.tick()
-    pass
 
 stats = Statistics(simulator)
 stats.non_colliding_values()

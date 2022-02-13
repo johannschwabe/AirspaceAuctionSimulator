@@ -10,19 +10,22 @@ from ..helpers.PathFinding import astar
 
 
 class Allocator(ABC):
-    def __init__(self, env: Environment):
+    def __init__(self):
+        self.env = None
+
+    def register(self, env: Environment):
         self.env = env
 
     def get_shortest_path(self, start: TimeCoordinate, target: TimeCoordinate):
-        return astar(start,
-                     target,
-                     self.env)
+        assert self.env is not None
+        return astar(start, target, self.env)
 
     @abstractmethod
     def allocate_for_agent(self, agent: Agent):
         pass
 
     def allocate(self, fields: List[Field], agent: Agent, path: List[TimeCoordinate]):
+        assert self.env is not None
         for field in fields:
             field.allocated_to = agent
 

@@ -8,15 +8,17 @@ cutoff_depth = 6
 
 
 class JohannAllocator(Allocator):
-    def __init__(self, env: Environment):
-        super().__init__(env)
+    def __init__(self):
+        super().__init__()
 
     def get_shortest_path(self, start: TimeCoordinate, target: TimeCoordinate):
+        assert self.env is not None
         return astar(start,
                      target,
                      self.env)
 
     def allocate_for_agent(self, agent: Agent):
+        assert self.env is not None
         temporary_allocations: Dict[Agent, TravelPath] = {}
         for _agent in self.env.agents:
             temporary_allocations[_agent] = _agent.allocated_path
@@ -38,7 +40,7 @@ class JohannAllocator(Allocator):
                 field = local_env.get_field_at(coord, True)
                 field.allocated_to = None
             temporary_allocations.pop(agent)
-        desired_path = agent.calculate_desired_path(self, [])  # Todo check for all
+        desired_path = agent.calculate_desired_path()  # Todo check for all
         start = desired_path[0].to_time_coordinate()
 
         for i in range(len(desired_path) - 1):

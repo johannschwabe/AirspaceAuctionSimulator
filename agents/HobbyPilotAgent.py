@@ -1,8 +1,7 @@
-from typing import List
+from typing import List, Dict
 
-from Simulator import Agent, PointOfInterest, Tick, Allocator
+from Simulator import Agent, PointOfInterest, Tick
 from Simulator.Coordinate import Coordinate
-from Simulator.Field import EnrichedField
 
 
 class HobbyPilotAgent(Agent):
@@ -19,9 +18,9 @@ class HobbyPilotAgent(Agent):
 
         super().__init__(value, points_of_interest)
 
-    def calculate_desired_path(self, allocator: Allocator, costs: List[EnrichedField]) -> List[PointOfInterest]:
+    def calculate_desired_path(self, costs: Dict[str, float] = None) -> List[PointOfInterest]:
         desired_path = self.points_of_interest
-        for t in map(lambda ef: ef.coordinate.t, costs):
-            desired_path = filter(lambda poi: poi.tick != t, desired_path)
+        if costs is not None:
+            desired_path = filter(lambda poi: not poi.to_time_coordinate().get_key() in costs, desired_path)
 
         return desired_path

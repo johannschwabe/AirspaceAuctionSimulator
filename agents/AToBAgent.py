@@ -1,8 +1,7 @@
-from typing import List
+from typing import List, Dict
 
-from Simulator import Agent, PointOfInterest, Allocator
+from Simulator import Agent, PointOfInterest
 from Simulator.Coordinate import TimeCoordinate
-from Simulator.Field import EnrichedField
 
 
 class AToBAgent(Agent):
@@ -10,8 +9,11 @@ class AToBAgent(Agent):
         points_of_interest = [PointOfInterest(a, a.t), PointOfInterest(b, b.t)]
         super().__init__(value, points_of_interest)
 
-    def calculate_desired_path(self, allocator: Allocator, costs: List[EnrichedField]) -> List[PointOfInterest]:
-        start = self.points_of_interest[0].to_time_coordinate()
-        target = self.points_of_interest[1].to_time_coordinate()
-        desired_path = allocator.get_shortest_path(start, target)
-        return list(map(lambda tc: PointOfInterest(tc, tc.t), desired_path))
+    def calculate_desired_path(self, costs: Dict[str, float] = None) -> List[PointOfInterest]:
+        assert self.allocator is not None
+        desired_path = self.points_of_interest.copy()
+        start = self.points_of_interest[0]
+        target = self.points_of_interest[1]
+        in_between_pois = self.connect_pois(start, target)
+        desired_path.extend(in_between_pois)
+        return desired_path

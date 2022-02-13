@@ -9,3 +9,7 @@ class ValueFunction(ABC):
     @abstractmethod
     def __call__(self, point_of_interest, **kwargs):
         pass
+
+    @staticmethod
+    def difference(val_1, val_2) -> float:
+        return float(abs(val_1 - val_2))
