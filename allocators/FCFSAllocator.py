@@ -8,24 +8,19 @@ cutoff_depth = 6
 
 
 class FCFSAllocator(Allocator):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, env):
+        super().__init__(env)
+
+    def get_shortest_path(self, start: TimeCoordinate, target: TimeCoordinate):
+        return astar(start,
+                     target,
+                     self.env)
 
     def allocate_for_agent(self, agent: Agent, env: Environment):
         optimal_path: List[TimeCoordinate] = []
-        desired_path = agent.calculate_desired_path()
-        start = desired_path[0].to_time_coordinate()
-        for poi in desired_path[1:]:
-            target = poi.to_time_coordinate()
-            optimal_path.extend(astar(start,
-                                      target,
-                                      agent,
-                                      env,
-                                      assume_coords_free=[],
-                                      assume_coords_blocked=[]))
-            start = poi.to_time_coordinate()
-
-        for coord in optimal_path:
+        desired_path = agent.calculate_desired_path(self)
+        for poi in desired_path:
+            coord = TimeCoordinate(poi.location.x, poi.location.y, poi.location.z, poi.tick)
             field = env.get_field_at(coord, True)
             field.allocated_to = agent
 

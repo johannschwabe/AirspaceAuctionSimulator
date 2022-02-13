@@ -44,8 +44,8 @@ class JohannAllocator(Allocator):
                 end_location.t += 1
             optimal_path = astar(start,
                                  end_location,
-                                 agent,
                                  local_env,
+                                 agent,
                                  ignore_collisions=search_depth <= cutoff_depth,
                                  # When search depth is reached, only non colliding path are considered
                                  assume_coords_free=assume_coords_free,

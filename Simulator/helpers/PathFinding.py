@@ -9,12 +9,16 @@ from ..Coordinate import TimeCoordinate, Coordinate
 # Implemented based on https://www.annytab.com/a-star-search-algorithm-in-python/
 def astar(start: TimeCoordinate,
           end: TimeCoordinate,
-          agent: Agent,
           env: Environment,
-          assume_coords_free: List[TimeCoordinate],
-          assume_coords_blocked: List[TimeCoordinate],
-          ignore_collisions=False,
-          speed=1):
+          agent: Agent = None,
+          assume_coords_free: List[Coordinate] = None,
+          assume_coords_blocked: List[Coordinate] = None,
+          ignore_collisions: bool = False,
+          speed: int = 1):
+    if assume_coords_blocked is None:
+        assume_coords_blocked = []
+    if assume_coords_free is None:
+        assume_coords_free = []
     open_nodes = []
     closed_nodes = []
 
@@ -44,7 +48,7 @@ def astar(start: TimeCoordinate,
             field = env.get_field_at(next_neighbour, False)
             if next_neighbour not in assume_coords_blocked and (
                     ignore_collisions or next_neighbour in assume_coords_free or field.allocated_to is None or
-                    field.allocated_to == agent):  # ToDo Fix
+                    (agent is not None and field.allocated_to == agent)):  # ToDo Fix
                 neighbor = Node(next_neighbour, current_node)
                 if neighbor in closed_nodes:
                     continue
