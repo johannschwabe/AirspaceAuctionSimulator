@@ -58,4 +58,7 @@ class Environment:
             print(" ↓\n Y")
 
     def clone(self):
-        pass
+        new_env = Environment(self.dimension, self.blocker)
+        new_env.relevant_fields = self.relevant_fields
+        new_env.agents = self.agents
+        return new_env

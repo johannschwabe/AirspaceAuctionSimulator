@@ -2,10 +2,10 @@ import random
 from typing import List
 
 from Simulator import Agent, Environment, Owner
-from agents.AgentA import AgentA
+from agents.JohannAgent import JohannAgent
 
 
-class OwnerA(Owner):
+class JohannOwner(Owner):
     def __init__(self):
         super().__init__()
         self.nr_agents = random.randint(5, 10)
@@ -17,6 +17,9 @@ class OwnerA(Owner):
             random.shuffle(options)
             nr_new_agents = max(min(options[0], self.nr_agents - len(self.agents)), 0)
             for _ in range(nr_new_agents):
-                res.append(AgentA(env.dimension, t))
+                agent = JohannAgent(env.dimension, t)
+                res.append(agent)
+                print(f"Johann created {agent}")
+
             self.agents += res
         return res
