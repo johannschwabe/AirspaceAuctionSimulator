@@ -1,14 +1,16 @@
 import { defineStore } from 'pinia'
 import { saveAs } from 'file-saver';
+import { useStorage } from '@vueuse/core'
 
 export const useSimulationStore = defineStore({
   id: 'simulation',
   state: () => ({
     loaded: false,
-    name: null,
-    description: null,
-    owners: null,
-    dimensions: null,
+    name: useStorage('simulation-name', ''),
+    description: useStorage('simulation-description', ''),
+    owners: useStorage('simulation-owners', []),
+    dimensions: useStorage('simulation-dimensions', {}),
+    tick: useStorage('simulation-tick', 100),
   }),
   getters: {
     getAgents: (state) => [],

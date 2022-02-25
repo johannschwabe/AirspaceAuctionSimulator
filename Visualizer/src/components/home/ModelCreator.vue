@@ -103,8 +103,8 @@ const model = ref({
   description: null,
   dimension: {
     x: 100,
-    y: 100,
-    z: 20,
+    y: 20,
+    z: 100,
     t: 250,
   },
 });
