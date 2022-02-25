@@ -10,7 +10,9 @@ from ..Coordinate import TimeCoordinate, SaveTimeCoordinate
 
 class Generator:
 
-    def __init__(self, agents: int, owners: int, dimensions: TimeCoordinate, avg_flight_time: int):
+    def __init__(self, name: str, description: str, agents: int, owners: int, dimensions: TimeCoordinate, avg_flight_time: int):
+        self.name: str = name
+        self.description: str = description
         self.n_agents: int = agents
         self.n_owners: int = owners
         self.dimensions: TimeCoordinate = dimensions
@@ -43,4 +45,4 @@ class Generator:
 
     @property
     def history(self):
-        return History(self.dimensions, self.owners)
+        return History(self.name, self.description, self.dimensions, self.owners)

@@ -6,7 +6,9 @@ from ..Coordinate import TimeCoordinate
 
 class History(Stringify):
 
-    def __init__(self, dimensions: TimeCoordinate, owners: List[Owner]):
+    def __init__(self, name: str, description: str, dimensions: TimeCoordinate, owners: List[Owner]):
+        self.name: str = name
+        self.description: str = description
         self.dimensions: TimeCoordinate = dimensions
         self.owners: List[Owner] = owners
 
