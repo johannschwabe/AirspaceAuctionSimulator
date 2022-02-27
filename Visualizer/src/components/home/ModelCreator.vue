@@ -135,12 +135,13 @@ const simulate = () => {
         owners: owners.value,
       })
       .then((res) => {
-        loadingBar.finish();
         simulationStore.setSimulation(res.data);
+        loadingBar.finish();
         message.success("Simulation Created!");
       })
       .catch((e) => {
         loadingBar.error();
+        message.error("Failed creating the Session!");
         errorText.value = detailedError(e);
       })
     } else {

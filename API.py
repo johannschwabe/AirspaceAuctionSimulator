@@ -1,3 +1,7 @@
+"""
+Run server using >>> uvicorn API:app --reload
+App runs on 'https://localhost:8000/'
+"""
 from typing import Optional, List
 
 from fastapi import FastAPI

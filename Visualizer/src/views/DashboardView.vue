@@ -4,13 +4,13 @@
 
       <n-grid cols="1">
         <n-grid-item>
-          <heatmap />
+          <heatmap dim-x="x" dim-y="z" title="Top-Down View"/>
         </n-grid-item>
         <n-grid-item>
-          <heatmap />
+          <heatmap dim-x="x" dim-y="y" title="Front View"/>
         </n-grid-item>
         <n-grid-item>
-          <heatmap />
+          <heatmap  dim-x="z" dim-y="y" title="Side View"/>
         </n-grid-item>
       </n-grid>
 

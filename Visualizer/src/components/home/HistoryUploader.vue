@@ -1,5 +1,5 @@
 <template>
-  <n-upload action="https://www.mocky.io/v2/5e4bafc63100007100d8b70f">
+  <n-upload :custom-request="onUpload">
     <n-upload-dragger>
       <div style="margin-bottom: 12px">
         <n-icon size="48" :depth="3">
@@ -19,6 +19,33 @@
 
 <script setup>
 import { ArchiveOutline } from "@vicons/ionicons5";
+import { useSimulationStore } from "../../stores/simulation";
+import {useLoadingBar, useMessage} from "naive-ui";
+import {useRouter} from "vue-router";
+
+const simulationStore = useSimulationStore();
+const message = useMessage();
+const loadingBar = useLoadingBar();
+const router = useRouter();
+
+const onUpload = async (upload) => {
+  console.log(upload.file.file);
+  loadingBar.start();
+  const fileReader = new FileReader()
+  fileReader.onload = event => {
+    const data = JSON.parse(event.target.result);
+    simulationStore.setSimulation(data);
+    loadingBar.finish();
+    message.success("Simulation Imported!");
+    router.push({ name: 'dashboard' })
+  }
+  fileReader.onerror = error => {
+    loadingBar.error();
+    message.error("Failed import failed!");
+    console.error(error);
+  }
+  fileReader.readAsText(upload.file.file)
+}
 </script>
 
 <style scoped>

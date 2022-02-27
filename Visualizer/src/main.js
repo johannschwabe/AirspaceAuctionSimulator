@@ -40,6 +40,7 @@ import {
   NColorPicker,
   NSelect,
   NAlert,
+  NProgress,
 } from 'naive-ui'
 
 const naive = create({
@@ -73,6 +74,7 @@ const naive = create({
     NColorPicker,
     NSelect,
     NAlert,
+    NProgress,
   ]
 })
 

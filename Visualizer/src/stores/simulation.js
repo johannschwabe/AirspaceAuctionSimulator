@@ -13,7 +13,18 @@ export const useSimulationStore = defineStore({
     tick: useStorage('simulation-tick', 100),
   }),
   getters: {
-    getAgents: (state) => [],
+    agents: (state) => {
+      const agents = [];
+      state.owners.forEach((owner) => {
+        owner.agents.forEach((agent) => {
+          agents.push({
+            owner,
+            ...agent,
+          })
+        })
+      })
+      return agents;
+    },
   },
   actions: {
     setSimulation(simulation) {
