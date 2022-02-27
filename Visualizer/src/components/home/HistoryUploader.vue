@@ -29,7 +29,6 @@ const loadingBar = useLoadingBar();
 const router = useRouter();
 
 const onUpload = async (upload) => {
-  console.log(upload.file.file);
   loadingBar.start();
   const fileReader = new FileReader()
   fileReader.onload = event => {

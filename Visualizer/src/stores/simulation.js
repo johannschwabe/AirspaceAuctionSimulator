@@ -10,7 +10,7 @@ export const useSimulationStore = defineStore({
     description: useStorage('simulation-description', ''),
     owners: useStorage('simulation-owners', []),
     dimensions: useStorage('simulation-dimensions', {}),
-    tick: useStorage('simulation-tick', 100),
+    tick: useStorage('simulation-tick', 1),
   }),
   getters: {
     agents: (state) => {

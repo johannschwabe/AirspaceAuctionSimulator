@@ -6,7 +6,7 @@
 
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
-import { reactive, ref } from "vue";
+import { reactive, watch } from "vue";
 
 import { useSimulationStore } from "../../stores/simulation";
 
@@ -87,16 +87,33 @@ for(let dimy = 0; dimy < dimYlength; dimy++) {
   })
 }
 
-simulationStore.owners.forEach((owner, i) => {
-  owner.agents.forEach((agent) => {
-    agent.locations.forEach((loc) => {
-      const dim1 = Math.floor(loc[props.dimX] / props.granularity);
-      const dim2 = Math.floor(loc[props.dimY] / props.granularity);
-      console.log(dim1, dim2);
-      series[dim2].data[dim1] += 1;
+const resetState = () => {
+  for(let dimy = 0; dimy < dimYlength; dimy++) {
+    series[dimy].data = Array(dimXlength).fill(0);
+  }
+}
+
+const updateState = () => {
+  simulationStore.owners.forEach((owner, i) => {
+    owner.agents.forEach((agent) => {
+      agent.locations.forEach((loc) => {
+        const dim1 = Math.floor(loc[props.dimX] / props.granularity);
+        const dim2 = Math.floor(loc[props.dimY] / props.granularity);
+        if (loc.t <= simulationStore.tick) {
+          series[dim2].data[dim1] += 1;
+        }
+      })
     })
   })
+}
+
+updateState();
+
+simulationStore.$subscribe(() => {
+  resetState();
+  updateState();
 })
+
 </script>
 
 <style scoped>

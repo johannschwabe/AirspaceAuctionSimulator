@@ -46,7 +46,7 @@ const createScene = () => {
   groundMaterial.alpha = 0.05;
   ground.material = groundMaterial;
 
-  const lineAlpha = 0.05;
+  const lineAlpha = 0.025;
 
   for (let xi = 0; xi < x; xi+=lineStep) {
     for (let yi = 0; yi < y; yi+=lineStep) {
@@ -76,41 +76,52 @@ const createScene = () => {
       line.color = new Color3.White();
     }
   }
-
-  simulationStore.owners.forEach((owner, oi) => {
-    owner.agents.forEach((agent, ai) => {
-      const points = agent.locations.map((loc) => new Vector3(loc.x-x/2, loc.y, loc.z-z/2));
-      const line = MeshBuilder.CreateLines(`line-owner${oi}-agent${ai}`, { points })
-      line.alpha = 0.5
-      line.color = new Color3.FromHexString(owner.color);
-    })
-  })
-
   return scene;
 }
 
+let dronePaths = [];
+let droneSpheres = [];
+
 const placeDrones = () => {
+  dronePaths.forEach((obj) => {
+    obj.dispose();
+  })
+  droneSpheres.forEach((obj) => {
+    obj.dispose();
+  })
+  dronePaths = [];
+  droneSpheres = [];
   simulationStore.owners.forEach((owner, oi) => {
     owner.agents.forEach((agent, ai) => {
-      const ownerMaterial = new StandardMaterial(scene);
-      ownerMaterial.diffuseColor = new Color3.FromHexString(owner.color);
-      ownerMaterial.alpha = 1;
-      agent.locations.forEach((loc) => {
-        console.log(loc.t, simulationStore.tick);
-        if (loc.t === simulationStore.tick) {
-          console.log("Creating SPHEEERE");
-          const sphere = Mesh.CreateSphere(`sphere-owner${oi}-agent${ai}`, 16, 1, scene);
-          sphere.position.x = loc.x-x/2;
-          sphere.position.y = loc.y;
-          sphere.position.z = loc.z-z/2;
-          sphere.material = ownerMaterial;
-        }
-      })
+      const has_started = agent.locations.some((loc) => loc.t <= simulationStore.tick);
+      const has_not_landed = agent.locations.some((loc) => loc.t >= simulationStore.tick);
+      if (has_started && has_not_landed) {
+        // create Material
+        const ownerMaterial = new StandardMaterial(scene);
+        ownerMaterial.diffuseColor = new Color3.FromHexString(owner.color);
+        ownerMaterial.alpha = 1;
+
+        // Draw path
+        const points = agent.locations.map((loc) => new Vector3(loc.x-x/2, loc.y, loc.z-z/2));
+        const line = MeshBuilder.CreateLines(`line-owner${oi}-agent${ai}`, { points })
+        line.alpha = 0.5
+        line.color = new Color3.FromHexString(owner.color);
+        dronePaths.push(line);
+
+        // Draw drone
+        const current_loc = agent.locations.find((loc) => loc.t === simulationStore.tick);
+        const sphere = Mesh.CreateSphere(`sphere-owner${oi}-agent${ai}`, 16, 1, scene);
+        sphere.position.x = current_loc.x-x/2;
+        sphere.position.y = current_loc.y;
+        sphere.position.z = current_loc.z-z/2;
+        sphere.material = ownerMaterial;
+        droneSpheres.push(sphere);
+      }
     })
   })
 }
 
-watch(simulationStore.tick, (t) => {
+simulationStore.$subscribe(() => {
   placeDrones();
 })
 
