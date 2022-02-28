@@ -1,5 +1,5 @@
 <template>
-  <div style="text-align: center">
+  <div style="text-align: center; color: white">
     <h1>{{ title }}</h1>
     <n-text style="font-size: 16px">
       {{ text }}
