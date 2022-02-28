@@ -43,17 +43,13 @@ const chartOptions = {
   }
 }
 
-const series =  reactive([{
-  name: 'Inflation',
+const series =  [{
+  name: '# Active Agents',
   data: Array(simulationStore.dimensions.t).fill(0),
-}])
+}]
 
-simulationStore.owners.forEach((owner, i) => {
-  owner.agents.forEach((agent) => {
-    agent.locations.forEach((loc) => {
-      series[0].data[loc.t] += 1;
-    })
-  })
+simulationStore.locations.forEach((loc) => {
+  series[0].data[loc.t] += 1;
 })
 </script>
 

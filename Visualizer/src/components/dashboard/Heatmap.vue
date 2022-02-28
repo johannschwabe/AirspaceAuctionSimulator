@@ -94,16 +94,10 @@ const resetState = () => {
 }
 
 const updateState = () => {
-  simulationStore.owners.forEach((owner, i) => {
-    owner.agents.forEach((agent) => {
-      agent.locations.forEach((loc) => {
-        const dim1 = Math.floor(loc[props.dimX] / props.granularity);
-        const dim2 = Math.floor(loc[props.dimY] / props.granularity);
-        if (loc.t <= simulationStore.tick) {
-          series[dim2].data[dim1] += 1;
-        }
-      })
-    })
+  simulationStore.pastLocations.forEach((loc) => {
+    const dim1 = Math.floor(loc[props.dimX] / props.granularity);
+    const dim2 = Math.floor(loc[props.dimY] / props.granularity);
+    series[dim2].data[dim1] += 1;
   })
 }
 

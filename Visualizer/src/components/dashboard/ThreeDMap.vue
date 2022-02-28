@@ -79,45 +79,43 @@ const createScene = () => {
   return scene;
 }
 
-let dronePaths = [];
-let droneSpheres = [];
+const activeMeshes = {}
 
 const placeDrones = () => {
-  dronePaths.forEach((obj) => {
-    obj.dispose();
+  // Remove unused meshes
+  const activeUUIDs = simulationStore.activeAgentUUIDs;
+  Object.entries(activeMeshes).forEach(([uuid, meshes]) => {
+    if (!(uuid in activeUUIDs)) {
+      meshes.forEach((mesh) => { mesh.dispose(); })
+      delete activeMeshes[uuid];
+    }
   })
-  droneSpheres.forEach((obj) => {
-    obj.dispose();
-  })
-  dronePaths = [];
-  droneSpheres = [];
-  simulationStore.owners.forEach((owner, oi) => {
-    owner.agents.forEach((agent, ai) => {
-      const has_started = agent.locations.some((loc) => loc.t <= simulationStore.tick);
-      const has_not_landed = agent.locations.some((loc) => loc.t >= simulationStore.tick);
-      if (has_started && has_not_landed) {
-        // create Material
-        const ownerMaterial = new StandardMaterial(scene);
-        ownerMaterial.diffuseColor = new Color3.FromHexString(owner.color);
-        ownerMaterial.alpha = 1;
+  // Push new meshes
+  simulationStore.activeAgents.forEach((agent) => {
+    if (!(agent.uuid in activeMeshes)) {
+      // Draw path
+      const points = agent.locations.map((loc) => new Vector3(loc.x-x/2, loc.y, loc.z-z/2));
+      const line = MeshBuilder.CreateLines(`line-agent-${agent.uuid}`, { points })
+      line.alpha = 0.5
+      line.color = new Color3.FromHexString(agent.owner.color);
 
-        // Draw path
-        const points = agent.locations.map((loc) => new Vector3(loc.x-x/2, loc.y, loc.z-z/2));
-        const line = MeshBuilder.CreateLines(`line-owner${oi}-agent${ai}`, { points })
-        line.alpha = 0.5
-        line.color = new Color3.FromHexString(owner.color);
-        dronePaths.push(line);
+      // create Material
+      const ownerMaterial = new StandardMaterial(scene);
+      ownerMaterial.diffuseColor = new Color3.FromHexString(agent.owner.color);
+      ownerMaterial.alpha = 1;
 
-        // Draw drone
-        const current_loc = agent.locations.find((loc) => loc.t === simulationStore.tick);
-        const sphere = Mesh.CreateSphere(`sphere-owner${oi}-agent${ai}`, 16, 1, scene);
-        sphere.position.x = current_loc.x-x/2;
-        sphere.position.y = current_loc.y;
-        sphere.position.z = current_loc.z-z/2;
-        sphere.material = ownerMaterial;
-        droneSpheres.push(sphere);
-      }
-    })
+      // Draw drone
+      const sphere = Mesh.CreateSphere(`sphere-agent-${agent.uuid}`, 16, 1, scene);
+      sphere.material = ownerMaterial;
+      activeMeshes[agent.uuid] = [line, sphere]
+    }
+
+    // Update sphere position
+    const sphere = activeMeshes[agent.uuid][1];
+    const current_loc = agent.locations.find((loc) => loc.t === simulationStore.tick);
+    sphere.position.x = current_loc.x-x/2;
+    sphere.position.y = current_loc.y;
+    sphere.position.z = current_loc.z-z/2;
   })
 }
 
