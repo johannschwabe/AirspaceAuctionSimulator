@@ -38,9 +38,10 @@ class Generator:
                 loc = locations[-1]
                 next_loc = loc.random_neighbor(1, chance_x=chance_x, chance_y=chance_y, chance_forward=chance_forward)
                 locations.append(next_loc)
-            welfare = random() * 10
+            optimal_welfare = random() * 10
+            achieved_welfare = random() * optimal_welfare
             costs = random() * 5
-            agent = Agent(locations, welfare, costs)
+            agent = Agent(locations, optimal_welfare, achieved_welfare, costs)
             choice(self.owners).add_agent(agent)
 
     @property

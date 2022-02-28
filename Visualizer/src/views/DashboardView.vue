@@ -29,7 +29,11 @@
       </n-grid-item>
 
       <n-grid-item span="3">
-
+        <n-grid cols="1">
+          <n-grid-item>
+            <welfare />
+          </n-grid-item>
+        </n-grid>
       </n-grid-item>
 
     </n-grid>
@@ -53,6 +57,7 @@ import ThreeDMap from '../components/dashboard/ThreeDMap.vue'
 import DataTable from '../components/dashboard/DataTable.vue'
 import Timeline from '../components/dashboard/Timeline.vue'
 import Gantt from "../components/dashboard/Gantt.vue";
+import Welfare from "../components/dashboard/Welfare.vue";
 </script>
 
 <style scoped>
