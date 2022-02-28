@@ -145,7 +145,7 @@ onMounted(() => {
 <style scoped>
 canvas {
   width: 100%;
-  height: 65vh;
+  height: 750px;
   outline: none;
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }

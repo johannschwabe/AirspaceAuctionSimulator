@@ -36,10 +36,12 @@ const chartOptions = {
   xaxis: {
     labels: { show: false },
     axisTicks: { show: false },
+    axisBorder: { show: false },
   },
   yaxis: {
     labels: { show: false },
     axisTicks: { show: false },
+    axisBorder: { show: false },
   }
 }
 

@@ -23,7 +23,7 @@ export const useSimulationStore = defineStore({
           })
         })
       })
-      agents.sort((a, b) => a.locations[0].t > b.locations[0].t ? -1 : 1)
+      agents.sort((a, b) => a.locations[0].t < b.locations[0].t ? -1 : 1)
       return agents;
     },
     activeAgents(state) {

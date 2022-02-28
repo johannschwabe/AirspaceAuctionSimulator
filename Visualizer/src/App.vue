@@ -4,11 +4,7 @@
       <n-message-provider>
         <n-notification-provider>
           <n-dialog-provider>
-            <n-layout position="absolute">
-              <n-layout-content>
-                <router-view />
-              </n-layout-content>
-            </n-layout>
+            <router-view />
           </n-dialog-provider>
         </n-notification-provider>
       </n-message-provider>
@@ -20,3 +16,9 @@
 <script setup>
 import { darkTheme } from 'naive-ui'
 </script>
+
+<style>
+body {
+  background-color: rgb(16, 16, 16);
+}
+</style>

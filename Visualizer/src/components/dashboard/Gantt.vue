@@ -19,6 +19,9 @@ const chartOptions = {
     background: 'transparent',
     toolbar: {show: false}
   },
+  theme: {
+    mode: 'dark'
+  },
   plotOptions: {
     bar: {
       horizontal: true,
@@ -27,13 +30,32 @@ const chartOptions = {
   },
   stroke: { show: false },
   grid: { show: false },
-  yaxis: { show: false },
+  xaxis: {
+    labels: { show: false },
+    axisTicks: { show: false },
+    axisBorder: { show: false },
+  },
+  yaxis: {
+    labels: { show: false },
+    axisTicks: { show: false },
+    axisBorder: { show: false },
+  },
 }
 
-const series =  reactive([{
-  name: 'Inflation',
-  data: Array(simulationStore.dimensions.t).fill(0),
-}])
+const series =  [{
+  data: [],
+}]
+
+simulationStore.agents.forEach((agent) => {
+  const start = agent.locations[0].t;
+  const end = agent.locations[agent.locations.length - 1].t;
+  series[0].data.push({
+    x: agent.uuid,
+    y: [start, end],
+    fillColor: agent.owner.color,
+  })
+})
+
 </script>
 
 <style scoped>
