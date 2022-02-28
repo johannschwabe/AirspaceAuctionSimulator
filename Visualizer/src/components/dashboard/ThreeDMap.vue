@@ -23,7 +23,7 @@ const lineStep = 10; // Only draw an orientation line every x-th coordinate
 
 const createScene = () => {
   const scene = new Scene(engine);
-  scene.clearColor = Color3.FromHexString("#101014");
+  scene.clearColor = Color3.FromHexString("#101010");
 
   const axes = new AxesViewer(scene, lengthOfAxis)
   axes.update(new Vector3(-x/2, 0, -z/2), new Vector3(1,0,0), new Vector3(0,1,0), new Vector3(0,0,1));
