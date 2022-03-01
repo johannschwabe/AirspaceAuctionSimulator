@@ -1,12 +1,12 @@
 import random
 from typing import List
 
-from Simulator import Agent, Environment, Owner, Tick
+from Simulator import Environment, Owner, Tick
+from Simulator.Agent import AToBAgent, Agent
 from Simulator.Coordinate import TimeCoordinate
-from agents.AToBAgent import AToBAgent
 
 
-class ThomasOwner(Owner):
+class AToBOwner(Owner):
     def __init__(self, creation_ticks: List[int]):
         super().__init__()
         self.creation_ticks = creation_ticks
@@ -28,7 +28,6 @@ class ThomasOwner(Owner):
             agent = AToBAgent(start, target)
             res.append(agent)
             print(f"Thomas created {agent}")
-
 
         self.agents += res
         return res

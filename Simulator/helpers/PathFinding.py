@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from ..Agent import Agent
 from ..Environment import Environment
@@ -7,14 +7,21 @@ from ..Coordinate import TimeCoordinate, Coordinate
 
 
 # Implemented based on https://www.annytab.com/a-star-search-algorithm-in-python/
-def astar(start: TimeCoordinate,
-          end: TimeCoordinate,
-          agent: Agent,
-          env: Environment,
-          assume_coords_free: List[TimeCoordinate],
-          assume_coords_blocked: List[TimeCoordinate],
-          ignore_collisions=False,
-          speed=1):
+def astar(
+    start: TimeCoordinate,
+    end: TimeCoordinate,
+    agent: Agent,
+    env: Environment,
+    assume_coords_free: Optional[List[TimeCoordinate]] = None,
+    assume_coords_blocked: Optional[List[TimeCoordinate]] = None,
+    ignore_collisions=False,
+    speed=1
+):
+    if assume_coords_blocked is None:
+        assume_coords_blocked = []
+    if assume_coords_free is None:
+        assume_coords_free = []
+
     open_nodes = []
     closed_nodes = []
 
@@ -29,7 +36,7 @@ def astar(start: TimeCoordinate,
         current_node = open_nodes.pop(0)
         closed_nodes.append(current_node)
         if current_node.position == end.position or (
-                current_node.position.t >= end.position.t and current_node.position.inter_temporal_equal(end.position)):
+            current_node.position.t >= end.position.t and current_node.position.inter_temporal_equal(end.position)):
             path = []
             while not current_node.position.inter_temporal_equal(start):
                 path.append(current_node.position)
@@ -43,8 +50,8 @@ def astar(start: TimeCoordinate,
                 continue
             field = env.get_field_at(next_neighbour, False)
             if next_neighbour not in assume_coords_blocked and (
-                    ignore_collisions or next_neighbour in assume_coords_free or field.allocated_to is None or
-                    field.allocated_to == agent):  # ToDo Fix
+                ignore_collisions or next_neighbour in assume_coords_free or field.allocated_to is None or
+                field.allocated_to == agent):  # ToDo Fix
                 neighbor = Node(next_neighbour, current_node)
                 if neighbor in closed_nodes:
                     continue
@@ -60,7 +67,7 @@ def astar(start: TimeCoordinate,
                         open_nodes[alternative_index] = neighbor
                 else:
                     open_nodes.append(neighbor)
-    print("Astar failed")
+    return []
 
 
 def distance(start: Coordinate, end: Coordinate):

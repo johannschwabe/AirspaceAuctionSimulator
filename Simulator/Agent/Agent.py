@@ -1,47 +1,70 @@
-import random
-from abc import ABC
-from typing import Optional, List
+from abc import ABC, abstractmethod
+from typing import List, Optional
 
-from ..PointOfInterest import PointOfInterest
-from ..Path import TravelPath
-from ..Value import RangeValueFunction
+from ..Bid import Bid
+from ..Coordinate import Coordinate, TimeCoordinate
+from ..helpers.Hit import Hit
 
 
 class Agent(ABC):
-    id = 0
+    id: int = 0
 
-    def __init__(self,
-                 revenue: float,
-                 points_of_interest: List[PointOfInterest],
-                 ):
+    default_near_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-1, 2) for y in range(-1, 2) for z in range(-1, 2)]
+    default_far_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-2, 3) for y in range(-2, 3) for z in range(-2, 3)]
+
+    def __init__(self, speed: int = 1, battery: int = 20, near_border: Optional[List[Coordinate]] = None, far_border: Optional[List[Coordinate]] = None):
         self.uuid = Agent.id
         Agent.id += 1
-        self.revenue: float = revenue
 
-        self.traveled_path: TravelPath = TravelPath([])
-        self.points_of_interest: List[PointOfInterest] = points_of_interest
-        self.allocated_path: Optional[TravelPath] = None
+        self.speed: int = speed
+        self.battery: int = battery
 
-        self.value_of_flight_time = RangeValueFunction(0, 30)  # After 30 ticks, drone is dead and the value is always 0
+        self.near_border: List[Coordinate] = near_border if near_border is not None else Agent.default_near_border
+        self.far_boarder: List[Coordinate] = far_border if far_border is not None else Agent.default_far_border
 
-    def calculate_desired_path(self) -> List[PointOfInterest]:
-        return self.points_of_interest
+        self.allocated_path: List[TimeCoordinate] = []
 
-    def value_of_path(self, path: TravelPath) -> float:
-        path_value = 1
-        for pos in self.points_of_interest:
-            path_value *= pos.value_of_path(path)
 
-        flight_time = path[-1].t - path[0].t
-        flight_time_value = self.value_of_flight_time(flight_time)
+    @abstractmethod
+    def value_for_path(self, path: List[TimeCoordinate]) -> float:
+        pass
 
-        return path_value * self.revenue * flight_time_value
+    @abstractmethod
+    def get_bid(self) -> Bid:
+        pass
 
+    @abstractmethod
     def clone(self):
-        new_agent = Agent(self.revenue,
-                          [poi.clone() for poi in self.points_of_interest])
-        new_agent.uuid = self.uuid + 10000 * random.randint(1, 1000)
-        return new_agent
+        pass
+
+    def contains_coordinate(self, path: List[TimeCoordinate], coordinate: TimeCoordinate) -> Hit:
+        current_position: Optional[Coordinate] = None
+        for position in path:
+            if position.t == coordinate.t:
+                current_position = position
+
+        if current_position is None:
+            return Hit.NO
+
+        if current_position == coordinate:
+            return Hit.EXACT
+
+        far_hit: bool = False
+        for relative_coordinate in self.far_boarder:
+            absolut_coordinate = relative_coordinate + current_position
+            if absolut_coordinate == relative_coordinate:
+                far_hit = True
+                break
+
+        if not far_hit:
+            return Hit.NO
+
+        for relative_coordinate in self.near_border:
+            absolut_coordinate = relative_coordinate + current_position
+            if absolut_coordinate == relative_coordinate:
+                return Hit.NEAR
+
+        return Hit.FAR
 
     def __repr__(self):
         return str(self.uuid)
