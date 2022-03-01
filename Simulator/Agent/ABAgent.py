@@ -1,25 +1,26 @@
 from typing import List, Optional
 
-from . import AToBAgent
-from ..Bid import AToBBid, Bid, AToBToABid
+from ..Agent import Agent
+from ..Bid import ABBid, Bid
 from ..Coordinate import Coordinate, TimeCoordinate
 
 
-class AToBToAAgent(AToBAgent):
+class ABAgent(Agent):
     id: int = 0
 
     def __init__(
         self,
         a: TimeCoordinate,
         b: TimeCoordinate,
-        stay: int = 2,
         speed: int = 1,
         battery: int = 20,
         near_border: Optional[List[Coordinate]] = None,
         far_border: Optional[List[Coordinate]] = None,
     ):
-        super().__init__(a, b, speed=speed, battery=battery, near_border=near_border, far_border=far_border)
-        self.stay: int = stay
+        super().__init__(speed=speed, battery=battery, near_border=near_border, far_border=far_border)
+
+        self.a: TimeCoordinate = a
+        self.b: TimeCoordinate = b
 
     def value_for_path(self, path: List[TimeCoordinate]) -> float:
         if len(path) == 0:
@@ -38,8 +39,8 @@ class AToBToAAgent(AToBAgent):
         return 1.
 
     def get_bid(self) -> Bid:
-        return AToBToABid(self.battery, self.a, self.b, self.stay)
+        return ABBid(self.battery, self.a, self.b)
 
     def clone(self):
-        return AToBAgent(self.a, self.b, self.speed, self.battery, self.near_border, self.far_boarder)
+        return ABAgent(self.a, self.b, self.speed, self.battery, self.near_border, self.far_boarder)
 

@@ -2,11 +2,11 @@ import random
 from typing import List
 
 from Simulator import Environment, Owner, Tick
-from Simulator.Agent import AToBAgent, Agent
+from Simulator.Agent import ABAgent, Agent
 from Simulator.Coordinate import TimeCoordinate
 
 
-class AToBOwner(Owner):
+class ABOwner(Owner):
     def __init__(self, creation_ticks: List[int]):
         super().__init__()
         self.creation_ticks = creation_ticks
@@ -25,9 +25,9 @@ class AToBOwner(Owner):
                                     Tick(0))
             distance = start.inter_temporal_distance(target)
             target.t = start.t + distance + random.randint(0, 5)
-            agent = AToBAgent(start, target, speed=random.randint(1, 4))
+            agent = ABAgent(start, target, speed=random.randint(1, 4))
             res.append(agent)
-            print(f"Thomas created {agent}")
+            print(f"A-B created {agent}")
 
         self.agents += res
         return res
