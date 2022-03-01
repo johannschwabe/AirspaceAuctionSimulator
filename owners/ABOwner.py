@@ -25,7 +25,7 @@ class ABOwner(Owner):
                                     Tick(0))
             distance = start.inter_temporal_distance(target)
             target.t = start.t + distance + random.randint(0, 5)
-            agent = ABAgent(start, target, speed=random.randint(1, 4))
+            agent = ABAgent(start, target, speed=random.randint(1, 3))
             res.append(agent)
             print(f"A-B created {agent}")
 
