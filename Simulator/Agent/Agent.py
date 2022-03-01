@@ -24,6 +24,7 @@ class Agent(ABC):
         self.far_boarder: List[Coordinate] = far_border if far_border is not None else Agent.default_far_border
 
         self.allocated_path: List[TimeCoordinate] = []
+
         self.allocated_fields: List[Field] = []
         self.allocated_near_fields: List[Field] = []
         self.allocated_far_fields: List[Field] = []

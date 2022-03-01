@@ -25,7 +25,7 @@ class AToBOwner(Owner):
                                     Tick(0))
             distance = start.inter_temporal_distance(target)
             target.t = start.t + distance + random.randint(0, 5)
-            agent = AToBAgent(start, target)
+            agent = AToBAgent(start, target, speed=random.randint(1, 4))
             res.append(agent)
             print(f"Thomas created {agent}")
 

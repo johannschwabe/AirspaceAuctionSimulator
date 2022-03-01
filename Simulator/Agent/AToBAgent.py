@@ -39,7 +39,7 @@ class AToBAgent(Agent):
         return 1.
 
     def get_bid(self) -> Bid:
-        return AToBBid(self.a, self.b)
+        return AToBBid(self.battery, self.a, self.b)
 
     def clone(self):
         return AToBAgent(self.a, self.b, self.speed, self.battery, self.near_border, self.far_boarder)

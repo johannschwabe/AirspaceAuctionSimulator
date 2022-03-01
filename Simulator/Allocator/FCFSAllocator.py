@@ -20,6 +20,7 @@ class FCFSAllocator(Allocator):
                 bid.a,
                 bid.b,
                 env,
+                agent.speed
             )
 
         return optimal_path

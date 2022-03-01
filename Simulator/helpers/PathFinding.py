@@ -11,6 +11,7 @@ def astar(
     start: TimeCoordinate,
     end: TimeCoordinate,
     env: Environment,
+    speed: int,
 ):
 
     open_nodes = []
@@ -21,6 +22,9 @@ def astar(
 
     open_nodes.append(start_node)
     steps = 0
+
+    path = []
+
     while len(open_nodes) > 0 and steps < 1000:
         steps += 1
         open_nodes.sort()
@@ -28,35 +32,55 @@ def astar(
         closed_nodes.append(current_node)
         if current_node.position == end.position or (
             current_node.position.t >= end.position.t and current_node.position.inter_temporal_equal(end.position)):
-            path = []
+            reverse_path = []
             while not current_node.position.inter_temporal_equal(start):
-                path.append(current_node.position)
+                reverse_path.append(current_node.position)
                 current_node = current_node.parent
-            path.append(current_node.position)
-            return path[::-1]
 
-        neighbors = current_node.adjacent_coordinates(env.dimension)
-        for next_neighbour in neighbors:
-            if env.is_blocked(next_neighbour):
-                continue
-            field = env.get_field_at(next_neighbour, False)
-            if not field.is_allocated() and not field.is_near():
-                neighbor = Node(next_neighbour, current_node)
-                if neighbor in closed_nodes:
-                    continue
+            reverse_path.append(current_node.position)
+            path = reverse_path[::-1]
+            break
 
-                neighbor.g = current_node.g + 1
-                neighbor.h = distance(neighbor.position, end.position)
-                neighbor.f = neighbor.g + neighbor.h
+        neighbors = current_node.adjacent_coordinates(env.dimension, speed)
+        for neighboring_field in neighbors:
+            is_free = True
+            for t in range(speed):
+                next_neighbor = TimeCoordinate(neighboring_field.x, neighboring_field.y, neighboring_field.z, neighboring_field.t + Tick(t))
+                if env.is_blocked(next_neighbor):
+                    is_free = False
+                    break
 
-                if neighbor in open_nodes:
-                    alternative_index = open_nodes.index(neighbor)
-                    alternative = open_nodes[alternative_index]
-                    if alternative.f > neighbor.f:
-                        open_nodes[alternative_index] = neighbor
-                else:
-                    open_nodes.append(neighbor)
-    return []
+                field = env.get_field_at(next_neighbor, False)
+                if not field.is_allocated() and not field.is_near():
+                    waiting_neighbor = Node(next_neighbor, current_node)
+                    if waiting_neighbor in closed_nodes:
+                        is_free = False
+                        break
+
+            if not is_free:
+                break
+
+            neighbor = Node(neighboring_field, current_node)
+
+            neighbor.g = current_node.g + 1
+            neighbor.h = distance(neighbor.position, end.position)
+            neighbor.f = neighbor.g + neighbor.h
+
+            if neighbor in open_nodes:
+                alternative_index = open_nodes.index(neighbor)
+                alternative = open_nodes[alternative_index]
+                if alternative.f > neighbor.f:
+                    open_nodes[alternative_index] = neighbor
+
+            else:
+                open_nodes.append(neighbor)
+
+    wait_coords: List[TimeCoordinate] = []
+    for coord in path:
+        for t in range(1, speed):
+            wait_coords.append(TimeCoordinate(coord.x, coord.y, coord.z, coord.t + Tick(t)))
+
+    return path + wait_coords
 
 
 def distance(start: Coordinate, end: Coordinate):
@@ -80,24 +104,24 @@ class Node:
     def __repr__(self):
         return f"{self.position}: {self.f}"
 
-    def adjacent_coordinates(self, dim: Coordinate) -> List[TimeCoordinate]:
-        res = [TimeCoordinate(self.position.x, self.position.y, self.position.z, Tick(self.position.t + 1))]
+    def adjacent_coordinates(self, dim: Coordinate, speed: int) -> List[TimeCoordinate]:
+        res = [TimeCoordinate(self.position.x, self.position.y, self.position.z, Tick(self.position.t + speed))]
         if self.position.x > 0:
             res.append(TimeCoordinate(self.position.x - 1, self.position.y, self.position.z,
-                                      Tick(self.position.t + 1)))
+                                      Tick(self.position.t + speed)))
         if self.position.y > 0:
             res.append(TimeCoordinate(self.position.x, self.position.y - 1, self.position.z,
-                                      Tick(self.position.t + 1)))
+                                      Tick(self.position.t + speed)))
         if self.position.z > 0:
             res.append(TimeCoordinate(self.position.x, self.position.y, self.position.z - 1,
-                                      Tick(self.position.t + 1)))
+                                      Tick(self.position.t + speed)))
         if self.position.x < dim.x - 1:
             res.append(TimeCoordinate(self.position.x + 1, self.position.y, self.position.z,
-                                      Tick(self.position.t + 1)))
+                                      Tick(self.position.t + speed)))
         if self.position.y < dim.y - 1:
             res.append(TimeCoordinate(self.position.x, self.position.y + 1, self.position.z,
-                                      Tick(self.position.t + 1)))
+                                      Tick(self.position.t + speed)))
         if self.position.z < dim.z - 1:
             res.append(TimeCoordinate(self.position.x, self.position.y, self.position.z + 1,
-                                      Tick(self.position.t + 1)))
+                                      Tick(self.position.t + speed)))
         return res
