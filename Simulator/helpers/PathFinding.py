@@ -56,6 +56,9 @@ def astar(
                     if waiting_neighbor in closed_nodes:
                         is_free = False
                         break
+                else:
+                    is_free = False
+                    break
 
             if not is_free:
                 break

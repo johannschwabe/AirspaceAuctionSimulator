@@ -3,7 +3,7 @@ from typing import List
 from ..Environment import Environment
 from ..Agent import Agent
 from ..Allocator import Allocator
-from ..Bid import AToBBid, Bid
+from ..Bid import AToBBid, Bid, AToBToABid
 from ..Coordinate import TimeCoordinate
 from ..helpers.PathFinding import astar
 
@@ -16,6 +16,14 @@ class FCFSAllocator(Allocator):
         bid: Bid = agent.get_bid()
         optimal_path: List[TimeCoordinate] = []
         if isinstance(bid, AToBBid):
+            optimal_path = astar(
+                bid.a,
+                bid.b,
+                env,
+                agent.speed
+            )
+
+        if isinstance(bid, AToBToABid):
             optimal_path = astar(
                 bid.a,
                 bid.b,
