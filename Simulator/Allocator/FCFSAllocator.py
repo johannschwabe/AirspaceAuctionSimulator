@@ -4,7 +4,7 @@ from ..Time import Tick
 from ..Environment import Environment
 from ..Agent import Agent
 from ..Allocator import Allocator
-from ..Bid import ABBid, Bid, ABABid
+from ..Bid import ABBid, Bid, ABABid, BlockerBid
 from ..Coordinate import TimeCoordinate
 from ..helpers.PathFinding import astar
 
@@ -44,5 +44,29 @@ class FCFSAllocator(Allocator):
                     return []
 
                 optimal_paths.append(ba_path)
+
+        elif isinstance(bid, BlockerBid):
+            path = []
+            for t in range(bid.start_t, bid.end_t + 1):
+                path_t = []
+                occupied = False
+                for coordinate in bid.block:
+                    time_coord = TimeCoordinate(coordinate.x, coordinate.y, coordinate.z, Tick(t))
+                    field = env.get_field_at(time_coord, False)
+                    if field.is_allocated() or field.is_near():
+                        occupied = True
+                        break
+                    else:
+                        path_t.append(time_coord)
+
+                if not occupied:
+                    path += path_t
+                else:
+                    if len(path) > 0:
+                        optimal_paths.append(path)
+                    path = []
+
+            if len(path) > 0:
+                optimal_paths.append(path)
 
         return optimal_paths

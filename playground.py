@@ -6,13 +6,14 @@ from Simulator.helpers.History import History
 from Simulator import Simulator, Statistics, Environment
 from owners.ABAOwner import ABAOwner
 from owners.ABOwner import ABOwner
+from owners.BlockerOwner import BlockerOwner
 
 random.seed(2)
 
 dimensions = Coordinate(10, 10, 1)
 environment = Environment(dimensions, [])
 allocator = FCFSAllocator()
-owners = [ABAOwner([1, 2, 2, 5, 6, 6, 6, 6, 10, 15, 20, 25, 30]), ABOwner([1, 2, 2, 5, 6, 6, 6, 6, 10, 15, 20, 25, 30])]
+owners = [ABAOwner([1]), ABOwner([1]), BlockerOwner([1, 1, 2])]
 
 history = History()
 simulator = Simulator(owners, allocator, environment, history)
