@@ -1,4 +1,5 @@
 import math
+from random import randint
 
 
 class Coordinate:
@@ -41,3 +42,11 @@ class Coordinate:
 
     def clone(self):
         return Coordinate(self.x, self.y, self.z)
+
+    @staticmethod
+    def random(dimensions: "Coordinate"):
+        return Coordinate(
+            randint(0, dimensions.x-1),
+            randint(0, dimensions.y-1),
+            randint(0, dimensions.z-1),
+        )
