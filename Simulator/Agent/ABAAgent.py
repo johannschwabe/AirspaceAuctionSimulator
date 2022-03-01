@@ -31,9 +31,9 @@ class ABAAgent(ABAgent):
         if len(ab_path) == 0 or len(ba_path) == 0:
             return 0.
 
-        time = ab_path[-1].t - ab_path[0].t + ba_path[-1].t - ab_path[0].t
+        time = ab_path[-1].t - ab_path[0].t + ba_path[-1].t - ba_path[0].t
         if time > self.battery:
-            return 0.
+            return -1.
 
         delay = ab_path[-1].t - self.b.t
         if delay > 0:
@@ -45,5 +45,5 @@ class ABAAgent(ABAgent):
         return ABABid(self.battery, self.a, self.b, self.stay)
 
     def clone(self):
-        return ABAgent(self.a, self.b, self.speed, self.battery, self.near_border, self.far_boarder)
+        return ABAAgent(self.a, self.b, self.stay, self.speed, self.battery, self.near_border, self.far_boarder)
 

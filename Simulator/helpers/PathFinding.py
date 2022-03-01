@@ -83,7 +83,9 @@ def astar(
         for t in range(1, speed):
             wait_coords.append(TimeCoordinate(coord.x, coord.y, coord.z, coord.t + Tick(t)))
 
-    return path + wait_coords
+    complete_path = path + wait_coords
+    complete_path.sort(key=lambda x: x.t)
+    return complete_path
 
 
 def distance(start: Coordinate, end: Coordinate):

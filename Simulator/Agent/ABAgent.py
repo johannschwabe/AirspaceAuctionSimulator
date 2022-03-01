@@ -35,7 +35,7 @@ class ABAgent(Agent):
         destination: TimeCoordinate = path[-1]
         time = destination.t - start.t
         if time > self.battery:
-            return 0.
+            return -1.
 
         delay = destination.t - self.b.t
         if delay > 0:
