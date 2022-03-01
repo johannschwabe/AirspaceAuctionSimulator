@@ -1,3 +1,5 @@
+from random import random, randint
+
 from .Coordinate import Coordinate
 from ..Time import Tick
 
@@ -28,12 +30,15 @@ class TimeCoordinate(Coordinate):
 
     def __add__(self, other):
         t_other = 0
-        if type(other).__name__ == "TimeCoordinates":
+        if type(other).__name__ == "TimeCoordinate":
             t_other = other.t
         return TimeCoordinate(self.x + other.x, self.y + other.y, self.z + other.z, self.t + t_other)
 
     def __sub__(self, other):
-        return Coordinate(self.x - other.x, self.y - other.y, self.z - other.z)
+        t_other = 0
+        if type(other).__name__ == "TimeCoordinate":
+            t_other = other.t
+        return TimeCoordinate(self.x - other.x, self.y - other.y, self.z - other.z, self.t - t_other)
 
     def distance(self, other, l2: bool = False):
         temp = 0
@@ -46,3 +51,22 @@ class TimeCoordinate(Coordinate):
 
     def clone(self):
         return TimeCoordinate(self.x, self.y, self.z, self.t)
+
+    def random_neighbor(self, delta_t=0, chance_x=1/3, chance_y=1/3, chance_forward=0.5):
+        r = random()
+        move = 1 if random() > chance_forward else -1
+        if r <= chance_x:
+            return TimeCoordinate(self.x + move, self.y, self.z, self.t + Tick(delta_t))
+        elif chance_x < r <= chance_y:
+            return TimeCoordinate(self.x, self.y + move, self.z, self.t + Tick(delta_t))
+        else:
+            return TimeCoordinate(self.x, self.y, self.z + move, self.t + Tick(delta_t))
+
+    @staticmethod
+    def random(dimensions: "TimeCoordinate"):
+        return TimeCoordinate(
+            randint(0, dimensions.x-1),
+            randint(0, dimensions.y-1),
+            randint(0, dimensions.z-1),
+            Tick(randint(0, dimensions.t-1))
+        )

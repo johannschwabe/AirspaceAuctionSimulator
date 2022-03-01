@@ -1,0 +1,33 @@
+{
+  "name": "visualizer",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 5050",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
+  },
+  "dependencies": {
+    "@vicons/ionicons5": "^0.12.0",
+    "@vueuse/core": "^7.6.2",
+    "apexcharts": "^3.33.1",
+    "axios": "^0.26.0",
+    "babylonjs": "^4.2.1",
+    "file-saver": "^2.0.5",
+    "pinia": "^2.0.11",
+    "vue": "^3.2.31",
+    "vue-router": "^4.0.12",
+    "vue3-apexcharts": "^1.4.1"
+  },
+  "devDependencies": {
+    "@rushstack/eslint-patch": "^1.1.0",
+    "@vitejs/plugin-vue": "^2.2.2",
+    "@vue/eslint-config-prettier": "^7.0.0",
+    "eslint": "^8.10.0",
+    "eslint-plugin-vue": "^8.2.0",
+    "naive-ui": "^2.25.5",
+    "prettier": "^2.5.1",
+    "vfonts": "^0.0.3",
+    "vite": "^2.8.4"
+  }
+}
