@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from ..Bid import Bid
 from ..Coordinate import Coordinate, TimeCoordinate
+from ..Field import Field
 from ..helpers.Hit import Hit
 
 
@@ -23,6 +24,9 @@ class Agent(ABC):
         self.far_boarder: List[Coordinate] = far_border if far_border is not None else Agent.default_far_border
 
         self.allocated_path: List[TimeCoordinate] = []
+        self.allocated_fields: List[Field] = []
+        self.allocated_near_fields: List[Field] = []
+        self.allocated_far_fields: List[Field] = []
 
 
     @abstractmethod
@@ -36,6 +40,12 @@ class Agent(ABC):
     @abstractmethod
     def clone(self):
         pass
+
+    def get_near_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
+        return [coordinate + position for coordinate in self.near_border]
+
+    def get_far_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
+        return [coordinate + position for coordinate in self.far_boarder]
 
     def contains_coordinate(self, path: List[TimeCoordinate], coordinate: TimeCoordinate) -> Hit:
         current_position: Optional[Coordinate] = None

@@ -27,17 +27,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 class OwnerType(BaseModel):
     name: str
     color: str
     agents: int
     type: str
 
+
 class DimensionType(BaseModel):
     x: int
     y: int
     z: int
     t: int
+
 
 class SimulationConfigType(BaseModel):
     name: str
@@ -49,8 +52,8 @@ class SimulationConfigType(BaseModel):
 @app.post("/simulation")
 def read_root(config: SimulationConfigType):
     dimensions = TimeCoordinate(config.dimension.x, config.dimension.y, config.dimension.z, Tick(config.dimension.t))
-    g = Generator(name=config.name, description=config.description, agents=100, owners=5, dimensions=dimensions, avg_flight_time=10)
+    g = Generator(name=config.name, description=config.description, agents=100, owners=5, dimensions=dimensions,
+                  avg_flight_time=10)
     g.simulate()
     history = g.history
     return history.as_dict()
-

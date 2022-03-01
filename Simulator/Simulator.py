@@ -1,6 +1,7 @@
 from typing import List
 
 from .Agent import Agent
+from .Coordinate import TimeCoordinate
 from .Environment import Environment
 from .Allocator import Allocator
 from .Owner import Owner
@@ -27,10 +28,11 @@ class Simulator:
         pass
 
     def tick(self) -> bool:
-        newcomers = []
+        newcomers: List[Agent] = []
         for owner in self.owners:
             newcomers += owner.generate_agents(self.time_step, self.environment)
         for agent in newcomers:
-            self.allocator.allocate_for_agent(agent, self.environment)
+            agent_path: List[TimeCoordinate] = self.allocator.allocate_for_agent(agent, self.environment)
+            self.environment.allocate_path(agent, agent_path)
         self.time_step += 1
         return True

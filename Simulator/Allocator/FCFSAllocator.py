@@ -5,7 +5,6 @@ from ..Agent import Agent
 from ..Allocator import Allocator
 from ..Bid import AToBBid, Bid
 from ..Coordinate import TimeCoordinate
-from ..Field import Field
 from ..helpers.PathFinding import astar
 
 
@@ -20,13 +19,7 @@ class FCFSAllocator(Allocator):
             optimal_path = astar(
                 bid.a,
                 bid.b,
-                agent,
                 env,
             )
 
-        for coord in optimal_path:
-            field: Field = env.get_field_at(coord, True)
-            field.allocated_to = agent
-
-        env.add_agent(agent)
-        agent.allocated_path = optimal_path
+        return optimal_path

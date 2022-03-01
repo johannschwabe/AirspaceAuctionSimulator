@@ -10,17 +10,8 @@ from ..Coordinate import TimeCoordinate, Coordinate
 def astar(
     start: TimeCoordinate,
     end: TimeCoordinate,
-    agent: Agent,
     env: Environment,
-    assume_coords_free: Optional[List[TimeCoordinate]] = None,
-    assume_coords_blocked: Optional[List[TimeCoordinate]] = None,
-    ignore_collisions=False,
-    speed=1
 ):
-    if assume_coords_blocked is None:
-        assume_coords_blocked = []
-    if assume_coords_free is None:
-        assume_coords_free = []
 
     open_nodes = []
     closed_nodes = []
@@ -44,14 +35,12 @@ def astar(
             path.append(current_node.position)
             return path[::-1]
 
-        neighbors = current_node.adjacent_coordinates(speed, env.dimension)
+        neighbors = current_node.adjacent_coordinates(env.dimension)
         for next_neighbour in neighbors:
             if env.is_blocked(next_neighbour):
                 continue
             field = env.get_field_at(next_neighbour, False)
-            if next_neighbour not in assume_coords_blocked and (
-                ignore_collisions or next_neighbour in assume_coords_free or field.allocated_to is None or
-                field.allocated_to == agent):  # ToDo Fix
+            if not field.is_allocated() and not field.is_near():
                 neighbor = Node(next_neighbour, current_node)
                 if neighbor in closed_nodes:
                     continue
@@ -91,24 +80,24 @@ class Node:
     def __repr__(self):
         return f"{self.position}: {self.f}"
 
-    def adjacent_coordinates(self, speed: int, dim: Coordinate) -> List[TimeCoordinate]:
-        res = [TimeCoordinate(self.position.x, self.position.y, self.position.z, Tick(self.position.t + speed))]
+    def adjacent_coordinates(self, dim: Coordinate) -> List[TimeCoordinate]:
+        res = [TimeCoordinate(self.position.x, self.position.y, self.position.z, Tick(self.position.t + 1))]
         if self.position.x > 0:
             res.append(TimeCoordinate(self.position.x - 1, self.position.y, self.position.z,
-                                      Tick(self.position.t + speed)))
+                                      Tick(self.position.t + 1)))
         if self.position.y > 0:
             res.append(TimeCoordinate(self.position.x, self.position.y - 1, self.position.z,
-                                      Tick(self.position.t + speed)))
+                                      Tick(self.position.t + 1)))
         if self.position.z > 0:
             res.append(TimeCoordinate(self.position.x, self.position.y, self.position.z - 1,
-                                      Tick(self.position.t + speed)))
+                                      Tick(self.position.t + 1)))
         if self.position.x < dim.x - 1:
             res.append(TimeCoordinate(self.position.x + 1, self.position.y, self.position.z,
-                                      Tick(self.position.t + speed)))
+                                      Tick(self.position.t + 1)))
         if self.position.y < dim.y - 1:
             res.append(TimeCoordinate(self.position.x, self.position.y + 1, self.position.z,
-                                      Tick(self.position.t + speed)))
+                                      Tick(self.position.t + 1)))
         if self.position.z < dim.z - 1:
             res.append(TimeCoordinate(self.position.x, self.position.y, self.position.z + 1,
-                                      Tick(self.position.t + speed)))
+                                      Tick(self.position.t + 1)))
         return res

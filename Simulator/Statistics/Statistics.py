@@ -12,12 +12,9 @@ class Statistics:
 
     def non_colliding_value(self, agent: Agent):
         local_agent = agent.clone()
-        local_env = self.env.clone()
-        local_env.agents = []
-        local_env.relevant_fields = {}
-        local_env.agents = []
-        self.allocator.allocate_for_agent(local_agent, local_env)
-        return local_agent.value_for_path(local_agent.allocated_path)
+        local_env = self.env.clear()
+        path = self.allocator.allocate_for_agent(local_agent, local_env)
+        return local_agent.value_for_path(path)
 
     def non_colliding_values(self):
         for agent in self.env.agents:
