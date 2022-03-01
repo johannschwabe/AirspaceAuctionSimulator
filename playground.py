@@ -5,13 +5,14 @@ from Simulator.Coordinate import Coordinate
 from Simulator.helpers.History import History
 from Simulator import Simulator, Statistics, Environment
 from owners.ABAOwner import ABAOwner
+from owners.ABOwner import ABOwner
 
 random.seed(2)
 
 dimensions = Coordinate(10, 10, 1)
 environment = Environment(dimensions, [])
 allocator = FCFSAllocator()
-owners = [ABAOwner([1, 2, 2, 5, 6, 6, 6, 6, 10, 15, 20, 25, 30])]
+owners = [ABAOwner([1, 2, 2, 5, 6, 6, 6, 6, 10, 15, 20, 25, 30]), ABOwner([1, 2, 2, 5, 6, 6, 6, 6, 10, 15, 20, 25, 30])]
 
 history = History()
 simulator = Simulator(owners, allocator, environment, history)

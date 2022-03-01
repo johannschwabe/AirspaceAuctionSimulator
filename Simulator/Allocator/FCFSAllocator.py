@@ -25,16 +25,13 @@ class FCFSAllocator(Allocator):
                 env,
                 agent.speed,
             )
-            if ab_path[-1].t - ab_path[0].t > agent.battery:
+            if len(ab_path) == 0 or ab_path[-1].t - ab_path[0].t > agent.battery:
                 return []
 
             optimal_paths.append(ab_path)
 
             # A-B-A
             if isinstance(bid, ABABid):
-                if len(ab_path) == 0:
-                    return []
-
                 b = ab_path[-1]
                 ba_path = astar(
                     TimeCoordinate(b.x, b.y, b.z, b.t + Tick(bid.stay)),
@@ -43,7 +40,7 @@ class FCFSAllocator(Allocator):
                     agent.speed,
                 )
 
-                if ab_path[-1].t - ab_path[0].t + ba_path[-1].t - ba_path[0].t > agent.battery:
+                if len(ba_path) == 0 or ab_path[-1].t - ab_path[0].t + ba_path[-1].t - ba_path[0].t > agent.battery:
                     return []
 
                 optimal_paths.append(ba_path)
