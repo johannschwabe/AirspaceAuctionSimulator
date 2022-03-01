@@ -31,7 +31,7 @@ def astar(
         current_node = open_nodes.pop(0)
         closed_nodes.append(current_node)
         if current_node.position == end.position or (
-            current_node.position.t >= end.position.t and current_node.position.inter_temporal_equal(end.position)):
+            current_node.position.t > end.position.t and current_node.position.inter_temporal_equal(end.position)):
             reverse_path = []
             while not current_node.position.inter_temporal_equal(start):
                 reverse_path.append(current_node.position)

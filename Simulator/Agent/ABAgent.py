@@ -22,7 +22,12 @@ class ABAgent(Agent):
         self.a: TimeCoordinate = a
         self.b: TimeCoordinate = b
 
-    def value_for_path(self, path: List[TimeCoordinate]) -> float:
+    def value_for_paths(self, paths: List[List[TimeCoordinate]]) -> float:
+        if len(paths) != 1:
+            return 0.
+
+        path = paths[0]
+
         if len(path) == 0:
             return 0.
 

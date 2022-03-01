@@ -32,7 +32,7 @@ class Simulator:
         for owner in self.owners:
             newcomers += owner.generate_agents(self.time_step, self.environment)
         for agent in newcomers:
-            agent_path: List[TimeCoordinate] = self.allocator.allocate_for_agent(agent, self.environment)
-            self.environment.allocate_path(agent, agent_path)
+            agent_paths: List[List[TimeCoordinate]] = self.allocator.allocate_for_agent(agent, self.environment)
+            self.environment.allocate_paths(agent, agent_paths)
         self.time_step += 1
         return True

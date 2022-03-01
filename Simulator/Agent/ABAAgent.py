@@ -21,17 +21,21 @@ class ABAAgent(ABAgent):
         super().__init__(a, b, speed=speed, battery=battery, near_border=near_border, far_border=far_border)
         self.stay: int = stay
 
-    def value_for_path(self, path: List[TimeCoordinate]) -> float:
-        if len(path) == 0:
+    def value_for_paths(self, paths: List[List[TimeCoordinate]]) -> float:
+        if len(paths) != 2:
             return 0.
 
-        start: TimeCoordinate = path[0]
-        destination: TimeCoordinate = path[-1]
-        time = destination.t - start.t - self.stay
+        ab_path = paths[0]
+        ba_path = paths[1]
+
+        if len(ab_path) == 0 or len(ba_path) == 0:
+            return 0.
+
+        time = ab_path[-1].t - ab_path[0].t + ba_path[-1].t - ab_path[0].t
         if time > self.battery:
             return 0.
 
-        delay = destination.t - self.b.t
+        delay = ab_path[-1].t - self.b.t
         if delay > 0:
             return max(0., 1. - delay / 100)
 

@@ -23,7 +23,7 @@ class Agent(ABC):
         self.near_border: List[Coordinate] = near_border if near_border is not None else Agent.default_near_border
         self.far_boarder: List[Coordinate] = far_border if far_border is not None else Agent.default_far_border
 
-        self.allocated_path: List[TimeCoordinate] = []
+        self.allocated_paths: List[List[TimeCoordinate]] = []
 
         self.allocated_fields: List[Field] = []
         self.allocated_near_fields: List[Field] = []
@@ -31,7 +31,7 @@ class Agent(ABC):
 
 
     @abstractmethod
-    def value_for_path(self, path: List[TimeCoordinate]) -> float:
+    def value_for_paths(self, paths: List[List[TimeCoordinate]]) -> float:
         pass
 
     @abstractmethod
