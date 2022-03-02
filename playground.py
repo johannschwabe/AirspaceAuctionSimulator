@@ -5,13 +5,14 @@ from Simulator.Coordinate import Coordinate
 from Simulator.helpers.History import History
 from Simulator import Simulator, Statistics, Environment
 from owners.ABAOwner import ABAOwner
+from owners.ABCOwner import ABCOwner
 from owners.ABOwner import ABOwner
 from owners.BlockerOwner import BlockerOwner
 
 dimensions = Coordinate(20, 20, 1)
 environment = Environment(dimensions, [])
 allocator = FCFSAllocator()
-owners = [ABAOwner([0, 0, 0]), ABOwner([0, 0, 0]), BlockerOwner([1, 1, 1])]
+owners = [ABAOwner([0, 0]), ABOwner([0, 0]), BlockerOwner([1, 1, 1, 1, 1]), ABCOwner([0, 0, 0, 0, 0])]
 
 history = History()
 simulator = Simulator(owners, allocator, environment, history)
