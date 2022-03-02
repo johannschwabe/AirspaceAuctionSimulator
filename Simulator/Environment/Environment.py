@@ -15,42 +15,46 @@ class Environment:
         self.blocker: List[Blocker] = blocker
 
     @staticmethod
-    def deallocate_agent(agent: Agent):
+    def deallocate_agent(agent: Agent, time_step: Tick):
         agent.allocated_paths = [[]]
         for field in agent.allocated_fields:
-            field.allocated_to.remove(agent)
+            if field.coordinates.t > time_step:
+                field.allocated_to.remove(agent)
         for near_field in agent.allocated_near_fields:
-            near_field.near_to.remove(agent)
+            if near_field.coordinates.t > time_step:
+                near_field.near_to.remove(agent)
         for far_field in agent.allocated_far_fields:
-            far_field.far_to.remove(agent)
+            if far_field.coordinates.t > time_step:
+                far_field.far_to.remove(agent)
 
-    def allocate_paths(self, agent: Agent, paths: List[List[TimeCoordinate]]):
-        if agent in self.agents:
-            self.deallocate_agent(agent)
-        else:
-            self.agents.append(agent)
+    def allocate_paths(self, agents_paths: Dict[Agent, List[List[TimeCoordinate]]], time_step: Tick):
+        for agent, paths in agents_paths.items():
+            if agent in self.agents:
+                self.deallocate_agent(agent, time_step)
+            else:
+                self.agents.append(agent)
 
-        agent.allocated_paths = paths
+            agent.allocated_paths = paths
 
-        for path in paths:
-            for coord in path:
-                field: Field = self.get_field_at(coord, True)
-                field.allocated_to.append(agent)
-                agent.allocated_fields.append(field)
-                # Near border
-                for near_coord in agent.get_near_coordinates(coord):
-                    near_field: Field = self.get_field_at(near_coord, True)
-                    if agent not in near_field.near_to:
-                        near_field.near_to.append(agent)
-                    if near_field not in agent.allocated_near_fields:
-                        agent.allocated_near_fields.append(near_field)
-                # Far border
-                for far_coord in agent.get_far_coordinates(coord):
-                    far_field: Field = self.get_field_at(far_coord, True)
-                    if agent not in far_field.far_to:
-                        far_field.far_to.append(agent)
-                    if far_field not in agent.allocated_far_fields:
-                        agent.allocated_far_fields.append(far_field)
+            for path in paths:
+                for coord in path:
+                    field: Field = self.get_field_at(coord, True)
+                    field.allocated_to.append(agent)
+                    agent.allocated_fields.append(field)
+                    # Near border
+                    for near_coord in agent.get_near_coordinates(coord):
+                        near_field: Field = self.get_field_at(near_coord, True)
+                        if agent not in near_field.near_to:
+                            near_field.near_to.append(agent)
+                        if near_field not in agent.allocated_near_fields:
+                            agent.allocated_near_fields.append(near_field)
+                    # Far border
+                    for far_coord in agent.get_far_coordinates(coord):
+                        far_field: Field = self.get_field_at(far_coord, True)
+                        if agent not in far_field.far_to:
+                            far_field.far_to.append(agent)
+                        if far_field not in agent.allocated_far_fields:
+                            agent.allocated_far_fields.append(far_field)
 
     def is_blocked(self, coords: TimeCoordinate) -> bool:
         for blocker in self.blocker:
@@ -95,3 +99,4 @@ class Environment:
     def clear(self):
         new_env = Environment(self.dimension, self.blocker)
         return new_env
+

@@ -1,11 +1,12 @@
-from typing import List
+from typing import List, Dict
 
+from . import Tick
 from .Agent import Agent
 from .Coordinate import TimeCoordinate
 from .Environment import Environment
 from .Allocator import Allocator
+from .History2.History import History2
 from .Owner import Owner
-from .helpers.History import History
 
 
 class Simulator:
@@ -13,13 +14,13 @@ class Simulator:
                  owners: List[Owner],
                  allocator: Allocator,
                  environment: Environment,
-                 history: History):
+                 history: History2):
         self.owners: List[Owner] = owners
         self.allocator: Allocator = allocator
         self.environment: Environment = environment
-        self.history: History = history
+        self.history: History2 = history
         self.agents: List[Agent] = []
-        self.time_step = 0
+        self.time_step = Tick(0)
 
     def setup(self):
         pass
@@ -31,8 +32,9 @@ class Simulator:
         newcomers: List[Agent] = []
         for owner in self.owners:
             newcomers += owner.generate_agents(self.time_step, self.environment)
-        for agent in newcomers:
-            agent_paths: List[List[TimeCoordinate]] = self.allocator.allocate_for_agent(agent, self.environment)
-            self.environment.allocate_paths(agent, agent_paths)
+        self.history.add_new_agents(newcomers, self.time_step)
+        agents_paths: Dict[Agent, List[List[TimeCoordinate]]] = self.allocator.allocate_for_agents(newcomers, self.environment)
+        self.environment.allocate_paths(agents_paths, self.time_step)
+        self.history.update_allocations(agents_paths, self.time_step)
         self.time_step += 1
         return True

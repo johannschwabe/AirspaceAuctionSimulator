@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Dict
 
 from ..Agent import Agent
 from ..Coordinate import TimeCoordinate
@@ -11,5 +11,5 @@ class Allocator(ABC):
         pass
 
     @abstractmethod
-    def allocate_for_agent(self, agent: Agent, env: Environment) -> List[List[TimeCoordinate]]:
+    def allocate_for_agents(self, agents: List[Agent], env: Environment) -> Dict[Agent, List[List[TimeCoordinate]]]:
         pass

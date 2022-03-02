@@ -1,3 +1,4 @@
+from ..Simulator import Owner
 from ..Simulator import Simulator
 from ..Agent import Agent
 
@@ -20,3 +21,20 @@ class Statistics:
         for agent in self.env.agents:
             print(f"{agent}'s non colliding value: {self.non_colliding_value(agent)}, "
                   f"achieved value: {agent.value_for_paths(agent.allocated_paths)}")
+
+    @staticmethod
+    def agents_welfare(agent: Agent):
+        return agent.value_for_paths(agent.allocated_paths)
+
+    def average_agents_welfare(self):
+        summed_welfare = 0
+        for agent in self.env.agents:
+            summed_welfare += Statistics.agents_welfare(agent)
+        return summed_welfare / len(self.env.agents)
+
+    @staticmethod
+    def owners_welfare(owner: Owner):
+        summed_welfare = 0
+        for agent in owner.agents:
+            summed_welfare += Statistics.agents_welfare(agent)
+        return summed_welfare
