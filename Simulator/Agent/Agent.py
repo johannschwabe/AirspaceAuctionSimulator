@@ -20,7 +20,7 @@ class Agent(ABC):
         speed: Optional[int] = None,
         battery: Optional[int] = None,
         near_border: Optional[List[Coordinate]] = None,
-        far_border: Optional[List[Coordinate]] = None
+        far_border: Optional[List[Coordinate]] = None,
     ):
         self.uuid = Agent.id
         Agent.id += 1
