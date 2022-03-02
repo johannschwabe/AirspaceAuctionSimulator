@@ -35,8 +35,10 @@ class Environment:
         for path in paths:
             for coord in path:
                 field: Field = self.get_field_at(coord, True)
-                field.allocated_to.append(agent)
-                agent.allocated_fields.append(field)
+                if agent not in field.near_to:
+                    field.allocated_to.append(agent)
+                if field not in agent.allocated_fields:
+                    agent.allocated_fields.append(field)
                 # Near border
                 for near_coord in agent.get_near_coordinates(coord):
                     near_field: Field = self.get_field_at(near_coord, True)
@@ -58,12 +60,40 @@ class Environment:
                 return True
         return False
 
+    def is_valid_for_allocation(self, coords: TimeCoordinate, agent: Agent) -> bool:
+        is_free = True
+        for t in range(agent.speed):
+            waiting_coord = TimeCoordinate(coords.x, coords.y, coords.z, coords.t + Tick(t))
+            # Blocker
+            if self.is_blocked(waiting_coord):
+                is_free = False
+                break
+            # Allocated to or in near boarder of other agents
+            field = self.get_field_at(waiting_coord, False)
+            if field.is_allocated() or field.is_near():
+                is_free = False
+                break
+            # Other agent in near border
+            for near_coord in agent.near_border:
+                near_neighbor = TimeCoordinate(near_coord.x, near_coord.y, near_coord.z, waiting_coord.t)
+                near_field = self.get_field_at(near_neighbor, False)
+                if near_field.is_allocated():
+                    is_free = False
+                    break
+
+            if not is_free:
+                break
+
+        return is_free
+
+
     def get_field_at(self, coords: TimeCoordinate, creating: bool) -> Field:
-        if coords.get_key() in self.relevant_fields:
-            return self.relevant_fields[coords.get_key()]
+        key = coords.get_key()
+        if key in self.relevant_fields:
+            return self.relevant_fields[key]
         new_field = Field(coords)
         if creating:
-            self.relevant_fields[coords.get_key()] = new_field
+            self.relevant_fields[key] = new_field
         return new_field
 
     def visualize(self, current_time_step, before=0, nr_steps=1):
@@ -79,15 +109,19 @@ class Environment:
                     for x in range(self.dimension.x):
                         coord = TimeCoordinate(x, y, z, Tick(t))
                         field = self.get_field_at(coord, False)
-                        if field.is_allocated() and not self.is_blocked(field.coordinates):
+                        if field.is_allocated():
                             if field.allocated_to and t == current_time_step:
-                                print(f"{field.allocated_to}".rjust(5, ' '), end="")
+                                print(f" {field.allocated_to}".rjust(5, ' '), end="")
                             elif field.allocated_to:
                                 print(f"-{field.allocated_to}-".rjust(5, ' '), end="")
                         elif self.is_blocked(field.coordinates):
-                            print("✖  ".rjust(5, ' '), end="")
+                            print("✖".rjust(5, ' '), end="")
+                        elif field.is_near():
+                            print("*".rjust(5, ' '), end="")
+                        elif field.is_far():
+                            print("-".rjust(5, ' '), end="")
                         else:
-                            print(".  ".rjust(5, ' '), end="")
+                            print(".".rjust(5, ' '), end="")
                     print("")
                 print("")
             print(" ↓\n Y")

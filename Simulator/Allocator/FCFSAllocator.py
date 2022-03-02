@@ -23,7 +23,7 @@ class FCFSAllocator(Allocator):
                 bid.a,
                 bid.b,
                 env,
-                agent.speed,
+                agent,
             )
             if len(ab_path) == 0 or ab_path[-1].t - ab_path[0].t > agent.battery:
                 return []
@@ -37,7 +37,7 @@ class FCFSAllocator(Allocator):
                     TimeCoordinate(b.x, b.y, b.z, b.t + Tick(bid.stay)),
                     bid.a,
                     env,
-                    agent.speed,
+                    agent,
                 )
 
                 if len(ba_path) == 0 or ab_path[-1].t - ab_path[0].t + ba_path[-1].t - ba_path[0].t > agent.battery:

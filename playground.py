@@ -8,10 +8,10 @@ from owners.ABAOwner import ABAOwner
 from owners.ABOwner import ABOwner
 from owners.BlockerOwner import BlockerOwner
 
-dimensions = Coordinate(10, 10, 1)
+dimensions = Coordinate(20, 20, 1)
 environment = Environment(dimensions, [])
 allocator = FCFSAllocator()
-owners = [ABAOwner([1]), ABOwner([1]), BlockerOwner([1, 1, 1, 1, 1, 1])]
+owners = [ABAOwner([0, 0, 0]), ABOwner([0, 0, 0]), BlockerOwner([1, 1, 1])]
 
 history = History()
 simulator = Simulator(owners, allocator, environment, history)

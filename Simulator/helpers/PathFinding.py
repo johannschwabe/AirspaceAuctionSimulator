@@ -11,11 +11,14 @@ def astar(
     start: TimeCoordinate,
     end: TimeCoordinate,
     env: Environment,
-    speed: int,
+    agent: Agent,
 ):
-
     open_nodes = []
     closed_nodes = []
+
+    valid_start = start
+    while not env.is_valid_for_allocation(valid_start, agent):
+        valid_start.t += 1
 
     start_node = Node(start, None)
     end = Node(end, None)
@@ -30,6 +33,7 @@ def astar(
         open_nodes.sort()
         current_node = open_nodes.pop(0)
         closed_nodes.append(current_node)
+        # Target reached
         if current_node.position == end.position or (
             current_node.position.t > end.position.t and current_node.position.inter_temporal_equal(end.position)):
             reverse_path = []
@@ -41,47 +45,34 @@ def astar(
             path = reverse_path[::-1]
             break
 
-        neighbors = current_node.adjacent_coordinates(env.dimension, speed)
-        for neighboring_field in neighbors:
-            is_free = True
-            for t in range(speed):
-                next_neighbor = TimeCoordinate(neighboring_field.x, neighboring_field.y, neighboring_field.z, neighboring_field.t + Tick(t))
-                if env.is_blocked(next_neighbor):
-                    is_free = False
+        # Find non occupied neighbor
+        neighbors = current_node.adjacent_coordinates(env.dimension, agent.speed)
+        for next_neighbor in neighbors:
+            if env.is_valid_for_allocation(next_neighbor, agent):
+                waiting_neighbor = Node(next_neighbor, current_node)
+                # Closed node
+                if waiting_neighbor in closed_nodes:
                     break
 
-                field = env.get_field_at(next_neighbor, False)
-                if not field.is_allocated() and not field.is_near():
-                    waiting_neighbor = Node(next_neighbor, current_node)
-                    if waiting_neighbor in closed_nodes:
-                        is_free = False
-                        break
+                neighbor = Node(next_neighbor, current_node)
+
+                neighbor.g = current_node.g + 1
+                neighbor.h = distance(neighbor.position, end.position)
+                neighbor.f = neighbor.g + neighbor.h
+
+                if neighbor in open_nodes:
+                    alternative_index = open_nodes.index(neighbor)
+                    alternative = open_nodes[alternative_index]
+                    if alternative.f > neighbor.f:
+                        open_nodes[alternative_index] = neighbor
+
                 else:
-                    is_free = False
-                    break
-
-            if not is_free:
-                break
-
-            neighbor = Node(neighboring_field, current_node)
-
-            neighbor.g = current_node.g + 1
-            neighbor.h = distance(neighbor.position, end.position)
-            neighbor.f = neighbor.g + neighbor.h
-
-            if neighbor in open_nodes:
-                alternative_index = open_nodes.index(neighbor)
-                alternative = open_nodes[alternative_index]
-                if alternative.f > neighbor.f:
-                    open_nodes[alternative_index] = neighbor
-
-            else:
-                open_nodes.append(neighbor)
+                    open_nodes.append(neighbor)
 
     wait_coords: List[TimeCoordinate] = []
-    for coord in path:
-        for t in range(1, speed):
-            wait_coords.append(TimeCoordinate(coord.x, coord.y, coord.z, coord.t + Tick(t)))
+    for near_coord in path:
+        for t in range(1, agent.speed):
+            wait_coords.append(TimeCoordinate(near_coord.x, near_coord.y, near_coord.z, near_coord.t + Tick(t)))
 
     complete_path = path + wait_coords
     complete_path.sort(key=lambda x: x.t)

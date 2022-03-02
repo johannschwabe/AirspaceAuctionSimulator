@@ -12,13 +12,21 @@ class Agent(ABC):
 
     default_near_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-1, 2) for y in range(-1, 2) for z in range(-1, 2)]
     default_far_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-2, 3) for y in range(-2, 3) for z in range(-2, 3)]
+    default_battery = 100
+    default_speed = 1
 
-    def __init__(self, speed: int = 1, battery: int = 20, near_border: Optional[List[Coordinate]] = None, far_border: Optional[List[Coordinate]] = None):
+    def __init__(
+        self,
+        speed: Optional[int] = None,
+        battery: Optional[int] = None,
+        near_border: Optional[List[Coordinate]] = None,
+        far_border: Optional[List[Coordinate]] = None
+    ):
         self.uuid = Agent.id
         Agent.id += 1
 
-        self.speed: int = speed
-        self.battery: int = battery
+        self.speed: int = speed if speed is not None else Agent.default_speed
+        self.battery: int = battery if battery is not None else Agent.default_battery
 
         self.near_border: List[Coordinate] = near_border if near_border is not None else Agent.default_near_border
         self.far_boarder: List[Coordinate] = far_border if far_border is not None else Agent.default_far_border
@@ -43,10 +51,10 @@ class Agent(ABC):
         pass
 
     def get_near_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
-        return [coordinate + position for coordinate in self.near_border]
+        return [TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t) for coordinate in self.near_border]
 
     def get_far_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
-        return [coordinate + position for coordinate in self.far_boarder]
+        return [TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t) for coordinate in self.far_boarder]
 
     def contains_coordinate(self, path: List[TimeCoordinate], coordinate: TimeCoordinate) -> Hit:
         current_position: Optional[Coordinate] = None
