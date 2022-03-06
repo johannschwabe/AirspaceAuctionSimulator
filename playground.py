@@ -2,6 +2,7 @@ import random
 
 from Simulator.Allocator import FCFSAllocator
 from Simulator.Coordinate import Coordinate
+from Simulator.History2.History import History2
 from Simulator.helpers.History import History
 from Simulator import Simulator, Statistics, Environment
 from owners.ABAOwner import ABAOwner
@@ -14,7 +15,7 @@ environment = Environment(dimensions, [])
 allocator = FCFSAllocator()
 owners = [ABAOwner([0, 0]), ABOwner([0, 0]), BlockerOwner([1, 1, 1, 1, 1]), ABCOwner([0, 0, 0, 0, 0])]
 
-history = History()
+history = History2(dimensions,allocator, environment)
 simulator = Simulator(owners, allocator, environment, history)
 simulator.setup()
 

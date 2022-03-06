@@ -1,12 +1,13 @@
 from typing import List, Dict
 
 from .HistoryAgent import HistoryAgent
-from .. import Environment, Owner, Tick
+from ..Coordinate import Coordinate, TimeCoordinate
+from ..Simulator import Environment, Tick
 from ..Agent import Agent
 from ..Allocator import Allocator
-from ..Simulator import TimeCoordinate
+from ..History.Owner import Owner
 class History2:
-    def __init__(self, dims:TimeCoordinate, allocator: Allocator, env: Environment):
+    def __init__(self, dims: Coordinate, allocator: Allocator, env: Environment):
         self.dims = dims
         self.agents: Dict[Agent, HistoryAgent] = {}
         self.owners: List[Owner] = []

@@ -14,7 +14,7 @@ class Statistics:
     def non_colliding_value(self, agent: Agent):
         local_agent = agent.clone()
         local_env = self.env.clear()
-        paths = self.allocator.allocate_for_agent(local_agent, local_env)
+        paths = self.allocator.allocate_for_agents([local_agent], local_env)[local_agent]
         return local_agent.value_for_paths(paths)
 
     def non_colliding_values(self):

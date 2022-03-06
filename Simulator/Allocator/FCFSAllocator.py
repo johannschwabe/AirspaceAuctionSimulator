@@ -13,7 +13,7 @@ class FCFSAllocator(Allocator):
     def __init__(self):
         super().__init__()
 
-    def allocate_for_agents(self, agents: List[Agent], env: Environment) -> Dict[List[List[TimeCoordinate]]]:
+    def allocate_for_agents(self, agents: List[Agent], env: Environment) -> Dict[Agent, List[List[TimeCoordinate]]]:
         res = {}
         for agent in agents:
             optimal_paths: List[List[TimeCoordinate]] = []

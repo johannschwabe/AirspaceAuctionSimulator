@@ -1,11 +1,11 @@
 from typing import List, Dict
 
-from . import Tick
+from .Time import Tick
 from .Agent import Agent
 from .Coordinate import TimeCoordinate
 from .Environment import Environment
 from .Allocator import Allocator
-from .History2.History import History2
+from .History2 import History2
 from .Owner import Owner
 
 

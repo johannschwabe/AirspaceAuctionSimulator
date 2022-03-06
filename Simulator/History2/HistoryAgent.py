@@ -1,7 +1,7 @@
 from typing import List, Dict
 
-from Simulator import Tick
-from Simulator.Coordinate import TimeCoordinate
+from ..Coordinate import TimeCoordinate
+from ..Time import Tick
 
 
 class HistoryAgent:

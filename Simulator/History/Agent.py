@@ -13,3 +13,11 @@ class Agent:
         self.costs: float = costs
         self.flight_time = locations[-1].t - locations[0].t
 
+    def clone(self):
+        new_agent = Agent(self.locations.copy(), self.optimal_welfare, self.achieved_welfare, self.costs)
+        new_agent.uuid = self.uuid #Probably a bad Idea
+        return new_agent
+
+    def __repr__(self):
+        return self.uuid
+
