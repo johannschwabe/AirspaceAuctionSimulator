@@ -22,8 +22,9 @@ class Agent(ABC):
         near_border: Optional[List[Coordinate]] = None,
         far_border: Optional[List[Coordinate]] = None,
     ):
-        self.uuid = Agent.id
+        self.id = Agent.id
         Agent.id += 1
+        self.is_clone = False
 
         self.speed: int = speed if speed is not None else Agent.default_speed
         self.battery: int = battery if battery is not None else Agent.default_battery
@@ -86,4 +87,4 @@ class Agent(ABC):
         return Hit.FAR
 
     def __repr__(self):
-        return str(self.uuid)
+        return str(self.id)

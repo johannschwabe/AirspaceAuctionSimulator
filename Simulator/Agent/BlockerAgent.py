@@ -7,8 +7,6 @@ from ..Coordinate import Coordinate, TimeCoordinate
 
 
 class BlockerAgent(Agent):
-    id: int = 0
-
     def __init__(
         self,
         block: List[Coordinate],
@@ -42,5 +40,8 @@ class BlockerAgent(Agent):
         return BlockerBid(self.battery, self.block, self.start_t, self.end_t)
 
     def clone(self):
-        return BlockerAgent(self.block, self.start_t, self.end_t)
+        clone = BlockerAgent(self.block, self.start_t, self.end_t)
+        clone.id = self.id
+        clone.is_clone = True
+        return clone
 

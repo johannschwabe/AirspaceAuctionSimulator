@@ -1,9 +1,8 @@
-from Simulator import Environment
+from Simulator.Environment import Environment
 from Simulator.Coordinate import TimeCoordinate
 from Simulator.Field import Field
 
-
-class TempEnvironment(Environment):
+class TempEnvironment(Environment.Environment):
     def __init__(self, env: Environment):
         self.env = env
         super().__init__(env.dimension, env.blocker)
@@ -36,8 +35,6 @@ class TempEnvironment(Environment):
                     cloned_agent = agent.clone()
                     new_field.far_to.append(cloned_agent)
                     self.agents.append(cloned_agent)
-
-
         else:
             new_field = Field(coords)
 
