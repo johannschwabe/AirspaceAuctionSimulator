@@ -23,9 +23,10 @@ class ABOwner(Owner):
                                     random.randint(0, dimensions.y - 1),
                                     random.randint(0, dimensions.z - 1),
                                     Tick(0))
+            speed = random.randint(1, 3)
             distance = start.inter_temporal_distance(target)
-            target.t = start.t + distance + random.randint(0, 5)
-            agent = ABAgent(start, target, speed=random.randint(1, 3))
+            target.t = start.t + distance * speed + random.randint(0, 5)
+            agent = ABAgent(start, target, speed=speed)
             res.append(agent)
             print(f"A-B created {agent}")
 

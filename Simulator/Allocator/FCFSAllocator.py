@@ -1,10 +1,10 @@
-from typing import List
+from typing import List, Dict
 
 from ..Time import Tick
 from ..Environment import Environment
 from ..Agent import Agent
 from ..Allocator import Allocator
-from ..Bid import ABBid, Bid, ABABid, BlockerBid
+from ..Bid import ABBid, Bid, ABABid, BlockerBid, ABCBid
 from ..Coordinate import TimeCoordinate
 from ..helpers.PathFinding import astar
 
@@ -13,11 +13,11 @@ class FCFSAllocator(Allocator):
     def __init__(self):
         super().__init__()
 
-    def allocate_for_agents(self, agents: List[Agent], env: Environment) -> List[List[TimeCoordinate]]:
-        temp_env = env.clone()
+    def allocate_for_agents(self, agents: List[Agent], env: Environment) -> Dict[List[List[TimeCoordinate]]]:
+        res = {}
         for agent in agents:
-            bid: Bid = agent.get_bid()
             optimal_paths: List[List[TimeCoordinate]] = []
+            bid: Bid = agent.get_bid()
 
             # A-B
             if isinstance(bid, ABBid):
@@ -25,10 +25,11 @@ class FCFSAllocator(Allocator):
                     bid.a,
                     bid.b,
                     env,
-                    agent.speed,
+                    agent,
                 )
                 if len(ab_path) == 0 or ab_path[-1].t - ab_path[0].t > agent.battery:
-                    return []
+                    res[agent] = []
+                    continue
 
                 optimal_paths.append(ab_path)
 
@@ -39,13 +40,15 @@ class FCFSAllocator(Allocator):
                         TimeCoordinate(b.x, b.y, b.z, b.t + Tick(bid.stay)),
                         bid.a,
                         env,
-                        agent.speed,
+                        agent,
                     )
 
                     if len(ba_path) == 0 or ab_path[-1].t - ab_path[0].t + ba_path[-1].t - ba_path[0].t > agent.battery:
-                        return []
+                        res[agent] = []
+                        continue
 
                     optimal_paths.append(ba_path)
+                res[agent] = optimal_paths
 
             elif isinstance(bid, BlockerBid):
                 path = []
@@ -70,5 +73,27 @@ class FCFSAllocator(Allocator):
 
                 if len(path) > 0:
                     optimal_paths.append(path)
+                res[agent] = optimal_paths
 
-        return optimal_paths
+            elif isinstance(bid, ABCBid):
+                a = bid.locations[0]
+                time = 0
+                for b, stay in zip(bid.locations[1:], bid.stays + [0]):
+                    ab_path = astar(
+                        a,
+                        b,
+                        env,
+                        agent,
+                    )
+
+                    if len(ab_path) == 0:
+                        break
+
+                    time += ab_path[-1].t - ab_path[0].t
+                    if time > agent.battery:
+                        break
+
+                    optimal_paths.append(ab_path)
+                res[agent] = optimal_paths
+
+        return res

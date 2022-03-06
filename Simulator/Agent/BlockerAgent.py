@@ -36,7 +36,7 @@ class BlockerAgent(Agent):
 
         value -= (self.end_t - self.start_t - time) / 100
 
-        return value
+        return round(value, 2)
 
     def get_bid(self) -> Bid:
         return BlockerBid(self.battery, self.block, self.start_t, self.end_t)

@@ -12,8 +12,8 @@ class ABAgent(Agent):
         self,
         a: TimeCoordinate,
         b: TimeCoordinate,
-        speed: int = 1,
-        battery: int = 20,
+        speed: Optional[int] = None,
+        battery: Optional[int] = None,
         near_border: Optional[List[Coordinate]] = None,
         far_border: Optional[List[Coordinate]] = None,
     ):
@@ -39,7 +39,7 @@ class ABAgent(Agent):
 
         delay = destination.t - self.b.t
         if delay > 0:
-            return max(0., 1. - delay / 100)
+            return round(max(0., 1. - delay / 100), 2)
 
         return 1.
 
