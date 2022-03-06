@@ -68,7 +68,8 @@ def astar(
 
                 else:
                     open_nodes.append(neighbor)
-
+    if len(path) == 0:
+        print("ASTAR failed")
     wait_coords: List[TimeCoordinate] = []
     for near_coord in path:
         for t in range(1, agent.speed):

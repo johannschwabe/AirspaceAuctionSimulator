@@ -48,5 +48,6 @@ class ABAgent(Agent):
         clone = ABAgent(self.a, self.b, self.speed, self.battery, self.near_border, self.far_boarder)
         clone.id = self.id
         clone.is_clone = True
+        Agent.id -= 1
         return clone
 

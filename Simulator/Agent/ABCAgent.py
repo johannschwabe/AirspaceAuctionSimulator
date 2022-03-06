@@ -51,4 +51,6 @@ class ABCAgent(Agent):
         clone = ABCAgent(self.locations, self.stays, self.speed, self.battery, self.near_border, self.far_boarder)
         clone.id = self.id
         clone.is_clone = True
+        Agent.id -= 1
+
         return clone

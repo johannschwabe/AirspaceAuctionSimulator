@@ -13,7 +13,7 @@ from owners.BlockerOwner import BlockerOwner
 dimensions = Coordinate(10, 10, 1)
 environment = Environment(dimensions, [])
 allocator = FCFSAllocator()
-owners = [ABOwner([0, 0])]
+owners = [ABOwner([0, 0, 1, 1, 2, 3, 4])]
 
 history = History2(dimensions,allocator, environment)
 simulator = Simulator(owners, allocator, environment, history)
