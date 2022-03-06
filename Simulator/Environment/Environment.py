@@ -109,7 +109,7 @@ class Environment:
             for z in range(self.dimension.z):
                 print(f"z={z: >2}", end="")
                 for i in range(self.dimension.x):
-                    print(f"{i: >4} ", end="")
+                    print(f" {i: >4}", end="")
                 print("  -> X")
                 for y in range(self.dimension.y):
                     print(f"  {y: >2} ", end="")

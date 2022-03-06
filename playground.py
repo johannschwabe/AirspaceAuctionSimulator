@@ -13,9 +13,10 @@ from owners.BlockerOwner import BlockerOwner
 dimensions = Coordinate(10, 10, 1)
 environment = Environment(dimensions, [])
 allocator = FCFSAllocator()
-owners = [ABOwner([0, 0, 1, 1, 2, 3, 4])]
+owners = [ABOwner([0, 0, 0, 1, 1, 2, 2, 2, 2, 2, 3, 4, 5, 10, 20, 20])]
 
 history = History2(dimensions,allocator, environment)
+history.set_owners(owners)
 simulator = Simulator(owners, allocator, environment, history)
 simulator.setup()
 
@@ -26,4 +27,7 @@ while simulator.time_step < 50:
 
 stats = Statistics(simulator)
 stats.non_colliding_values()
+stats.close_passings()
+stats.average_owners_welfare()
+stats.average_agents_welfare()
 print("done")

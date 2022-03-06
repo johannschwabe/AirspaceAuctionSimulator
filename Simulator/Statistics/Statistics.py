@@ -30,6 +30,7 @@ class Statistics:
         summed_welfare = 0
         for agent in self.env.agents:
             summed_welfare += Statistics.agents_welfare(agent)
+        print(f"AAW: {summed_welfare/len(self.env.agents)}")
         return summed_welfare / len(self.env.agents)
 
     @staticmethod
@@ -38,3 +39,38 @@ class Statistics:
         for agent in owner.agents:
             summed_welfare += Statistics.agents_welfare(agent)
         return summed_welfare
+
+    def average_owners_welfare(self):
+        summed_welfare = 0
+        for owner in self.history.owners:
+            summed_welfare += Statistics.owners_welfare(owner)
+        print(f"AOW: {summed_welfare/len(self.history.owners)}")
+        return summed_welfare/len(self.history.owners)
+
+    def allocated_distance(self):
+        length = 0
+        for agent in self.env.agents:
+            for path in agent.allocated_paths:
+                length += len(path)
+        return length
+
+    def close_passings(self):
+        far_field_intersections = 0
+        near_field_intersections = 0
+        collisions = 0
+        far_field_crossings = 0
+        near_field_crossings = 0
+
+        for field in self.env.relevant_fields.values():
+            if len(field.allocated_to) > 1:
+                collisions += 1
+            if len(field.far_to) > 1:
+                far_field_intersections += len(field.far_to)
+            if len(field.near_to) > 1:
+                near_field_intersections += len(field.far_to)
+            if len(field.allocated_to) >= 1 and len(field.far_to) > 1:
+                far_field_crossings += len(field.far_to)
+            if len(field.allocated_to) >= 1 and len(field.near_to) > 1:
+                near_field_crossings += len(field.near_to)
+        print(f"Col: {collisions}, nfc: {near_field_crossings}, nfi: {near_field_intersections}, ffc: {far_field_crossings}, ffi: {far_field_intersections}")
+        return collisions, near_field_crossings, near_field_intersections, far_field_crossings, far_field_intersections
