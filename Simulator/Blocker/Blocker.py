@@ -17,5 +17,6 @@ class Blocker:
         return res
 
     def is_blocked(self, coordinates: TimeCoordinate) -> bool:
-        transformed_location = coordinates.to_inter_temporal() - self.locations[coordinates.t]
+        transformed_location = \
+            coordinates.to_inter_temporal() - self.locations[min(int(coordinates.t), list(self.locations.keys())[-1])]
         return transformed_location in self.blocked_coordinates

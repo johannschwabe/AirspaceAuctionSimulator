@@ -2,9 +2,10 @@ from typing import List
 
 from ..Agent import Agent
 from ..Coordinate import TimeCoordinate
+from ..IO import Stringify
 
 
-class Field:
+class Field(Stringify):
     def __init__(self, coordinates: TimeCoordinate):
         self.coordinates: TimeCoordinate = coordinates
 

@@ -3,11 +3,12 @@ from typing import List, Dict
 from ..Field import Field
 from ..Agent import Agent
 from ..Coordinate import TimeCoordinate, Coordinate
+from ..IO import Stringify
 from ..Time import Tick
 from ..Blocker import Blocker
 
 
-class Environment:
+class Environment(Stringify):
     def __init__(self, dimension: Coordinate, blocker: List[Blocker]):
         self.dimension: Coordinate = dimension
         self.agents: List[Agent] = []
@@ -85,7 +86,6 @@ class Environment:
                 break
 
         return is_free
-
 
     def get_field_at(self, coords: TimeCoordinate, creating: bool) -> Field:
         key = coords.get_key()

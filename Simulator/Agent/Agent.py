@@ -4,14 +4,17 @@ from typing import List, Optional
 from ..Bid import Bid
 from ..Coordinate import Coordinate, TimeCoordinate
 from ..Field import Field
+from ..IO import Stringify
 from ..helpers.Hit import Hit
 
 
-class Agent(ABC):
+class Agent(ABC, Stringify):
     id: int = 0
 
-    default_near_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-1, 2) for y in range(-1, 2) for z in range(-1, 2)]
-    default_far_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-2, 3) for y in range(-2, 3) for z in range(-2, 3)]
+    default_near_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-1, 2) for y in range(-1, 2) for z in
+                                             range(-1, 2)]
+    default_far_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-2, 3) for y in range(-2, 3) for z in
+                                            range(-2, 3)]
     default_battery = 100
     default_speed = 1
 
@@ -37,6 +40,13 @@ class Agent(ABC):
         self.allocated_near_fields: List[Field] = []
         self.allocated_far_fields: List[Field] = []
 
+        self.optimal_welfare: float = 1.
+        self.costs: float = 0.
+        self.flight_time: int = 0
+
+    @property
+    def achieved_welfare(self) -> float:
+        return self.value_for_paths(self.allocated_paths)
 
     @abstractmethod
     def value_for_paths(self, paths: List[List[TimeCoordinate]]) -> float:
@@ -51,10 +61,14 @@ class Agent(ABC):
         pass
 
     def get_near_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
-        return [TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t) for coordinate in self.near_border]
+        return [
+            TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t)
+            for coordinate in self.near_border]
 
     def get_far_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
-        return [TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t) for coordinate in self.far_boarder]
+        return [
+            TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t)
+            for coordinate in self.far_boarder]
 
     def contains_coordinate(self, path: List[TimeCoordinate], coordinate: TimeCoordinate) -> Hit:
         current_position: Optional[Coordinate] = None

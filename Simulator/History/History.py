@@ -1,16 +1,20 @@
 from typing import List
-from .Owner import Owner
+
+from .. import Simulator
+from ..Owner import Owner
 from ..IO import Stringify
-from ..Coordinate import TimeCoordinate
-from .Environment import Environment
+from .EnvironmentGen import Environment
 
 
 class History(Stringify):
 
-    def __init__(self, name: str, description: str, dimensions: TimeCoordinate, owners: List[Owner]):
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        simulator: Simulator,
+    ):
         self.name: str = name
         self.description: str = description
-        self.environment: Environment = Environment(dimensions, 100)
-        self.dimensions: TimeCoordinate = dimensions
-        self.owners: List[Owner] = owners
-
+        self.environment: Environment = simulator.environment
+        self.owners: List[Owner] = simulator.owners

@@ -1,7 +1,8 @@
 import random
 from typing import List
 
-from Simulator import Environment, Owner, Tick
+from Simulator import Environment, Owner
+from Simulator.Time import Tick
 from Simulator.Agent import ABAgent, Agent
 from Simulator.Coordinate import TimeCoordinate
 

@@ -1,14 +1,12 @@
-from ..Simulator import Simulator
+from ..Allocator import Allocator
+from ..History import History
 from ..Agent import Agent
 
 
 class Statistics:
-    def __init__(self, sim: Simulator):
-        self.env = sim.environment
-        self.allocator = sim.allocator
-        self.history = sim.history
-        self.owners = sim.owners
-        self.time_elapsed = sim.time_step
+    def __init__(self, history: History, allocator: Allocator):
+        self.env = history.environment
+        self.allocator = allocator
 
     def non_colliding_value(self, agent: Agent):
         local_agent = agent.clone()
