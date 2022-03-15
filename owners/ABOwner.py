@@ -26,8 +26,9 @@ class ABOwner(Owner):
                                     Tick(0))
             speed = random.randint(1, 3)
             distance = start.inter_temporal_distance(target)
-            target.t = start.t + distance * speed + random.randint(0, 5)
-            agent = ABAgent(start, target, speed=speed)
+            travel_time = distance * speed
+            target.t = start.t + travel_time + random.randint(0, 5)
+            agent = ABAgent(start, target, speed=speed, battery=travel_time * 2)
             res.append(agent)
             print(f"A-B created {agent}")
 
