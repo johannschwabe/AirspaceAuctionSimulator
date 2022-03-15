@@ -47,5 +47,5 @@ class ABAgent(Agent):
         return ABBid(self.battery, self.a, self.b)
 
     def clone(self):
-        return ABAgent(self.a, self.b, self.speed, self.battery, self.near_border, self.far_border)
+        return ABAgent(self.a, self.b, self.speed, self.battery, self._near_border, self._far_border)
 

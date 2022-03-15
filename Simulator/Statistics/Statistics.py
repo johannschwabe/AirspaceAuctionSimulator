@@ -15,6 +15,6 @@ class Statistics:
         return local_agent.value_for_paths(paths)
 
     def non_colliding_values(self):
-        for agent in self.env.agents:
+        for agent in self.env._agents:
             print(f"{agent}'s non colliding value: {self.non_colliding_value(agent)}, "
-                  f"achieved value: {agent.value_for_paths(agent.allocated_paths)}")
+                  f"achieved value: {agent.value_for_paths(agent._allocated_paths)}")

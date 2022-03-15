@@ -46,7 +46,7 @@ def astar(
             break
 
         # Find non occupied neighbor
-        neighbors = current_node.adjacent_coordinates(env.dimension, agent.speed)
+        neighbors = current_node.adjacent_coordinates(env._dimension, agent.speed)
         for next_neighbor in neighbors:
             if env.is_valid_for_allocation(next_neighbor, agent):
                 waiting_neighbor = Node(next_neighbor, current_node)

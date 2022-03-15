@@ -51,13 +51,15 @@ const series = [
 ];
 
 simulationStore.agents.forEach((agent) => {
-  const start = agent.locations[0].t;
-  const end = agent.locations[agent.locations.length - 1].t;
-  series[0].data.push({
-    x: agent.uuid,
-    y: [start, end],
-    fillColor: agent.owner.color,
-  });
+  if (agent.locations.length > 0) {
+    const start = agent.locations[0].t;
+    const end = agent.locations[agent.locations.length - 1].t;
+    series[0].data.push({
+      x: agent.uuid,
+      y: [start, end],
+      fillColor: agent.owner.color,
+    });
+  }
 });
 </script>
 

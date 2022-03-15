@@ -52,17 +52,7 @@ class SimulationConfigType(BaseModel):
 @app.post("/simulation")
 def read_root(config: SimulationConfigType):
     dimensions = TimeCoordinate(config.dimension.x, config.dimension.y, config.dimension.z, Tick(config.dimension.t))
-    g = Generator(name=config.name, description=config.description, agents=10, owners=5, dimensions=dimensions,
+    g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions,
                   avg_flight_time=10)
     history = g.simulate()
-    return history.as_dict(ignore_keys=[
-        "allocated_fields",
-        "allocated_near_fields",
-        "allocated_far_fields",
-        "allocated_to",
-        "near_to",
-        "far_to",
-        "blocker",
-        "near_border",
-        "far_border",
-    ])
+    return history.as_dict()

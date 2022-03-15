@@ -15,7 +15,7 @@ class ABOwner(Owner):
     def generate_agents(self, t: int, env: Environment) -> List[Agent]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
-            dimensions = env.dimension
+            dimensions = env._dimension
             start = TimeCoordinate(random.randint(0, dimensions.x - 1),
                                    random.randint(0, dimensions.y - 1),
                                    random.randint(0, dimensions.z - 1),

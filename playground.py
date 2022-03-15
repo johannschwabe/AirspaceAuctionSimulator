@@ -1,18 +1,13 @@
-import random
-
 from Simulator.Allocator import FCFSAllocator
 from Simulator.Coordinate import TimeCoordinate
 from Simulator import Simulator, Statistics, Environment, Tick
 from Simulator.History import History
-from owners.ABAOwner import ABAOwner
-from owners.ABCOwner import ABCOwner
 from owners.ABOwner import ABOwner
-from owners.BlockerOwner import BlockerOwner
 
-dimensions = TimeCoordinate(20, 20, 1, Tick(50))
+dimensions = TimeCoordinate(20, 20, 1, Tick(250))
 environment = Environment(dimensions, [])
 allocator = FCFSAllocator()
-owners = [ABAOwner([0, 0]), ABOwner([0, 0]), BlockerOwner([1, 1, 1, 1, 1]), ABCOwner([0, 0, 0, 0, 0])]
+owners = [ABOwner([i for i in range(10)])]
 
 simulator = Simulator(owners, allocator, environment)
 

@@ -73,9 +73,11 @@ const series = reactive([
 ]);
 
 simulationStore.agents.forEach((agent) => {
-  const arrivalTick = agent.locations[agent.locations.length - 1].t;
-  series[0].data[arrivalTick] += agent.optimal_welfare;
-  series[1].data[arrivalTick] += agent.achieved_welfare;
+  if (agent.locations.length > 0) {
+    const arrivalTick = agent.locations[-1].t;
+    series[0].data[arrivalTick] += agent.optimal_welfare;
+    series[1].data[arrivalTick] += agent.achieved_welfare;
+  }
 });
 
 for (let i = 1; i < simulationStore.dimensions.t; i++) {
