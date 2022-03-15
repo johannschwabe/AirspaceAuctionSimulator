@@ -61,9 +61,7 @@ class Stringify:
             return int(obj)
         # Convert class objects
         if hasattr(obj, "__dict__"):
-            print(obj)
             dictict = dict([(key, recall(value)) for key, value in obj.__dict__.items() if valid_entry(key, value)])
-            print(dictict)
             return dictict
         # Convert objects
         if isinstance(obj, dict):

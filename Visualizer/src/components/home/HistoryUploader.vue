@@ -20,8 +20,8 @@
 <script setup>
 import { ArchiveOutline } from "@vicons/ionicons5";
 import { useSimulationStore } from "../../stores/simulation";
-import {useLoadingBar, useMessage} from "naive-ui";
-import {useRouter} from "vue-router";
+import { useLoadingBar, useMessage } from "naive-ui";
+import { useRouter } from "vue-router";
 
 const simulationStore = useSimulationStore();
 const message = useMessage();
@@ -30,23 +30,21 @@ const router = useRouter();
 
 const onUpload = async (upload) => {
   loadingBar.start();
-  const fileReader = new FileReader()
-  fileReader.onload = event => {
+  const fileReader = new FileReader();
+  fileReader.onload = (event) => {
     const data = JSON.parse(event.target.result);
     simulationStore.setSimulation(data);
     loadingBar.finish();
     message.success("Simulation Imported!");
-    router.push({ name: 'dashboard' })
-  }
-  fileReader.onerror = error => {
+    router.push({ name: "dashboard" });
+  };
+  fileReader.onerror = (error) => {
     loadingBar.error();
     message.error("Failed import failed!");
     console.error(error);
-  }
-  fileReader.readAsText(upload.file.file)
-}
+  };
+  fileReader.readAsText(upload.file.file);
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

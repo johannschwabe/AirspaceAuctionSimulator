@@ -1,11 +1,11 @@
-import 'vfonts/Lato.css'
-import 'vfonts/FiraCode.css'
+import "vfonts/Lato.css";
+import "vfonts/FiraCode.css";
 
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import { createApp } from "vue";
+import { createPinia } from "pinia";
 
-import App from './App.vue'
-import router from './router'
+import App from "./App.vue";
+import router from "./router";
 
 import {
   // create naive ui
@@ -41,7 +41,7 @@ import {
   NSelect,
   NAlert,
   NProgress,
-} from 'naive-ui'
+} from "naive-ui";
 
 const naive = create({
   components: [
@@ -75,13 +75,13 @@ const naive = create({
     NSelect,
     NAlert,
     NProgress,
-  ]
-})
+  ],
+});
 
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(createPinia())
-app.use(router)
-app.use(naive)
+app.use(createPinia());
+app.use(router);
+app.use(naive);
 
-app.mount('#app')
+app.mount("#app");

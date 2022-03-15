@@ -3,30 +3,39 @@
     <template #default="{ value }">
       <div style="display: flex; column-gap: 10px; width: 100%">
         <n-color-picker :modes="['hex']" v-model:value="value.color" />
-        <n-input v-model:value="value.name" type="text" placeholder="Owner Name" />
-        <n-input-number
-            v-model:value="value.agents"
-            :min="1"
-            :max="100"
-            style="min-width: 130px"
-            placeholder="Nr. Agents"
+        <n-input
+          v-model:value="value.name"
+          type="text"
+          placeholder="Owner Name"
         />
-        <n-select v-model:value="value.type" :options="options" placeholder="Type" filterable/>
+        <n-input-number
+          v-model:value="value.agents"
+          :min="1"
+          :max="100"
+          style="min-width: 130px"
+          placeholder="Nr. Agents"
+        />
+        <n-select
+          v-model:value="value.type"
+          :options="options"
+          placeholder="Type"
+          filterable
+        />
       </div>
     </template>
   </n-dynamic-input>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 
-const owners =  ref([
+const owners = ref([
   {
     color: "#00559d",
     name: "Digitec",
     agents: 20,
     type: "a-to-b",
-  }
+  },
 ]);
 
 const onCreate = () => {
@@ -36,7 +45,7 @@ const onCreate = () => {
     agents: null,
     type: null,
   };
-}
+};
 
 const options = [
   {
@@ -51,14 +60,11 @@ const options = [
     label: "Stationary",
     value: "stat",
   },
-]
+];
 
 defineExpose({
-  owners
-})
-
+  owners,
+});
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -1,12 +1,15 @@
 <template>
   <vue-apex-charts
-    type="heatmap" height="250" :options="chartOptions" :series="series"
+    type="heatmap"
+    height="250"
+    :options="chartOptions"
+    :series="series"
   />
 </template>
 
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
-import { reactive, watch } from "vue";
+import { reactive } from "vue";
 
 import { useSimulationStore } from "../../stores/simulation";
 
@@ -14,32 +17,32 @@ const props = defineProps({
   title: String,
   dimX: String,
   dimY: String,
-  granularity: { type: Number, default: 10, required: false }
-})
+  granularity: { type: Number, default: 10, required: false },
+});
 
 const simulationStore = useSimulationStore();
 
 const axisColors = {
-  x: 'red',
-  y: 'green',
-  z: 'blue',
-}
+  x: "red",
+  y: "green",
+  z: "blue",
+};
 
 const chartOptions = {
   chart: {
     height: 250,
-    type: 'heatmap',
-    background: 'transparent',
-    toolbar: { show: false }
+    type: "heatmap",
+    background: "transparent",
+    toolbar: { show: false },
   },
   theme: {
-    mode: 'dark'
+    mode: "dark",
   },
   title: {
     text: props.title,
   },
   dataLabels: {
-    enabled: false
+    enabled: false,
   },
   colors: ["#2a947d"],
   stroke: { show: false },
@@ -70,46 +73,47 @@ const chartOptions = {
     axisBorder: {
       show: true,
       color: axisColors[props.dimY],
-    }
-  }
-}
+    },
+  },
+};
 
 const series = reactive([]);
 
 // Fill series with zeroes
-const dimXlength = Math.floor(simulationStore.dimensions[props.dimX] / props.granularity);
-const dimYlength = Math.floor(simulationStore.dimensions[props.dimY] / props.granularity);
+const dimXlength = Math.floor(
+  simulationStore.dimensions[props.dimX] / props.granularity
+);
+const dimYlength = Math.floor(
+  simulationStore.dimensions[props.dimY] / props.granularity
+);
 
-for(let dimy = 0; dimy < dimYlength; dimy++) {
+for (let dimy = 0; dimy < dimYlength; dimy++) {
   series.push({
     name: `${dimy * props.granularity}`,
     data: Array(dimXlength).fill(0),
-  })
+  });
 }
 
 const resetState = () => {
-  for(let dimy = 0; dimy < dimYlength; dimy++) {
+  for (let dimy = 0; dimy < dimYlength; dimy++) {
     series[dimy].data = Array(dimXlength).fill(0);
   }
-}
+};
 
 const updateState = () => {
   simulationStore.pastLocations.forEach((loc) => {
     const dim1 = Math.floor(loc[props.dimX] / props.granularity);
     const dim2 = Math.floor(loc[props.dimY] / props.granularity);
     series[dim2].data[dim1] += 1;
-  })
-}
+  });
+};
 
 updateState();
 
 simulationStore.$subscribe(() => {
   resetState();
   updateState();
-})
-
+});
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -55,4 +55,14 @@ def read_root(config: SimulationConfigType):
     g = Generator(name=config.name, description=config.description, agents=10, owners=5, dimensions=dimensions,
                   avg_flight_time=10)
     history = g.simulate()
-    return history.as_dict()
+    return history.as_dict(ignore_keys=[
+        "allocated_fields",
+        "allocated_near_fields",
+        "allocated_far_fields",
+        "allocated_to",
+        "near_to",
+        "far_to",
+        "blocker",
+        "near_border",
+        "far_border",
+    ])

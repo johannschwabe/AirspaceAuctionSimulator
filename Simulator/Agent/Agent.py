@@ -32,7 +32,7 @@ class Agent(ABC, Stringify):
         self.battery: int = battery if battery is not None else Agent.default_battery
 
         self.near_border: List[Coordinate] = near_border if near_border is not None else Agent.default_near_border
-        self.far_boarder: List[Coordinate] = far_border if far_border is not None else Agent.default_far_border
+        self.far_border: List[Coordinate] = far_border if far_border is not None else Agent.default_far_border
 
         self.allocated_paths: List[List[TimeCoordinate]] = []
 
@@ -68,7 +68,7 @@ class Agent(ABC, Stringify):
     def get_far_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
         return [
             TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t)
-            for coordinate in self.far_boarder]
+            for coordinate in self.far_border]
 
     def contains_coordinate(self, path: List[TimeCoordinate], coordinate: TimeCoordinate) -> Hit:
         current_position: Optional[Coordinate] = None
@@ -83,7 +83,7 @@ class Agent(ABC, Stringify):
             return Hit.EXACT
 
         far_hit: bool = False
-        for relative_coordinate in self.far_boarder:
+        for relative_coordinate in self.far_border:
             absolut_coordinate = relative_coordinate + current_position
             if absolut_coordinate == relative_coordinate:
                 far_hit = True

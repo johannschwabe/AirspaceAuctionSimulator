@@ -50,5 +50,5 @@ class ABCAgent(Agent):
         return ABCBid(self.battery, self.locations, self.stays)
 
     def clone(self):
-        return ABCAgent(self.locations, self.stays, self.speed, self.battery, self.near_border, self.far_boarder)
+        return ABCAgent(self.locations, self.stays, self.speed, self.battery, self.near_border, self.far_border)
 

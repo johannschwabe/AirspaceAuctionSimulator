@@ -1,32 +1,34 @@
 <template>
   <vue-apex-charts
-    type="rangeBar" height="250" :options="chartOptions" :series="series"
+    type="rangeBar"
+    height="250"
+    :options="chartOptions"
+    :series="series"
   />
 </template>
 
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
 
-import {useSimulationStore} from "../../stores/simulation";
-import {reactive} from "vue";
+import { useSimulationStore } from "../../stores/simulation";
 
 const simulationStore = useSimulationStore();
 
 const chartOptions = {
   chart: {
     height: 250,
-    type: 'rangeBar',
-    background: 'transparent',
-    toolbar: {show: false}
+    type: "rangeBar",
+    background: "transparent",
+    toolbar: { show: false },
   },
   theme: {
-    mode: 'dark'
+    mode: "dark",
   },
   plotOptions: {
     bar: {
       horizontal: true,
       distributed: true,
-    }
+    },
   },
   stroke: { show: false },
   grid: { show: false },
@@ -40,11 +42,13 @@ const chartOptions = {
     axisTicks: { show: false },
     axisBorder: { show: false },
   },
-}
+};
 
-const series =  [{
-  data: [],
-}]
+const series = [
+  {
+    data: [],
+  },
+];
 
 simulationStore.agents.forEach((agent) => {
   const start = agent.locations[0].t;
@@ -53,11 +57,8 @@ simulationStore.agents.forEach((agent) => {
     x: agent.uuid,
     y: [start, end],
     fillColor: agent.owner.color,
-  })
-})
-
+  });
+});
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
