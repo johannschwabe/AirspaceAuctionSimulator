@@ -144,3 +144,4 @@ class Agent(ABC, Stringify):
 
     def __repr__(self):
         return str(self.id)
+

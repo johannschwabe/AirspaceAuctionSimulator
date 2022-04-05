@@ -17,4 +17,10 @@ class Allocator(ABC):
     def temp_allocation(self, agents: List[Agent], env: TempEnvironment) -> Dict[Agent, List[List[TimeCoordinate]]]:
         cloned_agents = [agent.clone() for agent in agents]
         allocations = self.allocate_for_agents(cloned_agents, env)
-        #remap allocation to correct agents
+        res = {}
+        for cloned_agent, paths in allocations.items():
+            index = [_agent.__repr__() for _agent in agents].index(cloned_agent.__repr__())
+            agent = agents[index]
+            res[agent] = paths
+        return res
+
