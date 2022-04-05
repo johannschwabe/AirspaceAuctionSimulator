@@ -1,49 +1,46 @@
-from typing import List
-from random import random, choice
+from typing import List, Optional
 
-from .Owner import Owner
-from .Agent import Agent
+from owners.ABOwner import ABOwner
+from .EnvironmentGen import EnvironmentGen
+from ..Allocator import FCFSAllocator, Allocator
+from ..Owner import Owner
 from .History import History
-
-from ..Coordinate import TimeCoordinate, SaveTimeCoordinate
+from ..Simulator import Simulator
+from ..Environment import Environment
+from ..Coordinate import TimeCoordinate
 
 
 class Generator:
-
-    def __init__(self, name: str, description: str, agents: int, owners: int, dimensions: TimeCoordinate, avg_flight_time: int):
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        owners,
+        dimensions: TimeCoordinate,
+        avg_flight_time: int
+    ):
         self.name: str = name
         self.description: str = description
-        self.n_agents: int = agents
-        self.n_owners: int = owners
+        self.ownerTypes = owners
         self.dimensions: TimeCoordinate = dimensions
         self.avg_flight_time: int = avg_flight_time
         self.owners: List[Owner] = []
+        self.allocator: Allocator = FCFSAllocator()
+        self.environment: Environment = EnvironmentGen(self.dimensions).generate(10)
+        self.simulator: Optional[Simulator] = None
 
     def simulate(self):
-        self.simulate_ticks()
+        for ownerType in self.ownerTypes:
+            if ownerType.type == "a-to-b":
+                self.owners.append(ABOwner([i for i in range(ownerType.agents)]))
 
+        self.simulator = Simulator(
+            self.owners,
+            self.allocator,
+            self.environment,
+        )
+        while self.simulator.time_step <= self.dimensions.t:
+            print(f"STEP: {self.simulator.time_step}")
+            self.simulator.tick()
+        return History(self.name, self.description, self.simulator)
 
-    def simulate_ticks(self):
-        for owner in range(self.n_owners):
-            self.owners.append(Owner())
-
-        for i in range(self.n_agents):
-            random_start_location = TimeCoordinate.random(self.dimensions)
-            locations = [SaveTimeCoordinate.from_time_coordinate(random_start_location, dimensions=self.dimensions)]
-            chance_x = random()
-            chance_y = (1 - chance_x) * random()
-            chance_forward = random() ** 2
-            chance_forward *= -1 if random() > 0.5 else 1
-            while random() > 1 / self.avg_flight_time and locations[-1].t < (self.dimensions.t - 1):
-                loc = locations[-1]
-                next_loc = loc.random_neighbor(1, chance_x=chance_x, chance_y=chance_y, chance_forward=chance_forward)
-                locations.append(next_loc)
-            optimal_welfare = random() * 10
-            achieved_welfare = random() * optimal_welfare
-            costs = random() * 5
-            agent = Agent(locations, optimal_welfare, achieved_welfare, costs)
-            choice(self.owners).add_agent(agent)
-
-    @property
-    def history(self):
-        return History(self.name, self.description, self.dimensions, self.owners)

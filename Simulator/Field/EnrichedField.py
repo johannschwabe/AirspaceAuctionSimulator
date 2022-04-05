@@ -27,4 +27,4 @@ class EnrichedField:
     def is_free_for_agent(self, agent: Agent) -> bool:
         return not self.is_blocked() and \
                 (not self.is_occupied() or self.field.occupied_by == agent) and \
-                (not self.is_allocated() or self.field.allocated_to == agent)
+                (not self.is_allocated() or self.field._allocated_to == agent)

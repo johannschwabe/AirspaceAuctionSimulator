@@ -1,16 +1,18 @@
-import { defineStore } from 'pinia'
-import { saveAs } from 'file-saver';
-import { useStorage } from '@vueuse/core'
+import { defineStore } from "pinia";
+import { saveAs } from "file-saver";
+import { useStorage } from "@vueuse/core";
 
 export const useSimulationStore = defineStore({
-  id: 'simulation',
+  id: "simulation",
   state: () => ({
     loaded: false,
-    name: useStorage('simulation-name', ''),
-    description: useStorage('simulation-description', ''),
-    owners: useStorage('simulation-owners', []),
-    dimensions: useStorage('simulation-dimensions', {}),
-    tick: useStorage('simulation-tick', 1),
+    name: useStorage("simulation-name", ""),
+    description: useStorage("simulation-description", ""),
+    owners: useStorage("simulation-owners", []),
+    blockers: useStorage("simulation-blockers", []),
+    dimensions: useStorage("simulation-dimensions", {}),
+    environment: useStorage("simulation-environment", {}),
+    tick: useStorage("simulation-tick", 1),
   }),
   getters: {
     agents(state) {
@@ -20,33 +22,35 @@ export const useSimulationStore = defineStore({
           agents.push({
             owner,
             ...agent,
-          })
-        })
-      })
-      agents.sort((a, b) => a.locations[0].t < b.locations[0].t ? -1 : 1)
+          });
+        });
+      });
+      agents.sort((a, b) => (a.locations[0]?.t < b.locations[0]?.t ? -1 : 1));
       return agents;
     },
     activeAgents(state) {
       return this.agents.filter((agent) => {
         const has_started = agent.locations.some((loc) => loc.t <= state.tick);
-        const has_not_landed = agent.locations.some((loc) => loc.t >= state.tick);
+        const has_not_landed = agent.locations.some(
+          (loc) => loc.t >= state.tick
+        );
         return has_started && has_not_landed;
-      })
+      });
     },
-    activeAgentUUIDs(state) {
+    activeAgentUUIDs() {
       return this.activeAgents.map((agent) => agent.uuid);
     },
-    locations(state) {
+    locations() {
       const locations = [];
       this.agents.forEach((agent) => {
         agent.locations.forEach((loc) => {
           locations.push({
             agent,
             ...loc,
-          })
-        })
-      })
-      locations.sort((a, b) => a.t < b.t ? -1 : 1);
+          });
+        });
+      });
+      locations.sort((a, b) => (a.t < b.t ? -1 : 1));
       return locations;
     },
     pastLocations(state) {
@@ -59,9 +63,9 @@ export const useSimulationStore = defineStore({
         locations.push({
           agent,
           ...current_loc,
-        })
-      })
-      locations.sort((a, b) => a.t < b.t ? -1 : 1);
+        });
+      });
+      locations.sort((a, b) => (a.t < b.t ? -1 : 1));
       return locations;
     },
   },
@@ -71,13 +75,14 @@ export const useSimulationStore = defineStore({
       this.name = simulation.name;
       this.description = simulation.description;
       this.owners = simulation.owners;
+      this.environment = simulation.environment;
       this.dimensions = simulation.dimensions;
     },
     download() {
-      const fileToSave = new Blob([JSON.stringify(this,undefined,2)], {
-        type: 'application/json'
+      const fileToSave = new Blob([JSON.stringify(this, undefined, 2)], {
+        type: "application/json",
       });
       saveAs(fileToSave, `${this.name}.json`);
-    }
-  }
-})
+    },
+  },
+});

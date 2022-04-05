@@ -1,31 +1,26 @@
-import random
-
 from Simulator.Allocator import FCFSAllocator
-from Simulator.Coordinate import Coordinate
-from Simulator.Environment.Environment import Environment
-from Simulator.History2.History import History2
-from Simulator import Simulator, Statistics
-from owners.ABAOwner import ABAOwner
-from owners.ABCOwner import ABCOwner
+from Simulator.Coordinate import TimeCoordinate
+from Simulator import Simulator, Statistics, Environment, Tick
+from Simulator.History import History
 from owners.ABOwner import ABOwner
-from owners.BlockerOwner import BlockerOwner
 
-dimensions = Coordinate(10, 10, 1)
+dimensions = TimeCoordinate(10, 10, 1, Tick(250))
 environment = Environment(dimensions, [])
 allocator = FCFSAllocator()
 owners = [ABOwner([0, 0, 0, 1, 1, 2, 2, 2, 2, 2, 3, 4, 5, 10, 20, 20])]
 
+simulator = Simulator(owners, allocator, environment)
 history = History2(dimensions,allocator, environment)
 history.set_owners(owners)
 simulator = Simulator(owners, allocator, environment, history)
 simulator.setup()
 
-while simulator.time_step < 50:
+while simulator.time_step < dimensions.t:
     environment.visualize(simulator.time_step)
     simulator.tick()
-    pass
 
-stats = Statistics(simulator)
+history = History("bls", "blub", simulator)
+stats = Statistics(history, allocator)
 stats.non_colliding_values()
 stats.close_passings()
 stats.average_owners_welfare()

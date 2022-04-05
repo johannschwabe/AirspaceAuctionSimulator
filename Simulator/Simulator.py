@@ -22,12 +22,6 @@ class Simulator:
         self.agents: List[Agent] = []
         self.time_step = Tick(0)
 
-    def setup(self):
-        pass
-
-    def reset(self):
-        pass
-
     def tick(self) -> bool:
         newcomers: List[Agent] = []
         for owner in self.owners:

@@ -43,7 +43,7 @@ class ABAAgent(ABAgent):
         return ABABid(self.battery, self.a, self.b, self.stay)
 
     def clone(self):
-        clone = ABAAgent(self.a, self.b, self.stay, self.speed, self.battery, self.near_border, self.far_boarder)
+        clone = ABAAgent(self.a, self.b, self.stay, self.speed, self.battery, self._near_border, self._far_border)
         clone.id = self.id
         clone.is_clone = True
         Agent.id -= 1

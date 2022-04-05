@@ -4,14 +4,17 @@ from typing import List, Optional
 from ..Bid import Bid
 from ..Coordinate import Coordinate, TimeCoordinate
 from ..Field import Field
+from ..IO import Stringify
 from ..helpers.Hit import Hit
 
 
-class Agent(ABC):
+class Agent(ABC, Stringify):
     id: int = 0
 
-    default_near_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-1, 2) for y in range(-1, 2) for z in range(-1, 2)]
-    default_far_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-2, 3) for y in range(-2, 3) for z in range(-2, 3)]
+    default_near_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-1, 2) for y in range(-1, 2) for z in
+                                             range(-1, 2)]
+    default_far_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-2, 3) for y in range(-2, 3) for z in
+                                            range(-2, 3)]
     default_battery = 100
     default_speed = 1
 
@@ -29,15 +32,35 @@ class Agent(ABC):
         self.speed: int = speed if speed is not None else Agent.default_speed
         self.battery: int = battery if battery is not None else Agent.default_battery
 
-        self.near_border: List[Coordinate] = near_border if near_border is not None else Agent.default_near_border
-        self.far_boarder: List[Coordinate] = far_border if far_border is not None else Agent.default_far_border
+        self._near_border: List[Coordinate] = near_border if near_border is not None else Agent.default_near_border
+        self._far_border: List[Coordinate] = far_border if far_border is not None else Agent.default_far_border
 
-        self.allocated_paths: List[List[TimeCoordinate]] = []
+        self._allocated_paths: List[List[TimeCoordinate]] = []
 
-        self.allocated_fields: List[Field] = []
-        self.allocated_near_fields: List[Field] = []
-        self.allocated_far_fields: List[Field] = []
+        self._allocated_fields: List[Field] = []
+        self._allocated_near_fields: List[Field] = []
+        self._allocated_far_fields: List[Field] = []
 
+        self.optimal_welfare: float = 1.
+        self.costs: float = 0.
+        self.flight_time: int = 0
+
+    def as_dict(self, ignore_keys=tuple([]), date_format="%Y-%m-%d") -> dict:
+        selfDict = self.__dict__
+        selfDict["locations"] = self.locations
+        selfDict["achieved_welfare"] = self.achieved_welfare
+        return Stringify.to_dict(self, ignore_keys=ignore_keys, date_format=date_format, stop_recursion=True)
+
+    @property
+    def locations(self) -> List[TimeCoordinate]:
+        locations: List[TimeCoordinate] = []
+        for path in self._allocated_paths:
+            locations += path
+        return locations
+
+    @property
+    def achieved_welfare(self) -> float:
+        return self.value_for_paths(self._allocated_paths)
 
     @abstractmethod
     def value_for_paths(self, paths: List[List[TimeCoordinate]]) -> float:
@@ -52,10 +75,14 @@ class Agent(ABC):
         pass
 
     def get_near_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
-        return [TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t) for coordinate in self.near_border]
+        return [
+            TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t)
+            for coordinate in self._near_border]
 
     def get_far_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
-        return [TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t) for coordinate in self.far_boarder]
+        return [
+            TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t)
+            for coordinate in self._far_border]
 
     def contains_coordinate(self, path: List[TimeCoordinate], coordinate: TimeCoordinate) -> Hit:
         current_position: Optional[Coordinate] = None
@@ -70,7 +97,7 @@ class Agent(ABC):
             return Hit.EXACT
 
         far_hit: bool = False
-        for relative_coordinate in self.far_boarder:
+        for relative_coordinate in self._far_border:
             absolut_coordinate = relative_coordinate + current_position
             if absolut_coordinate == relative_coordinate:
                 far_hit = True
@@ -79,7 +106,7 @@ class Agent(ABC):
         if not far_hit:
             return Hit.NO
 
-        for relative_coordinate in self.near_border:
+        for relative_coordinate in self._near_border:
             absolut_coordinate = relative_coordinate + current_position
             if absolut_coordinate == relative_coordinate:
                 return Hit.NEAR

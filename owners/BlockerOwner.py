@@ -14,7 +14,7 @@ class BlockerOwner(Owner):
     def generate_agents(self, t: int, env: Environment) -> List[Agent]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
-            dimensions = env.dimension
+            dimensions = env._dimension
             corner_1 = Coordinate(
                 random.randint(0, dimensions.x // 2),
                 random.randint(0, dimensions.y // 2),
