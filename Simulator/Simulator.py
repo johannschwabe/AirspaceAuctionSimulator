@@ -29,7 +29,7 @@ class Simulator:
         self.history.add_new_agents(newcomers, self.time_step)
         temp_env = self.environment.generate_temporary_env()
         agents_paths: Dict[Agent, List[List[TimeCoordinate]]] = self.allocator.allocate_for_agents(newcomers, temp_env)
-        self.environment.allocate_paths(agents_paths, self.time_step)
+        self.environment.allocate_paths_for_agents(agents_paths, self.time_step)
         self.history.update_allocations(agents_paths, self.time_step)
         self.time_step += 1
         return True

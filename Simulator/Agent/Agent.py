@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 from ..Bid import Bid
 from ..Coordinate import Coordinate, TimeCoordinate
-from ..Field import Field
 from ..IO import Stringify
 from ..helpers.Hit import Hit
+
+if TYPE_CHECKING:
+    from ..Field import Field
 
 
 class Agent(ABC, Stringify):
@@ -37,9 +39,9 @@ class Agent(ABC, Stringify):
 
         self._allocated_paths: List[List[TimeCoordinate]] = []
 
-        self._allocated_fields: List[Field] = []
-        self._allocated_near_fields: List[Field] = []
-        self._allocated_far_fields: List[Field] = []
+        self._allocated_fields: List["Field"] = []
+        self._allocated_near_fields: List["Field"] = []
+        self._allocated_far_fields: List["Field"] = []
 
         self.optimal_welfare: float = 1.
         self.costs: float = 0.
@@ -74,6 +76,15 @@ class Agent(ABC, Stringify):
     def clone(self):
         pass
 
+    def get_allocated_fields(self) -> List["Field"]:
+        return self._allocated_fields
+
+    def get_allocated_near_fields(self) -> List["Field"]:
+        return self._allocated_near_fields
+
+    def get_allocated_far_fields(self) -> List["Field"]:
+        return self._allocated_far_fields
+
     def get_near_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
         return [
             TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t)
@@ -83,6 +94,21 @@ class Agent(ABC, Stringify):
         return [
             TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t)
             for coordinate in self._far_border]
+
+    def add_allocated_path(self, path: List[TimeCoordinate]):
+        self._allocated_paths.append(path)
+
+    def add_allocated_field(self, field: "Field"):
+        if field not in self._allocated_fields:
+            self._allocated_fields.append(field)
+
+    def add_allocated_near_field(self, field: "Field"):
+        if field not in self._allocated_near_fields:
+            self._allocated_near_fields.append(field)
+
+    def add_allocated_far_field(self, field: "Field"):
+        if field not in self._allocated_far_fields:
+            self._allocated_far_fields.append(field)
 
     def contains_coordinate(self, path: List[TimeCoordinate], coordinate: TimeCoordinate) -> Hit:
         current_position: Optional[Coordinate] = None

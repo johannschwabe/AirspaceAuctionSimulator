@@ -49,8 +49,8 @@ class FCFSAllocator(Allocator):
 
                     optimal_paths.append(ba_path)
                 res[agent] = optimal_paths
-                env.allocate_path(agent, optimal_paths)
-                env.agents.append(agent)
+                env.allocate_paths_for_agent(agent, optimal_paths)
+                env.add_agent(agent)
 
             elif isinstance(bid, BlockerBid):
                 path = []
@@ -76,8 +76,8 @@ class FCFSAllocator(Allocator):
                 if len(path) > 0:
                     optimal_paths.append(path)
                 res[agent] = optimal_paths
-                env.allocate_path(agent, optimal_paths)
-                env.agents.append(agent)
+                env.allocate_paths_for_agent(agent, optimal_paths)
+                env.add_agent(agent)
             elif isinstance(bid, ABCBid):
                 a = bid.locations[0]
                 time = 0
@@ -98,6 +98,6 @@ class FCFSAllocator(Allocator):
 
                     optimal_paths.append(ab_path)
                 res[agent] = optimal_paths
-                env.allocate_path(agent, optimal_paths)
-                env.agents.append(agent)
+                env.allocate_paths_for_agent(agent, optimal_paths)
+                env.add_agent(agent)
         return res

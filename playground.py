@@ -1,7 +1,9 @@
 from Simulator.Allocator import FCFSAllocator
 from Simulator.Coordinate import TimeCoordinate
-from Simulator import Simulator, Statistics, Environment, Tick
+from Simulator.Environment import Environment
+from Simulator import Simulator, Statistics, Tick
 from Simulator.History import History
+from Simulator.History2 import History2
 from owners.ABOwner import ABOwner
 
 dimensions = TimeCoordinate(10, 10, 1, Tick(250))
@@ -9,11 +11,8 @@ environment = Environment(dimensions, [])
 allocator = FCFSAllocator()
 owners = [ABOwner([0, 0, 0, 1, 1, 2, 2, 2, 2, 2, 3, 4, 5, 10, 20, 20])]
 
-simulator = Simulator(owners, allocator, environment)
-history = History2(dimensions,allocator, environment)
-history.set_owners(owners)
+history = History2(dimensions, allocator, environment, owners)
 simulator = Simulator(owners, allocator, environment, history)
-simulator.setup()
 
 while simulator.time_step < dimensions.t:
     environment.visualize(simulator.time_step)

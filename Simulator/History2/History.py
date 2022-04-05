@@ -5,12 +5,12 @@ from ..Coordinate import Coordinate, TimeCoordinate
 from ..Simulator import Environment, Tick
 from ..Agent import Agent
 from ..Allocator import Allocator
-from ..History.Owner import Owner
+from ..Owner import Owner
 class History2:
-    def __init__(self, dims: Coordinate, allocator: Allocator, env: Environment):
+    def __init__(self, dims: Coordinate, allocator: Allocator, env: Environment, owners: List[Owner]):
         self.dims = dims
         self.agents: Dict[Agent, HistoryAgent] = {}
-        self.owners: List[Owner] = []
+        self.owners: List[Owner] = owners
         self.allocator: Allocator = allocator
         self.env: Environment = env
 
