@@ -28,7 +28,7 @@ class Simulator:
             newcomers += owner.generate_agents(self.time_step, self.environment)
         self.history.add_new_agents(newcomers, self.time_step)
         temp_env = self.environment.generate_temporary_env()
-        agents_paths: Dict[Agent, List[List[TimeCoordinate]]] = self.allocator.allocate_for_agents(newcomers, temp_env)
+        agents_paths: Dict[Agent, List[List[TimeCoordinate]]] = self.allocator.allocate_for_agents([agent.clone() for agent in newcomers], temp_env)
         self.environment.allocate_paths_for_agents(agents_paths, self.time_step)
         self.history.update_allocations(agents_paths, self.time_step)
         self.time_step += 1

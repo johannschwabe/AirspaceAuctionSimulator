@@ -3,15 +3,15 @@ from typing import List, Dict
 from ..Environment import TempEnvironment
 from ..Field import Field
 from ..Agent import Agent
-from ..Coordinate import TimeCoordinate, Coordinate
+from ..Coordinate import TimeCoordinate
 from ..IO import Stringify
 from ..Time import Tick
 from ..Blocker import Blocker
 
 
 class Environment(Stringify):
-    def __init__(self, dimension: Coordinate, blocker: List[Blocker]):
-        self._dimension: Coordinate = dimension
+    def __init__(self, dimension: TimeCoordinate, blocker: List[Blocker]):
+        self._dimension: TimeCoordinate = dimension
         self._agents: List[Agent] = []
         self._relevant_fields: Dict[str, Field] = {}  # x_y_z_t -> Field
         self.blockers: List[Blocker] = blocker
@@ -69,6 +69,9 @@ class Environment(Stringify):
 
     def add_agent(self, agent: Agent):
         self._agents.append(agent)
+
+    def get_agents(self):
+        return self._agents
 
     def is_valid_for_allocation(self, coords: TimeCoordinate, agent: Agent) -> bool:
         is_free = True

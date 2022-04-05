@@ -110,6 +110,9 @@ class Agent(ABC, Stringify):
         if field not in self._allocated_far_fields:
             self._allocated_far_fields.append(field)
 
+    def get_allocated_value(self):
+        return self.value_for_paths(self._allocated_paths)
+
     def contains_coordinate(self, path: List[TimeCoordinate], coordinate: TimeCoordinate) -> Hit:
         current_position: Optional[Coordinate] = None
         for position in path:

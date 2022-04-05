@@ -19,9 +19,9 @@ while simulator.time_step < dimensions.t:
     simulator.tick()
 
 history = History("bls", "blub", simulator)
-stats = Statistics(history, allocator)
+stats = Statistics(simulator)
 stats.non_colliding_values()
-stats.close_passings()
+cols, nfc, nfi, ffc, ffi = stats.close_passings()
 stats.average_owners_welfare()
 stats.average_agents_welfare()
 print("done")
