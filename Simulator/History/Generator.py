@@ -33,6 +33,7 @@ class Generator:
         self.history2: Optional[History2] = None
         self.statistics: Optional[Statistics] = None
         self.simulator: Optional[Simulator] = None
+        self.history: Optional[History2] = None
 
     def simulate(self) -> Tuple[History, Statistics]:
         for ownerType in self.ownerTypes:
