@@ -8,8 +8,7 @@ from owners.ABOwner import ABOwner
 from time import time_ns
 import random
 random.seed(2)
-dimensions = TimeCoordinate(10, 10, 1, Tick(60))
-TimeCoordinate.dim = dimensions
+dimensions = TimeCoordinate(50, 50, 20, Tick(200))
 environment = Environment(dimensions, [])
 allocator = FCFSAllocator()
 owners = [ABOwner([0, 0, 0, 1, 1, 2, 2, 2, 2, 2, 3, 4, 5, 10, 20, 20])]

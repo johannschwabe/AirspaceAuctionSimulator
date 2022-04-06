@@ -11,6 +11,7 @@ from ..Blocker import Blocker
 
 class Environment(Stringify):
     def __init__(self, dimension: TimeCoordinate, blocker: List[Blocker]):
+        TimeCoordinate.dim = dimension
         self._dimension: TimeCoordinate = dimension
         self._agents: List[Agent] = []
         self._relevant_fields: Dict[str, Field] = {}  # x_y_z_t -> Field

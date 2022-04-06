@@ -57,11 +57,12 @@ class Statistics:
         return length
 
     def close_passings(self):
-        far_field_intersections = [0] * self.env._dimension.t
-        near_field_intersections = [0] * self.env._dimension.t
-        collisions = [0] * self.env._dimension.t
-        far_field_crossings = [0] * self.env._dimension.t
-        near_field_crossings = [0] * self.env._dimension.t
+        max_t = int(float(self.env._dimension.t) * 1.5)
+        far_field_intersections = [0] * max_t
+        near_field_intersections = [0] * max_t
+        collisions = [0] * max_t
+        far_field_crossings = [0] * max_t
+        near_field_crossings = [0] * max_t
 
         for field in self.env._relevant_fields.values():
             if len(field.get_allocated()) > 1:

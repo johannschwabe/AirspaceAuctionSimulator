@@ -3,6 +3,7 @@ from typing import List, Optional
 from owners.ABOwner import ABOwner
 from .EnvironmentGen import EnvironmentGen
 from ..Allocator import FCFSAllocator, Allocator
+from ..History2 import History2
 from ..Owner import Owner
 from .History import History
 from ..Simulator import Simulator
@@ -28,16 +29,18 @@ class Generator:
         self.allocator: Allocator = FCFSAllocator()
         self.environment: Environment = EnvironmentGen(self.dimensions).generate(10)
         self.simulator: Optional[Simulator] = None
+        self.history: Optional[History2] = None
 
     def simulate(self):
         for ownerType in self.ownerTypes:
             if ownerType.type == "a-to-b":
                 self.owners.append(ABOwner([i for i in range(ownerType.agents)]))
-
+        self.history = History2(self.dimensions, self.allocator, self.environment, self.owners)
         self.simulator = Simulator(
             self.owners,
             self.allocator,
             self.environment,
+            self.history
         )
         while self.simulator.time_step <= self.dimensions.t:
             print(f"STEP: {self.simulator.time_step}")
