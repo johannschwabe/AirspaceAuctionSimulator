@@ -8,7 +8,7 @@ from owners.ABOwner import ABOwner
 from time import time_ns
 import random
 random.seed(2)
-dimensions = TimeCoordinate(50, 50, 20, Tick(200))
+dimensions = TimeCoordinate(10, 10, 1, Tick(60))
 environment = Environment(dimensions, [])
 allocator = FCFSAllocator()
 owners = [ABOwner([0, 0, 0, 1, 1, 2, 2, 2, 2, 2, 3, 4, 5, 10, 20, 20])]
@@ -23,7 +23,7 @@ print(f"Total: {(time_ns() - t0)/1e9}")
 history = History("bls", "blub", simulator)
 stats = Statistics(simulator)
 stats.non_colliding_values()
-cols, nfc, nfi, ffc, ffi = stats.close_passings()
+# cols, nfc, nfi, ffc, ffi = stats.close_passings()
 stats.average_owners_welfare()
 stats.average_agents_welfare()
 print("done")

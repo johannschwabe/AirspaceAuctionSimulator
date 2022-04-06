@@ -38,5 +38,5 @@ class Simulator:
         self.history.update_allocations(agents_paths, self.time_step)
         self.time_step += 1
         t6 = time_ns()
-        print(f"1-2: {(t2-t1)/1e9}, 2-3: {(t3-t2)/1e9}, 3-4: {(t4-t3)/1e9}, 4-5: {(t5-t4)/1e9}, 5-6: {(t6-t5)/1e9}")
+        # print(f"1-2: {(t2-t1)/1e9}, 2-3: {(t3-t2)/1e9}, 3-4: {(t4-t3)/1e9}, 4-5: {(t5-t4)/1e9}, 5-6: {(t6-t5)/1e9}")
         return True

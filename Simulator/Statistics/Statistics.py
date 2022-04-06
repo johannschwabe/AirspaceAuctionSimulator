@@ -30,7 +30,7 @@ class Statistics:
 
     def average_agents_welfare(self):
         summed_welfare = 0
-        for agent in self.env.get_agents():
+        for agent in self.env.get_agents().values():
             summed_welfare += Statistics.agents_welfare(agent)
         print(f"AAW: {summed_welfare/len(self.env.get_agents())}")
         return summed_welfare / len(self.env.get_agents())
