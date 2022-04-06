@@ -15,7 +15,7 @@ def astar(
     env: Environment,
     agent: Agent,
 ):
-    print("---->", end="")
+    # print("---->", end="")
     start_time = time_ns()
     open_nodes = []
     closed_nodes = []
@@ -71,7 +71,7 @@ def astar(
 
                 else:
                     open_nodes.append(neighbor)
-    print(steps)
+    # print(steps)
     if len(path) == 0:
         print("ASTAR failed")
     wait_coords: List[TimeCoordinate] = []
@@ -81,7 +81,7 @@ def astar(
 
     complete_path = path + wait_coords
     complete_path.sort(key=lambda x: x.t)
-    print(f"PathLen: {len(path)}, steps: {steps}, time: {(time_ns() - start_time)/1e9}, t/p: {(time_ns() - start_time)/(1e9 * len(path))}")
+    # print(f"PathLen: {len(path)}, steps: {steps}, time: {(time_ns() - start_time)/1e9}, t/p: {(time_ns() - start_time)/(1e9 * len(path))}")
     return complete_path
 
 
