@@ -12,10 +12,8 @@ class ABAgent(Agent):
         b: TimeCoordinate,
         speed: Optional[int] = None,
         battery: Optional[int] = None,
-        near_border: Optional[List[Coordinate]] = None,
-        far_border: Optional[List[Coordinate]] = None,
     ):
-        super().__init__(speed=speed, battery=battery, near_border=near_border, far_border=far_border)
+        super().__init__(speed=speed, battery=battery)
 
         self.a: TimeCoordinate = a
         self.b: TimeCoordinate = b
@@ -45,7 +43,7 @@ class ABAgent(Agent):
         return ABBid(self.battery, self.a, self.b)
 
     def clone(self):
-        clone = ABAgent(self.a, self.b, self.speed, self.battery, self._near_border, self._far_border)
+        clone = ABAgent(self.a, self.b, self.speed, self.battery)
         clone.id = self.id
         clone.is_clone = True
         Agent.id -= 1
