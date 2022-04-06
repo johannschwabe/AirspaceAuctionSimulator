@@ -2,11 +2,11 @@ import random
 from typing import List
 
 from Simulator import Environment, Owner, Tick
-from Simulator.Agent import Agent, BlockerAgent
+from Simulator.Agent import Agent, StationaryAgent
 from Simulator.Coordinate import Coordinate
 
 
-class BlockerOwner(Owner):
+class StationaryOwner(Owner):
     def __init__(self, creation_ticks: List[int]):
         super().__init__()
         self.creation_ticks = creation_ticks
@@ -36,9 +36,9 @@ class BlockerOwner(Owner):
             t_start = t + random.randint(0, 10)
             t_end = t_start + random.randint(5, 10)
 
-            agent = BlockerAgent(block, Tick(t_start), Tick(t_end))
+            agent = StationaryAgent(block, Tick(t_start), Tick(t_end))
             res.append(agent)
-            print(f"Blocker created {agent}")
+            print(f"Stationary created {agent}")
 
         self.agents += res
         return res

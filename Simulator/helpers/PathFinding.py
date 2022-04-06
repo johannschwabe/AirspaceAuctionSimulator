@@ -1,3 +1,4 @@
+import time
 from typing import List, Optional
 
 from ..Agent import Agent
@@ -13,6 +14,7 @@ def astar(
     env: Environment,
     agent: Agent,
 ):
+    total_start = time.time()
     open_nodes = []
     closed_nodes = []
 
@@ -35,7 +37,8 @@ def astar(
         closed_nodes.append(current_node)
         # Target reached
         if current_node.position == end.position or (
-            current_node.position.t > end.position.t and current_node.position.inter_temporal_equal(end.position)):
+            current_node.position.t > end.position.t and current_node.position.inter_temporal_equal(end.position)
+        ):
             reverse_path = []
             while not current_node.position.inter_temporal_equal(start):
                 reverse_path.append(current_node.position)
@@ -45,7 +48,7 @@ def astar(
             path = reverse_path[::-1]
             break
 
-        # Find non occupied neighbor
+        # Find non-occupied neighbor
         neighbors = current_node.adjacent_coordinates(env._dimension, agent.speed)
         for next_neighbor in neighbors:
             if env.is_valid_for_allocation(next_neighbor, agent):
@@ -76,6 +79,9 @@ def astar(
 
     complete_path = path + wait_coords
     complete_path.sort(key=lambda x: x.t)
+    total_time = time.time() - total_start
+    print("A*:", total_time, "Env", env.my_time, f"\t{env.my_time/total_time*100:2f}%")
+    env.my_time = 0
     return complete_path
 
 

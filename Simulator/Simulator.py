@@ -1,3 +1,4 @@
+import time
 from typing import List
 
 from .Agent import Agent
@@ -25,7 +26,11 @@ class Simulator:
         for owner in self.owners:
             newcomers += owner.generate_agents(self.time_step, self.environment)
         for agent in newcomers:
+            allocate = time.time()
             agent_paths: List[List[TimeCoordinate]] = self.allocator.allocate_for_agent(agent, self.environment)
+            step1 = time.time()
             self.environment.allocate_paths(agent, agent_paths)
+            step2 = time.time()
+            print("Alloc:", step1 - allocate, "Env:", step2 - step1)
         self.time_step += 1
         return True

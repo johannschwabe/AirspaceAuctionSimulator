@@ -1,3 +1,4 @@
+import time
 from typing import List, Dict
 
 from ..Field import Field
@@ -9,6 +10,8 @@ from ..Blocker import Blocker
 
 
 class Environment(Stringify):
+    my_time = 0
+
     def __init__(self, dimension: Coordinate, blocker: List[Blocker]):
         self._dimension: Coordinate = dimension
         self._agents: List[Agent] = []
@@ -62,6 +65,7 @@ class Environment(Stringify):
         return False
 
     def is_valid_for_allocation(self, coords: TimeCoordinate, agent: Agent) -> bool:
+        total_start = time.time()
         is_free = True
         for t in range(agent.speed):
             waiting_coord = TimeCoordinate(coords.x, coords.y, coords.z, coords.t + Tick(t))
@@ -85,6 +89,8 @@ class Environment(Stringify):
             if not is_free:
                 break
 
+        total_time = time.time() - total_start
+        self.my_time += total_time
         return is_free
 
     def get_field_at(self, coords: TimeCoordinate, creating: bool) -> Field:

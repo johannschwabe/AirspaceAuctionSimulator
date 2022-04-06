@@ -5,7 +5,7 @@ from ..Bid import Bid
 from ..Coordinate import Coordinate
 
 
-class BlockerBid(Bid):
+class StationaryBid(Bid):
     def __init__(self, battery: int, block: List[Coordinate], start_t: Tick, end_t: Tick):
         super().__init__(battery)
         self.block: List[Coordinate] = block

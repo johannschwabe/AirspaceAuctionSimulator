@@ -2,11 +2,11 @@ from typing import List, Optional
 
 from .. Time import Tick
 from ..Agent import Agent
-from ..Bid import Bid, BlockerBid
+from ..Bid import Bid, StationaryBid
 from ..Coordinate import Coordinate, TimeCoordinate
 
 
-class BlockerAgent(Agent):
+class StationaryAgent(Agent):
     id: int = 0
 
     def __init__(
@@ -39,8 +39,8 @@ class BlockerAgent(Agent):
         return round(value, 2)
 
     def get_bid(self) -> Bid:
-        return BlockerBid(self.battery, self.block, self.start_t, self.end_t)
+        return StationaryBid(self.battery, self.block, self.start_t, self.end_t)
 
     def clone(self):
-        return BlockerAgent(self.block, self.start_t, self.end_t)
+        return StationaryAgent(self.block, self.start_t, self.end_t)
 
