@@ -1,20 +1,20 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 from ..Bid import Bid
 from ..Coordinate import Coordinate, TimeCoordinate
-from ..Field import Field
 from ..IO import Stringify
 from ..helpers.Hit import Hit
+
+if TYPE_CHECKING:
+    from ..Field import Field
 
 
 class Agent(ABC, Stringify):
     id: int = 0
 
-    default_near_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-1, 2) for y in range(-1, 2) for z in
-                                             range(-1, 2)]
-    default_far_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-2, 3) for y in range(-2, 3) for z in
-                                            range(-2, 3)]
+    default_near_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-1, 2) for y in range(-1, 2) for z in range(-1, 2) ] # To dam big
+    default_far_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-2, 3) for y in range(-2, 3) for z in range(-2, 3) ] # To dam big
     default_battery = 100
     default_speed = 1
 
@@ -25,8 +25,9 @@ class Agent(ABC, Stringify):
         near_border: Optional[List[Coordinate]] = None,
         far_border: Optional[List[Coordinate]] = None,
     ):
-        self.uuid = Agent.id
+        self.id = Agent.id
         Agent.id += 1
+        self.is_clone = False
 
         self.speed: int = speed if speed is not None else Agent.default_speed
         self.battery: int = battery if battery is not None else Agent.default_battery
@@ -36,9 +37,9 @@ class Agent(ABC, Stringify):
 
         self._allocated_paths: List[List[TimeCoordinate]] = []
 
-        self._allocated_fields: List[Field] = []
-        self._allocated_near_fields: List[Field] = []
-        self._allocated_far_fields: List[Field] = []
+        self._allocated_fields: List["Field"] = []
+        self._allocated_near_fields: List["Field"] = []
+        self._allocated_far_fields: List["Field"] = []
 
         self.optimal_welfare: float = 1.
         self.costs: float = 0.
@@ -73,15 +74,46 @@ class Agent(ABC, Stringify):
     def clone(self):
         pass
 
+    def get_allocated_fields(self) -> List["Field"]:
+        return self._allocated_fields
+
+    def get_allocated_near_fields(self) -> List["Field"]:
+        return self._allocated_near_fields
+
+    def get_allocated_far_fields(self) -> List["Field"]:
+        return self._allocated_far_fields
+
     def get_near_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
         return [
             TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t)
-            for coordinate in self._near_border]
+            for coordinate in self._near_border
+            if (0 <= (coordinate.x + position.x) < TimeCoordinate.dim.x and
+                0 <= (coordinate.y + position.y) < TimeCoordinate.dim.y and
+                0 <= (coordinate.z + position.z) < TimeCoordinate.dim.z and
+                0 <= position.t < TimeCoordinate.dim.t)]
 
     def get_far_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
         return [
             TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t)
             for coordinate in self._far_border]
+
+    def add_allocated_path(self, path: List[TimeCoordinate]):
+        self._allocated_paths.append(path)
+
+    def add_allocated_field(self, field: "Field"):
+        if field not in self._allocated_fields:
+            self._allocated_fields.append(field)
+
+    def add_allocated_near_field(self, field: "Field"):
+        if field not in self._allocated_near_fields:
+            self._allocated_near_fields.append(field)
+
+    def add_allocated_far_field(self, field: "Field"):
+        if field not in self._allocated_far_fields:
+            self._allocated_far_fields.append(field)
+
+    def get_allocated_value(self):
+        return self.value_for_paths(self._allocated_paths)
 
     def contains_coordinate(self, path: List[TimeCoordinate], coordinate: TimeCoordinate) -> Hit:
         current_position: Optional[Coordinate] = None
@@ -113,4 +145,5 @@ class Agent(ABC, Stringify):
         return Hit.FAR
 
     def __repr__(self):
-        return str(self.uuid)
+        return str(self.id)
+

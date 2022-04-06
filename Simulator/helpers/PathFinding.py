@@ -1,5 +1,7 @@
 import time
+import math
 from typing import List, Optional
+from time import time_ns
 
 from ..Agent import Agent
 from ..Environment import Environment
@@ -29,9 +31,10 @@ def astar(
     steps = 0
 
     path = []
-
-    while len(open_nodes) > 0 and steps < 1000:
+    while len(open_nodes) > 0 and steps < 10000:
         steps += 1
+        # if steps % 50 == 0:
+        #     print(steps)
         open_nodes.sort()
         current_node = open_nodes.pop(0)
         closed_nodes.append(current_node)
@@ -52,15 +55,13 @@ def astar(
         neighbors = current_node.adjacent_coordinates(env._dimension, agent.speed)
         for next_neighbor in neighbors:
             if env.is_valid_for_allocation(next_neighbor, agent):
-                waiting_neighbor = Node(next_neighbor, current_node)
+                neighbor = Node(next_neighbor, current_node)
                 # Closed node
-                if waiting_neighbor in closed_nodes:
+                if neighbor in closed_nodes:
                     break
 
-                neighbor = Node(next_neighbor, current_node)
-
-                neighbor.g = current_node.g + 1
-                neighbor.h = distance(neighbor.position, end.position)
+                neighbor.g = current_node.g + 0.5
+                neighbor.h = distance2(neighbor.position, end.position)
                 neighbor.f = neighbor.g + neighbor.h
 
                 if neighbor in open_nodes:
@@ -72,6 +73,8 @@ def astar(
                 else:
                     open_nodes.append(neighbor)
 
+    if len(path) == 0:
+        print("ASTAR failed")
     wait_coords: List[TimeCoordinate] = []
     for near_coord in path:
         for t in range(1, agent.speed):
@@ -85,9 +88,11 @@ def astar(
     return complete_path
 
 
-def distance(start: Coordinate, end: Coordinate):
+def distance(start: TimeCoordinate, end: TimeCoordinate):
     return abs(start.x - end.x) + abs(start.y - end.y) + abs(start.z - end.z)
 
+def distance2(start: TimeCoordinate, end: TimeCoordinate):
+    return math.pow((start.x - end.x)**2 + (start.y - end.y)**2 + (start.z - end.z)**2, 0.5)
 
 class Node:
     def __init__(self, position: TimeCoordinate, parent):
@@ -107,7 +112,7 @@ class Node:
         return f"{self.position}: {self.f}"
 
     def adjacent_coordinates(self, dim: Coordinate, speed: int) -> List[TimeCoordinate]:
-        res = [TimeCoordinate(self.position.x, self.position.y, self.position.z, Tick(self.position.t + speed))]
+        res = [TimeCoordinate(self.position.x, self.position.y, self.position.z, Tick(self.position.t + speed))] #Todo: for i in range(speed)? agent könnte auch mit speed drei nur einen Tick warten
         if self.position.x > 0:
             res.append(TimeCoordinate(self.position.x - 1, self.position.y, self.position.z,
                                       Tick(self.position.t + speed)))

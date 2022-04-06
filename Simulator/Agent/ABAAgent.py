@@ -6,8 +6,6 @@ from ..Coordinate import Coordinate, TimeCoordinate
 
 
 class ABAAgent(ABAgent):
-    id: int = 0
-
     def __init__(
         self,
         a: TimeCoordinate,
@@ -45,5 +43,9 @@ class ABAAgent(ABAgent):
         return ABABid(self.battery, self.a, self.b, self.stay)
 
     def clone(self):
-        return ABAAgent(self.a, self.b, self.stay, self.speed, self.battery, self._near_border, self._far_border)
+        clone = ABAAgent(self.a, self.b, self.stay, self.speed, self.battery, self._near_border, self._far_border)
+        clone.id = self.id
+        clone.is_clone = True
+        Agent.id -= 1
 
+        return clone

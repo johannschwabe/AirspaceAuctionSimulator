@@ -6,8 +6,6 @@ from ..Coordinate import Coordinate, TimeCoordinate
 
 
 class ABCAgent(Agent):
-    id: int = 0
-
     def __init__(
         self,
         locations: List[TimeCoordinate],
@@ -50,5 +48,9 @@ class ABCAgent(Agent):
         return ABCBid(self.battery, self._locations, self.stays)
 
     def clone(self):
-        return ABCAgent(self._locations, self.stays, self.speed, self.battery, self._near_border, self._far_border)
+        clone = ABCAgent(self._locations, self.stays, self.speed, self.battery, self._near_border, self._far_border)
+        clone.id = self.id
+        clone.is_clone = True
+        Agent.id -= 1
 
+        return clone

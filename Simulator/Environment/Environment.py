@@ -1,9 +1,10 @@
 import time
 from typing import List, Dict
 
+from ..Environment import TempEnvironment
 from ..Field import Field
 from ..Agent import Agent
-from ..Coordinate import TimeCoordinate, Coordinate
+from ..Coordinate import TimeCoordinate
 from ..IO import Stringify
 from ..Time import Tick
 from ..Blocker import Blocker
@@ -12,57 +13,69 @@ from ..Blocker import Blocker
 class Environment(Stringify):
     my_time = 0
 
-    def __init__(self, dimension: Coordinate, blocker: List[Blocker]):
-        self._dimension: Coordinate = dimension
+    def __init__(self, dimension: TimeCoordinate, blocker: List[Blocker]):
+        TimeCoordinate.dim = dimension
+        self._dimension: TimeCoordinate = dimension
         self._agents: List[Agent] = []
         self._relevant_fields: Dict[str, Field] = {}  # x_y_z_t -> Field
         self.blockers: List[Blocker] = blocker
 
     @staticmethod
-    def deallocate_agent(agent: Agent):
+    def deallocate_agent(agent: Agent, time_step: Tick):
         agent._allocated_paths = [[]]
-        for field in agent._allocated_fields:
-            field._allocated_to.remove(agent)
-        for near_field in agent._allocated_near_fields:
-            near_field._near_to.remove(agent)
-        for far_field in agent._allocated_far_fields:
-            far_field._far_to.remove(agent)
+        for field in agent.get_allocated_fields():
+            if field.coordinates.t > time_step:
+                field.remove_allocation_of_agent(agent)
+        for near_field in agent.get_allocated_fields():
+            if near_field.coordinates.t > time_step:
+                near_field.remove_near_to_of_agent(agent)
+        for far_field in agent.get_allocated_far_fields():
+            if far_field.coordinates.t > time_step:
+                far_field.remove_far_to_of_agent(agent)
 
-    def allocate_paths(self, agent: Agent, paths: List[List[TimeCoordinate]]):
-        if agent in self._agents:
-            self.deallocate_agent(agent)
-        else:
-            self._agents.append(agent)
-
-        agent._allocated_paths = paths
-
+    def allocate_paths_for_agent(self, agent:Agent, paths: List[List[TimeCoordinate]]):
         for path in paths:
-            for coord in path:
-                field: Field = self.get_field_at(coord, True)
-                if agent not in field._near_to:
-                    field._allocated_to.append(agent)
-                if field not in agent._allocated_fields:
-                    agent._allocated_fields.append(field)
-                # Near border
-                for near_coord in agent.get_near_coordinates(coord):
-                    near_field: Field = self.get_field_at(near_coord, True)
-                    if agent not in near_field._near_to:
-                        near_field._near_to.append(agent)
-                    if near_field not in agent._allocated_near_fields:
-                        agent._allocated_near_fields.append(near_field)
-                # Far border
-                for far_coord in agent.get_far_coordinates(coord):
-                    far_field: Field = self.get_field_at(far_coord, True)
-                    if agent not in far_field._far_to:
-                        far_field._far_to.append(agent)
-                    if far_field not in agent._allocated_far_fields:
-                        agent._allocated_far_fields.append(far_field)
+            self.allocate_path_for_agent(agent, path)
+
+    def allocate_path_for_agent(self, agent:Agent, path: List[TimeCoordinate]):
+        agent.add_allocated_path(path)
+
+        for coord in path:
+            field: Field = self.get_field_at(coord, True)
+            field.add_allocation(agent)
+            agent.add_allocated_field(field)
+            # Near border
+            for near_coord in agent.get_near_coordinates(coord):
+                near_field: Field = self.get_field_at(near_coord, True)
+                near_field.add_near(agent)
+                agent.add_allocated_near_field(near_field)
+            # Far border
+            for far_coord in agent.get_far_coordinates(coord):
+                far_field: Field = self.get_field_at(far_coord, True)
+                far_field.add_far(agent)
+                agent.add_allocated_far_field(far_field)
+
+    def allocate_paths_for_agents(self, agents_paths: Dict[Agent, List[List[TimeCoordinate]]], time_step: Tick):
+        for agent, paths in agents_paths.items():
+            if agent in self._agents:
+                self.deallocate_agent(agent, time_step)
+            else:
+                self._agents.append(agent)
+
+            for path in paths:
+                self.allocate_path_for_agent(agent, path)
 
     def is_blocked(self, coords: TimeCoordinate) -> bool:
         for blocker in self.blockers:
             if blocker.is_blocked(coords):
                 return True
         return False
+
+    def add_agent(self, agent: Agent):
+        self._agents.append(agent)
+
+    def get_agents(self):
+        return self._agents
 
     def is_valid_for_allocation(self, coords: TimeCoordinate, agent: Agent) -> bool:
         total_start = time.time()
@@ -79,8 +92,7 @@ class Environment(Stringify):
                 is_free = False
                 break
             # Other agent in near border
-            for near_coord in agent._near_border:
-                near_neighbor = TimeCoordinate(near_coord.x, near_coord.y, near_coord.z, waiting_coord.t)
+            for near_neighbor in agent.get_near_coordinates(waiting_coord):
                 near_field = self.get_field_at(near_neighbor, False)
                 if near_field.is_allocated():
                     is_free = False
@@ -108,7 +120,7 @@ class Environment(Stringify):
             for z in range(self._dimension.z):
                 print(f"z={z: >2}", end="")
                 for i in range(self._dimension.x):
-                    print(f"{i: >4} ", end="")
+                    print(f" {i: >4}", end="")
                 print("  -> X")
                 for y in range(self._dimension.y):
                     print(f"  {y: >2} ", end="")
@@ -116,10 +128,10 @@ class Environment(Stringify):
                         coord = TimeCoordinate(x, y, z, Tick(t))
                         field = self.get_field_at(coord, False)
                         if field.is_allocated():
-                            if field._allocated_to and t == current_time_step:
-                                print(f" {field._allocated_to}".rjust(5, ' '), end="")
-                            elif field._allocated_to:
-                                print(f"-{field._allocated_to}-".rjust(5, ' '), end="")
+                            if field.get_allocated() and t == current_time_step:
+                                print(f" {field.get_allocated()}".rjust(5, ' '), end="")
+                            elif field.get_allocated():
+                                print(f"-{field.get_allocated()}-".rjust(5, ' '), end="")
                         elif self.is_blocked(field.coordinates):
                             print("✖".rjust(5, ' '), end="")
                         elif field.is_near():
@@ -135,3 +147,7 @@ class Environment(Stringify):
     def clear(self):
         new_env = Environment(self._dimension, self.blockers)
         return new_env
+
+    def generate_temporary_env(self):
+        return TempEnvironment.TempEnvironment(self)
+

@@ -7,8 +7,6 @@ from ..Coordinate import Coordinate, TimeCoordinate
 
 
 class StationaryAgent(Agent):
-    id: int = 0
-
     def __init__(
         self,
         block: List[Coordinate],
@@ -42,5 +40,10 @@ class StationaryAgent(Agent):
         return StationaryBid(self.battery, self.block, self.start_t, self.end_t)
 
     def clone(self):
-        return StationaryAgent(self.block, self.start_t, self.end_t)
+        clone = StationaryAgent(self.block, self.start_t, self.end_t)
+        clone.id = self.id
+        clone.is_clone = True
+        Agent.id -= 1
+
+        return clone
 

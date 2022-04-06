@@ -1,6 +1,6 @@
-from . import Coordinate, Field, Value, Agent, Allocator, Bid
+from . import Coordinate, Field, Value, Agent, Allocator, Bid, Environment
 from .Blocker import Blocker
-from .Environment import Environment
+from .Environment import Environment, TempEnvironment
 from .Owner import Owner
 from .Path import TravelPath
 from .PointOfInterest import PointOfInterest
