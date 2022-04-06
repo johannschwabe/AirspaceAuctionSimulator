@@ -1,4 +1,5 @@
 from typing import List, Optional
+from time import time_ns
 
 from ..Agent import Agent
 from ..Environment import Environment
@@ -13,6 +14,7 @@ def astar(
     env: Environment,
     agent: Agent,
 ):
+    start_time = time_ns()
     open_nodes = []
     closed_nodes = []
 
@@ -27,8 +29,9 @@ def astar(
     steps = 0
 
     path = []
-
+    summed_steps = 0
     while len(open_nodes) > 0 and steps < 1000:
+        summed_steps += 1
         steps += 1
         open_nodes.sort()
         current_node = open_nodes.pop(0)
@@ -49,12 +52,10 @@ def astar(
         neighbors = current_node.adjacent_coordinates(env._dimension, agent.speed)
         for next_neighbor in neighbors:
             if env.is_valid_for_allocation(next_neighbor, agent):
-                waiting_neighbor = Node(next_neighbor, current_node)
-                # Closed node
-                if waiting_neighbor in closed_nodes:
-                    break
-
                 neighbor = Node(next_neighbor, current_node)
+                # Closed node
+                if neighbor in closed_nodes:
+                    break
 
                 neighbor.g = current_node.g + 1
                 neighbor.h = distance(neighbor.position, end.position)
@@ -68,6 +69,7 @@ def astar(
 
                 else:
                     open_nodes.append(neighbor)
+
     if len(path) == 0:
         print("ASTAR failed")
     wait_coords: List[TimeCoordinate] = []
@@ -77,10 +79,11 @@ def astar(
 
     complete_path = path + wait_coords
     complete_path.sort(key=lambda x: x.t)
+    print("---->", summed_steps, ", dt: ", str((time_ns() - start_time)/1e9) + ", t/s: ", (time_ns() - start_time)/(1e9 * summed_steps))
     return complete_path
 
 
-def distance(start: Coordinate, end: Coordinate):
+def distance(start: TimeCoordinate, end: TimeCoordinate):
     return abs(start.x - end.x) + abs(start.y - end.y) + abs(start.z - end.z)
 
 
@@ -102,7 +105,7 @@ class Node:
         return f"{self.position}: {self.f}"
 
     def adjacent_coordinates(self, dim: Coordinate, speed: int) -> List[TimeCoordinate]:
-        res = [TimeCoordinate(self.position.x, self.position.y, self.position.z, Tick(self.position.t + speed))]
+        res = [TimeCoordinate(self.position.x, self.position.y, self.position.z, Tick(self.position.t + speed))] #Todo: for i in range(speed)? agent könnte auch mit speed drei nur einen Tick warten
         if self.position.x > 0:
             res.append(TimeCoordinate(self.position.x - 1, self.position.y, self.position.z,
                                       Tick(self.position.t + speed)))

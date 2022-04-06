@@ -5,7 +5,7 @@ from ..Time import Tick
 
 
 class TimeCoordinate(Coordinate):
-
+    dim = None
     def __init__(self, x: int, y: int, z: int, t: Tick):
         super().__init__(x, y, z)
         self.t: Tick = t

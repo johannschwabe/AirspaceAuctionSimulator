@@ -8,7 +8,6 @@ from .Allocator import Allocator
 from .History2 import History2
 from .Owner import Owner
 
-
 class Simulator:
     def __init__(self,
                  owners: List[Owner],

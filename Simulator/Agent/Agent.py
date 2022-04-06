@@ -13,10 +13,8 @@ if TYPE_CHECKING:
 class Agent(ABC, Stringify):
     id: int = 0
 
-    default_near_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-1, 2) for y in range(-1, 2) for z in
-                                             range(-1, 2)]
-    default_far_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-2, 3) for y in range(-2, 3) for z in
-                                            range(-2, 3)]
+    default_near_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-1, 2) for y in range(-1, 2) for z in range(-1, 2) ] # To dam big
+    default_far_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-2, 3) for y in range(-2, 3) for z in range(-2, 3) ] # To dam big
     default_battery = 100
     default_speed = 1
 
@@ -88,7 +86,11 @@ class Agent(ABC, Stringify):
     def get_near_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
         return [
             TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t)
-            for coordinate in self._near_border]
+            for coordinate in self._near_border
+            if (0 <= (coordinate.x + position.x) < TimeCoordinate.dim.x and
+                0 <= (coordinate.y + position.y) < TimeCoordinate.dim.y and
+                0 <= (coordinate.z + position.z) < TimeCoordinate.dim.z and
+                0 <= position.t < TimeCoordinate.dim.t)]
 
     def get_far_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
         return [
