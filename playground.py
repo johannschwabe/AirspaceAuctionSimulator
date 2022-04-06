@@ -4,11 +4,11 @@ from Simulator.Environment import Environment
 from Simulator import Simulator, Statistics, Tick
 from Simulator.History import History
 from Simulator.History2 import History2
-from owners.ABOwner import ABOwner
+from Simulator.Owner.ABOwner import ABOwner
 from time import time_ns
 import random
 random.seed(2)
-dimensions = TimeCoordinate(10, 10, 1, Tick(60))
+dimensions = TimeCoordinate(20, 20, 1, Tick(60))
 TimeCoordinate.dim = dimensions
 environment = Environment(dimensions, [])
 allocator = FCFSAllocator()

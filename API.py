@@ -52,7 +52,8 @@ class SimulationConfigType(BaseModel):
 @app.post("/simulation")
 def read_root(config: SimulationConfigType):
     dimensions = TimeCoordinate(config.dimension.x, config.dimension.y, config.dimension.z, Tick(config.dimension.t))
+    TimeCoordinate.dim = dimensions
     g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions,
                   avg_flight_time=10)
-    history = g.simulate()
+    history, statistics = g.simulate()
     return history.as_dict()
