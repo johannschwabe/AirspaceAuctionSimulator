@@ -1,40 +1,37 @@
 <template>
-  <n-page-header :subtitle="description" @back="() => router.push('/')">
+  <n-page-header
+    :subtitle="simulationStore.description"
+    @back="() => router.push('/')"
+  >
     <n-grid :cols="stats.length">
       <n-gi v-for="stat in stats" :key="stat.label">
         <n-statistic :label="stat.label" tabular-nums>
           <template #prefix>
             <n-icon :component="stat.icon" :depth="5" size="20" />
           </template>
-          <n-number-animation
-            ref="numberAnimationInstRef"
-            :from="0.0"
-            :to="stat.value"
-            :active="true"
-            :duration="stat.animate ?? true ? 3000 : 0"
-            :precision="0 ?? stat.precision"
-          />
+          {{ stat.value }}
         </n-statistic>
       </n-gi>
     </n-grid>
 
     <template #header>
       <n-breadcrumb>
-        <n-breadcrumb-item>Home</n-breadcrumb-item>
-        <n-breadcrumb-item>{{ name }}</n-breadcrumb-item>
+        <n-breadcrumb-item @click="() => router.push('/')">
+          Home
+        </n-breadcrumb-item>
+        <n-breadcrumb-item>{{ simulationStore.name }}</n-breadcrumb-item>
       </n-breadcrumb>
     </template>
 
     <template #title>
       <a href="#" style="text-decoration: none; color: inherit">
-        {{ name }}
+        {{ simulationStore.name }}
       </a>
     </template>
 
     <template #avatar>
       <n-avatar :src="logo" color="transparent" />
     </template>
-
   </n-page-header>
 </template>
 
@@ -51,58 +48,51 @@ import {
 
 import { computed } from "vue";
 import { useRouter } from "vue-router";
+import { useSimulationStore } from "../../stores/simulation";
 
 const router = useRouter();
-
-const props = defineProps({
-  name: String,
-  description: String,
-  dimensionX: Number,
-  dimensionY: Number,
-  dimensionZ: Number,
-  nOwners: Number,
-  nAgents: Number,
-  achievedWelfare: Number,
-  nCollisions: Number,
-  nReallocations: Number,
-});
+const simulationStore = useSimulationStore();
 
 const stats = computed(() => {
   return [
     {
       label: "Dimension X",
-      value: props.dimensionX,
+      value: simulationStore.dimensions.x,
       icon: Cube,
-      animate: false,
     },
     {
       label: "Dimension Y",
-      value: props.dimensionY,
+      value: simulationStore.dimensions.y,
       icon: Cube,
-      animate: false,
     },
     {
       label: "Dimension Z",
-      value: props.dimensionZ,
+      value: simulationStore.dimensions.z,
       icon: Cube,
-      animate: false,
     },
-    { label: "Owners", value: props.nOwners, icon: FingerPrint },
-    { label: "Agents", value: props.nAgents, icon: Fish },
+    {
+      label: "Owners",
+      value: simulationStore.statistics.total_number_of_owners,
+      icon: FingerPrint,
+    },
+    {
+      label: "Agents",
+      value: simulationStore.statistics.total_number_of_agents,
+      icon: Fish,
+    },
     {
       label: "Welfare",
-      value: props.achievedWelfare,
-      precision: 2,
+      value: simulationStore.statistics.total_achieved_welfare,
       icon: HappyOutline,
     },
     {
       label: "Collisions",
-      value: props.nCollisions,
+      value: simulationStore.statistics.total_number_of_collisions,
       icon: GitPullRequest,
     },
     {
       label: "Re-Allocations",
-      value: props.nReallocations,
+      value: simulationStore.statistics.total_number_of_reallocations,
       icon: GitBranch,
     },
   ];

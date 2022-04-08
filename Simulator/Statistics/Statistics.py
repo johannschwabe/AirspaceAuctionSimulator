@@ -119,11 +119,21 @@ class JSONEnvironment(Stringify):
         self.blockers = [JSONBlocker(blocker) for blocker in blockers]
 
 
+class JSONStatistics(Stringify):
+    def __init__(self):
+        self.total_number_of_owners = 11
+        self.total_number_of_agents = 22
+        self.total_achieved_welfare = 33
+        self.total_number_of_collisions = 44
+        self.total_number_of_reallocations = 55
+
+
 class JSONSimulation(Stringify):
-    def __init__(self, name: str, description: str, environment: JSONEnvironment, owners: List[JSONOwner]):
+    def __init__(self, name: str, description: str, environment: JSONEnvironment, statistics: JSONStatistics, owners: List[JSONOwner]):
         self.name: str = name
         self.description: str = description
         self.environment: JSONEnvironment = environment
+        self.statistics: JSONStatistics = statistics
         self.owners: List[JSONOwner] = owners
 
 
@@ -182,6 +192,7 @@ class Statistics:
 
     def build_json(self):
         json_env = JSONEnvironment(self.env._dimension, self.env.blockers)
+        json_stats = JSONStatistics()
         owners: List[JSONOwner] = []
         for owner in self.owners:
             agents: List[JSONAgent] = []
@@ -199,5 +210,5 @@ class Statistics:
                     owner.name,
                 ))
             owners.append(JSONOwner(owner.name, owner.id, agents))
-        json_simulation = JSONSimulation(self.name, self.description, json_env, owners)
+        json_simulation = JSONSimulation(self.name, self.description, json_env, json_stats, owners)
         return json_simulation.as_dict()

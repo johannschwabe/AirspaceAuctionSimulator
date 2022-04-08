@@ -7,40 +7,48 @@
       checkable
       :data="data"
       :pattern="pattern"
-      key-field="uuid"
+      key-field="id"
       label-field="name"
       children-field="agents"
+      :default-checked-keys="simulationStore.selectedAgentIDs"
       @update:checked-keys="updateCheckedKeys"
     />
+    <n-button
+      block
+      ghost
+      type="primary"
+      @click.stop="apply"
+      :disabled="!changeMade"
+    >
+      Apply selection
+    </n-button>
   </n-space>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { isEmpty, xor } from "lodash-es";
+import { ref, computed } from "vue";
+import { useSimulationStore } from "../../stores/simulation";
+
+const simulationStore = useSimulationStore();
 
 const pattern = ref("");
-const data = [
-  {
-    name: "Owner 1",
-    uuid: "owner-1-uuid",
-    agents: [
-      { name: "Agent 1", uuid: "owner-1-agent-1-uuid" },
-      { name: "Agent 2", uuid: "owner-1-agent-2-uuid" },
-      { name: "Agent 3", uuid: "owner-1-agent-3-uuid" },
-    ],
-  },
-  {
-    name: "Owner 2",
-    uuid: "owner-2-uuid",
-    agents: [
-      { name: "Agent 1", uuid: "owner-2-agent-1-uuid" },
-      { name: "Agent 2", uuid: "owner-2-agent-2-uuid" },
-      { name: "Agent 3", uuid: "owner-2-agent-3-uuid" },
-    ],
-  },
-];
+const selectedAgentIDs = ref([...simulationStore.selectedAgentIDs]);
+const data = simulationStore.owners;
+
+const changeMade = computed(() => {
+  return !isEmpty(
+    xor(selectedAgentIDs.value, simulationStore.selectedAgentIDs)
+  );
+});
+
 const updateCheckedKeys = (v) => {
-  console.log("updateCheckedKeys", v);
+  selectedAgentIDs.value = v;
+  console.log("setSelectedAgentIDs", v);
+};
+
+const apply = () => {
+  simulationStore.setSelectedAgentIDs(selectedAgentIDs.value);
 };
 </script>
 

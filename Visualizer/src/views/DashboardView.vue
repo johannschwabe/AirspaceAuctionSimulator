@@ -1,16 +1,5 @@
 <template>
-  <top-bar
-    name="<My Model>"
-    description="<My Model Description>"
-    :dimension-x="10"
-    :dimension-y="20"
-    :dimension-z="30"
-    :n-owners="3"
-    :n-agents="45"
-    :achieved-welfare="200"
-    :n-collisions="99"
-    :n-reallocations="23"
-  />
+  <top-bar />
 
   <n-divider />
 
@@ -38,7 +27,7 @@
       <n-grid-item span="6" id="drawer-target">
         <n-grid cols="1">
           <n-grid-item>
-            <three-d-map />
+<!--            <three-d-map />-->
           </n-grid-item>
         </n-grid>
       </n-grid-item>
@@ -47,7 +36,7 @@
       <n-grid-item span="3">
         <n-grid cols="1">
           <n-grid-item>
-            <welfare />
+<!--            <welfare />-->
           </n-grid-item>
         </n-grid>
       </n-grid-item>
@@ -58,46 +47,48 @@
     <!-- Bottom Part -->
     <n-grid cols="1">
       <n-grid-item>
-        <data-table />
+<!--        <data-table />-->
       </n-grid-item>
       <n-grid-item>
-        <gantt />
+<!--        <gantt />-->
       </n-grid-item>
     </n-grid>
   </div>
 
   <!-- Left Drawer -->
   <n-drawer
-    v-model:show="activeLeft"
+    :show="agentStore.selected"
     :width="200"
     placement="left"
     :trap-focus="false"
     :close-on-esc="false"
     :mask-closable="false"
+    :on-update:show="(show) => show || agentStore.deselect()"
     to="#drawer-target"
   >
-    <n-drawer-content title="Left Drawer" :closable="true">
+    <n-drawer-content title="Selected Owner" :closable="true">
       Stoner is a 1965 novel by the American writer John Williams.
     </n-drawer-content>
   </n-drawer>
 
   <!-- Right Drawer -->
   <n-drawer
-    v-model:show="activeRight"
+    :show="agentStore.selected"
     :width="200"
     placement="right"
     :trap-focus="false"
     :close-on-esc="false"
     :mask-closable="false"
+    :on-update:show="(show) => show || agentStore.deselect()"
     to="#drawer-target"
   >
-    <n-drawer-content title="Right Drawer" :closable="true">
-      Stoner is a 1965 novel by the American writer John Williams.
+    <n-drawer-content title="Selected Agent" :closable="true">
+      <agent-info />
     </n-drawer-content>
   </n-drawer>
 
   <div class="abs-nav">
-    <timeline />
+<!--    <timeline />-->
   </div>
 </template>
 
@@ -112,9 +103,17 @@ import Gantt from "../components/dashboard/Gantt.vue";
 import Welfare from "../components/dashboard/Welfare.vue";
 import TopBar from "../components/dashboard/TopBar.vue";
 import AgentSelector from "../components/dashboard/AgentSelector.vue";
+import AgentInfo from "../components/dashboard/AgentInfo.vue";
+import { useAgentStore } from "../stores/agent.js";
+import { useSimulationStore } from "../stores/simulation.js";
 
 const activeLeft = ref(true);
 const activeRight = ref(true);
+
+const agentStore = useAgentStore();
+const simulationStore = useSimulationStore();
+
+agentStore.select(simulationStore.agents[0]);
 </script>
 
 <style scoped>
@@ -135,7 +134,7 @@ const activeRight = ref(true);
   border-left: 1px solid rgba(255, 255, 255, 0.09);
   border-right: 1px solid rgba(255, 255, 255, 0.09);
 }
-#drawer-target >>> .n-drawer-mask {
+#drawer-target /deep/ .n-drawer-mask {
   background-color: transparent;
   pointer-events: none;
 }

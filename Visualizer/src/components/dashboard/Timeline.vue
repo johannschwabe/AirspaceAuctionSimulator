@@ -56,13 +56,10 @@ const chartOptions = {
 const series = [
   {
     name: "# Active Agents",
-    data: Array(simulationStore.dimensions.t).fill(0),
+    data: simulationStore.timeline,
   },
 ];
 
-simulationStore.locations.forEach((loc) => {
-  series[0].data[loc.t] += 1;
-});
 </script>
 
 <style scoped></style>

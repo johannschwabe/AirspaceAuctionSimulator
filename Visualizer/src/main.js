@@ -52,6 +52,8 @@ import {
   NDrawerContent,
   NDivider,
   NTree,
+  NTimeline,
+  NTimelineItem,
 } from "naive-ui";
 
 const naive = create({
@@ -97,6 +99,8 @@ const naive = create({
     NDrawerContent,
     NDivider,
     NTree,
+    NTimeline,
+    NTimelineItem,
   ],
 });
 

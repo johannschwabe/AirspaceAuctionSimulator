@@ -9,9 +9,10 @@ export const useSimulationStore = defineStore({
     name: useStorage("simulation-name", ""),
     description: useStorage("simulation-description", ""),
     owners: useStorage("simulation-owners", []),
-    blockers: useStorage("simulation-blockers", []),
     dimensions: useStorage("simulation-dimensions", {}),
     environment: useStorage("simulation-environment", {}),
+    statistics: useStorage("simulation-statistics", {}),
+    selectedAgentIDs: useStorage("simulation-selected-agent-ids", []),
     tick: useStorage("simulation-tick", 1),
   }),
   getters: {
@@ -25,58 +26,89 @@ export const useSimulationStore = defineStore({
           });
         });
       });
-      agents.sort((a, b) => (a.locations[0]?.t < b.locations[0]?.t ? -1 : 1));
+      agents.sort((a, b) => (a.paths[0].t[0] < b.paths[0].t[0] ? -1 : 1));
       return agents;
     },
+    selectedAgents(state) {
+      return this.agents.filter((agent) =>
+        state.selectedAgentIDs.includes(agent.id)
+      );
+    },
     activeAgents(state) {
-      return this.agents.filter((agent) => {
-        const has_started = agent.locations.some((loc) => loc.t <= state.tick);
-        const has_not_landed = agent.locations.some(
-          (loc) => loc.t >= state.tick
-        );
-        return has_started && has_not_landed;
-      });
-    },
-    activeAgentUUIDs() {
-      return this.activeAgents.map((agent) => agent.uuid);
-    },
-    locations() {
-      const locations = [];
-      this.agents.forEach((agent) => {
-        agent.locations.forEach((loc) => {
-          locations.push({
-            agent,
-            ...loc,
-          });
+      return this.selectedAgents.filter((agent) => {
+        return agent.paths.some((path) => {
+          const has_started = path.t.some((t) => t <= state.tick);
+          const has_not_landed = path.t.some((t) => t >= state.tick);
+          return has_started && has_not_landed;
         });
       });
-      locations.sort((a, b) => (a.t < b.t ? -1 : 1));
-      return locations;
     },
-    pastLocations(state) {
-      return this.locations.filter((loc) => loc.t <= state.tick);
-    },
-    currentLocations(state) {
-      const locations = [];
-      this.activeAgents.forEach((agent) => {
-        const current_loc = agent.locations.find((loc) => loc.t === state.tick);
-        locations.push({
-          agent,
-          ...current_loc,
-        });
-      });
-      locations.sort((a, b) => (a.t < b.t ? -1 : 1));
-      return locations;
-    },
+    // activeAgentIDs() {
+    //   return this.activeAgents.map((agent) => agent.id);
+    // },
+    // timeline(state) {
+    //   const timeseries = Array(state.dimensions.t).fill(0);
+    //   this.agents.forEach((agent) => {
+    //     agent.paths.forEach((path) => {
+    //       path.t.forEach((t) => {
+    //         timeseries[t] += 1;
+    //       });
+    //     });
+    //   });
+    //   return timeseries;
+    // },
+    // locations() {
+    //   const locations = [];
+    //   this.agents.forEach((agent) => {
+    //     agent.paths.forEach((path) => {
+    //       for (let i = 0; i < path.t.length; i++) {
+    //         locations.push({
+    //           agent,
+    //           x: path.x[i],
+    //           y: path.y[i],
+    //           z: path.z[i],
+    //         });
+    //       }
+    //     });
+    //   });
+    //   return locations;
+    // },
+    // pastLocations(state) {
+    //   return this.locations.filter((loc) => loc.t <= state.tick);
+    // },
+    // currentLocations(state) {
+    //   const locations = [];
+    //   this.activeAgents.forEach((agent) => {
+    //     const currentPath = agent.paths.find((path) =>
+    //       path.t.includes(state.tick)
+    //     );
+    //     const i = currentPath.t.indexOf(state.tick);
+    //     const location = {
+    //       x: currentPath.x[i],
+    //       y: currentPath.y[i],
+    //       z: currentPath.z[i],
+    //     };
+    //     locations.push({
+    //       agent,
+    //       ...location,
+    //     });
+    //   });
+    //   locations.sort((a, b) => (a.t < b.t ? -1 : 1));
+    //   return locations;
+    // },
   },
   actions: {
+    setSelectedAgentIDs(selectedIds) {
+      this.selectedAgentIDs = [...selectedIds];
+    },
     setSimulation(simulation) {
       this.loaded = true;
       this.name = simulation.name;
       this.description = simulation.description;
       this.owners = simulation.owners;
       this.environment = simulation.environment;
-      this.dimensions = simulation.dimensions;
+      this.dimensions = simulation.environment.dimensions;
+      this.statistics = simulation.statistics;
     },
     download() {
       const fileToSave = new Blob([JSON.stringify(this, undefined, 2)], {
