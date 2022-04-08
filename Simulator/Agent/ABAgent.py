@@ -1,6 +1,7 @@
 from typing import List, Optional
 
-from ..Agent import Agent
+from . import Agent
+from .AgentType import AgentType
 from ..Bid import ABBid, Bid
 from ..Coordinate import TimeCoordinate
 
@@ -13,7 +14,7 @@ class ABAgent(Agent):
         speed: Optional[int] = None,
         battery: Optional[int] = None,
     ):
-        super().__init__(speed=speed, battery=battery)
+        super().__init__(AgentType.AB, speed=speed, battery=battery)
 
         self.a: TimeCoordinate = a
         self.b: TimeCoordinate = b

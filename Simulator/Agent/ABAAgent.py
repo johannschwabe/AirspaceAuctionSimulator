@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from . import Agent, ABAgent
+from .AgentType import AgentType
 from ..Bid import Bid, ABABid
 from ..Coordinate import TimeCoordinate
 
@@ -15,6 +16,7 @@ class ABAAgent(ABAgent):
         battery: Optional[int] = None,
     ):
         super().__init__(a, b, speed=speed, battery=battery)
+        self.agent_type = AgentType.ABA
         self.stay: int = stay
 
     def value_for_paths(self, paths: List[List[TimeCoordinate]]) -> float:
