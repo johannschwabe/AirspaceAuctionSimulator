@@ -20,14 +20,17 @@
       <n-grid-item span="3">
         <n-grid cols="1">
           <n-grid-item>
-            <heatmap dim-x="x" dim-y="z" title="Top-Down View" />
+            <agent-selector />
           </n-grid-item>
-          <n-grid-item>
-            <heatmap dim-x="x" dim-y="y" title="Front View" />
-          </n-grid-item>
-          <n-grid-item>
-            <heatmap dim-x="z" dim-y="y" title="Side View" />
-          </n-grid-item>
+<!--          <n-grid-item>-->
+<!--            <heatmap dim-x="x" dim-y="z" title="Top-Down View" />-->
+<!--          </n-grid-item>-->
+<!--          <n-grid-item>-->
+<!--            <heatmap dim-x="x" dim-y="y" title="Front View" />-->
+<!--          </n-grid-item>-->
+<!--          <n-grid-item>-->
+<!--            <heatmap dim-x="z" dim-y="y" title="Side View" />-->
+<!--          </n-grid-item>-->
         </n-grid>
       </n-grid-item>
 
@@ -101,13 +104,14 @@
 <script setup>
 import { ref } from "vue";
 
-import Heatmap from "../components/dashboard/Heatmap.vue";
+// import Heatmap from "../components/dashboard/Heatmap.vue";
 import ThreeDMap from "../components/dashboard/ThreeDMap.vue";
 import DataTable from "../components/dashboard/DataTable.vue";
 import Timeline from "../components/dashboard/Timeline.vue";
 import Gantt from "../components/dashboard/Gantt.vue";
 import Welfare from "../components/dashboard/Welfare.vue";
 import TopBar from "../components/dashboard/TopBar.vue";
+import AgentSelector from "../components/dashboard/AgentSelector.vue";
 
 const activeLeft = ref(true);
 const activeRight = ref(true);

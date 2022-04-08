@@ -16,6 +16,7 @@
     "babylonjs": "^4.2.1",
     "file-saver": "^2.0.5",
     "pinia": "^2.0.11",
+    "seemly": "^0.3.3",
     "vue": "^3.2.31",
     "vue-router": "^4.0.12",
     "vue3-apexcharts": "^1.4.1"

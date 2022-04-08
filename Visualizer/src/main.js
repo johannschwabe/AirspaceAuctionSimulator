@@ -51,6 +51,7 @@ import {
   NDrawer,
   NDrawerContent,
   NDivider,
+  NTree,
 } from "naive-ui";
 
 const naive = create({
@@ -95,6 +96,7 @@ const naive = create({
     NDrawer,
     NDrawerContent,
     NDivider,
+    NTree,
   ],
 });
 
