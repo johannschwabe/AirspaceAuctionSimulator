@@ -2,6 +2,7 @@
 Run server using >>> uvicorn API:app --reload
 App runs on 'https://localhost:8000/'
 """
+import random
 from typing import Optional, List
 
 from fastapi import FastAPI
@@ -13,6 +14,8 @@ from Simulator.Time import Tick
 from Simulator.History import Generator
 
 app = FastAPI()
+
+random.seed(2)
 
 origins = [
     "http://localhost:3000",

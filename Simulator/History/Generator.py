@@ -39,11 +39,11 @@ class Generator:
         for ownerType in self.ownerTypes:
             if ownerType.type == "a-to-b":
                 self.owners.append(ABOwner([i for i in range(ownerType.agents)]))
-            if ownerType.type == "a-to-b-to-a":
+            if ownerType.type == "aba":
                 self.owners.append(ABAOwner([i for i in range(ownerType.agents)]))
-            if ownerType.type == "stationary":
+            if ownerType.type == "stat":
                 self.owners.append(StationaryOwner([i for i in range(ownerType.agents)]))
-            if ownerType.type == "a-to-b-to-c":
+            if ownerType.type == "abc":
                 self.owners.append(ABCOwner([i for i in range(ownerType.agents)]))
         self.history = History2(self.dimensions, self.allocator, self.environment, self.owners)
         self.simulator = Simulator(

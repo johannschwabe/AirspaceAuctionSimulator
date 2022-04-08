@@ -1,6 +1,5 @@
-import time
 import math
-from typing import List, Optional
+from typing import List
 from time import time_ns
 
 from ..Agent import Agent
@@ -16,7 +15,8 @@ def astar(
     env: Environment,
     agent: Agent,
 ):
-    print("---->", end="")
+    print(f"{start} -> {end} ---->", end="")
+    # print(f"---->", end="")
     start_time = time_ns()
     open_nodes = []
     closed_nodes = []
@@ -26,23 +26,28 @@ def astar(
         valid_start.t += 1
 
     start_node = Node(start, None)
-    end = Node(end, None)
-
+    end_node = Node(end, None)
     open_nodes.append(start_node)
     steps = 0
 
     path = []
-    while len(open_nodes) > 0 and steps < 50000:
+    sort_time = 0
+    neighbors_time = 0
+    valid_time = 0
+    while len(open_nodes) > 0 and steps < 10000:
         steps += 1
-        # if steps % 50 == 0:
-        #     print(steps)
+
+        start_sort = time_ns()
         open_nodes.sort()
+        sort_time += time_ns() - start_sort
+
         current_node = open_nodes.pop(0)
         closed_nodes.append(current_node)
+
+        # if steps % 50 == 0:
+        #     print(current_node)
         # Target reached
-        if current_node.position == end.position or (
-            current_node.position.t > end.position.t and current_node.position.inter_temporal_equal(end.position)
-        ):
+        if current_node.position.inter_temporal_equal(end_node.position):
             reverse_path = []
             while not current_node.position.inter_temporal_equal(start):
                 reverse_path.append(current_node.position)
@@ -52,28 +57,26 @@ def astar(
             path = reverse_path[::-1]
             break
 
+        start_neighbors = time_ns()
         # Find non-occupied neighbor
         neighbors = current_node.adjacent_coordinates(env._dimension, agent.speed)
         for next_neighbor in neighbors:
-            if env.is_valid_for_allocation(next_neighbor, agent):
+            valid_start = time_ns()
+            valid = env.is_valid_for_allocation(next_neighbor, agent)
+            valid_time += time_ns() - valid_start
+            if valid:
                 neighbor = Node(next_neighbor, current_node)
                 # Closed node
                 if neighbor in closed_nodes:
                     break
 
                 neighbor.g = current_node.g + 0.5
-                neighbor.h = distance2(neighbor.position, end.position)
+                neighbor.h = distance2(neighbor.position, end_node.position)
                 neighbor.f = neighbor.g + neighbor.h
 
-                if neighbor in open_nodes:
-                    alternative_index = open_nodes.index(neighbor)
-                    alternative = open_nodes[alternative_index]
-                    if alternative.f > neighbor.f:
-                        open_nodes[alternative_index] = neighbor
+                open_nodes.append(neighbor)
+        neighbors_time += time_ns() - start_neighbors
 
-                else:
-                    open_nodes.append(neighbor)
-    print(steps)
     if len(path) == 0:
         print("ASTAR failed")
     wait_coords: List[TimeCoordinate] = []
@@ -85,7 +88,13 @@ def astar(
     complete_path.sort(key=lambda x: x.t)
     stop_time = time_ns()
     seconds = (stop_time - start_time) / 1e9
-    print(f"PathLen: {len(path)}, steps: {steps}, time: {seconds:.2f}, t/p: {seconds / len(path):.4f}")
+    print(f"PathLen: {len(path)}, "
+          f"steps: {steps}, "
+          f"time: {seconds:.2f}, "
+          f"t/p: {seconds / (len(path) + 1) * 1000:.2f}, "
+          f"sort: {sort_time/1e9:.2f}, "
+          f"neighbours: {neighbors_time/1e9:.2f}, "
+          f"valid: {valid_time/1e9:.2f}, ")
     return complete_path
 
 
@@ -112,7 +121,7 @@ class Node:
         return self.f < other.f
 
     def __repr__(self):
-        return f"{self.position}: {self.f}"
+        return f"{self.position}: {self.f}, {self.h}"
 
     def adjacent_coordinates(self, dim: Coordinate, speed: int) -> List[TimeCoordinate]:
         res = [TimeCoordinate(self.position.x, self.position.y, self.position.z, Tick(

@@ -38,7 +38,7 @@ class FCFSAllocator(Allocator):
                     b = ab_path[-1]
                     ba_path = astar(
                         TimeCoordinate(b.x, b.y, b.z, b.t + Tick(bid.stay)),
-                        bid.a,
+                        bid.a2,
                         env,
                         agent,
                     )
