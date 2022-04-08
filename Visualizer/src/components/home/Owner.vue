@@ -34,7 +34,7 @@ const owners = ref([
     color: "#00559d",
     name: "Digitec",
     agents: 20,
-    type: "a-to-b",
+    type: "aba",
   },
 ]);
 
@@ -55,6 +55,10 @@ const options = [
   {
     label: "A to B to A",
     value: "aba",
+  },
+  {
+    label: "A to B to C",
+    value: "abc",
   },
   {
     label: "Stationary",

@@ -20,18 +20,8 @@ class BlockerGen:
         for i in range(n_blockers):
             origin = Coordinate.random(self.dimension)
             origin.y = 0
-            size = Coordinate.random(max_size)
+            dimension = Coordinate.random(max_size)
             locations: List[TimeCoordinate] = \
-                [TimeCoordinate(origin.x, origin.y, origin.z, Tick(t)) for t in range(self.dimension.t + 1)]
-            blocked_coordinates: List[Coordinate] = []
-            for x in range(size.x):
-                for y in range(size.y):
-                    for z in range(size.z):
-                        blocked_coordinates.append(Coordinate(
-                            origin.x + x,
-                            origin.y + y,
-                            origin.z + z
-                        ))
-
-            blockers.append(Blocker(locations, blocked_coordinates))
+                [TimeCoordinate(origin.x + i, origin.y, origin.z, Tick(t)) for i, t in enumerate(range(self.dimension.t + 1))]
+            blockers.append(Blocker(locations, dimension))
         return blockers

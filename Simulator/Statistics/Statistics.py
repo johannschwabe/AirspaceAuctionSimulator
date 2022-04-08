@@ -2,6 +2,7 @@ from enum import Enum
 
 from .. import Environment
 from ..Allocator import Allocator
+from ..Blocker import Blocker
 from ..History import HistoryAgent, History
 from ..IO import Stringify
 from ..Simulator import Owner
@@ -60,6 +61,8 @@ class JSONAgent(Stringify):
         near_field_violations: int,
         far_field_violations: int,
         bid: int,
+        owner_id: int,
+        owner_name: str,
     ):
         self.agent_type: AgentType = agent.agent_type
         self.speed: int = agent.speed
@@ -77,6 +80,9 @@ class JSONAgent(Stringify):
         self.far_field_violations: int = far_field_violations
 
         self.bid = bid
+        self.owner_id = owner_id
+        self.owner_name = owner_name
+        self.name = f"{self.owner_name}-{self.agent_type.name}-Agent-{self.id}"
 
         self.paths: List[Path] = [Path(path) for path in agent.get_allocated_paths()]
 
@@ -92,15 +98,32 @@ class JSONAgent(Stringify):
 
 
 class JSONOwner(Stringify):
-    def __init__(self, name: str, agents: List[JSONAgent]):
+    def __init__(self, name: str, id: int, agents: List[JSONAgent]):
         self.name: str = name
+        self.id: int = id
         self.agents: List[JSONAgent] = agents
 
 
+class JSONBlocker(Stringify):
+    def __init__(self, blocker: Blocker):
+        self.x = [loc.x for loc in blocker.locations.values()]
+        self.y = [loc.y for loc in blocker.locations.values()]
+        self.z = [loc.z for loc in blocker.locations.values()]
+        self.t = [loc.t for loc in blocker.locations.values()]
+        self.dimension = blocker.dimension
+
+
+class JSONEnvironment(Stringify):
+    def __init__(self, dimensions: "TimeCoordinate", blockers: List[Blocker]):
+        self.dimensions = dimensions
+        self.blockers = [JSONBlocker(blocker) for blocker in blockers]
+
+
 class JSONSimulation(Stringify):
-    def __init__(self, name: str, description: str, owners: List[JSONOwner]):
+    def __init__(self, name: str, description: str, environment: JSONEnvironment, owners: List[JSONOwner]):
         self.name: str = name
         self.description: str = description
+        self.environment: JSONEnvironment = environment
         self.owners: List[JSONOwner] = owners
 
 
@@ -158,6 +181,7 @@ class Statistics:
         return length
 
     def build_json(self):
+        json_env = JSONEnvironment(self.env._dimension, self.env.blockers)
         owners: List[JSONOwner] = []
         for owner in self.owners:
             agents: List[JSONAgent] = []
@@ -170,8 +194,10 @@ class Statistics:
                     0,
                     0,
                     0,
-                    -1
+                    -1,
+                    owner.id,
+                    owner.name,
                 ))
-            owners.append(JSONOwner(owner.name, agents))
-        json_simulation = JSONSimulation(self.name, self.description, owners)
+            owners.append(JSONOwner(owner.name, owner.id, agents))
+        json_simulation = JSONSimulation(self.name, self.description, json_env, owners)
         return json_simulation.as_dict()
