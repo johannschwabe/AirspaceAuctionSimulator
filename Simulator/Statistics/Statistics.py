@@ -1,5 +1,5 @@
 from ..Environment import Environment
-from ..History2 import HistoryAgent
+from ..History import HistoryAgent
 from ..Simulator import Owner
 from ..Simulator import Simulator
 from ..Agent import Agent

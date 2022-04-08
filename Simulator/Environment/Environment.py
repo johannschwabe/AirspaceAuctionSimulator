@@ -3,12 +3,11 @@ from rtree import index
 
 from ..Agent import Agent
 from ..Coordinate import TimeCoordinate
-from ..IO import Stringify
 from ..Time import Tick
 from ..Blocker import Blocker
 
 
-class Environment(Stringify):
+class Environment:
     def __init__(self, dimension: TimeCoordinate, blocker: List[Blocker]):
         TimeCoordinate.dim = dimension
         self._dimension: TimeCoordinate = dimension
@@ -32,7 +31,7 @@ class Environment(Stringify):
     def allocate_path_for_agent(self, agent: Agent, path: List[TimeCoordinate]):
         agent.add_allocated_path(path)
         iterator = path[0]
-        for coord in path:      #Todo test
+        for coord in path:
             if coord.inter_temporal_equal(iterator):
                 continue
             aggregated = iterator.tree_query_rep()
@@ -69,9 +68,10 @@ class Environment(Stringify):
         return self._dimension
 
     def is_valid_for_allocation(self, coords: TimeCoordinate, agent: Agent) -> bool:
+        radius: int = agent.near_radius
         agents = self.tree.intersection((
-            coords.x - agent.near_radius, coords.y - agent.near_radius, coords.z - agent.near_radius, coords.t,
-            coords.x + agent.near_radius, coords.y + agent.near_radius, coords.z + agent.near_radius, coords.t + agent.speed
+            coords.x - radius, coords.y - radius, coords.z - radius, coords.t,
+            coords.x + radius, coords.y + radius, coords.z + radius, coords.t + agent.speed
         ))
 
         return len(list(agents)) == 0

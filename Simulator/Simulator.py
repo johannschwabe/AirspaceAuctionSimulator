@@ -8,18 +8,18 @@ from .Allocator import Allocator
 from .Owner import Owner
 
 if TYPE_CHECKING:
-    from .History2 import History2
+    from .History import History
 
 class Simulator:
     def __init__(self,
                  owners: List[Owner],
                  allocator: Allocator,
                  environment: Environment,
-                 history: "History2"):
+                 history: "History"):
         self.owners: List[Owner] = owners
         self.allocator: Allocator = allocator
         self.environment: Environment = environment
-        self.history: "History2" = history
+        self.history: "History" = history
         self.agents: List[Agent] = []
         self.time_step = Tick(0)
 
