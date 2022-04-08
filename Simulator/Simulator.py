@@ -27,6 +27,7 @@ class Simulator:
         newcomers: List[Agent] = []
         for owner in self.owners:
             newcomers += owner.generate_agents(self.time_step, self.environment)
+
         if len(newcomers) > 0:
             self.history.add_new_agents(newcomers, self.time_step)
             temp_env = self.environment.clone()
