@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Tuple
 import json
 from datetime import datetime
@@ -59,6 +60,9 @@ class Stringify:
         # Convert tick
         if isinstance(obj, int):
             return int(obj)
+        # Convert enumerations
+        if isinstance(obj, Enum):
+            return obj.name
         # Convert class objects
         if hasattr(obj, "__dict__"):
             dictict = dict([(key, recall(value)) for key, value in obj.__dict__.items() if valid_entry(key, value)])
