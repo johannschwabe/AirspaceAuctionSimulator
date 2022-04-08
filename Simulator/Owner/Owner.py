@@ -4,14 +4,14 @@ from typing import List
 
 from ..Agent import Agent
 from ..Environment import Environment
-from ..IO import Stringify
 
 
 def r(): return random.randint(0, 255)
 
 
-class Owner(ABC, Stringify):
-    def __init__(self):
+class Owner(ABC):
+    def __init__(self, name: str):
+        self.name: str = name
         self.agents: List[Agent] = []
         self.total_achieved_welfare: float = 0.
         self.total_optimal_welfare: float = 0.

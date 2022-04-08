@@ -1,3 +1,2 @@
+from .History import HistoryAgent
 from .History import History
-from .Generator import Generator
-
