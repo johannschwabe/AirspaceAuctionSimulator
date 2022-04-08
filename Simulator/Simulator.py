@@ -1,24 +1,25 @@
-from typing import List, Dict
+from typing import List, Dict, TYPE_CHECKING
 
 from .Time import Tick
 from .Agent import Agent
 from .Coordinate import TimeCoordinate
 from .Environment import Environment
 from .Allocator import Allocator
-from .History2 import History2
 from .Owner import Owner
 
+if TYPE_CHECKING:
+    from .History2 import History2
 
 class Simulator:
     def __init__(self,
                  owners: List[Owner],
                  allocator: Allocator,
                  environment: Environment,
-                 history: History2):
+                 history: "History2"):
         self.owners: List[Owner] = owners
         self.allocator: Allocator = allocator
         self.environment: Environment = environment
-        self.history: History2 = history
+        self.history: "History2" = history
         self.agents: List[Agent] = []
         self.time_step = Tick(0)
 

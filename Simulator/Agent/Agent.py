@@ -8,7 +8,8 @@ from ..IO import Stringify
 
 class Agent(ABC, Stringify):
     id: int = 0
-
+    max_near_field_radius = 2
+    max_far_field_radius = 4
     default_bubble = [-1, -1, -1, +1, +1, +1]
 
     default_battery = 100000
@@ -31,6 +32,9 @@ class Agent(ABC, Stringify):
         self._allocated_coords: List["TimeCoordinate"] = []
 
         self.bubble = Agent.default_bubble
+
+        self.near_radius = 1
+        self.far_radius = 3
 
         self.optimal_welfare: float = 1.
         self.costs: float = 0.

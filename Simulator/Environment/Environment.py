@@ -31,10 +31,14 @@ class Environment(Stringify):
 
     def allocate_path_for_agent(self, agent: Agent, path: List[TimeCoordinate]):
         agent.add_allocated_path(path)
-
-        for coord in path:
-            self.tree.insert(agent.id, coord.tree_query_rep())
-            agent.add_allocated_coord(coord)
+        iterator = path[0]
+        for coord in path:      #Todo test
+            if coord.inter_temporal_equal(iterator):
+                continue
+            aggregated = iterator.tree_query_rep()
+            aggregated[7] = coord.t - 1
+            self.tree.insert(agent.id, aggregated)
+            iterator = coord
 
     def allocate_paths_for_agents(self, agents_paths: Dict[Agent, List[List[TimeCoordinate]]], time_step: Tick):
         for agent, paths in agents_paths.items():
@@ -57,6 +61,9 @@ class Environment(Stringify):
 
     def get_agents(self):
         return self._agents
+
+    def get_dim(self):
+        return self._dimension
 
     def is_valid_for_allocation(self, coords: TimeCoordinate, agent: Agent) -> bool:
         bubble = agent.bubble
@@ -98,7 +105,7 @@ class Environment(Stringify):
                 print("")
             print(" ↓\n Y")
 
-    def clear(self):
+    def new_clear(self):
         new_env = Environment(self._dimension, self.blockers)
         return new_env
 
