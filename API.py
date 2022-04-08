@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from Simulator.Coordinate import TimeCoordinate
 from Simulator.Time import Tick
-from Simulator.History import Generator
+from Simulator.Generator import Generator
 
 app = FastAPI()
 
@@ -57,5 +57,6 @@ def read_root(config: SimulationConfigType):
     dimensions = TimeCoordinate(config.dimension.x, config.dimension.y, config.dimension.z, Tick(config.dimension.t))
     TimeCoordinate.dim = dimensions
     g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions)
-    history, statistics = g.simulate()
-    return history.as_dict()
+    statistics = g.simulate()
+    json = statistics.build_json()
+    return json

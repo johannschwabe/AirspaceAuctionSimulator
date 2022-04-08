@@ -1,7 +1,8 @@
 from typing import List
 
-from .. Time import Tick
-from ..Agent import Agent
+from . import Agent
+from .AgentType import AgentType
+from ..Time import Tick
 from ..Bid import Bid, StationaryBid
 from ..Coordinate import Coordinate, TimeCoordinate
 
@@ -13,7 +14,7 @@ class StationaryAgent(Agent):
         start_t: Tick,
         end_t: Tick,
     ):
-        super().__init__()
+        super().__init__(AgentType.STATIONARY)
 
         self.block: List[Coordinate] = block
         self.start_t: Tick = start_t

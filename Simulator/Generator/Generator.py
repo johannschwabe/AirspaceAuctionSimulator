@@ -7,8 +7,7 @@ from .EnvironmentGen import EnvironmentGen
 from ..Owner.StationaryOwner import StationaryOwner
 from ..Statistics.Statistics import Statistics
 from ..Allocator import FCFSAllocator
-from ..History2 import History2
-from .History import History
+from ..History import History
 from ..Simulator import Simulator
 
 if TYPE_CHECKING:
@@ -35,22 +34,21 @@ class Generator:
         self.environment: "Environment" = EnvironmentGen(self.dimensions).generate(10)
         self.simulator: Optional["Simulator"] = None
         self.history: Optional["History"] = None
-        self.history2: Optional["History2"] = None
         self.statistics: Optional[Statistics] = None
         self.simulator: Optional[Simulator] = None
 
-    def simulate(self) -> Tuple[History, Statistics]:
+    def simulate(self) -> Statistics:
         for ownerType in self.ownerTypes:
-            if ownerType.type == "a-to-b":
-                self.owners.append(ABOwner([i for i in range(ownerType.agents)]))
+            if ownerType.type == "ab":
+                self.owners.append(ABOwner(ownerType.name, [i for i in range(ownerType.agents)]))
             if ownerType.type == "aba":
-                self.owners.append(ABAOwner([i for i in range(ownerType.agents)]))
+                self.owners.append(ABAOwner(ownerType.name, [i for i in range(ownerType.agents)]))
             if ownerType.type == "stat":
-                self.owners.append(StationaryOwner([i for i in range(ownerType.agents)]))
+                self.owners.append(StationaryOwner(ownerType.name, [i for i in range(ownerType.agents)]))
             if ownerType.type == "abc":
-                self.owners.append(ABCOwner([i for i in range(ownerType.agents)]))
+                self.owners.append(ABCOwner(ownerType.name, [i for i in range(ownerType.agents)]))
 
-        self.history2 = History2(
+        self.history = History(
             self.dimensions,
             self.allocator,
             self.environment,
@@ -60,12 +58,11 @@ class Generator:
             self.owners,
             self.allocator,
             self.environment,
-            self.history2,
+            self.history,
         )
         while self.simulator.time_step <= self.dimensions.t:
             print(f"STEP: {self.simulator.time_step}")
             self.simulator.tick()
 
-        self.history = History(self.name, self.description, self.simulator)
-        self.statistics = Statistics(self.simulator)
-        return self.history, self.statistics
+        self.statistics = Statistics(self.simulator, self.name, self.description)
+        return self.statistics
