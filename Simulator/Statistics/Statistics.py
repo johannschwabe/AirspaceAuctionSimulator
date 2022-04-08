@@ -1,7 +1,5 @@
 from ..Simulator import Owner
 from ..Simulator import Simulator
-from ..Allocator import Allocator
-from ..History import History
 from ..Agent import Agent
 
 

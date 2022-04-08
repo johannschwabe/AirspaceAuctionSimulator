@@ -13,7 +13,6 @@ from Simulator.Owner.StationaryOwner import StationaryOwner
 
 dimensions = TimeCoordinate(1000, 1000, 100, Tick(100))
 random.seed(2)
-# dimensions = TimeCoordinate(5000, 5000, 1000, Tick(500))
 environment = Environment(dimensions, [])
 allocator = FCFSAllocator()
 owners = [ABOwner(list(range(10))), ABAOwner(list(range(10))), ABCOwner(list(range(10))), StationaryOwner(list(range(10)))]
