@@ -82,5 +82,8 @@ class Agent(ABC, Stringify):
     def get_allocated_value(self):
         return self.value_for_paths(self._allocated_paths)
 
+    def get_allocated_paths(self):
+        return self._allocated_paths
+
     def __repr__(self):
         return str(self.id)

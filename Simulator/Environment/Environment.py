@@ -39,6 +39,9 @@ class Environment(Stringify):
             aggregated[7] = coord.t - 1
             self.tree.insert(agent.id, aggregated)
             iterator = coord
+        aggregated = iterator.tree_query_rep()
+        aggregated[7] = path[-1].t
+        self.tree.insert(agent.id, aggregated)
 
     def allocate_paths_for_agents(self, agents_paths: Dict[Agent, List[List[TimeCoordinate]]], time_step: Tick):
         for agent, paths in agents_paths.items():
@@ -66,10 +69,9 @@ class Environment(Stringify):
         return self._dimension
 
     def is_valid_for_allocation(self, coords: TimeCoordinate, agent: Agent) -> bool:
-        bubble = agent.bubble
         agents = self.tree.intersection((
-            coords.x - bubble[0], coords.y - bubble[1], coords.z - bubble[2], coords.t,
-            coords.x + bubble[3], coords.y + bubble[4], coords.z + bubble[5], coords.t + agent.speed
+            coords.x - agent.near_radius, coords.y - agent.near_radius, coords.z - agent.near_radius, coords.t,
+            coords.x + agent.near_radius, coords.y + agent.near_radius, coords.z + agent.near_radius, coords.t + agent.speed
         ))
 
         return len(list(agents)) == 0

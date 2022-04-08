@@ -61,45 +61,64 @@ class Statistics:
                 "far_field_violations": {},
                 "far_field_intersection": {},
             }
-            for path in agent.get_allocated_coords():
+            for path in agent.get_allocated_paths():
                 for step in path[::agent.speed]:
                     res[agent.id]["near_field_violations"][step.t] = self.violations(step, agent, agent.near_radius)
                     res[agent.id]["far_field_violations"][step.t] = self.violations(step, agent, agent.far_radius)
-                    res[agent.id]["near_field_intersection"][step.t] = self.violations(step, agent, agent.far_radius)
-                    res[agent.id]["far_field_intersection"][step.t] = self.violations(step, agent, agent.far_radius)
+                    near_intersections, far_intersections = self.intersections(step, agent)
+                    res[agent.id]["near_field_intersection"][step.t] = near_intersections
+                    res[agent.id]["far_field_intersection"][step.t] = far_intersections
         return res
 
     def violations(self, position: TimeCoordinate, agent: HistoryAgent, radi: int):
-        collisions = self.history.env.tree.intersection([position.x - radi,
-                                                         position.y - radi,
-                                                         position.z - radi,
-                                                         position.t,
-                                                         position.x + radi,
-                                                         position.y + radi,
-                                                         position.z + radi,
-                                                         position.t + agent.speed],
-                                                        objects=True)
-        return len(list(filter(lambda col: col.id != agent.id, collisions)))
-
-    def intersections(self, position: TimeCoordinate, agent: HistoryAgent, radi: int, max_radi: int):
-        collisions = self.history.env.tree.intersection([position.x - max_radi,
-                                                         position.y - max_radi,
-                                                         position.z - max_radi,
-                                                         position.t,
-                                                         position.x + max_radi,
-                                                         position.y + max_radi,
-                                                         position.z + max_radi,
-                                                         position.t + agent.speed],
-                                                        objects=True)
+        box = [  position.x - radi,
+                 position.y - radi,
+                 position.z - radi,
+                 position.t,
+                 position.x + radi,
+                 position.y + radi,
+                 position.z + radi,
+                 position.t + agent.speed -1]
+        collisions = self.history.env.tree.intersection(box, objects=True)
         real_collisions = filter(lambda col: col.id != agent.id, collisions)
-        res = 0
-        for collision in real_collisions:
-            if abs(collision[0] - position.x) + abs(collision[1] - position.y) + abs(collision[2] - position.z) <= radi:
-                col_start = max(collision[3], position.t)
-                col_end = min(collision[7], position.t + agent.speed)
-                res += col_end - col_start + 1 # Todo I doubt this works
+        count = 0
+        for real_collision in real_collisions:
+            start = max(real_collision.bbox[3], position.t)
+            end = min(real_collision.bbox[7], position.t + agent.speed - 1)
+            count += int(end) - int(start) + 1
+        return count
 
-        return res
+    def intersections(self, position: TimeCoordinate, agent: HistoryAgent):
+        max_radi = self.history.env.get_agents()[agent.id].max_far_field_radius
+        near_radi = self.history.env.get_agents()[agent.id].near_radius
+        fahrrad = self.history.env.get_agents()[agent.id].far_radius
+        box = [  position.x - max_radi * 2,
+                 position.y - max_radi * 2,
+                 position.z - max_radi * 2,
+                 position.t,
+                 position.x + max_radi * 2,
+                 position.y + max_radi * 2,
+                 position.z + max_radi * 2,
+                 position.t + agent.speed - 1]
+        collisions = self.history.env.tree.intersection(box, objects=True)
+        real_collisions = filter(lambda col: col.id != agent.id, collisions)
+        near_intersections = 0
+        far_intersections = 0
+        for collision in real_collisions:
+            distance_x = abs(collision.bbox[0] - position.x)
+            distance_y = abs(collision.bbox[1] - position.y)
+            distance_z = abs(collision.bbox[2] - position.z)
+            col_start = max(collision.bbox[3], position.t)
+            col_end = min(collision.bbox[7], position.t + agent.speed - 1)
+            col_time = int(col_end) - int(col_start) + 1
+            max_near_distance = near_radi + self.history.env.get_agents()[collision.id].near_radius
+            max_far_distance = fahrrad + self.history.env.get_agents()[collision.id].far_radius
+            if distance_x <= max_near_distance and distance_y <= max_near_distance and distance_z <= max_near_distance:
+                near_intersections +=  col_time
+            if distance_x <= max_far_distance and distance_y <= max_far_distance and distance_z <= max_far_distance:
+                far_intersections += col_time
+
+        return near_intersections, far_intersections
 
 
     # def close_passings(self):
