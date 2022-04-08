@@ -41,6 +41,16 @@ import {
   NSelect,
   NAlert,
   NProgress,
+  NPageHeader,
+  NStatistic,
+  NBreadcrumb,
+  NBreadcrumbItem,
+  NAvatar,
+  NDropdown,
+  NNumberAnimation,
+  NDrawer,
+  NDrawerContent,
+  NDivider,
 } from "naive-ui";
 
 const naive = create({
@@ -75,6 +85,16 @@ const naive = create({
     NSelect,
     NAlert,
     NProgress,
+    NPageHeader,
+    NStatistic,
+    NBreadcrumb,
+    NBreadcrumbItem,
+    NAvatar,
+    NDropdown,
+    NNumberAnimation,
+    NDrawer,
+    NDrawerContent,
+    NDivider,
   ],
 });
 
