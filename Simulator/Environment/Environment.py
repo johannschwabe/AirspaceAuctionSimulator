@@ -1,4 +1,3 @@
-import pickle
 from typing import List, Dict
 from rtree import index
 
@@ -26,11 +25,11 @@ class Environment(Stringify):
             if coord.t > time_step:
                 self.tree.delete(agent.id, coord.tree_query_rep())
 
-    def allocate_paths_for_agent(self, agent:Agent, paths: List[List[TimeCoordinate]]):
+    def allocate_paths_for_agent(self, agent: Agent, paths: List[List[TimeCoordinate]]):
         for path in paths:
             self.allocate_path_for_agent(agent, path)
 
-    def allocate_path_for_agent(self, agent:Agent, path: List[TimeCoordinate]):
+    def allocate_path_for_agent(self, agent: Agent, path: List[TimeCoordinate]):
         agent.add_allocated_path(path)
 
         for coord in path:
@@ -60,12 +59,13 @@ class Environment(Stringify):
         return self._agents
 
     def is_valid_for_allocation(self, coords: TimeCoordinate, agent: Agent) -> bool:
-        agents = self.tree.intersection((coords.x - 1, coords.y - 1, coords.z - 1, coords.t,
-                                         coords.x + 1, coords.y + 1, coords.z + 1, coords.t + agent.speed
-                                         ))
+        bubble = agent.bubble
+        agents = self.tree.intersection((
+            coords.x - bubble[0], coords.y - bubble[1], coords.z - bubble[2], coords.t,
+            coords.x + bubble[3], coords.y + bubble[4], coords.z + bubble[5], coords.t + agent.speed
+        ))
 
         return len(list(agents)) == 0
-
 
     def get_agents_at(self, coords: TimeCoordinate) -> List[Agent]:
         return [self._agents[_id] for _id in self.tree.intersection(coords.tree_query_rep())]
@@ -84,7 +84,7 @@ class Environment(Stringify):
                         coord = TimeCoordinate(x, y, z, Tick(t))
                         agents = list(self.tree.intersection(coord.tree_query_rep()))
                         if len(agents) > 0:
-                            print(f" {','.join(map(str,agents))}".rjust(5, ' '), end="")
+                            print(f" {','.join(map(str, agents))}".rjust(5, ' '), end="")
 
                         elif self.is_blocked(coord):
                             print("✖".rjust(5, ' '), end="")
@@ -108,4 +108,3 @@ class Environment(Stringify):
             for item in self.tree.intersection(self.tree.bounds, objects=True):
                 cloned.tree.insert(item.id, item.bbox)
         return cloned
-

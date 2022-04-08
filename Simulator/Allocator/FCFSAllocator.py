@@ -59,12 +59,11 @@ class FCFSAllocator(Allocator):
                     occupied = False
                     for coordinate in bid.block:
                         time_coord = TimeCoordinate(coordinate.x, coordinate.y, coordinate.z, Tick(t))
-                        field = env.get_field_at(time_coord, False)
-                        if field.is_allocated() or field.is_near():
+                        if env.is_valid_for_allocation(time_coord, agent):
+                            path_t.append(time_coord)
+                        else:
                             occupied = True
                             break
-                        else:
-                            path_t.append(time_coord)
 
                     if not occupied:
                         path += path_t

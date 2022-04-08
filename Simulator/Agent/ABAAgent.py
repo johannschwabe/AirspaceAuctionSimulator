@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from . import Agent, ABAgent
 from ..Bid import Bid, ABABid
-from ..Coordinate import Coordinate, TimeCoordinate
+from ..Coordinate import TimeCoordinate
 
 
 class ABAAgent(ABAgent):
@@ -13,10 +13,8 @@ class ABAAgent(ABAgent):
         stay: int = 5,
         speed: Optional[int] = None,
         battery: Optional[int] = None,
-        near_border: Optional[List[Coordinate]] = None,
-        far_border: Optional[List[Coordinate]] = None,
     ):
-        super().__init__(a, b, speed=speed, battery=battery, near_border=near_border, far_border=far_border)
+        super().__init__(a, b, speed=speed, battery=battery)
         self.stay: int = stay
 
     def value_for_paths(self, paths: List[List[TimeCoordinate]]) -> float:
@@ -43,7 +41,7 @@ class ABAAgent(ABAgent):
         return ABABid(self.battery, self.a, self.b, self.stay)
 
     def clone(self):
-        clone = ABAAgent(self.a, self.b, self.stay, self.speed, self.battery, self._near_border, self._far_border)
+        clone = ABAAgent(self.a, self.b, self.stay, self.speed, self.battery)
         clone.id = self.id
         clone.is_clone = True
         Agent.id -= 1

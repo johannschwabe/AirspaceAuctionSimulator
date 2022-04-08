@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from ..Agent import Agent
 from ..Bid import Bid, ABCBid
-from ..Coordinate import Coordinate, TimeCoordinate
+from ..Coordinate import TimeCoordinate
 
 
 class ABCAgent(Agent):
@@ -12,10 +12,8 @@ class ABCAgent(Agent):
         stays: List[int],
         speed: Optional[int] = None,
         battery: Optional[int] = None,
-        near_border: Optional[List[Coordinate]] = None,
-        far_border: Optional[List[Coordinate]] = None,
     ):
-        super().__init__(speed=speed, battery=battery, near_border=near_border, far_border=far_border)
+        super().__init__(speed=speed, battery=battery)
 
         self._locations: List[TimeCoordinate] = locations
         self.stays: List[int] = stays
@@ -48,7 +46,7 @@ class ABCAgent(Agent):
         return ABCBid(self.battery, self._locations, self.stays)
 
     def clone(self):
-        clone = ABCAgent(self._locations, self.stays, self.speed, self.battery, self._near_border, self._far_border)
+        clone = ABCAgent(self._locations, self.stays, self.speed, self.battery)
         clone.id = self.id
         clone.is_clone = True
         Agent.id -= 1

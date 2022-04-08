@@ -83,15 +83,19 @@ def astar(
 
     complete_path = path + wait_coords
     complete_path.sort(key=lambda x: x.t)
-    print(f"PathLen: {len(path)}, steps: {steps}, time: {(time_ns() - start_time)/1e9}, t/p: {(time_ns() - start_time)/(1e9 * len(path))}")
+    stop_time = time_ns()
+    seconds = (stop_time - start_time) / 1e9
+    print(f"PathLen: {len(path)}, steps: {steps}, time: {seconds:.2f}, t/p: {seconds / len(path):.4f}")
     return complete_path
 
 
 def distance(start: TimeCoordinate, end: TimeCoordinate):
     return abs(start.x - end.x) + abs(start.y - end.y) + abs(start.z - end.z)
 
+
 def distance2(start: TimeCoordinate, end: TimeCoordinate):
-    return math.pow((start.x - end.x)**2 + (start.y - end.y)**2 + (start.z - end.z)**2, 0.5)
+    return math.pow((start.x - end.x) ** 2 + (start.y - end.y) ** 2 + (start.z - end.z) ** 2, 0.5)
+
 
 class Node:
     def __init__(self, position: TimeCoordinate, parent):
@@ -111,7 +115,8 @@ class Node:
         return f"{self.position}: {self.f}"
 
     def adjacent_coordinates(self, dim: Coordinate, speed: int) -> List[TimeCoordinate]:
-        res = [TimeCoordinate(self.position.x, self.position.y, self.position.z, Tick(self.position.t + speed))] #Todo: for i in range(speed)? agent könnte auch mit speed drei nur einen Tick warten
+        res = [TimeCoordinate(self.position.x, self.position.y, self.position.z, Tick(
+            self.position.t + speed))]
         if self.position.x > 0:
             res.append(TimeCoordinate(self.position.x - 1, self.position.y, self.position.z,
                                       Tick(self.position.t + speed)))

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 
 from .. Time import Tick
 from ..Agent import Agent
@@ -13,7 +13,7 @@ class StationaryAgent(Agent):
         start_t: Tick,
         end_t: Tick,
     ):
-        super().__init__(near_border=[], far_border=[])
+        super().__init__()
 
         self.block: List[Coordinate] = block
         self.start_t: Tick = start_t
@@ -46,4 +46,3 @@ class StationaryAgent(Agent):
         Agent.id -= 1
 
         return clone
-

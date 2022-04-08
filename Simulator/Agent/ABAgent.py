@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from ..Agent import Agent
 from ..Bid import ABBid, Bid
-from ..Coordinate import Coordinate, TimeCoordinate
+from ..Coordinate import TimeCoordinate
 
 
 class ABAgent(Agent):
@@ -48,4 +48,3 @@ class ABAgent(Agent):
         clone.is_clone = True
         Agent.id -= 1
         return clone
-
