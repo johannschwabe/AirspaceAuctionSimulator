@@ -1,4 +1,3 @@
-import time
 from typing import List, Dict
 from time import time_ns
 
@@ -39,5 +38,11 @@ class Simulator:
         self.history.update_allocations(agents_paths, self.time_step)
         self.time_step += 1
         t6 = time_ns()
-        print(f"1-2: {(t2-t1)/1e9}, 2-3: {(t3-t2)/1e9}, 3-4: {(t4-t3)/1e9}, 4-5: {(t5-t4)/1e9}, 5-6: {(t6-t5)/1e9}")
+        total = t6 - t1
+        if len(newcomers) > 0:
+            print(f"1-2: {(t2-t1)/1e9} {(t2-t1)/total*100:2.}%, "
+                  f"2-3: {(t3-t2)/1e9} {(t3-t2)/total*100:2}%, "
+                  f"3-4: {(t4-t3)/1e9} {(t4-t3)/total*100:2}%, "
+                  f"4-5: {(t5-t4)/1e9} {(t5-t4)/total*100:2}%, "
+                  f"5-6: {(t6-t5)/1e9} {(t6-t5)/total*100:2}%")
         return True

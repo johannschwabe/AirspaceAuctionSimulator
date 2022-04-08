@@ -97,6 +97,8 @@ class FCFSAllocator(Allocator):
                         break
 
                     optimal_paths.append(ab_path)
+                    a = b
+
                 res[agent] = optimal_paths
                 env.allocate_paths_for_agent(agent, optimal_paths)
                 env.add_agent(agent)

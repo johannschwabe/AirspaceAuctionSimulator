@@ -1,3 +1,6 @@
+import random
+from time import time_ns
+
 from Simulator.Allocator import FCFSAllocator
 from Simulator.Coordinate import TimeCoordinate
 from Simulator.Environment import Environment
@@ -9,14 +12,12 @@ from Simulator.History2 import History2
 from owners.ABOwner import ABOwner
 from owners.StationaryOwner import StationaryOwner
 
-dimensions = TimeCoordinate(100, 100, 10, Tick(50))
-from time import time_ns
-import random
+dimensions = TimeCoordinate(100, 100, 10, Tick(1000))
 random.seed(2)
-dimensions = TimeCoordinate(50, 50, 20, Tick(200))
 environment = Environment(dimensions, [])
 allocator = FCFSAllocator()
-owners = [ABOwner([0, 0, 0, 1, 1, 2, 2, 2, 2, 2, 3, 4, 5, 10, 20, 20]), ABAOwner([i for i in range(10)]), ABCOwner([i for i in range(10)]), StationaryOwner([i for i in range(10)])]
+# owners = [ABOwner([i for i in range(10)]), ABAOwner([i for i in range(10)]), ABCOwner([i for i in range(10)]), StationaryOwner([i for i in range(10)])]
+owners = [ABCOwner([i for i in range(10)])]
 
 history = History2(dimensions, allocator, environment, owners)
 simulator = Simulator(owners, allocator, environment, history)

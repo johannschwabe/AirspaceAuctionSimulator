@@ -83,8 +83,8 @@ def astar(
     complete_path = path + wait_coords
     complete_path.sort(key=lambda x: x.t)
     total_time = time.time() - total_start
-    print("A*:", total_time, "Env", env.my_time, f"\t{env.my_time/total_time*100:2f}%")
-    env.my_time = 0
+    print("A*:", total_time, "Env", env.my_time, f"\t{env.my_time/total_time*100:2f}% env")
+    Environment.my_time = 0
     return complete_path
 
 

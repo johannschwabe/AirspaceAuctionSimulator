@@ -15,7 +15,7 @@ class Agent(ABC, Stringify):
 
     default_near_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-1, 2) for y in range(-1, 2) for z in range(-1, 2) ] # To dam big
     default_far_border: List[Coordinate] = [Coordinate(x, y, z) for x in range(-2, 3) for y in range(-2, 3) for z in range(-2, 3) ] # To dam big
-    default_battery = 100
+    default_battery = 100000
     default_speed = 1
 
     def __init__(

@@ -16,14 +16,14 @@ class StationaryOwner(Owner):
         for _ in range(self.creation_ticks.count(t)):
             dimensions = env._dimension
             corner_1 = Coordinate(
-                random.randint(0, dimensions.x // 2),
-                random.randint(0, dimensions.y // 2),
-                random.randint(0, dimensions.z // 2),
+                random.randint(0, dimensions.x - 1),
+                random.randint(0, dimensions.y - 1),
+                random.randint(0, dimensions.z - 1),
             )
             corner_2 = Coordinate(
-                random.randint(corner_1.x, dimensions.x - 1),
-                random.randint(corner_1.y, dimensions.y - 1),
-                random.randint(corner_1.z, dimensions.z - 1),
+                min(corner_1.x + random.randint(1, 10), dimensions.x - 1),
+                min(corner_1.y + random.randint(1, 10), dimensions.y - 1),
+                min(corner_1.z + random.randint(1, 10), dimensions.z - 1),
             )
 
             block = []

@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from . import ABAgent
+from . import Agent, ABAgent
 from ..Bid import Bid, ABABid
 from ..Coordinate import Coordinate, TimeCoordinate
 

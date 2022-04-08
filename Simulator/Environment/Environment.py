@@ -102,7 +102,7 @@ class Environment(Stringify):
                 break
 
         total_time = time.time() - total_start
-        self.my_time += total_time
+        Environment.my_time += total_time
         return is_free
 
     def get_field_at(self, coords: TimeCoordinate, creating: bool) -> Field:

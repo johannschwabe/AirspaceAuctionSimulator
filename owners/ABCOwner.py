@@ -23,16 +23,19 @@ class ABCOwner(Owner):
             prev_location = start
             speed = random.randint(1, 3)
             stays = []
-            for i in range(random.randint(2, 5)):
-                location = TimeCoordinate(random.randint(0, dimensions.x - 1),
-                                          random.randint(0, dimensions.y - 1),
-                                          random.randint(0, dimensions.z - 1),
-                                          Tick(0))
+            for i in range(3):
+                location = TimeCoordinate(
+                    random.randint(0, dimensions.x - 1),
+                    random.randint(0, dimensions.y - 1),
+                    random.randint(0, dimensions.z - 1),
+                    Tick(0)
+                )
 
                 distance = prev_location.inter_temporal_distance(location)
                 stay = random.randint(1, 3)
                 stays.append(stay)
-                location.t = prev_location.t + stay + distance * speed + random.randint(0, 5)
+                t = prev_location.t + stay + (distance * speed) + random.randint(0, 5)
+                location.t = t
                 locations.append(location)
                 prev_location = location
 
