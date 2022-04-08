@@ -24,7 +24,6 @@ class Simulator:
         self.time_step = Tick(0)
 
     def tick(self) -> bool:
-        t1 = time_ns()
         newcomers: List[Agent] = []
         for owner in self.owners:
             newcomers += owner.generate_agents(self.time_step, self.environment)
