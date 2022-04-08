@@ -1,10 +1,14 @@
 import random
-from typing import List
+from typing import List, TYPE_CHECKING
 
-from Simulator import Environment, Owner
-from Simulator.Time import Tick
-from Simulator.Agent import ABAgent, Agent
-from Simulator.Coordinate import TimeCoordinate
+from ..Coordinate import TimeCoordinate
+from .Owner import Owner
+from ..Time import Tick
+from ..Agent import ABAgent
+
+if TYPE_CHECKING:
+    from Simulator import Environment
+    from Simulator.Agent import Agent
 
 
 class ABOwner(Owner):
@@ -12,7 +16,7 @@ class ABOwner(Owner):
         super().__init__()
         self.creation_ticks = creation_ticks
 
-    def generate_agents(self, t: int, env: Environment) -> List[Agent]:
+    def generate_agents(self, t: int, env: "Environment") -> List["Agent"]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
             dimensions = env._dimension

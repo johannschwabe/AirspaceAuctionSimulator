@@ -1,5 +1,4 @@
 from typing import List, Dict
-from time import time_ns
 
 from .Time import Tick
 from .Agent import Agent

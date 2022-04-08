@@ -1,9 +1,14 @@
 import random
-from typing import List
+from typing import List, TYPE_CHECKING
 
-from Simulator import Environment, Owner, Tick
-from Simulator.Agent import Agent, StationaryAgent
-from Simulator.Coordinate import Coordinate
+from .Owner import Owner
+from ..Coordinate import Coordinate
+from ..Time import Tick
+from ..Agent import StationaryAgent
+
+if TYPE_CHECKING:
+    from Simulator import Environment
+    from Simulator.Agent import Agent
 
 
 class StationaryOwner(Owner):
@@ -11,7 +16,7 @@ class StationaryOwner(Owner):
         super().__init__()
         self.creation_ticks = creation_ticks
 
-    def generate_agents(self, t: int, env: Environment) -> List[Agent]:
+    def generate_agents(self, t: int, env: "Environment") -> List["Agent"]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
             dimensions = env._dimension

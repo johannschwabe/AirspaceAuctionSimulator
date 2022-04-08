@@ -5,12 +5,11 @@ from Simulator.Allocator import FCFSAllocator
 from Simulator.Coordinate import TimeCoordinate
 from Simulator.Environment import Environment
 from Simulator import Simulator, Statistics, Tick
-from Simulator.History import History
-from owners.ABAOwner import ABAOwner
-from owners.ABCOwner import ABCOwner
+from Simulator.Owner.ABAOwner import ABAOwner
+from Simulator.Owner.ABCOwner import ABCOwner
 from Simulator.History2 import History2
-from owners.ABOwner import ABOwner
-from owners.StationaryOwner import StationaryOwner
+from Simulator.Owner.ABOwner import ABOwner
+from Simulator.Owner.StationaryOwner import StationaryOwner
 
 dimensions = TimeCoordinate(1000, 1000, 100, Tick(100))
 random.seed(2)
