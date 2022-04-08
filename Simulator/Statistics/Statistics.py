@@ -20,7 +20,7 @@ class Statistics:
         return local_agent.value_for_paths(paths)
 
     def non_colliding_values(self):
-        for agent in self.env.get_agents():
+        for agent in self.env.get_agents().values():
             print(f"{agent}'s non colliding value: {self.non_colliding_value(agent)}, "
                   f"achieved value: {agent.get_allocated_value()}")
 
@@ -30,7 +30,7 @@ class Statistics:
 
     def average_agents_welfare(self):
         summed_welfare = 0
-        for agent in self.env.get_agents():
+        for agent in self.env.get_agents().values():
             summed_welfare += Statistics.agents_welfare(agent)
         print(f"AAW: {summed_welfare/len(self.env.get_agents())}")
         return summed_welfare / len(self.env.get_agents())
@@ -56,24 +56,24 @@ class Statistics:
                 length += len(path)
         return length
 
-    def close_passings(self):
-        max_t = int(float(self.env._dimension.t) * 1.5)
-        far_field_intersections = [0] * max_t
-        near_field_intersections = [0] * max_t
-        collisions = [0] * max_t
-        far_field_crossings = [0] * max_t
-        near_field_crossings = [0] * max_t
-
-        for field in self.env._relevant_fields.values():
-            if len(field.get_allocated()) > 1:
-                collisions[field.coordinates.t] += 1
-            if len(field.get_far()) > 1:
-                far_field_intersections[field.coordinates.t] += len(field.get_far())
-            if len(field.get_near()) > 1:
-                near_field_intersections[field.coordinates.t] += len(field.get_near())
-            if len(field.get_allocated()) >= 1 and len(field.get_far()) > 1:
-                far_field_crossings[field.coordinates.t] += len(field.get_far())
-            if len(field.get_allocated()) >= 1 and len(field.get_near()) > 1:
-                near_field_crossings[field.coordinates.t] += len(field.get_near())
-        print(f"Col: {sum(collisions)}, nfc: {sum(near_field_crossings)}, nfi: {sum(near_field_intersections)}, ffc: {sum(far_field_crossings)}, ffi: {sum(far_field_intersections)}")
-        return collisions, near_field_crossings, near_field_intersections, far_field_crossings, far_field_intersections
+    # def close_passings(self):
+    #     max_t = int(float(self.env._dimension.t) * 1.5)
+    #     far_field_intersections = [0] * max_t
+    #     near_field_intersections = [0] * max_t
+    #     collisions = [0] * max_t
+    #     far_field_crossings = [0] * max_t
+    #     near_field_crossings = [0] * max_t
+    #
+    #     for field in self.env._relevant_fields.values():
+    #         if len(field.get_allocated()) > 1:
+    #             collisions[field.coordinates.t] += 1
+    #         if len(field.get_far()) > 1:
+    #             far_field_intersections[field.coordinates.t] += len(field.get_far())
+    #         if len(field.get_near()) > 1:
+    #             near_field_intersections[field.coordinates.t] += len(field.get_near())
+    #         if len(field.get_allocated()) >= 1 and len(field.get_far()) > 1:
+    #             far_field_crossings[field.coordinates.t] += len(field.get_far())
+    #         if len(field.get_allocated()) >= 1 and len(field.get_near()) > 1:
+    #             near_field_crossings[field.coordinates.t] += len(field.get_near())
+    #     print(f"Col: {sum(collisions)}, nfc: {sum(near_field_crossings)}, nfi: {sum(near_field_intersections)}, ffc: {sum(far_field_crossings)}, ffi: {sum(far_field_intersections)}")
+    #     return collisions, near_field_crossings, near_field_intersections, far_field_crossings, far_field_intersections

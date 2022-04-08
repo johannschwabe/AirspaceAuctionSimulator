@@ -6,9 +6,6 @@ from ..Coordinate import Coordinate, TimeCoordinate
 from ..IO import Stringify
 from ..helpers.Hit import Hit
 
-if TYPE_CHECKING:
-    from ..Field import Field
-
 
 class Agent(ABC, Stringify):
     id: int = 0
@@ -32,14 +29,12 @@ class Agent(ABC, Stringify):
         self.speed: int = speed if speed is not None else Agent.default_speed
         self.battery: int = battery if battery is not None else Agent.default_battery
 
-        self._near_border: List[Coordinate] = near_border if near_border is not None else Agent.default_near_border
-        self._far_border: List[Coordinate] = far_border if far_border is not None else Agent.default_far_border
+        # self._near_border: List[Coordinate] = near_border if near_border is not None else Agent.default_near_border
+        # self._far_border: List[Coordinate] = far_border if far_border is not None else Agent.default_far_border
 
-        self._allocated_paths: List[List[TimeCoordinate]] = []
+        self._allocated_paths: List[List["TimeCoordinate"]] = []
 
-        self._allocated_fields: List["Field"] = []
-        self._allocated_near_fields: List["Field"] = []
-        self._allocated_far_fields: List["Field"] = []
+        self._allocated_coords: List["TimeCoordinate"] = []
 
         self.optimal_welfare: float = 1.
         self.costs: float = 0.
@@ -74,75 +69,47 @@ class Agent(ABC, Stringify):
     def clone(self):
         pass
 
-    def get_allocated_fields(self) -> List["Field"]:
-        return self._allocated_fields
-
-    def get_allocated_near_fields(self) -> List["Field"]:
-        return self._allocated_near_fields
-
-    def get_allocated_far_fields(self) -> List["Field"]:
-        return self._allocated_far_fields
-
-    def get_near_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
-        return [
-            TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t)
-            for coordinate in self._near_border
-            if (0 <= (coordinate.x + position.x) < TimeCoordinate.dim.x and
-                0 <= (coordinate.y + position.y) < TimeCoordinate.dim.y and
-                0 <= (coordinate.z + position.z) < TimeCoordinate.dim.z and
-                0 <= position.t < TimeCoordinate.dim.t)]
-
-    def get_far_coordinates(self, position: TimeCoordinate) -> List[TimeCoordinate]:
-        return [
-            TimeCoordinate(coordinate.x + position.x, coordinate.y + position.y, coordinate.z + position.z, position.t)
-            for coordinate in self._far_border]
+    def get_allocated_coords(self) -> List["TimeCoordinate"]:
+        return self._allocated_coords
 
     def add_allocated_path(self, path: List[TimeCoordinate]):
         self._allocated_paths.append(path)
 
-    def add_allocated_field(self, field: "Field"):
-        if field not in self._allocated_fields:
-            self._allocated_fields.append(field)
-
-    def add_allocated_near_field(self, field: "Field"):
-        if field not in self._allocated_near_fields:
-            self._allocated_near_fields.append(field)
-
-    def add_allocated_far_field(self, field: "Field"):
-        if field not in self._allocated_far_fields:
-            self._allocated_far_fields.append(field)
+    def add_allocated_coord(self, coord: "TimeCoordinate"):
+        if coord not in self._allocated_coords:
+            self._allocated_coords.append(coord)
 
     def get_allocated_value(self):
         return self.value_for_paths(self._allocated_paths)
 
-    def contains_coordinate(self, path: List[TimeCoordinate], coordinate: TimeCoordinate) -> Hit:
-        current_position: Optional[Coordinate] = None
-        for position in path:
-            if position.t == coordinate.t:
-                current_position = position
-
-        if current_position is None:
-            return Hit.NO
-
-        if current_position == coordinate:
-            return Hit.EXACT
-
-        far_hit: bool = False
-        for relative_coordinate in self._far_border:
-            absolut_coordinate = relative_coordinate + current_position
-            if absolut_coordinate == relative_coordinate:
-                far_hit = True
-                break
-
-        if not far_hit:
-            return Hit.NO
-
-        for relative_coordinate in self._near_border:
-            absolut_coordinate = relative_coordinate + current_position
-            if absolut_coordinate == relative_coordinate:
-                return Hit.NEAR
-
-        return Hit.FAR
+    # def contains_coordinate(self, path: List[TimeCoordinate], coordinate: TimeCoordinate) -> Hit:
+    #     current_position: Optional[Coordinate] = None
+    #     for position in path:
+    #         if position.t == coordinate.t:
+    #             current_position = position
+    #
+    #     if current_position is None:
+    #         return Hit.NO
+    #
+    #     if current_position == coordinate:
+    #         return Hit.EXACT
+    #
+    #     far_hit: bool = False
+    #     for relative_coordinate in self._far_border:
+    #         absolut_coordinate = relative_coordinate + current_position
+    #         if absolut_coordinate == relative_coordinate:
+    #             far_hit = True
+    #             break
+    #
+    #     if not far_hit:
+    #         return Hit.NO
+    #
+    #     for relative_coordinate in self._near_border:
+    #         absolut_coordinate = relative_coordinate + current_position
+    #         if absolut_coordinate == relative_coordinate:
+    #             return Hit.NEAR
+    #
+    #     return Hit.FAR
 
     def __repr__(self):
         return str(self.id)
