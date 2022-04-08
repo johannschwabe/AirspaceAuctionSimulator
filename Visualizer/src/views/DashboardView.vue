@@ -58,7 +58,7 @@
   <!-- Left Drawer -->
   <n-drawer
     :show="agentStore.selected"
-    :width="200"
+    :width="250"
     placement="left"
     :trap-focus="false"
     :close-on-esc="false"
@@ -67,14 +67,14 @@
     to="#drawer-target"
   >
     <n-drawer-content title="Selected Owner" :closable="true">
-      Stoner is a 1965 novel by the American writer John Williams.
+      <owner-info />
     </n-drawer-content>
   </n-drawer>
 
   <!-- Right Drawer -->
   <n-drawer
     :show="agentStore.selected"
-    :width="200"
+    :width="250"
     placement="right"
     :trap-focus="false"
     :close-on-esc="false"
@@ -82,7 +82,7 @@
     :on-update:show="(show) => show || agentStore.deselect()"
     to="#drawer-target"
   >
-    <n-drawer-content title="Selected Agent" :closable="true">
+    <n-drawer-content :title="agentStore.name" :closable="true">
       <agent-info />
     </n-drawer-content>
   </n-drawer>
@@ -106,6 +106,7 @@ import AgentSelector from "../components/dashboard/AgentSelector.vue";
 import AgentInfo from "../components/dashboard/AgentInfo.vue";
 import { useAgentStore } from "../stores/agent.js";
 import { useSimulationStore } from "../stores/simulation.js";
+import OwnerInfo from "../components/dashboard/OwnerInfo.vue";
 
 const activeLeft = ref(true);
 const activeRight = ref(true);

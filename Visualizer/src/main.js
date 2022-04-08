@@ -54,6 +54,7 @@ import {
   NTree,
   NTimeline,
   NTimelineItem,
+  NDataTable,
 } from "naive-ui";
 
 const naive = create({
@@ -101,6 +102,7 @@ const naive = create({
     NTree,
     NTimeline,
     NTimelineItem,
+    NDataTable,
   ],
 });
 
