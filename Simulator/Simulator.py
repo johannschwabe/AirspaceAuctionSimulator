@@ -9,6 +9,7 @@ from .Allocator import Allocator
 from .History2 import History2
 from .Owner import Owner
 
+
 class Simulator:
     def __init__(self,
                  owners: List[Owner],
@@ -29,20 +30,10 @@ class Simulator:
             newcomers += owner.generate_agents(self.time_step, self.environment)
         if len(newcomers) > 0:
             self.history.add_new_agents(newcomers, self.time_step)
-            t2 = time_ns()
             temp_env = self.environment.clone()
-            t3 = time_ns()
             agents_paths: Dict[Agent, List[List[TimeCoordinate]]] = self.allocator.temp_allocation(newcomers, temp_env)
-            t4 = time_ns()
             self.environment.allocate_paths_for_agents(agents_paths, self.time_step)
-            t5 = time_ns()
             self.history.update_allocations(agents_paths, self.time_step)
-            self.time_step += 1
-            t6 = time_ns()
-            total = t6 - t1
-            print(f"1-2: {(t2-t1)/1e9:.4f} {(t2-t1)/total*100:.0f}%, "
-                  f"2-3: {(t3-t2)/1e9:.4f} {(t3-t2)/total*100:.0f}%, "
-                  f"3-4: {(t4-t3)/1e9:.4f} {(t4-t3)/total*100:.0f}%, "
-                  f"4-5: {(t5-t4)/1e9:.4f} {(t5-t4)/total*100:.0f}%, "
-                  f"5-6: {(t6-t5)/1e9:.4f} {(t6-t5)/total*100:.0f}%")
+
+        self.time_step += 1
         return True
