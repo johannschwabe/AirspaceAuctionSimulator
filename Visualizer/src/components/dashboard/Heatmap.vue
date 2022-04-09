@@ -17,7 +17,7 @@ const props = defineProps({
   title: String,
   dimX: String,
   dimY: String,
-  granularity: { type: Number, default: 10, required: false },
+  granularity: { type: Number, default: 5, required: false },
 });
 
 const simulationStore = useSimulationStore();
@@ -37,9 +37,6 @@ const chartOptions = {
   },
   theme: {
     mode: "dark",
-  },
-  title: {
-    text: props.title,
   },
   dataLabels: {
     enabled: false,
@@ -101,10 +98,17 @@ const resetState = () => {
 };
 
 const updateState = () => {
-  simulationStore.pastLocations.forEach((loc) => {
-    const dim1 = Math.floor(loc[props.dimX] / props.granularity);
-    const dim2 = Math.floor(loc[props.dimY] / props.granularity);
-    series[dim2].data[dim1] += 1;
+  simulationStore.selectedAgents.forEach((agent) => {
+    agent.paths.forEach((path) => {
+      for (let i = 0; i < path.t.length; i++) {
+        if (path.t[i] <= simulationStore.tick) {
+          const dim1 = Math.floor(path[props.dimX][i] / props.granularity);
+          const dim2 = Math.floor(path[props.dimY][i] / props.granularity);
+          console.log(dim1, dim2);
+          series[dim2].data[dim1] += 1;
+        }
+      }
+    });
   });
 };
 

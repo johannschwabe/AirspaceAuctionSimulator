@@ -9,6 +9,8 @@
 
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
+import { reactive } from "vue";
+import { head, last } from "lodash-es";
 
 import { useSimulationStore } from "../../stores/simulation";
 
@@ -44,22 +46,35 @@ const chartOptions = {
   },
 };
 
-const series = [
+const series = reactive([
   {
     data: [],
   },
-];
+]);
 
-simulationStore.agents.forEach((agent) => {
-  if (agent.locations.length > 0) {
-    const start = agent.locations[0].t;
-    const end = agent.locations[agent.locations.length - 1].t;
-    series[0].data.push({
-      x: agent.uuid,
-      y: [start, end],
-      fillColor: agent.owner.color,
+const resetState = () => {
+  series[0].data = [];
+};
+
+const updateState = () => {
+  simulationStore.selectedAgents.forEach((agent) => {
+    agent.paths.forEach((path) => {
+      const start = head(path.t);
+      const end = last(path.t);
+      series[0].data.push({
+        x: agent.name,
+        y: [start, end],
+        fillColor: agent.owner.color,
+      });
     });
-  }
+  });
+};
+
+updateState();
+
+simulationStore.$subscribe(() => {
+  resetState();
+  updateState();
 });
 </script>
 

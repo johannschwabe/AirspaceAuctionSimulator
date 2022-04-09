@@ -11,15 +11,6 @@
           <n-grid-item>
             <agent-selector />
           </n-grid-item>
-          <!--          <n-grid-item>-->
-          <!--            <heatmap dim-x="x" dim-y="z" title="Top-Down View" />-->
-          <!--          </n-grid-item>-->
-          <!--          <n-grid-item>-->
-          <!--            <heatmap dim-x="x" dim-y="y" title="Front View" />-->
-          <!--          </n-grid-item>-->
-          <!--          <n-grid-item>-->
-          <!--            <heatmap dim-x="z" dim-y="y" title="Side View" />-->
-          <!--          </n-grid-item>-->
         </n-grid>
       </n-grid-item>
 
@@ -36,7 +27,20 @@
       <n-grid-item span="3">
         <n-grid cols="1">
           <n-grid-item>
-            <!--            <welfare />-->
+            <welfare />
+            <n-divider style="margin-top: 0; margin-bottom: 0" />
+          </n-grid-item>
+          <n-grid-item>
+            <heatmap dim-x="x" dim-y="z" title="Top-Down View" />
+            <n-divider style="margin-top: 0; margin-bottom: 0" />
+          </n-grid-item>
+          <n-grid-item>
+            <heatmap dim-x="x" dim-y="y" title="Front View" />
+            <n-divider style="margin-top: 0; margin-bottom: 0" />
+          </n-grid-item>
+          <n-grid-item>
+            <heatmap dim-x="z" dim-y="y" title="Side View" />
+            <n-divider style="margin-top: 0; margin-bottom: 0" />
           </n-grid-item>
         </n-grid>
       </n-grid-item>
@@ -50,7 +54,7 @@
         <!--        <data-table />-->
       </n-grid-item>
       <n-grid-item>
-        <!--        <gantt />-->
+        <gantt />
       </n-grid-item>
     </n-grid>
   </div>
@@ -88,14 +92,14 @@
   </n-drawer>
 
   <div class="abs-nav">
-    <!--    <timeline />-->
+    <timeline />
   </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
 
-// import Heatmap from "../components/dashboard/Heatmap.vue";
+import Heatmap from "../components/dashboard/Heatmap.vue";
 import ThreeDMap from "../components/dashboard/ThreeDMap.vue";
 import DataTable from "../components/dashboard/DataTable.vue";
 import Timeline from "../components/dashboard/Timeline.vue";
@@ -124,6 +128,7 @@ agentStore.select(simulationStore.agents[0]);
   right: 0;
   height: 75px;
   background-color: rgb(16, 16, 16);
+  z-index: 100000;
 }
 .nav-margin {
   margin-bottom: 80px;

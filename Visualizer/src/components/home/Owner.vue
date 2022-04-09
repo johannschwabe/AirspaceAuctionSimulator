@@ -2,7 +2,7 @@
   <n-dynamic-input v-model:value="owners" :on-create="onCreate">
     <template #default="{ value }">
       <div style="display: flex; column-gap: 10px; width: 100%">
-        <n-color-picker :modes="['hex']" v-model:value="value.color" />
+        <n-color-picker :modes="['hex']" :show-alpha="false" v-model:value="value.color" />
         <n-input
           v-model:value="value.name"
           type="text"

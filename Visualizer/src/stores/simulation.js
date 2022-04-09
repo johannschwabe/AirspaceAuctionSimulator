@@ -14,12 +14,14 @@ export const useSimulationStore = defineStore({
     statistics: useStorage("simulation-statistics", {}),
     selectedAgentIDs: useStorage("simulation-selected-agent-ids", []),
     tick: useStorage("simulation-tick", 0),
+    agentsCache: undefined,
   }),
   getters: {
     containsData(state) {
       return state.name && state.owners.length > 0;
     },
     agents(state) {
+      if (state.agentsCache) { return state.agentsCache; }
       const agents = [];
       state.owners.forEach((owner) => {
         owner.agents.forEach((agent) => {
@@ -30,6 +32,7 @@ export const useSimulationStore = defineStore({
         });
       });
       agents.sort((a, b) => (a.paths[0].t[0] < b.paths[0].t[0] ? -1 : 1));
+      state.agentsCache = agents;
       return agents;
     },
     selectedAgents(state) {
@@ -46,20 +49,22 @@ export const useSimulationStore = defineStore({
         });
       });
     },
-    // activeAgentIDs() {
-    //   return this.activeAgents.map((agent) => agent.id);
-    // },
-    // timeline(state) {
-    //   const timeseries = Array(state.dimensions.t).fill(0);
-    //   this.agents.forEach((agent) => {
-    //     agent.paths.forEach((path) => {
-    //       path.t.forEach((t) => {
-    //         timeseries[t] += 1;
-    //       });
-    //     });
-    //   });
-    //   return timeseries;
-    // },
+    activeAgentIDs() {
+      return this.activeAgents.map((agent) => agent.id);
+    },
+    timeline(state) {
+      const timeseries = Array(state.dimensions.t).fill(0);
+      this.agents.forEach((agent) => {
+        agent.paths.forEach((path) => {
+          path.t
+            .filter((t) => t <= state.dimensions.t)
+            .forEach((t) => {
+              timeseries[t] += 1;
+            });
+        });
+      });
+      return timeseries;
+    },
     // locations() {
     //   const locations = [];
     //   this.agents.forEach((agent) => {
@@ -70,6 +75,7 @@ export const useSimulationStore = defineStore({
     //           x: path.x[i],
     //           y: path.y[i],
     //           z: path.z[i],
+    //           t: path.t[i],
     //         });
     //       }
     //     });
@@ -106,6 +112,8 @@ export const useSimulationStore = defineStore({
     },
     setSimulation(simulation) {
       this.loaded = true;
+      this.selectedAgentIDs = [];
+      this.tick = 0;
       this.name = simulation.name;
       this.description = simulation.description;
       this.owners = simulation.owners;

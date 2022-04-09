@@ -31,6 +31,7 @@ export const useAgentStore = defineStore({
     speed: useStorage("agent-speed", -1),
     time_in_air: useStorage("agent-time-in-air", -1),
     welfare: useStorage("agent-welfare", -1),
+    non_colliding_welfare: useStorage("agent-non-colliding-welfare", -1),
     branches: useStorage("agent-branches", []),
     paths: useStorage("agent-paths", []),
   }),
@@ -105,6 +106,7 @@ export const useAgentStore = defineStore({
       this.speed = agent.speed;
       this.time_in_air = agent.time_in_air;
       this.welfare = agent.welfare;
+      this.non_colliding_welfare = agent.non_colliding_welfare;
       this.branches = agent.branches;
       this.paths = agent.paths;
       ownerStore.select(this.owner);

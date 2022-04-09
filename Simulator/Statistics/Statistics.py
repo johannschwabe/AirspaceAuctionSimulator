@@ -56,7 +56,7 @@ class JSONAgent(Stringify):
         self,
         history_agent: HistoryAgent,
         agent: Agent,
-        non_colliding_value: float,
+        non_colliding_welfare: float,
         near_field_intersections: int,
         far_field_intersections: int,
         near_field_violations: int,
@@ -74,7 +74,7 @@ class JSONAgent(Stringify):
         self.battery: int = agent.battery
         self.time_in_air: int = agent.get_airtime()
 
-        self.non_colliding_value: float = non_colliding_value
+        self.non_colliding_welfare: float = non_colliding_welfare
         self.near_field_intersections: int = near_field_intersections
         self.far_field_intersections: int = far_field_intersections
         self.near_field_violations: int = near_field_violations
