@@ -32,7 +32,7 @@ const chartOptions = reactive({
   stroke: {
     curve: "smooth",
   },
-  colors: ["#63e2b7", "#6381e2"],
+  colors: ["#6381e2", "#63e2b7"],
   xaxis: {
     labels: { show: false },
     axisTicks: { show: false },

@@ -21,7 +21,9 @@ export const useSimulationStore = defineStore({
       return state.name && state.owners.length > 0;
     },
     agents(state) {
-      if (state.agentsCache) { return state.agentsCache; }
+      if (state.agentsCache) {
+        return state.agentsCache;
+      }
       const agents = [];
       state.owners.forEach((owner) => {
         owner.agents.forEach((agent) => {
@@ -52,6 +54,14 @@ export const useSimulationStore = defineStore({
     activeAgentIDs() {
       return this.activeAgents.map((agent) => agent.id);
     },
+    activeBlockers(state) {
+      return state.environment.blockers.filter((blocker) =>
+        blocker.t.includes(state.tick)
+      );
+    },
+    activeBlockerIDs() {
+      return this.activeBlockers.map((blocker) => blocker.id);
+    },
     timeline(state) {
       const timeseries = Array(state.dimensions.t).fill(0);
       this.agents.forEach((agent) => {
@@ -65,46 +75,6 @@ export const useSimulationStore = defineStore({
       });
       return timeseries;
     },
-    // locations() {
-    //   const locations = [];
-    //   this.agents.forEach((agent) => {
-    //     agent.paths.forEach((path) => {
-    //       for (let i = 0; i < path.t.length; i++) {
-    //         locations.push({
-    //           agent,
-    //           x: path.x[i],
-    //           y: path.y[i],
-    //           z: path.z[i],
-    //           t: path.t[i],
-    //         });
-    //       }
-    //     });
-    //   });
-    //   return locations;
-    // },
-    // pastLocations(state) {
-    //   return this.locations.filter((loc) => loc.t <= state.tick);
-    // },
-    // currentLocations(state) {
-    //   const locations = [];
-    //   this.activeAgents.forEach((agent) => {
-    //     const currentPath = agent.paths.find((path) =>
-    //       path.t.includes(state.tick)
-    //     );
-    //     const i = currentPath.t.indexOf(state.tick);
-    //     const location = {
-    //       x: currentPath.x[i],
-    //       y: currentPath.y[i],
-    //       z: currentPath.z[i],
-    //     };
-    //     locations.push({
-    //       agent,
-    //       ...location,
-    //     });
-    //   });
-    //   locations.sort((a, b) => (a.t < b.t ? -1 : 1));
-    //   return locations;
-    // },
   },
   actions: {
     setSelectedAgentIDs(selectedIds) {

@@ -136,6 +136,7 @@ class JSONOwner(Stringify):
 
 class JSONBlocker(Stringify):
     def __init__(self, blocker: Blocker):
+        self.id: int = blocker.id
         self.x = [loc.x for loc in blocker.locations.values()]
         self.y = [loc.y for loc in blocker.locations.values()]
         self.z = [loc.z for loc in blocker.locations.values()]

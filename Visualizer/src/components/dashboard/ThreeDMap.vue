@@ -21,12 +21,14 @@ import {
   ShadowGenerator,
   HemisphericLight,
 } from "babylonjs";
-import { useSimulationStore } from "../../stores/simulation";
+import { useSimulationStore } from "../../stores/simulation.js";
+import { useAgentStore } from "../../stores/agent.js";
 
 const simulationStore = useSimulationStore();
+const agentStore = useAgentStore();
 
 const canvas = ref(null);
-let engine, scene, selectionLight, mainLight, hemisphereLight;
+let engine, scene, selectionLight, mainLight, hemisphereLight, shadows;
 
 const x = simulationStore.dimensions.x;
 const y = simulationStore.dimensions.y; // Direction of Sky
@@ -81,7 +83,7 @@ const createScene = () => {
   );
   hemisphereLight.intensity = 0.5;
 
-  const shadows = new ShadowGenerator(2048, mainLight);
+  shadows = new ShadowGenerator(2048, mainLight);
   shadows.usePoissonSampling = true;
 
   const ground = MeshBuilder.CreateGround("ground", { width: x, height: z });
@@ -91,6 +93,25 @@ const createScene = () => {
   ground.material = groundMaterial;
   ground.receiveShadows = true;
 
+  // Create selection  light
+  selectionLight = new PointLight(
+    "selection-light",
+    new Vector3(0, 0, 0),
+    scene
+  );
+  selectionLight.range = 0;
+  selectionLight.intensity = 0;
+
+  shadows.getShadowMap().refreshRate = 1;
+  mainLight.autoUpdateExtends = false;
+
+  return scene;
+};
+
+const activeDroneMeshes = {};
+const activeBlockerMeshes = {};
+
+const createOrientationLines = () => {
   // Create orientation lines
   const lineAlpha = 0.025;
 
@@ -131,6 +152,19 @@ const createScene = () => {
       line.color = new Color3.White();
     }
   }
+};
+
+const placeBlockers = () => {
+  // Remove unused meshes
+  const activeIDs = simulationStore.activeBlockerIDs;
+  Object.entries(activeBlockerMeshes).forEach(([id, meshes]) => {
+    if (!(id in activeIDs)) {
+      meshes.forEach((mesh) => {
+        mesh.dispose();
+      });
+      delete activeBlockerMeshes[id];
+    }
+  });
 
   // Create blockers
   const blockerMaterial = new StandardMaterial(scene);
@@ -138,65 +172,61 @@ const createScene = () => {
   blockerMaterial.maxSimultaneousLights = 10;
   blockerMaterial.alpha = 1;
 
-  simulationStore.environment.blockers.forEach((blocker) => {
-    const cube = MeshBuilder.CreateBox(
-      "box",
-      {
-        height: blocker.dimension.y,
-        width: blocker.dimension.x,
-        depth: blocker.dimension.z,
-      },
-      scene
-    );
-    cube.position.x = blocker.origin.x - x / 2;
-    cube.position.y = blocker.origin.y + blocker.dimension.y / 2;
-    cube.position.z = blocker.origin.z - z / 2;
-    cube.material = blockerMaterial;
-    cube.receiveShadows = true;
-    shadows.getShadowMap().renderList.push(cube);
+  simulationStore.activeBlockers.forEach((blocker) => {
+    const timeIndex = blocker.t.indexOf(simulationStore.tick);
+
+    if (!(blocker.id in activeBlockerMeshes)) {
+      const blockerCube = MeshBuilder.CreateBox(
+        "box",
+        {
+          height: blocker.dimension.y,
+          width: blocker.dimension.x,
+          depth: blocker.dimension.z,
+        },
+        scene
+      );
+      blockerCube.material = blockerMaterial;
+      blockerCube.receiveShadows = true;
+      shadows.getShadowMap().renderList.push(blockerCube);
+
+      activeBlockerMeshes[blocker.id] = [blockerCube];
+    }
+    // Update blocker position
+    const storedBlockerCube = activeBlockerMeshes[blocker.id][0];
+    storedBlockerCube.position.x = blocker.x[timeIndex] - x / 2;
+    storedBlockerCube.position.y =
+      blocker.y[timeIndex] + blocker.dimension.y / 2;
+    storedBlockerCube.position.z = blocker.z[timeIndex] - z / 2;
   });
-
-  // Create selection  light
-  selectionLight = new PointLight(
-    "selection-light",
-    new Vector3(0, 0, 0),
-    scene
-  );
-  selectionLight.range = 0;
-  selectionLight.intensity = 0;
-
-  shadows.getShadowMap().refreshRate = 0;
-  mainLight.autoUpdateExtends = false;
-
-  return scene;
 };
-
-const activeMeshes = {};
 
 const placeDrones = () => {
   // Remove unused meshes
-  const activeUUIDs = simulationStore.activeAgentUUIDs;
-  Object.entries(activeMeshes).forEach(([uuid, meshes]) => {
+  const activeUUIDs = simulationStore.activeAgentIDs;
+  Object.entries(activeDroneMeshes).forEach(([uuid, meshes]) => {
     if (!(uuid in activeUUIDs)) {
       meshes.forEach((mesh) => {
         mesh.dispose();
       });
-      delete activeMeshes[uuid];
+      delete activeDroneMeshes[uuid];
     }
   });
 
   // Push new meshes
   simulationStore.activeAgents.forEach((agent) => {
-    if (!(agent.uuid in activeMeshes)) {
+    const path = agent.paths.find((p) => p.t.includes(simulationStore.tick));
+    const currentLocIndex = path.t.findIndex((t) => t === simulationStore.tick);
+
+    if (!(agent.id in activeDroneMeshes)) {
       // Draw path
-      const points = agent.locations.map(
-        (loc) => new Vector3(loc.x - x / 2, loc.y, loc.z - z / 2)
+      const points = path.t.map(
+        (_t, i) => new Vector3(path.x[i] - x / 2, path.y[i], path.z[i] - z / 2)
       );
-      const line = MeshBuilder.CreateLines(`line-agent-${agent.uuid}`, {
+      const agentPathLine = MeshBuilder.CreateLines(`line-agent-${agent.id}`, {
         points,
       });
-      line.alpha = 0.5;
-      line.color = new Color3.FromHexString(agent.owner.color);
+      agentPathLine.alpha = 0.5;
+      agentPathLine.color = new Color3.FromHexString(agent.owner.color);
 
       // create Material
       const ownerMaterial = new StandardMaterial(scene);
@@ -205,21 +235,22 @@ const placeDrones = () => {
       ownerMaterial.alpha = 1;
 
       // Draw drone
-      const sphere = Mesh.CreateSphere(
-        `sphere-agent-${agent.uuid}`,
+      const agentLocationSphere = Mesh.CreateSphere(
+        `sphere-agent-${agent.id}`,
         16,
         1,
         scene
       );
-      sphere.material = ownerMaterial;
-      sphere.isPickable = true;
-      sphere.actionManager = new ActionManager(scene);
+      agentLocationSphere.material = ownerMaterial;
+      agentLocationSphere.isPickable = true;
+      agentLocationSphere.actionManager = new ActionManager(scene);
 
-      sphere.actionManager.registerAction(
+      agentLocationSphere.actionManager.registerAction(
         new ExecuteCodeAction(ActionManager.OnPickTrigger, () => {
-          selectionLight.position.x = current_loc.x - x / 2;
-          selectionLight.position.y = current_loc.y;
-          selectionLight.position.z = current_loc.z - z / 2;
+          agentStore.select(agent);
+          selectionLight.position.x = path.x[currentLocIndex] - x / 2;
+          selectionLight.position.y = path.y[currentLocIndex];
+          selectionLight.position.z = path.z[currentLocIndex] - z / 2;
           selectionLight.diffuse = new Color3.FromHexString(agent.owner.color);
           selectionLight.specular = new Color3.FromHexString(agent.owner.color);
           selectionLight.range = y * 2;
@@ -229,22 +260,19 @@ const placeDrones = () => {
         })
       );
 
-      activeMeshes[agent.uuid] = [line, sphere];
+      activeDroneMeshes[agent.id] = [agentPathLine, agentLocationSphere];
     }
 
     // Update sphere position
-    const current_loc = agent.locations.find(
-      (loc) => loc.t === simulationStore.tick
-    );
-    const sphere = activeMeshes[agent.uuid][1];
-
-    sphere.position.x = current_loc.x - x / 2;
-    sphere.position.y = current_loc.y;
-    sphere.position.z = current_loc.z - z / 2;
+    const storedAgentLocationSphere = activeDroneMeshes[agent.id][1];
+    storedAgentLocationSphere.position.x = path.x[currentLocIndex] - x / 2;
+    storedAgentLocationSphere.position.y = path.y[currentLocIndex];
+    storedAgentLocationSphere.position.z = path.z[currentLocIndex] - z / 2;
   });
 };
 
 simulationStore.$subscribe(() => {
+  placeBlockers();
   placeDrones();
 });
 
@@ -255,6 +283,8 @@ onMounted(() => {
   });
 
   scene = createScene();
+  createOrientationLines();
+  placeBlockers();
   placeDrones();
 
   // run the render loop

@@ -4,7 +4,12 @@ from ..Coordinate import TimeCoordinate, Coordinate
 
 
 class Blocker:
+    id: int = 0
+
     def __init__(self, locations: List[TimeCoordinate], dimension: Coordinate):
+        self.id = Blocker.id
+        Blocker.id += 1
+
         self.locations: Dict[int, TimeCoordinate] = {}
         for location in locations:
             self.locations[location.t] = location
