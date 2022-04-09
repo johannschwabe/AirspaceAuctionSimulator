@@ -60,7 +60,7 @@
     </n-form-item>
   </n-form>
   <n-button ghost type="primary" @click.stop="simulate"> Simulate </n-button>
-  <n-grid cols="2" x-gap="10">
+  <n-grid cols="2" x-gap="10" v-if="simulationStore.containsData">
     <n-grid-item>
       <n-button
         ghost

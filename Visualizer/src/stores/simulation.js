@@ -13,9 +13,12 @@ export const useSimulationStore = defineStore({
     environment: useStorage("simulation-environment", {}),
     statistics: useStorage("simulation-statistics", {}),
     selectedAgentIDs: useStorage("simulation-selected-agent-ids", []),
-    tick: useStorage("simulation-tick", 1),
+    tick: useStorage("simulation-tick", 0),
   }),
   getters: {
+    containsData(state) {
+      return state.name && state.owners.length > 0;
+    },
     agents(state) {
       const agents = [];
       state.owners.forEach((owner) => {

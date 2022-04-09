@@ -40,13 +40,14 @@ class Generator:
     def simulate(self) -> Statistics:
         for ownerType in self.ownerTypes:
             if ownerType.type == "ab":
-                self.owners.append(ABOwner(ownerType.name, [i for i in range(ownerType.agents)]))
+                self.owners.append(ABOwner(ownerType.name, ownerType.color, [i for i in range(ownerType.agents)]))
             if ownerType.type == "aba":
-                self.owners.append(ABAOwner(ownerType.name, [i for i in range(ownerType.agents)]))
+                self.owners.append(ABAOwner(ownerType.name, ownerType.color, [i for i in range(ownerType.agents)]))
             if ownerType.type == "stat":
-                self.owners.append(StationaryOwner(ownerType.name, [i for i in range(ownerType.agents)]))
+                self.owners.append(
+                    StationaryOwner(ownerType.name, ownerType.color, [i for i in range(ownerType.agents)]))
             if ownerType.type == "abc":
-                self.owners.append(ABCOwner(ownerType.name, [i for i in range(ownerType.agents)]))
+                self.owners.append(ABCOwner(ownerType.name, ownerType.color, [i for i in range(ownerType.agents)]))
 
         self.history = History(
             self.dimensions,

@@ -59,7 +59,6 @@ const series = [
     data: simulationStore.timeline,
   },
 ];
-
 </script>
 
 <style scoped></style>

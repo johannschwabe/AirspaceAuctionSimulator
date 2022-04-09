@@ -13,7 +13,7 @@
     </n-timeline-item>
   </n-timeline>
 
-  <n-divider />
+  <n-divider style="margin-bottom: 6px"/>
 
   <div v-for="datapoint in datapoints" :key="datapoint.label">
     <div style="display: flex">
@@ -60,7 +60,6 @@ const agentStore = useAgentStore();
 
 const datapoints = computed(() => [
   { label: "Agent ID", value: agentStore.id, icon: FingerPrint },
-  { label: "Owner ID", value: agentStore.owner_id, icon: FingerPrint },
   { label: "Type", value: agentStore.agent_type, icon: Airplane },
   { label: "Battery", value: agentStore.battery, icon: BatteryHalf },
   { label: "Bid", value: agentStore.bid, icon: Wallet },

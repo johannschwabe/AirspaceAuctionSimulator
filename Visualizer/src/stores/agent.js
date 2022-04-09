@@ -5,6 +5,11 @@ import {
   mdiAirplaneTakeoff,
   mdiSourceBranch,
 } from "@mdi/js";
+import { useSimulationStore } from "./simulation";
+import { useOwnerStore } from "./owner";
+
+const simulationStore = useSimulationStore();
+const ownerStore = useOwnerStore();
 
 export const useAgentStore = defineStore({
   id: "agent",
@@ -30,6 +35,11 @@ export const useAgentStore = defineStore({
     paths: useStorage("agent-paths", []),
   }),
   getters: {
+    owner(state) {
+      return simulationStore.owners.find(
+        (owner) => owner.id === state.owner_id
+      );
+    },
     events(state) {
       const events = [];
       state.paths.forEach((path) => {
@@ -62,9 +72,14 @@ export const useAgentStore = defineStore({
           tick: branch.tick,
         });
       });
-      events.sort((e1, e2) => (e1.tick > e2.tick ? 1 : -1));
+      events.sort((e1, e2) => {
+        if (e1.tick === e2.tick) {
+          return e1.takeoff ? 1 : -1;
+        }
+        return e1.tick > e2.tick ? 1 : -1;
+      });
       for (let i = 0; i < events.length - 1; i++) {
-        if (events[i+1].takeoff) {
+        if (events[i + 1].takeoff) {
           events[i].lineType = "dashed";
         }
       }
@@ -89,9 +104,10 @@ export const useAgentStore = defineStore({
       this.far_radius = agent.far_radius;
       this.speed = agent.speed;
       this.time_in_air = agent.time_in_air;
-      this.welfare = agent.value;
+      this.welfare = agent.welfare;
       this.branches = agent.branches;
       this.paths = agent.paths;
+      ownerStore.select(this.owner);
     },
     deselect() {
       this.selected = false;

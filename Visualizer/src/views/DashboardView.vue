@@ -11,15 +11,15 @@
           <n-grid-item>
             <agent-selector />
           </n-grid-item>
-<!--          <n-grid-item>-->
-<!--            <heatmap dim-x="x" dim-y="z" title="Top-Down View" />-->
-<!--          </n-grid-item>-->
-<!--          <n-grid-item>-->
-<!--            <heatmap dim-x="x" dim-y="y" title="Front View" />-->
-<!--          </n-grid-item>-->
-<!--          <n-grid-item>-->
-<!--            <heatmap dim-x="z" dim-y="y" title="Side View" />-->
-<!--          </n-grid-item>-->
+          <!--          <n-grid-item>-->
+          <!--            <heatmap dim-x="x" dim-y="z" title="Top-Down View" />-->
+          <!--          </n-grid-item>-->
+          <!--          <n-grid-item>-->
+          <!--            <heatmap dim-x="x" dim-y="y" title="Front View" />-->
+          <!--          </n-grid-item>-->
+          <!--          <n-grid-item>-->
+          <!--            <heatmap dim-x="z" dim-y="y" title="Side View" />-->
+          <!--          </n-grid-item>-->
         </n-grid>
       </n-grid-item>
 
@@ -27,7 +27,7 @@
       <n-grid-item span="6" id="drawer-target">
         <n-grid cols="1">
           <n-grid-item>
-<!--            <three-d-map />-->
+            <!--            <three-d-map />-->
           </n-grid-item>
         </n-grid>
       </n-grid-item>
@@ -36,7 +36,7 @@
       <n-grid-item span="3">
         <n-grid cols="1">
           <n-grid-item>
-<!--            <welfare />-->
+            <!--            <welfare />-->
           </n-grid-item>
         </n-grid>
       </n-grid-item>
@@ -47,26 +47,26 @@
     <!-- Bottom Part -->
     <n-grid cols="1">
       <n-grid-item>
-<!--        <data-table />-->
+        <!--        <data-table />-->
       </n-grid-item>
       <n-grid-item>
-<!--        <gantt />-->
+        <!--        <gantt />-->
       </n-grid-item>
     </n-grid>
   </div>
 
   <!-- Left Drawer -->
   <n-drawer
-    :show="agentStore.selected"
+    :show="ownerStore.selected"
     :width="250"
     placement="left"
     :trap-focus="false"
     :close-on-esc="false"
     :mask-closable="false"
-    :on-update:show="(show) => show || agentStore.deselect()"
+    :on-update:show="(show) => show || ownerStore.deselect()"
     to="#drawer-target"
   >
-    <n-drawer-content title="Selected Owner" :closable="true">
+    <n-drawer-content :title="ownerStore.name" :closable="true">
       <owner-info />
     </n-drawer-content>
   </n-drawer>
@@ -88,7 +88,7 @@
   </n-drawer>
 
   <div class="abs-nav">
-<!--    <timeline />-->
+    <!--    <timeline />-->
   </div>
 </template>
 
@@ -106,13 +106,12 @@ import AgentSelector from "../components/dashboard/AgentSelector.vue";
 import AgentInfo from "../components/dashboard/AgentInfo.vue";
 import { useAgentStore } from "../stores/agent.js";
 import { useSimulationStore } from "../stores/simulation.js";
+import { useOwnerStore } from "../stores/owner.js";
 import OwnerInfo from "../components/dashboard/OwnerInfo.vue";
 
-const activeLeft = ref(true);
-const activeRight = ref(true);
-
-const agentStore = useAgentStore();
 const simulationStore = useSimulationStore();
+const ownerStore = useOwnerStore();
+const agentStore = useAgentStore();
 
 agentStore.select(simulationStore.agents[0]);
 </script>
@@ -139,5 +138,4 @@ agentStore.select(simulationStore.agents[0]);
   background-color: transparent;
   pointer-events: none;
 }
-
 </style>

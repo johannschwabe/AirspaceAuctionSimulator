@@ -9,6 +9,7 @@ from ..Simulator import Owner
 from ..Simulator import Simulator
 from ..Agent import Agent, AgentType
 from typing import List, TYPE_CHECKING
+import statistics
 
 if TYPE_CHECKING:
     from ..Coordinate import TimeCoordinate
@@ -69,7 +70,7 @@ class JSONAgent(Stringify):
         self.id: int = agent.id
         self.near_radius: int = agent.near_radius
         self.far_radius: int = agent.far_radius
-        self.value: float = agent.get_allocated_value()
+        self.welfare: float = agent.get_allocated_value()
         self.battery: int = agent.battery
         self.time_in_air: int = agent.get_airtime()
 
@@ -98,10 +99,39 @@ class JSONAgent(Stringify):
 
 
 class JSONOwner(Stringify):
-    def __init__(self, name: str, id: int, agents: List[JSONAgent]):
+    def __init__(self, name: str, id: int, color: str, agents: List[JSONAgent]):
         self.name: str = name
         self.id: int = id
+        self.color: str = color
         self.agents: List[JSONAgent] = agents
+        self.total_time_in_air: int = sum([agent.time_in_air for agent in self.agents])
+
+        bids = [agent.bid for agent in self.agents]
+        self.total_bid_value: int = sum(bids)
+        self.mean_bid_value: float = statistics.mean(bids)
+        self.median_bid_value: float = statistics.median(bids)
+        self.max_bid_value: float = max(bids)
+        self.min_bid_value: float = min(bids)
+        self.bid_quantiles: List[float] = statistics.quantiles(bids)
+        self.bid_outliers: List[float] = [bid for bid in bids if
+                                          bid < self.bid_quantiles[0] or bid > self.bid_quantiles[-1]]
+
+        welfare = [agent.welfare for agent in self.agents]
+        self.total_welfare: int = sum(welfare)
+        self.mean_welfare: float = statistics.mean(welfare)
+        self.median_welfare: float = statistics.median(welfare)
+        self.max_welfare: float = max(welfare)
+        self.min_welfare: float = min(welfare)
+        self.welfare_quantiles: List[float] = statistics.quantiles(welfare)
+        self.welfare_outliers: List[float] = [w for w in welfare if
+                                              w < self.welfare_quantiles[0] or w > self.welfare_quantiles[-1]]
+
+        self.number_of_agents: int = len(self.agents)
+        self.number_of_ab_agents: int = sum([int(agent.agent_type == AgentType.AB) for agent in self.agents])
+        self.number_of_aba_agents: int = sum([int(agent.agent_type == AgentType.ABA) for agent in self.agents])
+        self.number_of_abc_agents: int = sum([int(agent.agent_type == AgentType.ABC) for agent in self.agents])
+        self.number_of_stationary_agents: int = sum(
+            [int(agent.agent_type == AgentType.STATIONARY) for agent in self.agents])
 
 
 class JSONBlocker(Stringify):
@@ -129,7 +159,8 @@ class JSONStatistics(Stringify):
 
 
 class JSONSimulation(Stringify):
-    def __init__(self, name: str, description: str, environment: JSONEnvironment, statistics: JSONStatistics, owners: List[JSONOwner]):
+    def __init__(self, name: str, description: str, environment: JSONEnvironment, statistics: JSONStatistics,
+                 owners: List[JSONOwner]):
         self.name: str = name
         self.description: str = description
         self.environment: JSONEnvironment = environment
@@ -209,6 +240,6 @@ class Statistics:
                     owner.id,
                     owner.name,
                 ))
-            owners.append(JSONOwner(owner.name, owner.id, agents))
+            owners.append(JSONOwner(owner.name, owner.id, owner.color, agents))
         json_simulation = JSONSimulation(self.name, self.description, json_env, json_stats, owners)
         return json_simulation.as_dict()
