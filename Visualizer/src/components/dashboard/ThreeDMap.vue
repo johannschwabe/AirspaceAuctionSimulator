@@ -50,7 +50,7 @@ const createScene = () => {
     new Vector3(0, 0, 1)
   );
 
-  const target = new Vector3(0, (y / 4) * 3, 0);
+  const target = new Vector3(0, (y / 4) * 2, 0);
   const camera = new ArcRotateCamera(
     "camera",
     -Math.PI / 2,
@@ -113,10 +113,10 @@ const activeBlockerMeshes = {};
 
 const createOrientationLines = () => {
   // Create orientation lines
-  const lineAlpha = 0.025;
+  const lineAlpha = 0.075;
 
-  for (let xi = 0; xi < x; xi += lineStep) {
-    for (let yi = 0; yi < y; yi += lineStep) {
+  for (let xi = 0; xi <= x; xi += lineStep) {
+    for (let yi = 0; yi <= y; yi += lineStep) {
       const line = MeshBuilder.CreateLines(`line-x${xi}-y${yi}`, {
         points: [
           new Vector3(xi - x / 2, yi, 0 - z / 2),
@@ -127,8 +127,8 @@ const createOrientationLines = () => {
       line.color = new Color3.White();
     }
   }
-  for (let xi = 0; xi < x; xi += lineStep) {
-    for (let zi = 0; zi < z; zi += lineStep) {
+  for (let xi = 0; xi <= x; xi += lineStep) {
+    for (let zi = 0; zi <= z; zi += lineStep) {
       const line = MeshBuilder.CreateLines(`line-x${xi}-z${zi}`, {
         points: [
           new Vector3(xi - x / 2, 0, zi - z / 2),
@@ -140,8 +140,8 @@ const createOrientationLines = () => {
     }
   }
 
-  for (let yi = 0; yi < y; yi += lineStep) {
-    for (let zi = 0; zi < z; zi += lineStep) {
+  for (let yi = 0; yi <= y; yi += lineStep) {
+    for (let zi = 0; zi <= z; zi += lineStep) {
       const line = MeshBuilder.CreateLines(`line-y${yi}-z${zi}`, {
         points: [
           new Vector3(0 - x / 2, yi, zi - z / 2),
@@ -302,7 +302,7 @@ onMounted(() => {
 <style scoped>
 canvas {
   width: 100%;
-  height: 750px;
+  height: 950px;
   outline: none;
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }

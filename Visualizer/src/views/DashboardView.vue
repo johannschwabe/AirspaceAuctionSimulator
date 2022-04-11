@@ -18,7 +18,7 @@
       <n-grid-item span="6" id="drawer-target">
         <n-grid cols="1">
           <n-grid-item>
-            <!--            <three-d-map />-->
+            <three-d-map />
           </n-grid-item>
         </n-grid>
       </n-grid-item>
