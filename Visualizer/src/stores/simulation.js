@@ -1,6 +1,8 @@
 import { defineStore } from "pinia";
 import { saveAs } from "file-saver";
 import { useStorage } from "@vueuse/core";
+import { useEmitter } from "../scripts/emitter";
+import { first } from "lodash-es";
 
 export const useSimulationStore = defineStore({
   id: "simulation",
@@ -14,6 +16,8 @@ export const useSimulationStore = defineStore({
     statistics: useStorage("simulation-statistics", {}),
     selectedAgentIDs: useStorage("simulation-selected-agent-ids", []),
     tick: useStorage("simulation-tick", 0),
+    activeAgentsCache: undefined,
+    activeBlockersCache: undefined,
     agentsCache: undefined,
   }),
   getters: {
@@ -27,13 +31,24 @@ export const useSimulationStore = defineStore({
       const agents = [];
       state.owners.forEach((owner) => {
         owner.agents.forEach((agent) => {
+          const positions = {};
+          agent.paths.forEach((path) => {
+            path.t.forEach((t, i) => {
+              positions[t] = [path.x[i], path.y[i], path.z[i]];
+            });
+          });
           agents.push({
-            owner,
+            positions,
+            owner_color: owner.color,
             ...agent,
           });
         });
       });
-      agents.sort((a, b) => (a.paths[0].t[0] < b.paths[0].t[0] ? -1 : 1));
+      agents.sort((a, b) =>
+        first(Object.keys(a.positions)) < first(Object.keys(b.positions))
+          ? -1
+          : 1
+      );
       state.agentsCache = agents;
       return agents;
     },
@@ -43,42 +58,44 @@ export const useSimulationStore = defineStore({
       );
     },
     activeAgents(state) {
-      return this.selectedAgents.filter((agent) => {
-        return agent.paths.some((path) => {
-          const has_started = path.t.some((t) => t <= state.tick);
-          const has_not_landed = path.t.some((t) => t >= state.tick);
-          return has_started && has_not_landed;
-        });
+      this.updateActiveAgentsCache();
+      const currentActiveAgents = this.activeAgentsCache[this.tick] || [];
+      return currentActiveAgents.filter((agent) => {
+        return state.selectedAgentIDs.includes(agent.id);
       });
     },
     activeAgentIDs() {
       return this.activeAgents.map((agent) => agent.id);
     },
     activeBlockers(state) {
-      return state.environment.blockers.filter((blocker) =>
-        blocker.t.includes(state.tick)
-      );
+      this.updateActiveBlockersCache();
+      return state.activeBlockersCache[state.tick] || [];
     },
     activeBlockerIDs() {
       return this.activeBlockers.map((blocker) => blocker.id);
     },
     timeline(state) {
       const timeseries = Array(state.dimensions.t).fill(0);
-      this.agents.forEach((agent) => {
-        agent.paths.forEach((path) => {
-          path.t
-            .filter((t) => t <= state.dimensions.t)
-            .forEach((t) => {
-              timeseries[t] += 1;
-            });
-        });
+      this.selectedAgents.forEach((agent) => {
+        Object.keys(agent.positions)
+          .filter((t) => t <= state.dimensions.t)
+          .forEach((t) => {
+            timeseries[t] += 1;
+          });
       });
       return timeseries;
     },
   },
   actions: {
+    updateTick(tick) {
+      this.tick = tick;
+      const emitter = useEmitter();
+      emitter.emit("tick", this.tick);
+    },
     setSelectedAgentIDs(selectedIds) {
       this.selectedAgentIDs = [...selectedIds];
+      const emitter = useEmitter();
+      emitter.emit("new-agents-selected", this.tick);
     },
     setSimulation(simulation) {
       this.loaded = true;
@@ -90,6 +107,37 @@ export const useSimulationStore = defineStore({
       this.environment = simulation.environment;
       this.dimensions = simulation.environment.dimensions;
       this.statistics = simulation.statistics;
+
+      this.updateActiveAgentsCache();
+      this.updateActiveBlockersCache();
+    },
+    updateActiveAgentsCache() {
+      if (this.activeAgentsCache) {
+        return;
+      }
+      this.activeAgentsCache = {};
+      this.agents.forEach((agent) => {
+        Object.keys(agent.positions).forEach((t) => {
+          if (!(t in this.activeAgentsCache)) {
+            this.activeAgentsCache[t] = [];
+          }
+          this.activeAgentsCache[t].push(agent);
+        });
+      });
+    },
+    updateActiveBlockersCache() {
+      if (this.activeBlockersCache) {
+        return;
+      }
+      this.activeBlockersCache = {};
+      this.environment.blockers.forEach((blocker) => {
+        blocker.t.forEach((t) => {
+          if (!(t in this.activeBlockersCache)) {
+            this.activeBlockersCache[t] = [];
+          }
+          this.activeBlockersCache[t].push(blocker);
+        });
+      });
     },
     download() {
       const fileToSave = new Blob([JSON.stringify(this, undefined, 2)], {

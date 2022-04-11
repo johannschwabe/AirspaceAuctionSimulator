@@ -20,6 +20,7 @@ random.seed(2)
 origins = [
     "http://localhost:3000",
     "http://localhost:8080",
+    "http://localhost:5050",
 ]
 
 app.add_middleware(

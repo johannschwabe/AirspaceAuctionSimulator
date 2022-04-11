@@ -8,7 +8,8 @@
     />
     <div style="padding: 0 15px 0 35px; margin-top: -30px">
       <n-slider
-        v-model:value="simulationStore.tick"
+        :value="simulationStore.tick"
+        @update:value="(t) => simulationStore.updateTick(t)"
         :min="1"
         :max="simulationStore.dimensions.t"
         show-tooltip
@@ -20,10 +21,13 @@
 
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
+import { reactive } from "vue";
 
 import { useSimulationStore } from "../../stores/simulation";
+import { useEmitter } from "../../scripts/emitter";
 
 const simulationStore = useSimulationStore();
+const emitter = useEmitter();
 
 const chartOptions = {
   chart: {
@@ -53,12 +57,16 @@ const chartOptions = {
   },
 };
 
-const series = [
+const series = reactive([
   {
     name: "# Active Agents",
     data: simulationStore.timeline,
   },
-];
+]);
+
+emitter.on("new-agents-selected", () => {
+  series[0].data = simulationStore.timeline;
+});
 </script>
 
 <style scoped></style>
