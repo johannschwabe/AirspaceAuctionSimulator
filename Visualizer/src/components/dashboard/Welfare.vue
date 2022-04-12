@@ -12,9 +12,11 @@ import VueApexCharts from "vue3-apexcharts";
 
 import { useSimulationStore } from "../../stores/simulation";
 import { reactive } from "vue";
-import { head, last } from "lodash-es";
+import { head } from "lodash-es";
+import { useEmitter } from "../../scripts/emitter";
 
 const simulationStore = useSimulationStore();
+const emitter = useEmitter();
 
 const chartOptions = reactive({
   chart: {
@@ -59,18 +61,15 @@ const series = reactive([
 ]);
 
 const updateSeries = () => {
-  console.log("Update series");
+  console.log("Welfare: Update");
   series[0].data = Array(simulationStore.dimensions.t).fill(0);
   series[1].data = Array(simulationStore.dimensions.t).fill(0);
 
   simulationStore.selectedAgents.forEach((agent) => {
-    if (agent.paths.length > 0) {
-      const lastPath = head(agent.paths); // TODO change to last
-      const arrivalTick = head(lastPath.t); // TODO change to last
-      if (arrivalTick <= simulationStore.dimensions.t) {
-        series[0].data[arrivalTick] += agent.non_colliding_welfare;
-        series[1].data[arrivalTick] += agent.welfare;
-      }
+    const arrivalTick = head(Object.keys(agent.positions)); // TODO change to last
+    if (arrivalTick <= simulationStore.dimensions.t) {
+      series[0].data[arrivalTick] += agent.non_colliding_welfare;
+      series[1].data[arrivalTick] += agent.welfare;
     }
   });
 
@@ -78,9 +77,10 @@ const updateSeries = () => {
     series[0].data[i] = series[0].data[i - 1] + series[0].data[i];
     series[1].data[i] = series[1].data[i - 1] + series[1].data[i];
   }
+  console.log("Welfare: Done");
 };
 
-simulationStore.$subscribe(() => {
+emitter.on("new-agents-selected", () => {
   updateSeries();
 });
 

@@ -97,11 +97,11 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { onUnmounted } from "vue";
 
+// import DataTable from "../components/dashboard/DataTable.vue";
 import Heatmap from "../components/dashboard/Heatmap.vue";
 import ThreeDMap from "../components/dashboard/ThreeDMap.vue";
-import DataTable from "../components/dashboard/DataTable.vue";
 import Timeline from "../components/dashboard/Timeline.vue";
 import Gantt from "../components/dashboard/Gantt.vue";
 import Welfare from "../components/dashboard/Welfare.vue";
@@ -109,15 +109,18 @@ import TopBar from "../components/dashboard/TopBar.vue";
 import AgentSelector from "../components/dashboard/AgentSelector.vue";
 import AgentInfo from "../components/dashboard/AgentInfo.vue";
 import { useAgentStore } from "../stores/agent.js";
-import { useSimulationStore } from "../stores/simulation.js";
 import { useOwnerStore } from "../stores/owner.js";
 import OwnerInfo from "../components/dashboard/OwnerInfo.vue";
+import { useEmitter } from "../scripts/emitter";
 
-const simulationStore = useSimulationStore();
 const ownerStore = useOwnerStore();
 const agentStore = useAgentStore();
 
-agentStore.select(simulationStore.agents[0]);
+onUnmounted(() => {
+  const emitter = useEmitter();
+  emitter.off("tick");
+  emitter.off("new-agents-selected");
+});
 </script>
 
 <style scoped>

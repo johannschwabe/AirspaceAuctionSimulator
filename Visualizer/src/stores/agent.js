@@ -16,8 +16,8 @@ export const useAgentStore = defineStore({
   state: () => ({
     selected: false,
     id: useStorage("agent-id", -1),
-    owner_id: useStorage("agent-owner-id", "unknown"),
     name: useStorage("agent-name", "unknown"),
+    owner_id: useStorage("agent-owner-id", "unknown"),
     owner_name: useStorage("agent-owner-name", "unknown"),
     agent_type: useStorage("agent-type", "unknown"),
     battery: useStorage("agent-battery", -1),
@@ -34,6 +34,7 @@ export const useAgentStore = defineStore({
     non_colliding_welfare: useStorage("agent-non-colliding-welfare", -1),
     branches: useStorage("agent-branches", []),
     paths: useStorage("agent-paths", []),
+    positions: {},
   }),
   getters: {
     owner(state) {

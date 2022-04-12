@@ -12,6 +12,7 @@ import VueApexCharts from "vue3-apexcharts";
 import { reactive } from "vue";
 
 import { useSimulationStore } from "../../stores/simulation";
+import { useEmitter } from "../../scripts/emitter";
 
 const props = defineProps({
   title: String,
@@ -21,6 +22,7 @@ const props = defineProps({
 });
 
 const simulationStore = useSimulationStore();
+const emitter = useEmitter();
 
 const axisColors = {
   x: "red",
@@ -98,23 +100,28 @@ const resetState = () => {
 };
 
 const updateState = () => {
-  simulationStore.selectedAgents.forEach((agent) => {
-    agent.paths.forEach((path) => {
-      for (let i = 0; i < path.t.length; i++) {
-        if (path.t[i] <= simulationStore.tick) {
-          const dim1 = Math.floor(path[props.dimX][i] / props.granularity);
-          const dim2 = Math.floor(path[props.dimY][i] / props.granularity);
-          console.log(dim1, dim2);
-          series[dim2].data[dim1] += 1;
-        }
-      }
-    });
+  console.log("Heatmap: Update state");
+  simulationStore.activeAgents.forEach((agent) => {
+    const axis = ["x", "y", "z"];
+    const dimx_index = axis.findIndex((e) => e === props.dimX);
+    const dimy_index = axis.findIndex((e) => e === props.dimY);
+    const loc_dimx = agent.positions[simulationStore.tick][dimx_index];
+    const loc_dimy = agent.positions[simulationStore.tick][dimy_index];
+    const dim1 = Math.floor(loc_dimx / props.granularity);
+    const dim2 = Math.floor(loc_dimy / props.granularity);
+    series[dim2].data[dim1] += 1;
   });
+  console.log("Heatmap: Done");
 };
 
 updateState();
 
-simulationStore.$subscribe(() => {
+emitter.on("tick", () => {
+  resetState();
+  updateState();
+});
+
+emitter.on("new-agents-selected", () => {
   resetState();
   updateState();
 });

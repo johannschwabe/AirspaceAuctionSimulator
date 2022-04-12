@@ -13,8 +13,10 @@ import { reactive } from "vue";
 import { head, last } from "lodash-es";
 
 import { useSimulationStore } from "../../stores/simulation";
+import {useEmitter} from "../../scripts/emitter";
 
 const simulationStore = useSimulationStore();
+const emitter = useEmitter();
 
 const chartOptions = {
   chart: {
@@ -57,6 +59,7 @@ const resetState = () => {
 };
 
 const updateState = () => {
+  console.log("Welfare: Update State");
   simulationStore.selectedAgents.forEach((agent) => {
     agent.paths.forEach((path) => {
       const start = head(path.t);
@@ -64,15 +67,16 @@ const updateState = () => {
       series[0].data.push({
         x: agent.name,
         y: [start, end],
-        fillColor: agent.owner.color,
+        fillColor: agent.owner_color,
       });
     });
   });
+  console.log("Welfare: Done");
 };
 
 updateState();
 
-simulationStore.$subscribe(() => {
+emitter.on("new-agents-selected", () => {
   resetState();
   updateState();
 });

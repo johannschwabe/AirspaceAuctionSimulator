@@ -143,6 +143,10 @@ const rules = {
 };
 
 const detailedError = (e) => {
+  console.error(e);
+  if (!e.response) {
+    return e.message;
+  }
   return e.response.data.detail
     .map((d) => `${d.msg}: ${d.loc.join(".")}`)
     .join("\n");
