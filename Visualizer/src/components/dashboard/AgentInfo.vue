@@ -13,7 +13,7 @@
     </n-timeline-item>
   </n-timeline>
 
-  <n-divider style="margin-bottom: 6px"/>
+  <n-divider style="margin-bottom: 6px" />
 
   <div v-for="datapoint in datapoints" :key="datapoint.label">
     <div style="display: flex">

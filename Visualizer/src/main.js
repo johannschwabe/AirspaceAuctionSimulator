@@ -107,8 +107,9 @@ const naive = create({
 });
 
 const app = createApp(App);
+const store = createPinia();
 
-app.use(createPinia());
+app.use(store);
 app.use(router);
 app.use(naive);
 

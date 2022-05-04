@@ -13,7 +13,7 @@ import { reactive } from "vue";
 import { head, last } from "lodash-es";
 
 import { useSimulationStore } from "../../stores/simulation";
-import {useEmitter} from "../../scripts/emitter";
+import { useEmitter } from "../../scripts/emitter";
 
 const simulationStore = useSimulationStore();
 const emitter = useEmitter();

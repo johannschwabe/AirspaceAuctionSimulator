@@ -19,11 +19,12 @@
 
 <script setup>
 import { ArchiveOutline } from "@vicons/ionicons5";
-import { useSimulationStore } from "../../stores/simulation";
 import { useLoadingBar, useMessage } from "naive-ui";
 import { useRouter } from "vue-router";
 
-const simulationStore = useSimulationStore();
+import Simulation from "../../SimulationObjects/Simulation";
+import { setSimulationSingleton } from "../../scripts/simulation";
+
 const message = useMessage();
 const loadingBar = useLoadingBar();
 const router = useRouter();
@@ -33,7 +34,7 @@ const onUpload = async (upload) => {
   const fileReader = new FileReader();
   fileReader.onload = (event) => {
     const data = JSON.parse(event.target.result);
-    simulationStore.setSimulation(data);
+    setSimulationSingleton(new Simulation(data));
     loadingBar.finish();
     message.success("Simulation Imported!");
     router.push({ name: "dashboard" });

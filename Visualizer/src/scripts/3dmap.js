@@ -44,7 +44,8 @@ export function useMainLight({ scene, x, y, z }) {
   mainLight.position.x = x / 2;
   mainLight.position.y = y / 2;
   mainLight.position.z = z / 2;
-  return mainLight;y
+  return mainLight;
+  y;
 }
 
 export function useCamera({ x, y, z, scene, canvas }) {

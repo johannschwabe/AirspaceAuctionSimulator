@@ -8,7 +8,7 @@ from ..IO import Stringify
 from ..Simulator import Owner
 from ..Simulator import Simulator
 from ..Agent import Agent, AgentType
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Dict
 import statistics
 
 if TYPE_CHECKING:
@@ -17,16 +17,10 @@ if TYPE_CHECKING:
 
 class Path(Stringify):
     def __init__(self, path: List["TimeCoordinate"]):
-        self.x: List[int] = []
-        self.y: List[int] = []
-        self.z: List[int] = []
-        self.t: List[int] = []
+        self.t: Dict[str, List[int, int, int]] = {}
 
         for coord in path:
-            self.x.append(coord.x)
-            self.y.append(coord.y)
-            self.z.append(coord.z)
-            self.t.append(coord.t)
+            self.t[str(int(coord.t))] = [coord.x, coord.y, coord.z]
 
 
 class Collision(Stringify):
@@ -66,8 +60,8 @@ class JSONAgent(Stringify):
         owner_name: str,
     ):
         self.agent_type: AgentType = agent.agent_type
-        self.speed: int = agent.speed
         self.id: int = agent.id
+        self.speed: int = agent.speed
         self.near_radius: int = agent.near_radius
         self.far_radius: int = agent.far_radius
         self.welfare: float = agent.get_allocated_value()
@@ -80,10 +74,10 @@ class JSONAgent(Stringify):
         self.near_field_violations: int = near_field_violations
         self.far_field_violations: int = far_field_violations
 
-        self.bid = bid
-        self.owner_id = owner_id
-        self.owner_name = owner_name
-        self.name = f"{self.owner_name}-{self.agent_type.name}-Agent-{self.id}"
+        self.bid: int = bid
+        self.owner_id: int = owner_id
+        self.owner_name: str = owner_name
+        self.name: str = f"{self.owner_name}-{self.agent_type.name}-Agent-{self.id}"
 
         self.paths: List[Path] = [Path(path) for path in agent.get_allocated_paths()]
 
@@ -137,17 +131,14 @@ class JSONOwner(Stringify):
 class JSONBlocker(Stringify):
     def __init__(self, blocker: Blocker):
         self.id: int = blocker.id
-        self.x = [loc.x for loc in blocker.locations.values()]
-        self.y = [loc.y for loc in blocker.locations.values()]
-        self.z = [loc.z for loc in blocker.locations.values()]
-        self.t = [loc.t for loc in blocker.locations.values()]
+        self.path: Path = Path(list(blocker.locations.values()))
         self.dimension = blocker.dimension
 
 
 class JSONEnvironment(Stringify):
     def __init__(self, dimensions: "TimeCoordinate", blockers: List[Blocker]):
-        self.dimensions = dimensions
-        self.blockers = [JSONBlocker(blocker) for blocker in blockers]
+        self.dimensions: "TimeCoordinate" = dimensions
+        self.blockers: List[JSONBlocker] = [JSONBlocker(blocker) for blocker in blockers]
 
 
 class JSONStatistics(Stringify):
