@@ -30,7 +30,7 @@ import { saveAs } from "file-saver";
  */
 const apiServer = axios.create({
   baseURL: "http://localhost:8000",
-  timeout: 60 * 1000,
+  timeout: 10 * 60 * 1000,
 });
 
 const STORAGE_KEY = "simulation";
@@ -69,7 +69,11 @@ export async function postSimulation(simulationConfig) {
  * @param {RawSimulation} data
  */
 export function persistSimulation(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 /**
