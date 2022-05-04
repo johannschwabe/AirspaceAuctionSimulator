@@ -8,7 +8,7 @@ import TimeCoordinate from "./TimeCoordinate";
 import Blocker from "./Blocker";
 import Statistics from "./Statistics";
 import Owner from "./Owner";
-import { onAgentsSelected, onTick } from "../scripts/emitter";
+import { emitFocusOffAgent, onAgentsSelected, onTick } from "../scripts/emitter";
 
 export default class Simulation {
   /**
@@ -86,7 +86,7 @@ export default class Simulation {
      * Agent that is selected through the UI and is now in focus
      * @type {Agent|null}
      */
-    this.focusAgent = null;
+    this.agentInFocus = null;
 
     /**
      * Index of which agents are in air at which ticks
@@ -99,9 +99,23 @@ export default class Simulation {
      */
     this.activeBlockersPerTickIndex = this.buildActiveBlockersPerTickIndex();
 
+    /**
+     * Stores how many active agents are present over all possible ticks
+     * @type {int[]}
+     */
+    this.timeline = [];
+
+    /**
+     * The maximum tick at which any active agent is still active / flying
+     * @type {number}
+     */
+    this.maxTick = -1;
+
     this.registerCallbacks();
-    this.updateActiveBlockers();
+    this.updateSelectedAgents();
     this.updateActiveAgents();
+    this.updateActiveBlockers();
+    this.updateTimeline();
 
     console.log({ CreatedStore: this });
   }
@@ -115,6 +129,7 @@ export default class Simulation {
     onAgentsSelected(() => {
       this.updateSelectedAgents();
       this.updateActiveAgents();
+      this.updateTimeline();
       console.log({ UpdatedSimulation: this });
     });
   }
@@ -124,7 +139,7 @@ export default class Simulation {
   }
 
   set tick(tick) {
-    this._simulationStore.tick = tick;
+    this._simulationStore.updateTick(tick);
   }
 
   get activeAgentIDs() {
@@ -135,8 +150,11 @@ export default class Simulation {
     return this.activeBlockers.map((blocker) => blocker.id);
   }
 
-  get focusOwner() {
-    return this.focusAgent?.owner || null;
+  /**
+   * @returns {Owner|null}
+   */
+  get ownerInFocus() {
+    return this.agentInFocus?.owner || null;
   }
 
   /**
@@ -188,11 +206,40 @@ export default class Simulation {
     this.activeBlockers = this.activeBlockersPerTickIndex[this.tick] || [];
   }
 
+  updateTimeline() {
+    const agentsPerTick = {};
+    let maxTick = 0;
+    this.selectedAgents.forEach((agent) => {
+      agent.combinedPath.ticksInAir.forEach((tick) => {
+        if (!(tick in agentsPerTick)) {
+          agentsPerTick[tick] = 0;
+        }
+        agentsPerTick[tick] += 1;
+        if (parseInt(tick, 10) > maxTick) {
+          maxTick = parseInt(tick, 10);
+        }
+      });
+    });
+    const timeline = Array(maxTick).fill(0);
+    Object.entries(agentsPerTick).forEach(([tick, numberOfAgents]) => {
+      timeline[tick] = numberOfAgents;
+    });
+    this.timeline = timeline;
+    this.maxTick = maxTick;
+  }
+
   /**
    * Puts a new agent into focus
    * @param {Agent} agent
    */
   focusOnAgent(agent) {
-    this.focusAgent = agent;
+    this._simulationStore.agentInFocus = true;
+    this.agentInFocus = agent;
+  }
+
+  focusOff() {
+    this._simulationStore.agentInFocus = false;
+    emitFocusOffAgent();
+    this.agentInFocus = null;
   }
 }

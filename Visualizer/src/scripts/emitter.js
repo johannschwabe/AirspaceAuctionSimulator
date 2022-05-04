@@ -8,6 +8,11 @@ const TICK_EVENT = "tick";
 const AGENTS_SELECTED_EVENT = "agents-selected";
 const AGENT_FOCUS_ON_EVENT = "focus-on-agent";
 const AGENT_FOCUS_OFF_EVENT = "focus-off-agent";
+const ALL_EVENTS = [
+  AGENTS_SELECTED_EVENT,
+  AGENT_FOCUS_ON_EVENT,
+  AGENT_FOCUS_OFF_EVENT,
+];
 
 export function emitTickEvent(tick) {
   emitter.emit(TICK_EVENT, tick);
@@ -39,4 +44,26 @@ export function onFocusOnAgent(callback) {
 
 export function onFocusOffAgent(callback) {
   emitter.on(AGENT_FOCUS_OFF_EVENT, callback);
+}
+
+export function offTick(callback) {
+  emitter.on(TICK_EVENT, callback);
+}
+
+export function offAgentsSelected() {
+  emitter.off(AGENTS_SELECTED_EVENT);
+}
+
+export function offFocusOnAgent() {
+  emitter.off(AGENT_FOCUS_ON_EVENT);
+}
+
+export function offFocusOffAgent() {
+  emitter.off(AGENT_FOCUS_OFF_EVENT);
+}
+
+export function offAll() {
+  ALL_EVENTS.forEach((event) => {
+    emitter.off(event);
+  })
 }

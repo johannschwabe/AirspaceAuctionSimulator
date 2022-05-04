@@ -61,32 +61,34 @@
 
   <!-- Left Drawer -->
   <n-drawer
-    :show="ownerStore.selected"
+    :show="simulationStore.agentInFocus"
     :width="250"
     placement="left"
     :trap-focus="false"
     :close-on-esc="false"
     :mask-closable="false"
-    :on-update:show="(show) => show || ownerStore.deselect()"
+    :on-update:show="(show) => show || simulation.focusOff()"
+    display-directive="if"
     to="#drawer-target"
   >
-    <n-drawer-content :title="ownerStore.name" :closable="true">
+    <n-drawer-content :title="simulation.ownerInFocus?.name" :closable="true">
       <owner-info />
     </n-drawer-content>
   </n-drawer>
 
   <!-- Right Drawer -->
   <n-drawer
-    :show="agentStore.selected"
+    :show="simulationStore.agentInFocus"
     :width="250"
     placement="right"
     :trap-focus="false"
     :close-on-esc="false"
     :mask-closable="false"
-    :on-update:show="(show) => show || agentStore.deselect()"
+    :on-update:show="(show) => show || simulation.focusOff()"
+    display-directive="if"
     to="#drawer-target"
   >
-    <n-drawer-content :title="agentStore.name" :closable="true">
+    <n-drawer-content :title="simulation.agentInFocus?.name" :closable="true">
       <agent-info />
     </n-drawer-content>
   </n-drawer>
@@ -100,26 +102,35 @@
 import { onUnmounted } from "vue";
 
 // import DataTable from "../components/dashboard/DataTable.vue";
-import Heatmap from "../components/dashboard/Heatmap.vue";
-import ThreeDMap from "../components/dashboard/ThreeDMap.vue";
-import Timeline from "../components/dashboard/Timeline.vue";
-import Gantt from "../components/dashboard/Gantt.vue";
-import Welfare from "../components/dashboard/Welfare.vue";
 import TopBar from "../components/dashboard/TopBar.vue";
 import AgentSelector from "../components/dashboard/AgentSelector.vue";
+import ThreeDMap from "../components/dashboard/ThreeDMap.vue";
+import Heatmap from "../components/dashboard/Heatmap.vue";
+import Gantt from "../components/dashboard/Gantt.vue";
+import Welfare from "../components/dashboard/Welfare.vue";
 import AgentInfo from "../components/dashboard/AgentInfo.vue";
-import { useAgentStore } from "../stores/agent.js";
-import { useOwnerStore } from "../stores/owner.js";
 import OwnerInfo from "../components/dashboard/OwnerInfo.vue";
-import { useEmitter } from "../scripts/emitter";
+import Timeline from "../components/dashboard/Timeline.vue";
+import { offAll } from "../scripts/emitter";
+import { loadSimulation } from "../API/api";
+import {
+  hasSimulationSingleton,
+  setSimulationSingleton,
+  useSimulationSingleton,
+} from "../scripts/simulation";
+import Simulation from "../SimulationObjects/Simulation";
+import { useSimulationStore } from "../stores/simulation";
 
-const ownerStore = useOwnerStore();
-const agentStore = useAgentStore();
+if (!hasSimulationSingleton()) {
+  const data = loadSimulation();
+  setSimulationSingleton(new Simulation(data));
+}
+
+const simulationStore = useSimulationStore();
+const simulation = useSimulationSingleton();
 
 onUnmounted(() => {
-  const emitter = useEmitter();
-  emitter.off("tick");
-  emitter.off("new-agents-selected");
+  offAll();
 });
 </script>
 

@@ -13,3 +13,7 @@ export function setSimulationSingleton(simulation) {
 export function useSimulationSingleton() {
   return simulationSingleton;
 }
+
+export function hasSimulationSingleton() {
+  return !!simulationSingleton;
+}

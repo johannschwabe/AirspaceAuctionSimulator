@@ -11,4 +11,8 @@ export default class Blocker {
     this.dimension = new Coordinate(...Object.values(rawBlocker.dimension));
     this.path = new Path(rawBlocker.path);
   }
+
+  positionAtTick(tick) {
+    return this.path.ticks[tick];
+  }
 }

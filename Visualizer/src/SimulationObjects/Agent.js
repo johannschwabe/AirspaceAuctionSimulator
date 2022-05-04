@@ -57,13 +57,13 @@ export default class Agent {
       const reallocationEvent = new ReallocationEvent(
         branch.tick,
         reallocationLocation,
-        branch.reason
+        branch.collision.reason
       );
       events.push(reallocationEvent);
     });
     events.sort(FlightEvent.sortEventsFunction);
     for (let i = 0; i < events.length - 1; i++) {
-      if (events[i + 1].takeoff) {
+      if (events[i + 1] instanceof TakeOffEvent) {
         events[i].lineType = "dashed";
       }
     }

@@ -6,6 +6,7 @@ export const useSimulationStore = defineStore({
   id: "simulation",
   state: () => ({
     selectedAgentIDs: useStorage("simulation-selected-agent-ids", []),
+    agentInFocus: false,
     tick: useStorage("simulation-tick", 0),
   }),
   getters: {
@@ -24,7 +25,8 @@ export const useSimulationStore = defineStore({
   actions: {
     updateTick(tick) {
       this.tick = tick;
-      emitTickEvent(this.tick);
+      console.log("UPDATE TICK");
+      emitTickEvent(tick);
     },
     setSelectedAgentIDs(selectedIds) {
       this.selectedAgentIDs = [...selectedIds];

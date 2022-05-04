@@ -4,8 +4,11 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useSimulationStore } from "../../stores/simulation.js";
-import { useEmitter } from "../../scripts/emitter";
+import {
+  onAgentsSelected,
+  onFocusOffAgent,
+  onTick,
+} from "../../scripts/emitter";
 import {
   updateBlockers,
   updateDrones,
@@ -16,36 +19,37 @@ import {
   useDroneCache,
   useDrones,
   useEngine,
+  useFocusCache,
+  useFocusFunctions,
   useGround,
   useHemisphereLight,
   useMainLight,
   useOrientationLights,
   useScene,
-  useSelectionLight,
   useShadows,
 } from "../../scripts/3dmap";
+import { useSimulationSingleton } from "../../scripts/simulation";
 
-const simulationStore = useSimulationStore();
-const emitter = useEmitter();
+const simulation = useSimulationSingleton();
 
 const canvas = ref(null);
 
 let engine, scene;
 let mainLight, hemisphereLight, selectionLight;
 let shadows;
+let focusOn, focusOff;
+let droneCache, blockerCache, focusCache;
 
-const { x, y, z } = simulationStore.dimensions;
+const { x, y, z } = simulation.dimensions;
 
-const nLines = 10;
+const nLines = 2;
 const lineAlpha = 0.075;
-const minLines = 5;
 
-const droneCache = useDroneCache();
-const blockerCache = useBlockerCache();
-
-emitter.on("tick", () => {
-  console.log("3D Map: Tick");
+const doBlockerUpdate = () => {
   updateBlockers({ scene, blockerCache, shadows, x, y, z });
+};
+
+const doDroneUpdate = () => {
   updateDrones({
     scene,
     droneCache,
@@ -56,7 +60,20 @@ emitter.on("tick", () => {
     hemisphereLight,
     selectionLight,
   });
-  console.log("3D Map: Done");
+};
+
+onTick(() => {
+  console.log("3D TICK!")
+  doBlockerUpdate();
+  doDroneUpdate();
+});
+
+onAgentsSelected(() => {
+  doDroneUpdate();
+});
+
+onFocusOffAgent(() => {
+  focusOff();
 });
 
 onMounted(() => {
@@ -64,8 +81,11 @@ onMounted(() => {
   scene = useScene({ engine });
   mainLight = useMainLight({ scene, x, y, z });
   hemisphereLight = useHemisphereLight({ scene });
-  selectionLight = useSelectionLight({ scene });
   shadows = useShadows({ mainLight });
+
+  droneCache = useDroneCache();
+  blockerCache = useBlockerCache();
+  focusCache = useFocusCache({ scene });
 
   useCamera({ x, y, z, scene, canvas });
   useGround({ scene, x, y, z });
@@ -73,22 +93,29 @@ onMounted(() => {
   useAxisIndicators({ scene, x, y, z });
   useOrientationLights({
     nLines,
-    minLines,
     lineAlpha,
     x,
     y,
     z,
   });
+  const focusFunctions = useFocusFunctions({
+    x,
+    y,
+    z,
+    focusCache,
+    mainLight,
+    hemisphereLight,
+    selectionLight,
+  });
+  focusOn = focusFunctions.focusOn;
+  focusOff = focusFunctions.focusOff;
   useBlockers({ scene, blockerCache, shadows, x, z });
   useDrones({
     scene,
     droneCache,
     x,
-    y,
     z,
-    mainLight,
-    hemisphereLight,
-    selectionLight,
+    focusOn,
   });
 
   // run the render loop

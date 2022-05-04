@@ -1,8 +1,8 @@
 <template>
   <n-timeline>
     <n-timeline-item
-      v-for="(event, i) in agentStore.events"
-      :key="`${agentStore.id}-${i}`"
+      v-for="(event, i) in simulation.agentInFocus.events"
+      :key="`${simulation.agentInFocus.id}-${i}`"
       v-bind="event"
     >
       <template #icon>
@@ -41,7 +41,6 @@
 </template>
 
 <script setup>
-import { useAgentStore } from "../../stores/agent";
 import { computed } from "vue";
 import {
   FingerPrint,
@@ -55,45 +54,46 @@ import {
   AlertCircle,
   InformationCircle,
 } from "@vicons/ionicons5";
+import { useSimulationSingleton } from "../../scripts/simulation";
 
-const agentStore = useAgentStore();
+const simulation = useSimulationSingleton();
 
 const datapoints = computed(() => [
-  { label: "Agent ID", value: agentStore.id, icon: FingerPrint },
-  { label: "Type", value: agentStore.agent_type, icon: Airplane },
-  { label: "Battery", value: agentStore.battery, icon: BatteryHalf },
-  { label: "Bid", value: agentStore.bid, icon: Wallet },
-  { label: "Speed", value: agentStore.speed, icon: Speedometer },
-  { label: "Welfare", value: agentStore.welfare, icon: Happy },
-  { label: "Time in Air", value: agentStore.time_in_air, icon: Timer },
+  { label: "Agent ID", value: simulation.agentInFocus.id, icon: FingerPrint },
+  { label: "Type", value: simulation.agentInFocus.agentType.name, icon: Airplane },
+  { label: "Battery", value: simulation.agentInFocus.battery, icon: BatteryHalf },
+  { label: "Bid", value: simulation.agentInFocus.bid, icon: Wallet },
+  { label: "Speed", value: simulation.agentInFocus.speed, icon: Speedometer },
+  { label: "Welfare", value: simulation.agentInFocus.welfare, icon: Happy },
+  { label: "Time in Air", value: simulation.agentInFocus.timeInAir, icon: Timer },
   {
     label: "Near Field Radius",
-    value: agentStore.near_radius,
+    value: simulation.agentInFocus.nearRadius,
     icon: InformationCircle,
   },
   {
     label: "Near Field Intersections",
-    value: agentStore.near_field_intersections,
+    value: simulation.agentInFocus.nearFieldIntersections,
     icon: AlertCircle,
   },
   {
     label: "Near Field Violations",
-    value: agentStore.near_field_violations,
+    value: simulation.agentInFocus.nearFieldViolations,
     icon: RemoveCircle,
   },
   {
     label: "Far Field Radius",
-    value: agentStore.far_radius,
+    value: simulation.agentInFocus.farRadius,
     icon: InformationCircle,
   },
   {
     label: "Far Field Intersections",
-    value: agentStore.far_field_intersections,
+    value: simulation.agentInFocus.farFieldIntersections,
     icon: AlertCircle,
   },
   {
     label: "Far Field Violations",
-    value: agentStore.far_field_violations,
+    value: simulation.agentInFocus.farFieldViolations,
     icon: RemoveCircle,
   },
 ]);

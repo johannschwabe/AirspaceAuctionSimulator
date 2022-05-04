@@ -29,12 +29,14 @@
 import { isEmpty, xor } from "lodash-es";
 import { ref, computed } from "vue";
 import { useSimulationStore } from "../../stores/simulation";
+import { useSimulationSingleton } from "../../scripts/simulation";
 
 const simulationStore = useSimulationStore();
+const simulation = useSimulationSingleton();
 
 const pattern = ref("");
 const selectedAgentIDs = ref([...simulationStore.selectedAgentIDs]);
-const data = simulationStore.owners;
+const data = simulation.owners;
 
 const changeMade = computed(() => {
   return !isEmpty(

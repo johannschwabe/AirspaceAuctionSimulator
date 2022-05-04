@@ -1,6 +1,6 @@
 <template>
   <n-page-header
-    :subtitle="simulationStore.description"
+    :subtitle="simulation.description"
     @back="() => router.push('/')"
   >
     <n-grid :cols="stats.length">
@@ -19,13 +19,13 @@
         <n-breadcrumb-item @click="() => router.push('/')">
           Home
         </n-breadcrumb-item>
-        <n-breadcrumb-item>{{ simulationStore.name }}</n-breadcrumb-item>
+        <n-breadcrumb-item>{{ simulation.name }}</n-breadcrumb-item>
       </n-breadcrumb>
     </template>
 
     <template #title>
       <a href="#" style="text-decoration: none; color: inherit">
-        {{ simulationStore.name }}
+        {{ simulation.name }}
       </a>
     </template>
 
@@ -48,51 +48,51 @@ import {
 
 import { computed } from "vue";
 import { useRouter } from "vue-router";
-import { useSimulationStore } from "../../stores/simulation";
+import { useSimulationSingleton } from "../../scripts/simulation";
 
 const router = useRouter();
-const simulationStore = useSimulationStore();
+const simulation = useSimulationSingleton();
 
 const stats = computed(() => {
   return [
     {
       label: "Dimension X",
-      value: simulationStore.dimensions.x,
+      value: simulation.dimensions.x,
       icon: Cube,
     },
     {
       label: "Dimension Y",
-      value: simulationStore.dimensions.y,
+      value: simulation.dimensions.y,
       icon: Cube,
     },
     {
       label: "Dimension Z",
-      value: simulationStore.dimensions.z,
+      value: simulation.dimensions.z,
       icon: Cube,
     },
     {
       label: "Owners",
-      value: simulationStore.statistics.total_number_of_owners,
+      value: simulation.statistics.totalNumberOfOwners,
       icon: FingerPrint,
     },
     {
       label: "Agents",
-      value: simulationStore.statistics.total_number_of_agents,
+      value: simulation.statistics.totalNumberOfAgents,
       icon: Fish,
     },
     {
       label: "Welfare",
-      value: simulationStore.statistics.total_achieved_welfare,
+      value: simulation.statistics.totalAchievedWelfare,
       icon: HappyOutline,
     },
     {
       label: "Collisions",
-      value: simulationStore.statistics.total_number_of_collisions,
+      value: simulation.statistics.totalNumberOfCollisions,
       icon: GitPullRequest,
     },
     {
       label: "Re-Allocations",
-      value: simulationStore.statistics.total_number_of_reallocations,
+      value: simulation.statistics.totalNumberOfReallocations,
       icon: GitBranch,
     },
   ];

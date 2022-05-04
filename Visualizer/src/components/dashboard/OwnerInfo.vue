@@ -2,20 +2,20 @@
   <div>
     <boxplot
       title="Welfare"
-      :color="ownerStore.color"
-      :quantiles="ownerStore.welfare_quantiles"
-      :outliers="ownerStore.welfare_outliers"
-      :min="ownerStore.min_welfare"
-      :max="ownerStore.max_welfare"
+      :color="simulation.ownerInFocus.color"
+      :quantiles="simulation.ownerInFocus.welfareQuantiles"
+      :outliers="simulation.ownerInFocus.welfareOutliers"
+      :min="simulation.ownerInFocus.minWelfare"
+      :max="simulation.ownerInFocus.maxWelfare"
     />
     <n-divider style="margin-top: 6px; margin-bottom: 6px" />
     <boxplot
       title="Bids"
-      :color="ownerStore.color"
-      :quantiles="ownerStore.bid_quantiles"
-      :outliers="ownerStore.bid_outliers"
-      :min="ownerStore.min_bid_value"
-      :max="ownerStore.max_bid_value"
+      :color="simulation.ownerInFocus.color"
+      :quantiles="simulation.ownerInFocus.bidQuantiles"
+      :outliers="simulation.ownerInFocus.bidOutliers"
+      :min="simulation.ownerInFocus.minBidValue"
+      :max="simulation.ownerInFocus.maxBidValue"
     />
     <n-divider style="margin-top: 6px; margin-bottom: 6px" />
     <div v-for="datapoint in datapoints" :key="datapoint.label">
@@ -47,47 +47,47 @@
 <script setup>
 import Boxplot from "./Boxplot.vue";
 import { computed } from "vue";
-import { useOwnerStore } from "../../stores/owner";
 import { FingerPrint, Airplane, Wallet, Timer } from "@vicons/ionicons5";
+import { useSimulationSingleton } from "../../scripts/simulation";
 
-const ownerStore = useOwnerStore();
+const simulation = useSimulationSingleton();
 
 const datapoints = computed(() =>
   [
-    { label: "Owner ID", value: ownerStore.id, icon: FingerPrint },
+    { label: "Owner ID", value: simulation.ownerInFocus.id, icon: FingerPrint },
     {
       label: "# Agents in Total",
-      value: ownerStore.number_of_agents,
+      value: simulation.ownerInFocus.numberOfAgents,
       icon: Airplane,
     },
-    ownerStore.number_of_ab_agents && {
+    simulation.ownerInFocus.numberOfABAgents && {
       label: "# AB Agents",
-      value: ownerStore.number_of_ab_agents,
+      value: simulation.ownerInFocus.numberOfABAgents,
       icon: Airplane,
     },
-    ownerStore.number_of_aba_agents && {
+    simulation.ownerInFocus.numberOfABAAgents && {
       label: "# ABA Agents",
-      value: ownerStore.number_of_aba_agents,
+      value: simulation.ownerInFocus.numberOfABAAgents,
       icon: Airplane,
     },
-    ownerStore.number_of_abc_agents && {
+    simulation.ownerInFocus.numberOfABCAgents && {
       label: "# ABC Agents",
-      value: ownerStore.number_of_abc_agents,
+      value: simulation.ownerInFocus.numberOfABCAgents,
       icon: Airplane,
     },
-    ownerStore.number_of_stationary_agents && {
+    simulation.ownerInFocus.numberOfStationaryAgents && {
       label: "# Stationary Agents",
-      value: ownerStore.number_of_stationary_agents,
+      value: simulation.ownerInFocus.numberOfStationaryAgents,
       icon: Airplane,
     },
     {
       label: "Total Time in Air",
-      value: ownerStore.total_time_in_air,
+      value: simulation.ownerInFocus.totalTimeInAir,
       icon: Timer,
     },
     {
       label: "Total Bid Value",
-      value: ownerStore.total_bid_value,
+      value: simulation.ownerInFocus.totalBidValue,
       icon: Wallet,
     },
   ].filter(Boolean)

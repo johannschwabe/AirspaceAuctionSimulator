@@ -12,11 +12,10 @@ import VueApexCharts from "vue3-apexcharts";
 import { reactive } from "vue";
 import { head, last } from "lodash-es";
 
-import { useSimulationStore } from "../../stores/simulation";
-import { useEmitter } from "../../scripts/emitter";
+import { useSimulationSingleton } from "../../scripts/simulation";
+import { onAgentsSelected } from "../../scripts/emitter";
 
-const simulationStore = useSimulationStore();
-const emitter = useEmitter();
+const simulation = useSimulationSingleton();
 
 const chartOptions = {
   chart: {
@@ -24,6 +23,8 @@ const chartOptions = {
     type: "rangeBar",
     background: "transparent",
     toolbar: { show: false },
+    zoom: { enabled: false },
+    animations: { enabled: false },
   },
   theme: {
     mode: "dark",
@@ -54,30 +55,27 @@ const series = reactive([
   },
 ]);
 
-const resetState = () => {
-  series[0].data = [];
-};
-
 const updateState = () => {
+  const gantt = [];
   console.log("Welfare: Update State");
-  simulationStore.selectedAgents.forEach((agent) => {
+  simulation.selectedAgents.forEach((agent) => {
     agent.paths.forEach((path) => {
-      const start = head(path.t);
-      const end = last(path.t);
-      series[0].data.push({
+      const start = path.firstTick;
+      const end = path.lastTick;
+      gantt.push({
         x: agent.name,
         y: [start, end],
-        fillColor: agent.owner_color,
+        fillColor: agent.color,
       });
     });
   });
+  series[0].data = gantt;
   console.log("Welfare: Done");
 };
 
 updateState();
 
-emitter.on("new-agents-selected", () => {
-  resetState();
+onAgentsSelected(() => {
   updateState();
 });
 </script>

@@ -36,6 +36,18 @@ export default class Path {
     return this.ticks[this.lastTick];
   }
 
+  isActiveAtTick(tick) {
+    return this.ticksInAir.includes(`${tick}`);
+  }
+
+  at(tick) {
+    return this.ticks[`${tick}`];
+  }
+
+  atIndex(index) {
+    return this.ticks[this.ticksInAir[parseInt(index, 10)]];
+  }
+
   /**
    * Joins multiple paths together to one, long path
    * @param {Path[]} paths

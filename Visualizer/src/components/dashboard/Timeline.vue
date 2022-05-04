@@ -8,10 +8,10 @@
     />
     <div style="padding: 0 15px 0 35px; margin-top: -30px">
       <n-slider
-        :value="simulationStore.tick"
-        @update:value="(t) => simulationStore.updateTick(t)"
+        :value="simulation.tick"
+        @update:value="(t) => simulation.tick = t"
         :min="1"
-        :max="simulationStore.dimensions.t"
+        :max="simulation.maxTick"
         show-tooltip
         placement="bottom"
       />
@@ -23,11 +23,10 @@
 import VueApexCharts from "vue3-apexcharts";
 import { reactive } from "vue";
 
-import { useSimulationStore } from "../../stores/simulation";
-import { useEmitter } from "../../scripts/emitter";
+import { onAgentsSelected, useEmitter } from "../../scripts/emitter";
+import { useSimulationSingleton } from "../../scripts/simulation";
 
-const simulationStore = useSimulationStore();
-const emitter = useEmitter();
+const simulation = useSimulationSingleton();
 
 const chartOptions = {
   chart: {
@@ -35,6 +34,8 @@ const chartOptions = {
     type: "bar",
     background: "transparent",
     toolbar: { show: false },
+    zoom: { enabled: false },
+    animations: { enabled: false },
   },
   theme: {
     mode: "dark",
@@ -60,13 +61,14 @@ const chartOptions = {
 const series = reactive([
   {
     name: "# Active Agents",
-    data: simulationStore.timeline,
+    data: simulation.timeline,
   },
 ]);
 
-emitter.on("new-agents-selected", () => {
-  series[0].data = simulationStore.timeline;
+onAgentsSelected(() => {
+  series[0].data = simulation.timeline;
 });
+
 </script>
 
 <style scoped></style>

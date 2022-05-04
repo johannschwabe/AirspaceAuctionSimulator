@@ -94,4 +94,5 @@ export function downloadSimulation() {
 export default {
   postSimulation,
   downloadSimulation,
+  loadSimulation,
 };

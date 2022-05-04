@@ -68,7 +68,7 @@ export class ReallocationEvent extends FlightEvent {
       "warning",
       mdiSourceBranch,
       tick,
-      reallocationReason.toString()
+      reallocationReason.name
     );
     this.location = location;
   }

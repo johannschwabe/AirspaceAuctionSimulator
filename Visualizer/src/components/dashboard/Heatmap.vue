@@ -11,8 +11,8 @@
 import VueApexCharts from "vue3-apexcharts";
 import { reactive } from "vue";
 
-import { useSimulationStore } from "../../stores/simulation";
-import { useEmitter } from "../../scripts/emitter";
+import { useSimulationSingleton } from "../../scripts/simulation";
+import { onAgentsSelected, onTick } from "../../scripts/emitter";
 
 const props = defineProps({
   title: String,
@@ -21,8 +21,7 @@ const props = defineProps({
   granularity: { type: Number, default: 5, required: false },
 });
 
-const simulationStore = useSimulationStore();
-const emitter = useEmitter();
+const simulation = useSimulationSingleton();
 
 const axisColors = {
   x: "red",
@@ -36,6 +35,8 @@ const chartOptions = {
     type: "heatmap",
     background: "transparent",
     toolbar: { show: false },
+    zoom: { enabled: false },
+    animations: { enabled: false },
   },
   theme: {
     mode: "dark",
@@ -80,10 +81,10 @@ const series = reactive([]);
 
 // Fill series with zeroes
 const dimXlength = Math.floor(
-  simulationStore.dimensions[props.dimX] / props.granularity
+  simulation.dimensions[props.dimX] / props.granularity
 );
 const dimYlength = Math.floor(
-  simulationStore.dimensions[props.dimY] / props.granularity
+  simulation.dimensions[props.dimY] / props.granularity
 );
 
 for (let dimy = 0; dimy < dimYlength; dimy++) {
@@ -101,12 +102,9 @@ const resetState = () => {
 
 const updateState = () => {
   console.log("Heatmap: Update state");
-  simulationStore.activeAgents.forEach((agent) => {
-    const axis = ["x", "y", "z"];
-    const dimx_index = axis.findIndex((e) => e === props.dimX);
-    const dimy_index = axis.findIndex((e) => e === props.dimY);
-    const loc_dimx = agent.positions[simulationStore.tick][dimx_index];
-    const loc_dimy = agent.positions[simulationStore.tick][dimy_index];
+  simulation.activeAgents.forEach((agent) => {
+    const loc_dimx = agent.combinedPath.at(simulation.tick)[props.dimX];
+    const loc_dimy = agent.combinedPath.at(simulation.tick)[props.dimY];
     const dim1 = Math.floor(loc_dimx / props.granularity);
     const dim2 = Math.floor(loc_dimy / props.granularity);
     series[dim2].data[dim1] += 1;
@@ -116,12 +114,12 @@ const updateState = () => {
 
 updateState();
 
-emitter.on("tick", () => {
+onTick(() => {
   resetState();
   updateState();
 });
 
-emitter.on("new-agents-selected", () => {
+onAgentsSelected(() => {
   resetState();
   updateState();
 });
