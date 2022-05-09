@@ -20,7 +20,7 @@ class Simulator:
         self.allocator: Allocator = allocator
         self.environment: Environment = environment
         self.history: "History" = history
-        self.agents: List[Agent] = []
+        # self.agents: List[Agent] = []
         self.time_step = Tick(0)
 
     def tick(self) -> bool:
@@ -37,3 +37,4 @@ class Simulator:
 
         self.time_step += 1
         return True
+

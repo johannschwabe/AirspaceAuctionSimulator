@@ -60,14 +60,14 @@
     </n-form-item>
   </n-form>
   <n-button ghost type="primary" @click.stop="simulate"> Simulate </n-button>
-  <n-grid cols="2" x-gap="10">
+  <n-grid cols="2" x-gap="10" v-if="finished">
     <n-grid-item>
       <n-button
         ghost
         block
         icon-placement="right"
         type="primary"
-        @click.stop="() => simulationStore.download()"
+        @click.stop="() => api.downloadSimulation()"
       >
         Download Simulation
         <template #icon>
@@ -99,26 +99,24 @@
 </template>
 
 <script setup>
-import axios from "axios";
-
 import { ref } from "vue";
 import { useMessage, useLoadingBar } from "naive-ui";
 import { useRouter } from "vue-router";
 import { CloudDownloadOutline, ArrowForwardOutline } from "@vicons/ionicons5";
 
+import api from "../../API/api.js";
 import Owner from "./Owner.vue";
-
-import { useSimulationStore } from "../../stores/simulation";
-
-const formRef = ref(null);
-const ownerRef = ref(null);
-const errorText = ref(null);
+import Simulation from "../../SimulationObjects/Simulation.js";
+import { setSimulationSingleton } from "../../scripts/simulation.js";
 
 const message = useMessage();
 const loadingBar = useLoadingBar();
 const router = useRouter();
 
-const simulationStore = useSimulationStore();
+const formRef = ref(null);
+const ownerRef = ref(null);
+const errorText = ref(null);
+const finished = ref(false);
 
 const model = ref({
   name: null,
@@ -142,32 +140,28 @@ const rules = {
   ],
 };
 
-const detailedError = (e) => {
-  return e.response.data.detail
-    .map((d) => `${d.msg}: ${d.loc.join(".")}`)
-    .join("\n");
-};
-
 const simulate = () => {
   errorText.value = null;
   owners.value = ownerRef.value.owners;
   formRef.value?.validate((errors) => {
     if (!errors) {
       loadingBar.start();
-      axios
-        .post("http://localhost:8000/simulation", {
+      api
+        .postSimulation({
           ...model.value,
           owners: owners.value,
         })
-        .then((res) => {
-          simulationStore.setSimulation(res.data);
+        .then((data) => {
+          setSimulationSingleton(new Simulation(data));
           loadingBar.finish();
           message.success("Simulation Created!");
+          finished.value = true;
         })
         .catch((e) => {
+          console.error(e);
           loadingBar.error();
           message.error("Failed creating the Session!");
-          errorText.value = detailedError(e);
+          errorText.value = e.message;
         });
     } else {
       errorText.value = "Some Form fields are not Valid";

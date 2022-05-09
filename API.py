@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
 from Simulator.Coordinate import TimeCoordinate
+from Simulator.IO.JSONS import build_json
 from Simulator.Time import Tick
 from Simulator.Generator import Generator
 
@@ -20,6 +21,8 @@ random.seed(2)
 origins = [
     "http://localhost:3000",
     "http://localhost:8080",
+    "http://localhost:5050",
+    "*", # REMOVE for production
 ]
 
 app.add_middleware(
@@ -57,6 +60,6 @@ def read_root(config: SimulationConfigType):
     dimensions = TimeCoordinate(config.dimension.x, config.dimension.y, config.dimension.z, Tick(config.dimension.t))
     TimeCoordinate.dim = dimensions
     g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions)
-    statistics = g.simulate()
-    json = statistics.build_json()
+    g.simulate()
+    json = build_json(g.simulator, g.name, g.description)
     return json

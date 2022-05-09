@@ -11,16 +11,17 @@
 import VueApexCharts from "vue3-apexcharts";
 import { reactive } from "vue";
 
-import { useSimulationStore } from "../../stores/simulation";
+import { useSimulationSingleton } from "../../scripts/simulation";
+import { onAgentsSelected, onTick } from "../../scripts/emitter";
 
 const props = defineProps({
   title: String,
   dimX: String,
   dimY: String,
-  granularity: { type: Number, default: 10, required: false },
+  granularity: { type: Number, default: 5, required: false },
 });
 
-const simulationStore = useSimulationStore();
+const simulation = useSimulationSingleton();
 
 const axisColors = {
   x: "red",
@@ -34,12 +35,11 @@ const chartOptions = {
     type: "heatmap",
     background: "transparent",
     toolbar: { show: false },
+    zoom: { enabled: false },
+    animations: { enabled: false },
   },
   theme: {
     mode: "dark",
-  },
-  title: {
-    text: props.title,
   },
   dataLabels: {
     enabled: false,
@@ -81,10 +81,10 @@ const series = reactive([]);
 
 // Fill series with zeroes
 const dimXlength = Math.floor(
-  simulationStore.dimensions[props.dimX] / props.granularity
+  simulation.dimensions[props.dimX] / props.granularity
 );
 const dimYlength = Math.floor(
-  simulationStore.dimensions[props.dimY] / props.granularity
+  simulation.dimensions[props.dimY] / props.granularity
 );
 
 for (let dimy = 0; dimy < dimYlength; dimy++) {
@@ -101,16 +101,25 @@ const resetState = () => {
 };
 
 const updateState = () => {
-  simulationStore.pastLocations.forEach((loc) => {
-    const dim1 = Math.floor(loc[props.dimX] / props.granularity);
-    const dim2 = Math.floor(loc[props.dimY] / props.granularity);
+  console.log("Heatmap: Update state");
+  simulation.activeAgents.forEach((agent) => {
+    const loc_dimx = agent.combinedPath.at(simulation.tick)[props.dimX];
+    const loc_dimy = agent.combinedPath.at(simulation.tick)[props.dimY];
+    const dim1 = Math.floor(loc_dimx / props.granularity);
+    const dim2 = Math.floor(loc_dimy / props.granularity);
     series[dim2].data[dim1] += 1;
   });
+  console.log("Heatmap: Done");
 };
 
 updateState();
 
-simulationStore.$subscribe(() => {
+onTick(() => {
+  resetState();
+  updateState();
+});
+
+onAgentsSelected(() => {
   resetState();
   updateState();
 });

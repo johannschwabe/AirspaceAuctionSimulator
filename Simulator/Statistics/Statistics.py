@@ -1,9 +1,12 @@
-from ..Environment import Environment
 from ..History import HistoryAgent
-from ..Simulator import Owner
-from ..Simulator import Simulator
+from ..Simulator import Owner, Simulator
 from ..Agent import Agent
-from ..Coordinate import TimeCoordinate
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..Coordinate import TimeCoordinate
+
+
 
 class Statistics:
     def __init__(self, sim: Simulator):
@@ -24,12 +27,11 @@ class Statistics:
     def agents_welfare(agent: Agent):
         return agent.get_allocated_value()
 
-    def average_agents_welfare(self):
+    def total_agents_welfare(self):
         summed_welfare = 0
         for agent in self.history.env.get_agents().values():
             summed_welfare += Statistics.agents_welfare(agent)
-        print(f"AAW: {summed_welfare/len(self.history.env.get_agents())}")
-        return summed_welfare / len(self.history.env.get_agents())
+        return summed_welfare
 
     @staticmethod
     def owners_welfare(owner: Owner):
@@ -60,6 +62,10 @@ class Statistics:
                 "near_field_intersection": {},
                 "far_field_violations": {},
                 "far_field_intersection": {},
+                "total_near_field_violations": 0,
+                "total_near_field_intersection": 0,
+                "total_far_field_violations": 0,
+                "total_far_field_intersection": 0,
             }
             for path in agent.get_allocated_paths():
                 for step in path[::agent.speed]:
@@ -68,9 +74,13 @@ class Statistics:
                     near_intersections, far_intersections = self.intersections(step, agent)
                     res[agent.id]["near_field_intersection"][step.t] = near_intersections
                     res[agent.id]["far_field_intersection"][step.t] = far_intersections
+                    res[agent.id]["total_near_field_violations"] += res[agent.id]["near_field_violations"][step.t]
+                    res[agent.id]["total_far_field_violations"] += res[agent.id]["far_field_violations"][step.t]
+                    res[agent.id]["total_near_field_intersection"] += res[agent.id]["near_field_intersection"][step.t]
+                    res[agent.id]["total_far_field_intersection"] += res[agent.id]["far_field_intersection"][step.t]
         return res
 
-    def violations(self, position: TimeCoordinate, agent: HistoryAgent, radi: int):
+    def violations(self, position: "TimeCoordinate", agent: HistoryAgent, radi: int):
         box = [  position.x - radi,
                  position.y - radi,
                  position.z - radi,
@@ -88,7 +98,7 @@ class Statistics:
             count += int(end) - int(start) + 1
         return count
 
-    def intersections(self, position: TimeCoordinate, agent: HistoryAgent):
+    def intersections(self, position: "TimeCoordinate", agent: HistoryAgent):
         max_radi = self.history.env.get_agents()[agent.id].max_far_field_radius
         near_radi = self.history.env.get_agents()[agent.id].near_radius
         fahrrad = self.history.env.get_agents()[agent.id].far_radius
@@ -121,24 +131,3 @@ class Statistics:
         return near_intersections, far_intersections
 
 
-    # def close_passings(self):
-    #     max_t = int(float(self.env._dimension.t) * 1.5)
-    #     far_field_intersections = [0] * max_t
-    #     near_field_intersections = [0] * max_t
-    #     collisions = [0] * max_t
-    #     far_field_crossings = [0] * max_t
-    #     near_field_crossings = [0] * max_t
-    #
-    #     for field in self.env._relevant_fields.values():
-    #         if len(field.get_allocated()) > 1:
-    #             collisions[field.coordinates.t] += 1
-    #         if len(field.get_far()) > 1:
-    #             far_field_intersections[field.coordinates.t] += len(field.get_far())
-    #         if len(field.get_near()) > 1:
-    #             near_field_intersections[field.coordinates.t] += len(field.get_near())
-    #         if len(field.get_allocated()) >= 1 and len(field.get_far()) > 1:
-    #             far_field_crossings[field.coordinates.t] += len(field.get_far())
-    #         if len(field.get_allocated()) >= 1 and len(field.get_near()) > 1:
-    #             near_field_crossings[field.coordinates.t] += len(field.get_near())
-    #     print(f"Col: {sum(collisions)}, nfc: {sum(near_field_crossings)}, nfi: {sum(near_field_intersections)}, ffc: {sum(far_field_crossings)}, ffi: {sum(far_field_intersections)}")
-    #     return collisions, near_field_crossings, near_field_intersections, far_field_crossings, far_field_intersections

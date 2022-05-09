@@ -34,7 +34,8 @@ def astar(
     sort_time = 0
     neighbors_time = 0
     valid_time = 0
-    while len(open_nodes) > 0 and steps < 10000:
+    MAX_ITER = 1000
+    while len(open_nodes) > 0 and steps < MAX_ITER:
         steps += 1
 
         start_sort = time_ns()

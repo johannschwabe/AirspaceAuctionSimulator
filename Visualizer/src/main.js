@@ -41,6 +41,20 @@ import {
   NSelect,
   NAlert,
   NProgress,
+  NPageHeader,
+  NStatistic,
+  NBreadcrumb,
+  NBreadcrumbItem,
+  NAvatar,
+  NDropdown,
+  NNumberAnimation,
+  NDrawer,
+  NDrawerContent,
+  NDivider,
+  NTree,
+  NTimeline,
+  NTimelineItem,
+  NDataTable,
 } from "naive-ui";
 
 const naive = create({
@@ -75,12 +89,27 @@ const naive = create({
     NSelect,
     NAlert,
     NProgress,
+    NPageHeader,
+    NStatistic,
+    NBreadcrumb,
+    NBreadcrumbItem,
+    NAvatar,
+    NDropdown,
+    NNumberAnimation,
+    NDrawer,
+    NDrawerContent,
+    NDivider,
+    NTree,
+    NTimeline,
+    NTimelineItem,
+    NDataTable,
   ],
 });
 
 const app = createApp(App);
+const store = createPinia();
 
-app.use(createPinia());
+app.use(store);
 app.use(router);
 app.use(naive);
 
