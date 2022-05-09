@@ -21,7 +21,7 @@ class History:
 
     def add_new_agents(self, agents: List[Agent], time_step: Tick):
         for agent in agents:
-            self.agents[agent] = HistoryAgent(agent, time_step)
+            self.agents[agent] = HistoryAgent(agent, time_step, agent.speed)
 
     def update_allocations(self, new_allocations: Dict[Agent, List[List[TimeCoordinate]]], time_step):
         for agent, paths in new_allocations.items():

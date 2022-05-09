@@ -30,9 +30,17 @@ class Environment:
 
     def allocate_path_for_agent(self, agent: Agent, path: List[TimeCoordinate]):
         agent.add_allocated_paths(path)
-
+        iterator = path[0]
         for coord in path:
-            self.tree.insert(agent.id, coord.tree_query_rep())
+            if coord.inter_temporal_equal(iterator):
+                continue
+            aggregated = iterator.tree_query_rep()
+            aggregated[7] = coord.t - 1
+            self.tree.insert(agent.id, aggregated)
+            iterator = coord
+        aggregated = iterator.tree_query_rep()
+        aggregated[7] = path[-1].t
+        self.tree.insert(agent.id, aggregated)
 
     def allocate_paths_for_agents(self, agents_paths: Dict[Agent, List[List[TimeCoordinate]]], time_step: Tick):
         for agent, paths in agents_paths.items():
@@ -55,6 +63,9 @@ class Environment:
 
     def get_agents(self):
         return self._agents
+
+    def get_dim(self):
+        return self._dimension
 
     def is_valid_for_allocation(self, coords: TimeCoordinate, agent: Agent) -> bool:
         radius: int = agent.near_radius
@@ -96,7 +107,7 @@ class Environment:
                 print("")
             print(" ↓\n Y")
 
-    def clear(self):
+    def new_clear(self):
         new_env = Environment(self._dimension, self.blockers)
         return new_env
 

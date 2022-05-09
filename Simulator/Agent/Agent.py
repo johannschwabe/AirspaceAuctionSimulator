@@ -8,7 +8,8 @@ from ..Coordinate import TimeCoordinate
 
 class Agent(ABC):
     id: int = 0
-
+    max_near_field_radius = 2
+    max_far_field_radius = 4
     default_near_radius = 1
     default_far_radius = 2
 

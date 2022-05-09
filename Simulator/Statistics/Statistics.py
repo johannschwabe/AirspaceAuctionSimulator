@@ -1,127 +1,25 @@
-from enum import Enum
-
-from .. import Environment
-from ..Allocator import Allocator
-from ..History import HistoryAgent, History
-from ..IO import Stringify
-from ..Simulator import Owner
-from ..Simulator import Simulator
-from ..Agent import Agent, AgentType
-from typing import List, TYPE_CHECKING
+from ..History import HistoryAgent
+from ..Simulator import Owner, Simulator
+from ..Agent import Agent
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..Coordinate import TimeCoordinate
 
 
-class Path(Stringify):
-    def __init__(self, path: List["TimeCoordinate"]):
-        self.x: List[int] = []
-        self.y: List[int] = []
-        self.z: List[int] = []
-        self.t: List[int] = []
-
-        for coord in path:
-            self.x.append(coord.x)
-            self.y.append(coord.y)
-            self.z.append(coord.z)
-            self.t.append(coord.t)
-
-
-class Collision(Stringify):
-    def __init__(self, reason: "Reason", agent_id: int = -1, blocker_id: int = -1):
-        self.reason: "Reason" = reason
-        self.agent_id: int = agent_id
-        self.blocker_id: int = blocker_id
-
-
-class Branch(Stringify):
-    def __init__(self, tick: int, paths: List["Path"], value: float, reason: "Collision"):
-        self.tick: int = tick
-        self.paths: List["Path"] = paths
-        self.value: float = value
-        self.reason: "Collision" = reason
-
-
-class Reason(Enum):
-    AGENT = 1
-    BLOCKER = 2
-    OWNER = 3
-    NOT_IMPLEMENTED = 4
-
-
-class JSONAgent(Stringify):
-    def __init__(
-        self,
-        history_agent: HistoryAgent,
-        agent: Agent,
-        non_colliding_value: float,
-        near_field_intersections: int,
-        far_field_intersections: int,
-        near_field_violations: int,
-        far_field_violations: int,
-        bid: int,
-    ):
-        self.agent_type: AgentType = agent.agent_type
-        self.speed: int = agent.speed
-        self.id: int = agent.id
-        self.near_radius: int = agent.near_radius
-        self.far_radius: int = agent.far_radius
-        self.value: float = agent.get_allocated_value()
-        self.battery: int = agent.battery
-        self.time_in_air: int = agent.get_airtime()
-
-        self.non_colliding_value: float = non_colliding_value
-        self.near_field_intersections: int = near_field_intersections
-        self.far_field_intersections: int = far_field_intersections
-        self.near_field_violations: int = near_field_violations
-        self.far_field_violations: int = far_field_violations
-
-        self.bid = bid
-
-        self.paths: List[Path] = [Path(path) for path in agent.get_allocated_paths()]
-
-        self.branches: List[Branch] = []
-        for key, value in history_agent.past_allocations.items():
-            branch_paths = [Path(path) for path in value]
-            self.branches.append(Branch(
-                key,
-                branch_paths,
-                agent.value_for_paths(value),
-                Collision(Reason.NOT_IMPLEMENTED)
-            ))
-
-
-class JSONOwner(Stringify):
-    def __init__(self, name: str, agents: List[JSONAgent]):
-        self.name: str = name
-        self.agents: List[JSONAgent] = agents
-
-
-class JSONSimulation(Stringify):
-    def __init__(self, name: str, description: str, owners: List[JSONOwner]):
-        self.name: str = name
-        self.description: str = description
-        self.owners: List[JSONOwner] = owners
-
 
 class Statistics:
-    def __init__(self, sim: Simulator, name: str, description: str):
-        self.env: "Environment" = sim.environment
-        self.allocator: "Allocator" = sim.allocator
-        self.history: "History" = sim.history
-        self.owners: List["Owner"] = sim.owners
-        self.time_elapsed: int = sim.time_step
-        self.name: str = name
-        self.description: str = description
+    def __init__(self, sim: Simulator):
+        self.history = sim.history
 
     def non_colliding_value(self, agent: Agent):
         local_agent = agent.clone()
-        local_env = self.env.clear()
-        paths = self.allocator.allocate_for_agents([local_agent], local_env)[local_agent]
+        local_env = self.history.env.new_clear()
+        paths = self.history.allocator.allocate_for_agents([local_agent], local_env)[local_agent]
         return local_agent.value_for_paths(paths)
 
     def non_colliding_values(self):
-        for agent in self.env.get_agents().values():
+        for agent in self.history.env.get_agents().values():
             print(f"{agent}'s non colliding value: {self.non_colliding_value(agent)}, "
                   f"achieved value: {agent.get_allocated_value()}")
 
@@ -129,12 +27,11 @@ class Statistics:
     def agents_welfare(agent: Agent):
         return agent.get_allocated_value()
 
-    def average_agents_welfare(self):
+    def total_agents_welfare(self):
         summed_welfare = 0
-        for agent in self.env.get_agents().values():
+        for agent in self.history.env.get_agents().values():
             summed_welfare += Statistics.agents_welfare(agent)
-        print(f"AAW: {summed_welfare / len(self.env.get_agents())}")
-        return summed_welfare / len(self.env.get_agents())
+        return summed_welfare
 
     @staticmethod
     def owners_welfare(owner: Owner):
@@ -147,31 +44,90 @@ class Statistics:
         summed_welfare = 0
         for owner in self.history.owners:
             summed_welfare += Statistics.owners_welfare(owner)
-        print(f"AOW: {summed_welfare / len(self.history.owners)}")
-        return summed_welfare / len(self.history.owners)
+        print(f"AOW: {summed_welfare/len(self.history.owners)}")
+        return summed_welfare/len(self.history.owners)
 
     def allocated_distance(self):
         length = 0
-        for agent in self.env.get_agents():
+        for agent in self.history.env.get_agents():
             for path in agent.allocated_paths:
                 length += len(path)
         return length
 
-    def build_json(self):
-        owners: List[JSONOwner] = []
-        for owner in self.owners:
-            agents: List[JSONAgent] = []
-            for agent in owner.agents:
-                agents.append(JSONAgent(
-                    self.history.agents[agent],
-                    agent,
-                    self.non_colliding_value(agent),
-                    0,
-                    0,
-                    0,
-                    0,
-                    -1
-                ))
-            owners.append(JSONOwner(owner.name, agents))
-        json_simulation = JSONSimulation(self.name, self.description, owners)
-        return json_simulation.as_dict()
+    def close_passings(self):
+        res = {}
+        for agent in self.history.env.get_agents().values():
+            res[agent.id] = {
+                "near_field_violations": {},
+                "near_field_intersection": {},
+                "far_field_violations": {},
+                "far_field_intersection": {},
+                "total_near_field_violations": 0,
+                "total_near_field_intersection": 0,
+                "total_far_field_violations": 0,
+                "total_far_field_intersection": 0,
+            }
+            for path in agent.get_allocated_paths():
+                for step in path[::agent.speed]:
+                    res[agent.id]["near_field_violations"][step.t] = self.violations(step, agent, agent.near_radius)
+                    res[agent.id]["far_field_violations"][step.t] = self.violations(step, agent, agent.far_radius)
+                    near_intersections, far_intersections = self.intersections(step, agent)
+                    res[agent.id]["near_field_intersection"][step.t] = near_intersections
+                    res[agent.id]["far_field_intersection"][step.t] = far_intersections
+                    res[agent.id]["total_near_field_violations"] += res[agent.id]["near_field_violations"][step.t]
+                    res[agent.id]["total_far_field_violations"] += res[agent.id]["far_field_violations"][step.t]
+                    res[agent.id]["total_near_field_intersection"] += res[agent.id]["near_field_intersection"][step.t]
+                    res[agent.id]["total_far_field_intersection"] += res[agent.id]["far_field_intersection"][step.t]
+        return res
+
+    def violations(self, position: "TimeCoordinate", agent: HistoryAgent, radi: int):
+        box = [  position.x - radi,
+                 position.y - radi,
+                 position.z - radi,
+                 position.t,
+                 position.x + radi,
+                 position.y + radi,
+                 position.z + radi,
+                 position.t + agent.speed -1]
+        collisions = self.history.env.tree.intersection(box, objects=True)
+        real_collisions = filter(lambda col: col.id != agent.id, collisions)
+        count = 0
+        for real_collision in real_collisions:
+            start = max(real_collision.bbox[3], position.t)
+            end = min(real_collision.bbox[7], position.t + agent.speed - 1)
+            count += int(end) - int(start) + 1
+        return count
+
+    def intersections(self, position: "TimeCoordinate", agent: HistoryAgent):
+        max_radi = self.history.env.get_agents()[agent.id].max_far_field_radius
+        near_radi = self.history.env.get_agents()[agent.id].near_radius
+        fahrrad = self.history.env.get_agents()[agent.id].far_radius
+        box = [  position.x - max_radi * 2,
+                 position.y - max_radi * 2,
+                 position.z - max_radi * 2,
+                 position.t,
+                 position.x + max_radi * 2,
+                 position.y + max_radi * 2,
+                 position.z + max_radi * 2,
+                 position.t + agent.speed - 1]
+        collisions = self.history.env.tree.intersection(box, objects=True)
+        real_collisions = filter(lambda col: col.id != agent.id, collisions)
+        near_intersections = 0
+        far_intersections = 0
+        for collision in real_collisions:
+            distance_x = abs(collision.bbox[0] - position.x)
+            distance_y = abs(collision.bbox[1] - position.y)
+            distance_z = abs(collision.bbox[2] - position.z)
+            col_start = max(collision.bbox[3], position.t)
+            col_end = min(collision.bbox[7], position.t + agent.speed - 1)
+            col_time = int(col_end) - int(col_start) + 1
+            max_near_distance = near_radi + self.history.env.get_agents()[collision.id].near_radius
+            max_far_distance = fahrrad + self.history.env.get_agents()[collision.id].far_radius
+            if distance_x <= max_near_distance and distance_y <= max_near_distance and distance_z <= max_near_distance:
+                near_intersections +=  col_time
+            if distance_x <= max_far_distance and distance_y <= max_far_distance and distance_z <= max_far_distance:
+                far_intersections += col_time
+
+        return near_intersections, far_intersections
+
+

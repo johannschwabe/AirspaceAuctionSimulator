@@ -10,10 +10,11 @@
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
 
-import { useSimulationStore } from "../../stores/simulation";
 import { reactive } from "vue";
+import { useSimulationSingleton } from "../../scripts/simulation";
+import { onAgentsSelected } from "../../scripts/emitter";
 
-const simulationStore = useSimulationStore();
+const simulation = useSimulationSingleton();
 
 const chartOptions = reactive({
   chart: {
@@ -21,12 +22,11 @@ const chartOptions = reactive({
     type: "area",
     background: "transparent",
     toolbar: { show: false },
+    zoom: { enabled: false },
+    animations: { enabled: false },
   },
   theme: {
     mode: "dark",
-  },
-  title: {
-    text: "Welfare over Time",
   },
   dataLabels: {
     enabled: false,
@@ -34,14 +34,7 @@ const chartOptions = reactive({
   stroke: {
     curve: "smooth",
   },
-  colors: ["#63e2b7", "#6381e2"],
-  annotations: {
-    xaxis: [
-      {
-        x: simulationStore.tick * 5,
-      },
-    ],
-  },
+  colors: ["#6381e2", "#63e2b7"],
   xaxis: {
     labels: { show: false },
     axisTicks: { show: false },
@@ -56,34 +49,50 @@ const chartOptions = reactive({
   },
 });
 
-simulationStore.$subscribe(() => {
-  console.log("Updating annotation");
-  chartOptions.annotations.xaxis[0].x = simulationStore.tick * 5;
-});
-
 const series = reactive([
   {
     name: "Optimal Welfare",
-    data: Array(simulationStore.dimensions.t).fill(0),
+    data: [],
   },
   {
     name: "Achieved Welfare",
-    data: Array(simulationStore.dimensions.t).fill(0),
+    data: [],
   },
 ]);
 
-simulationStore.agents.forEach((agent) => {
-  if (agent.locations.length > 0) {
-    const arrivalTick = agent.locations[agent.locations.length - 1].t;
-    series[0].data[arrivalTick] += agent.optimal_welfare;
-    series[1].data[arrivalTick] += agent.achieved_welfare;
+const updateSeries = () => {
+  console.log("Welfare: Update");
+  const optimalWelfare = Array(simulation.maxTick).fill(0);
+  const achievedWelfare = Array(simulation.maxTick).fill(0);
+
+  simulation.selectedAgents.forEach((agent) => {
+    const arrivalTick = agent.combinedPath.lastTick;
+    optimalWelfare[arrivalTick] += agent.nonCollidingWelfare;
+    achievedWelfare[arrivalTick] += agent.welfare;
+    console.log({
+      arrivalTick,
+      ncw: agent.nonCollidingWelfare,
+      w: agent.welfare,
+    });
+  });
+
+  console.log({ optimalWelfare: JSON.stringify(optimalWelfare) });
+
+  for (let i = 1; i < simulation.maxTick; i++) {
+    optimalWelfare[i] = optimalWelfare[i - 1] + optimalWelfare[i];
+    achievedWelfare[i] = achievedWelfare[i - 1] + achievedWelfare[i];
   }
+
+  series[0].data = optimalWelfare;
+  series[1].data = achievedWelfare;
+  console.log("Welfare: DONE");
+};
+
+onAgentsSelected(() => {
+  updateSeries();
 });
 
-for (let i = 1; i < simulationStore.dimensions.t; i++) {
-  series[0].data[i] = series[0].data[i - 1] + series[0].data[i];
-  series[1].data[i] = series[1].data[i - 1] + series[1].data[i];
-}
+updateSeries();
 </script>
 
 <style scoped></style>

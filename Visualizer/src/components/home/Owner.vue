@@ -2,7 +2,11 @@
   <n-dynamic-input v-model:value="owners" :on-create="onCreate">
     <template #default="{ value }">
       <div style="display: flex; column-gap: 10px; width: 100%">
-        <n-color-picker :modes="['hex']" v-model:value="value.color" />
+        <n-color-picker
+          :modes="['hex']"
+          :show-alpha="false"
+          v-model:value="value.color"
+        />
         <n-input
           v-model:value="value.name"
           type="text"
@@ -34,7 +38,7 @@ const owners = ref([
     color: "#00559d",
     name: "Digitec",
     agents: 20,
-    type: "a-to-b",
+    type: "aba",
   },
 ]);
 
@@ -55,6 +59,10 @@ const options = [
   {
     label: "A to B to A",
     value: "aba",
+  },
+  {
+    label: "A to B to C",
+    value: "abc",
   },
   {
     label: "Stationary",

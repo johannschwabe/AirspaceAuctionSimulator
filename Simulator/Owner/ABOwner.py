@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 
 
 class ABOwner(Owner):
-    def __init__(self, name: str, creation_ticks: List[int]):
-        super().__init__(name)
+    def __init__(self, name: str, color: str, creation_ticks: List[int]):
+        super().__init__(name, color)
         self.creation_ticks = creation_ticks
 
     def generate_agents(self, t: int, env: "Environment") -> List["Agent"]:
