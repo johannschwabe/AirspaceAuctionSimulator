@@ -29,7 +29,7 @@ class Environment:
             self.allocate_path_for_agent(agent, path)
 
     def allocate_path_for_agent(self, agent: Agent, path: List[TimeCoordinate]):
-        agent.add_allocated_path(path)
+        agent.add_allocated_paths(path)
         iterator = path[0]
         for coord in path:
             if coord.inter_temporal_equal(iterator):

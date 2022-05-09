@@ -15,7 +15,7 @@ dimensions = TimeCoordinate(10, 10, 1, Tick(100))
 random.seed(2)
 environment = Environment(dimensions, [])
 allocator = FCFSAllocator()
-owners = [ABOwner([1,1,1,1,1])]
+owners = [ABOwner("Schnabeltier", [1,1,1,1,1])]
 
 history = History(dimensions, allocator, environment, owners)
 simulator = Simulator(owners, allocator, environment, history)

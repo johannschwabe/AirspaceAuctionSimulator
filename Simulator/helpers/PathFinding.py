@@ -15,7 +15,7 @@ def astar(
     env: Environment,
     agent: Agent,
 ):
-    print(f"{start} -> {end} ---->", end="")
+    # print(f"{start} -> {end} ---->", end="")
     # print(f"---->", end="")
     start_time = time_ns()
     open_nodes = []
