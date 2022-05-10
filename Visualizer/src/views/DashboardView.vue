@@ -159,9 +159,9 @@ onUnmounted(() => {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 75px;
-  background-color: rgb(16, 16, 16);
-  z-index: 100000;
+  height: 140px;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 20%, rgba(0,0,0,1) 100%);
+  z-index: 1000;
 }
 .nav-margin {
   margin-bottom: 80px;

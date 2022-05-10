@@ -1,15 +1,17 @@
 <template>
-  <vue-apex-charts type="area" height="250" :options="chartOptions" :series="series" />
+  <vue-apex-charts ref="chart" type="area" height="250" :options="chartOptions" :series="series" />
 </template>
 
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
 
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import { useSimulationSingleton } from "../../scripts/simulation";
-import { onAgentsSelected } from "../../scripts/emitter";
+import { onAgentsSelected, onTick } from "../../scripts/emitter";
 
 const simulation = useSimulationSingleton();
+
+const chart = ref(null);
 
 const chartOptions = reactive({
   chart: {
@@ -71,23 +73,22 @@ const updateSeries = () => {
     });
   });
 
-  console.log({ optimalWelfare: JSON.stringify(optimalWelfare) });
-
   for (let i = 1; i <= simulation.maxTick; i++) {
     optimalWelfare[i] = optimalWelfare[i - 1] + optimalWelfare[i];
     achievedWelfare[i] = achievedWelfare[i - 1] + achievedWelfare[i];
   }
 
-  series[0].data = optimalWelfare;
-  series[1].data = achievedWelfare;
-  console.log("Welfare: DONE", series[0].data, series[1].data);
+  series[0].data = optimalWelfare.map((y, x) => ({ x, y }));
+  series[1].data = achievedWelfare.map((y, x) => ({ x, y }));
 };
+
 
 onAgentsSelected(() => {
   updateSeries();
 });
 
 updateSeries();
+
 </script>
 
 <style scoped></style>

@@ -1,7 +1,10 @@
 <template>
   <div>
-    <vue-apex-charts type="bar" height="75" :options="chartOptions" :series="series" />
-    <div style="padding: 0 15px 0 35px; margin-top: -30px">
+    <vue-apex-charts type="bar" height="75" :options="agentChartOptions" :series="agentSeries" />
+    <div style="margin-top: -30px">
+      <vue-apex-charts type="bar" height="75" :options="eventChartOptions" :series="eventSeries" />
+    </div>
+    <div style="padding: 0 15px 0 35px; margin-top: -85px; z-index: 100000">
       <n-slider
         :value="simulation.tick"
         @update:value="(t) => (simulation.tick = t)"
@@ -23,7 +26,7 @@ import { useSimulationSingleton } from "../../scripts/simulation";
 
 const simulation = useSimulationSingleton();
 
-const chartOptions = {
+const agentChartOptions = {
   chart: {
     height: 75,
     type: "bar",
@@ -53,15 +56,74 @@ const chartOptions = {
   },
 };
 
-const series = reactive([
+const eventChartOptions = {
+  chart: {
+    height: 75,
+    type: "bar",
+    stacked: true,
+    background: "transparent",
+    toolbar: { show: false },
+    zoom: { enabled: false },
+    animations: { enabled: false },
+  },
+  legend: {
+    show: false,
+  },
+  theme: {
+    mode: "dark",
+  },
+  dataLabels: {
+    enabled: false,
+  },
+  tooltip: {
+    y: {
+      formatter: (t) => Math.abs(t),
+    },
+  },
+  colors: ["#942a2a", "#94762a"],
+  stroke: { show: false },
+  grid: { show: false },
+  xaxis: {
+    labels: { show: false },
+    axisTicks: { show: false },
+    axisBorder: { show: false },
+  },
+  yaxis: {
+    labels: { show: false },
+    axisTicks: { show: false },
+    axisBorder: { show: false },
+  },
+};
+
+const agentSeries = reactive([
   {
     name: "# Active Agents",
-    data: simulation.timeline,
+    data: simulation.timeline.map((y, x) => ({ x, y })),
   },
 ]);
 
+const eventSeries = reactive([
+  {
+    name: "# Collisions",
+    data: simulation.timeline.map((y, x) => ({ x, y: -Math.floor(y / 5) })),
+  },
+  {
+    name: "# Reallocations",
+    data: simulation.timeline.map((y, x) => ({ x, y: -Math.floor(y / 4) })),
+  },
+]);
+
+const updateAgentSeries = () => {
+  agentSeries[0].data = simulation.timeline.map((y, x) => ({ x, y }));
+};
+
+const updateEventSeries = () => {
+  eventSeries[0].data = simulation.timeline.map((y, x) => ({ x, y: -y }));
+};
+
 onAgentsSelected(() => {
-  series[0].data = simulation.timeline;
+  updateAgentSeries();
+  updateEventSeries();
 });
 </script>
 

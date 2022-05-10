@@ -97,6 +97,12 @@ export default class Simulation {
     this.timeline = [];
 
     /**
+     * Holds a list of events at each timestep
+     * @type {*[]}
+     */
+    this.timelineEvents = [];
+
+    /**
      * The maximum tick at which any active agent is still active / flying
      * @type {number}
      */
