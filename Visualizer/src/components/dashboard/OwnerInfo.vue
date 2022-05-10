@@ -20,14 +20,7 @@
     <n-divider style="margin-top: 6px; margin-bottom: 6px" />
     <div v-for="datapoint in datapoints" :key="datapoint.label">
       <div style="display: flex">
-        <div
-          style="
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            margin-right: 10px;
-          "
-        >
+        <div style="display: flex; flex-direction: column; justify-content: center; margin-right: 10px">
           <n-icon :component="datapoint.icon" :depth="5" size="25" />
         </div>
         <div>

@@ -31,11 +31,7 @@ export function useScene({ engine }) {
 }
 
 export function useMainLight({ scene, x, y, z }) {
-  const mainLight = new DirectionalLight(
-    "directionalLight",
-    new Vector3(-1, -1, -1),
-    scene
-  );
+  const mainLight = new DirectionalLight("directionalLight", new Vector3(-1, -1, -1), scene);
   mainLight.diffuse = new Color3.FromHexString("#ffffff");
   mainLight.specular = new Color3.FromHexString("#63e2b7");
   mainLight.groundColor = new Color3.FromHexString("#44ab87");
@@ -48,14 +44,7 @@ export function useMainLight({ scene, x, y, z }) {
 
 export function useCamera({ x, y, z, scene, canvas }) {
   const target = new Vector3(0, (y / 4) * 2, 0);
-  const camera = new ArcRotateCamera(
-    "camera",
-    -Math.PI / 2,
-    Math.PI / 2.5,
-    3,
-    target,
-    scene
-  );
+  const camera = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, target, scene);
   camera.attachControl(canvas, true);
   camera.setTarget(target);
   camera.setPosition(new Vector3(-x, y * 2.5, -z));
@@ -63,11 +52,7 @@ export function useCamera({ x, y, z, scene, canvas }) {
 }
 
 export function useHemisphereLight({ scene }) {
-  const hemisphereLight = new HemisphericLight(
-    "HemiLight",
-    new Vector3(0, 1, 0),
-    scene
-  );
+  const hemisphereLight = new HemisphericLight("HemiLight", new Vector3(0, 1, 0), scene);
   hemisphereLight.intensity = 0.5;
   return hemisphereLight;
 }
@@ -75,12 +60,7 @@ export function useHemisphereLight({ scene }) {
 export function useAxisIndicators({ scene, x, y, z }) {
   const lengthOfAxis = Math.max(x, y, z) / 10;
   const axes = new AxesViewer(scene, lengthOfAxis);
-  axes.update(
-    new Vector3(-x / 2, 0, -z / 2),
-    new Vector3(1, 0, 0),
-    new Vector3(0, 1, 0),
-    new Vector3(0, 0, 1)
-  );
+  axes.update(new Vector3(-x / 2, 0, -z / 2), new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1));
   return axes;
 }
 
@@ -112,10 +92,7 @@ export function useOrientationLights({ nLines, lineAlpha, x, y, z }) {
   for (let xi = 0; xi <= x; xi += lineStep) {
     for (let yi = 0; yi <= y; yi += lineStep) {
       const line = MeshBuilder.CreateLines(`line-x${xi}-y${yi}`, {
-        points: [
-          new Vector3(xi - x / 2, yi, 0 - z / 2),
-          new Vector3(xi - x / 2, yi, z - z / 2),
-        ],
+        points: [new Vector3(xi - x / 2, yi, 0 - z / 2), new Vector3(xi - x / 2, yi, z - z / 2)],
       });
       line.alpha = lineAlpha;
       line.color = new Color3.White();
@@ -124,10 +101,7 @@ export function useOrientationLights({ nLines, lineAlpha, x, y, z }) {
   for (let xi = 0; xi <= x; xi += lineStep) {
     for (let zi = 0; zi <= z; zi += lineStep) {
       const line = MeshBuilder.CreateLines(`line-x${xi}-z${zi}`, {
-        points: [
-          new Vector3(xi - x / 2, 0, zi - z / 2),
-          new Vector3(xi - x / 2, y, zi - z / 2),
-        ],
+        points: [new Vector3(xi - x / 2, 0, zi - z / 2), new Vector3(xi - x / 2, y, zi - z / 2)],
       });
       line.alpha = lineAlpha;
       line.color = new Color3.White();
@@ -137,10 +111,7 @@ export function useOrientationLights({ nLines, lineAlpha, x, y, z }) {
   for (let yi = 0; yi <= y; yi += lineStep) {
     for (let zi = 0; zi <= z; zi += lineStep) {
       const line = MeshBuilder.CreateLines(`line-y${yi}-z${zi}`, {
-        points: [
-          new Vector3(0 - x / 2, yi, zi - z / 2),
-          new Vector3(x - x / 2, yi, zi - z / 2),
-        ],
+        points: [new Vector3(0 - x / 2, yi, zi - z / 2), new Vector3(x - x / 2, yi, zi - z / 2)],
       });
       line.alpha = lineAlpha;
       line.color = new Color3.White();
@@ -158,11 +129,7 @@ export function useDroneCache() {
 
 export function useFocusCache({ scene }) {
   // Create selection light
-  const selectionLight = new PointLight(
-    "selection-light",
-    new Vector3(0, 0, 0),
-    scene
-  );
+  const selectionLight = new PointLight("selection-light", new Vector3(0, 0, 0), scene);
   selectionLight.range = 0;
   selectionLight.intensity = 0;
 
@@ -219,12 +186,9 @@ export function useBlockers({ scene, blockerCache, shadows, x, z }) {
     }
     // Update blocker position
     const storedBlockerCube = blockerCache[blocker.id][0];
-    storedBlockerCube.position.x =
-      blocker.positionAtTick(simulation.tick).x - x / 2;
-    storedBlockerCube.position.y =
-      blocker.positionAtTick(simulation.tick).y + blocker.dimension.y / 2;
-    storedBlockerCube.position.z =
-      blocker.positionAtTick(simulation.tick).z - z / 2;
+    storedBlockerCube.position.x = blocker.positionAtTick(simulation.tick).x - x / 2;
+    storedBlockerCube.position.y = blocker.positionAtTick(simulation.tick).y + blocker.dimension.y / 2;
+    storedBlockerCube.position.z = blocker.positionAtTick(simulation.tick).z - z / 2;
   });
 }
 
@@ -245,16 +209,10 @@ export function updateBlockers({ scene, blockerCache, shadows, x, z }) {
   useBlockers({ scene, blockerCache, shadows, x, z });
 }
 
-export function useFocusFunctions({
-  x,
-  y,
-  z,
-  focusCache,
-  mainLight,
-  hemisphereLight,
-}) {
+export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLight }) {
   const simulation = useSimulationSingleton();
   const focusOn = ({ agent, agent_x, agent_y, agent_z }) => {
+    console.log("Focus on", agent);
     // Turn on focus light
     const { selectionLight } = focusCache;
     selectionLight.position.x = agent_x - x / 2;
@@ -323,11 +281,7 @@ export function useDrones({ scene, droneCache, x, z, focusOn }) {
   // Push new meshes
   simulation.activeAgents.forEach((agent) => {
     const path = agent.paths.find((p) => p.isActiveAtTick(simulation.tick));
-    const {
-      x: agent_x,
-      y: agent_y,
-      z: agent_z,
-    } = agent.combinedPath.at(simulation.tick);
+    const { x: agent_x, y: agent_y, z: agent_z } = agent.combinedPath.at(simulation.tick);
 
     if (!(agent.id in droneCache)) {
       // Draw path
@@ -342,29 +296,19 @@ export function useDrones({ scene, droneCache, x, z, focusOn }) {
       agentPathLine.color = new Color3.FromHexString(agent.color);
 
       // create Material
-      const ownerMaterial = new StandardMaterial(
-        `material-agent-${agent.id}`,
-        scene
-      );
+      const ownerMaterial = new StandardMaterial(`material-agent-${agent.id}`, scene);
       ownerMaterial.diffuseColor = new Color3.FromHexString(agent.color);
       ownerMaterial.emissiveColor = new Color3.FromHexString(agent.color);
       ownerMaterial.alpha = 1;
 
       // Draw drone
-      const agentLocationSphere = Mesh.CreateSphere(
-        `sphere-agent-${agent.id}`,
-        4,
-        1,
-        scene
-      );
+      const agentLocationSphere = Mesh.CreateSphere(`sphere-agent-${agent.id}`, 4, 1, scene);
       agentLocationSphere.material = ownerMaterial;
       agentLocationSphere.isPickable = true;
       agentLocationSphere.actionManager = new ActionManager(scene);
 
       agentLocationSphere.actionManager.registerAction(
-        new ExecuteCodeAction(ActionManager.OnPickTrigger, () =>
-          focusOn({ agent, agent_x, agent_y, agent_z })
-        )
+        new ExecuteCodeAction(ActionManager.OnPickTrigger, () => focusOn({ agent, agent_x, agent_y, agent_z }))
       );
 
       droneCache[agent.id] = [agentPathLine, agentLocationSphere];
@@ -378,16 +322,7 @@ export function useDrones({ scene, droneCache, x, z, focusOn }) {
   });
 }
 
-export function updateDrones({
-  scene,
-  droneCache,
-  x,
-  y,
-  z,
-  mainLight,
-  hemisphereLight,
-  selectionLight,
-}) {
+export function updateDrones({ scene, droneCache, x, z, focusOn }) {
   const simulation = useSimulationSingleton();
 
   // Remove unused meshes
@@ -400,14 +335,5 @@ export function updateDrones({
       delete droneCache[uuid];
     }
   });
-  useDrones({
-    scene,
-    droneCache,
-    x,
-    y,
-    z,
-    mainLight,
-    hemisphereLight,
-    selectionLight,
-  });
+  useDrones({ scene, droneCache, x, z, focusOn });
 }

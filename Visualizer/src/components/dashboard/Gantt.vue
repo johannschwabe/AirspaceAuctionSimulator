@@ -1,16 +1,10 @@
 <template>
-  <vue-apex-charts
-    type="rangeBar"
-    height="250"
-    :options="chartOptions"
-    :series="series"
-  />
+  <vue-apex-charts type="rangeBar" height="250" :options="chartOptions" :series="series" />
 </template>
 
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
 import { reactive } from "vue";
-import { head, last } from "lodash-es";
 
 import { useSimulationSingleton } from "../../scripts/simulation";
 import { onAgentsSelected } from "../../scripts/emitter";

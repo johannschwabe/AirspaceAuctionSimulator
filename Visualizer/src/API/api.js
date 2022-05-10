@@ -43,9 +43,7 @@ const apiPostErrorToString = (e) => {
   if (!e.response) {
     return e.message;
   }
-  return e.response.data.detail
-    .map((d) => `${d.msg}: ${d.loc.join(".")}`)
-    .join("\n");
+  return e.response.data.detail.map((d) => `${d.msg}: ${d.loc.join(".")}`).join("\n");
 };
 
 /**

@@ -7,7 +7,6 @@ export default class Statistics {
     this.totalNumberOfAgents = rawStatistics.total_number_of_agents;
     this.totalAchievedWelfare = rawStatistics.total_achieved_welfare;
     this.totalNumberOfCollisions = rawStatistics.total_number_of_collisions;
-    this.totalNumberOfReallocations =
-      rawStatistics.total_number_of_reallocations;
+    this.totalNumberOfReallocations = rawStatistics.total_number_of_reallocations;
   }
 }

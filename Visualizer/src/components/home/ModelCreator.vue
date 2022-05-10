@@ -1,59 +1,30 @@
 <template>
   <n-form ref="formRef" :model="model" :rules="rules">
     <n-form-item path="name" label="Model Name">
-      <n-input
-        v-model:value="model.name"
-        type="text"
-        placeholder="Unique Model Name"
-      />
+      <n-input v-model:value="model.name" type="text" placeholder="Unique Model Name" />
     </n-form-item>
     <n-form-item path="description" label="Model Description">
-      <n-input
-        v-model:value="model.description"
-        type="textarea"
-        placeholder="Model description (Metadata)"
-      />
+      <n-input v-model:value="model.description" type="textarea" placeholder="Model description (Metadata)" />
     </n-form-item>
     <n-grid cols="3" x-gap="12">
       <n-grid-item span="1">
         <n-form-item path="dimension.x" label="Dimension X">
-          <n-input-number
-            v-model:value="model.dimension.x"
-            :min="10"
-            :max="1000"
-            :step="10"
-          />
+          <n-input-number v-model:value="model.dimension.x" :min="10" :max="1000" :step="10" />
         </n-form-item>
       </n-grid-item>
       <n-grid-item span="1">
         <n-form-item path="dimension.y" label="Dimension Y">
-          <n-input-number
-            v-model:value="model.dimension.y"
-            :min="10"
-            :max="1000"
-            :step="10"
-          />
+          <n-input-number v-model:value="model.dimension.y" :min="10" :max="1000" :step="10" />
         </n-form-item>
       </n-grid-item>
       <n-grid-item span="1">
         <n-form-item path="dimension.z" label="Dimension Z">
-          <n-input-number
-            v-model:value="model.dimension.z"
-            :min="10"
-            :max="1000"
-            :step="10"
-          />
+          <n-input-number v-model:value="model.dimension.z" :min="10" :max="1000" :step="10" />
         </n-form-item>
       </n-grid-item>
     </n-grid>
     <n-form-item path="dimension.t" label="Timesteps">
-      <n-slider
-        show-tooltip
-        v-model:value="model.dimension.t"
-        :min="10"
-        :max="1000"
-        :step="10"
-      />
+      <n-slider show-tooltip v-model:value="model.dimension.t" :min="10" :max="1000" :step="10" />
     </n-form-item>
     <n-form-item path="owners" label="Owners">
       <owner ref="ownerRef" />
@@ -62,13 +33,7 @@
   <n-button ghost type="primary" @click.stop="simulate"> Simulate </n-button>
   <n-grid cols="2" x-gap="10" v-if="finished">
     <n-grid-item>
-      <n-button
-        ghost
-        block
-        icon-placement="right"
-        type="primary"
-        @click.stop="() => api.downloadSimulation()"
-      >
+      <n-button ghost block icon-placement="right" type="primary" @click.stop="() => api.downloadSimulation()">
         Download Simulation
         <template #icon>
           <n-icon>
@@ -78,12 +43,7 @@
       </n-button>
     </n-grid-item>
     <n-grid-item>
-      <n-button
-        block
-        icon-placement="right"
-        type="primary"
-        @click.stop="() => router.push({ name: 'dashboard' })"
-      >
+      <n-button block icon-placement="right" type="primary" @click.stop="() => router.push({ name: 'dashboard' })">
         Go to Simulation
         <template #icon>
           <n-icon>

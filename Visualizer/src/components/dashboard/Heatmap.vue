@@ -1,10 +1,5 @@
 <template>
-  <vue-apex-charts
-    type="heatmap"
-    height="250"
-    :options="chartOptions"
-    :series="series"
-  />
+  <vue-apex-charts type="heatmap" height="250" :options="chartOptions" :series="series" />
 </template>
 
 <script setup>
@@ -80,12 +75,8 @@ const chartOptions = {
 const series = reactive([]);
 
 // Fill series with zeroes
-const dimXlength = Math.floor(
-  simulation.dimensions[props.dimX] / props.granularity
-);
-const dimYlength = Math.floor(
-  simulation.dimensions[props.dimY] / props.granularity
-);
+const dimXlength = Math.floor(simulation.dimensions[props.dimX] / props.granularity);
+const dimYlength = Math.floor(simulation.dimensions[props.dimY] / props.granularity);
 
 for (let dimy = 0; dimy < dimYlength; dimy++) {
   series.push({

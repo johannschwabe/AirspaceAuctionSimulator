@@ -71,7 +71,11 @@
     display-directive="if"
     to="#drawer-target"
   >
-    <n-drawer-content :title="simulation.ownerInFocus?.name" :closable="true">
+    <n-drawer-content
+      :title="simulation.ownerInFocus?.name"
+      :closable="true"
+      :key="simulationStore.ownerInFocusId || 0"
+    >
       <owner-info />
     </n-drawer-content>
   </n-drawer>
@@ -88,7 +92,11 @@
     display-directive="if"
     to="#drawer-target"
   >
-    <n-drawer-content :title="simulation.agentInFocus?.name" :closable="true">
+    <n-drawer-content
+      :title="simulation.agentInFocus?.name"
+      :closable="true"
+      :key="simulationStore.agentInFocusId || 0"
+    >
       <agent-info />
     </n-drawer-content>
   </n-drawer>
@@ -113,11 +121,7 @@ import OwnerInfo from "../components/dashboard/OwnerInfo.vue";
 import Timeline from "../components/dashboard/Timeline.vue";
 import { offAll } from "../scripts/emitter";
 import { loadSimulation } from "../API/api";
-import {
-  hasSimulationSingleton,
-  setSimulationSingleton,
-  useSimulationSingleton,
-} from "../scripts/simulation";
+import { hasSimulationSingleton, setSimulationSingleton, useSimulationSingleton } from "../scripts/simulation";
 import Simulation from "../SimulationObjects/Simulation";
 import { useSimulationStore } from "../stores/simulation";
 

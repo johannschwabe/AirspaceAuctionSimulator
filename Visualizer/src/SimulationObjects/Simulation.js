@@ -25,9 +25,7 @@ export default class Simulation {
      * were spawned. Agents might have flight-times exceeding t!
      * @type {TimeCoordinate}
      */
-    this.dimensions = new TimeCoordinate(
-      ...Object.values(rawSimulation.environment.dimensions)
-    );
+    this.dimensions = new TimeCoordinate(...Object.values(rawSimulation.environment.dimensions));
 
     /**
      * Object containing statistics about the simulation
@@ -39,9 +37,7 @@ export default class Simulation {
      * Blockers living in the simulated environment
      * @type {Blocker[]}
      */
-    this.blockers = rawSimulation.environment.blockers.map(
-      (blocker) => new Blocker(blocker)
-    );
+    this.blockers = rawSimulation.environment.blockers.map((blocker) => new Blocker(blocker));
 
     /**
      * All owners that were simulated
@@ -56,12 +52,7 @@ export default class Simulation {
     this.agents = this.owners
       .map((owner) => owner.agents)
       .flat()
-      .sort((a, b) =>
-        first(Object.keys(a.combinedPath.ticks)) <
-        first(Object.keys(b.combinedPath.ticks))
-          ? -1
-          : 1
-      );
+      .sort((a, b) => (first(Object.keys(a.combinedPath.ticks)) < first(Object.keys(b.combinedPath.ticks)) ? -1 : 1));
 
     /**
      * List of agents that are selected in the User Interface
@@ -190,9 +181,7 @@ export default class Simulation {
   }
 
   updateSelectedAgents() {
-    this.selectedAgents = this.agents.filter((agent) =>
-      this._simulationStore.selectedAgentIDs.includes(agent.id)
-    );
+    this.selectedAgents = this.agents.filter((agent) => this._simulationStore.selectedAgentIDs.includes(agent.id));
   }
 
   updateActiveAgents() {
@@ -234,6 +223,8 @@ export default class Simulation {
    */
   focusOnAgent(agent) {
     this._simulationStore.agentInFocus = true;
+    this._simulationStore.agentInFocusId = agent.id;
+    this._simulationStore.ownerInFocusId = agent.owner.id;
     this.agentInFocus = agent;
   }
 

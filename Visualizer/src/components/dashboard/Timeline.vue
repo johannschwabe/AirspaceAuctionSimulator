@@ -1,17 +1,12 @@
 <template>
   <div>
-    <vue-apex-charts
-      type="bar"
-      height="75"
-      :options="chartOptions"
-      :series="series"
-    />
+    <vue-apex-charts type="bar" height="75" :options="chartOptions" :series="series" />
     <div style="padding: 0 15px 0 35px; margin-top: -30px">
       <n-slider
         :value="simulation.tick"
-        @update:value="(t) => simulation.tick = t"
-        :min="1"
-        :max="simulation.maxTick"
+        @update:value="(t) => (simulation.tick = t)"
+        :min="0"
+        :max="simulation.maxTick - 1"
         show-tooltip
         placement="bottom"
       />
@@ -23,7 +18,7 @@
 import VueApexCharts from "vue3-apexcharts";
 import { reactive } from "vue";
 
-import { onAgentsSelected, useEmitter } from "../../scripts/emitter";
+import { onAgentsSelected } from "../../scripts/emitter";
 import { useSimulationSingleton } from "../../scripts/simulation";
 
 const simulation = useSimulationSingleton();
@@ -68,7 +63,6 @@ const series = reactive([
 onAgentsSelected(() => {
   series[0].data = simulation.timeline;
 });
-
 </script>
 
 <style scoped></style>
