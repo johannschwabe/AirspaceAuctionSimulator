@@ -57,8 +57,8 @@ const series = reactive([
 
 const updateSeries = () => {
   console.log("Welfare: Update");
-  const optimalWelfare = Array(simulation.maxTick).fill(0);
-  const achievedWelfare = Array(simulation.maxTick).fill(0);
+  const optimalWelfare = Array(simulation.maxTick + 1).fill(0);
+  const achievedWelfare = Array(simulation.maxTick + 1).fill(0);
 
   simulation.selectedAgents.forEach((agent) => {
     const arrivalTick = agent.combinedPath.lastTick;
@@ -73,14 +73,14 @@ const updateSeries = () => {
 
   console.log({ optimalWelfare: JSON.stringify(optimalWelfare) });
 
-  for (let i = 1; i < simulation.maxTick; i++) {
+  for (let i = 1; i <= simulation.maxTick; i++) {
     optimalWelfare[i] = optimalWelfare[i - 1] + optimalWelfare[i];
     achievedWelfare[i] = achievedWelfare[i - 1] + achievedWelfare[i];
   }
 
   series[0].data = optimalWelfare;
   series[1].data = achievedWelfare;
-  console.log("Welfare: DONE");
+  console.log("Welfare: DONE", series[0].data, series[1].data);
 };
 
 onAgentsSelected(() => {

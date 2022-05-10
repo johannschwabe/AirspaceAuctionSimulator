@@ -108,6 +108,7 @@
 
 <script setup>
 import { onUnmounted } from "vue";
+import { useRouter } from "vue-router";
 
 // import DataTable from "../components/dashboard/DataTable.vue";
 import TopBar from "../components/dashboard/TopBar.vue";
@@ -120,14 +121,28 @@ import AgentInfo from "../components/dashboard/AgentInfo.vue";
 import OwnerInfo from "../components/dashboard/OwnerInfo.vue";
 import Timeline from "../components/dashboard/Timeline.vue";
 import { offAll } from "../scripts/emitter";
-import { loadSimulation } from "../API/api";
-import { hasSimulationSingleton, setSimulationSingleton, useSimulationSingleton } from "../scripts/simulation";
-import Simulation from "../SimulationObjects/Simulation";
+import { hasSimulationSingleton, loadSimulationSingleton, useSimulationSingleton } from "../scripts/simulation";
 import { useSimulationStore } from "../stores/simulation";
+import { useLoadingBar, useMessage } from "naive-ui";
+
+const router = useRouter();
+const message = useMessage();
+const loadingBar = useLoadingBar();
 
 if (!hasSimulationSingleton()) {
-  const data = loadSimulation();
-  setSimulationSingleton(new Simulation(data));
+  try {
+    loadSimulationSingleton();
+    message.success("Simulation recovered!");
+  } catch (e) {
+    console.error(e);
+    message.error(e.message);
+    router.push("/");
+  } finally {
+    loadingBar.finish();
+  }
+} else {
+  message.success("Simulation loaded!");
+  loadingBar.finish();
 }
 
 const simulationStore = useSimulationStore();

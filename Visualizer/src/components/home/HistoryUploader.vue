@@ -33,8 +33,6 @@ const onUpload = async (upload) => {
   fileReader.onload = (event) => {
     const data = JSON.parse(event.target.result);
     setSimulationSingleton(new Simulation(data));
-    loadingBar.finish();
-    message.success("Simulation Imported!");
     router.push({ name: "dashboard" });
   };
   fileReader.onerror = (error) => {
