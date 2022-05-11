@@ -32,13 +32,13 @@ class MapTile:
     def resolve_buildings(self):
         data = requests.get(self.url).json()
         res = []
-        self
         for building in data["features"]:
             is_feature = building["type"] == 'Feature'
             has_height = building['properties']['height'] > 0
             is_polygon = building['geometry']['type'] == 'Polygon'
-            has_coordinates = len(building['geometry']['coordinates']) > 0 and \
-                             len(building['geometry']['coordinates'][0]) > 0
+            has_coordinates = (
+                len(building['geometry']['coordinates']) > 0 and len(building['geometry']['coordinates'][0]) > 0
+            )
             if is_feature and has_height and is_polygon and has_coordinates:
                 coords = []
                 min_x = 100000
@@ -46,9 +46,11 @@ class MapTile:
                 min_z = 100000
                 max_z = -100000
                 for coord in building['geometry']['coordinates'][0]:
-                    x = ((coord[0] - self.top_left_coordinate.long) / (self.bottom_right_coordinate.long - self.top_left_coordinate.long)) * self.dimensions.x
-                    z = ((coord[1] - self.top_left_coordinate.lat) / (self.bottom_right_coordinate.lat - self.top_left_coordinate.lat)) * self.dimensions.z
-                    coords.append([x,z])
+                    x = ((coord[0] - self.top_left_coordinate.long) / (
+                        self.bottom_right_coordinate.long - self.top_left_coordinate.long)) * self.dimensions.x
+                    z = ((coord[1] - self.top_left_coordinate.lat) / (
+                        self.bottom_right_coordinate.lat - self.top_left_coordinate.lat)) * self.dimensions.z
+                    coords.append([x, z])
 
                     if min_x > x:
                         min_x = x
