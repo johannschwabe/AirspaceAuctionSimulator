@@ -39,11 +39,15 @@
     @negative-click="() => api.downloadSimulation()"
   >
     <template #trigger>
-      <n-button ghost type="primary"> Simulate </n-button>
+      <n-button ghost type="primary" :loading="loading">
+        {{ loading ? `Running Simulation... (${loadingForSeconds}s)` : "Simulate" }}
+      </n-button>
     </template>
     You do have an old session in your browser cache. It will be overwritten!
   </n-popconfirm>
-  <n-button ghost type="primary" @click.stop="simulate" v-else> Simulate </n-button>
+  <n-button ghost type="primary" @click.stop="simulate" v-else :loading="loading">
+    {{ loading ? `Running Simulation... (${loadingForSeconds}s)` : "Simulate" }}
+  </n-button>
 
   <n-grid cols="2" x-gap="10" v-if="finished">
     <n-grid-item>
@@ -95,6 +99,9 @@ const formRef = ref(null);
 const ownerRef = ref(null);
 const errorText = ref(null);
 
+const loading = ref(false);
+const loadingForSeconds = ref(0);
+const loadingInterval = ref(undefined);
 const finished = ref(false);
 const canRecover = ref(hasSimulationSingleton() || canRecoverSimulationSingleton());
 
@@ -125,12 +132,26 @@ const goToSimulation = () => {
   router.push({ name: "dashboard" });
 };
 
+const startLoading = () => {
+  loading.value = true;
+  loadingBar.start();
+  loadingInterval.value = setInterval(() => {
+    loadingForSeconds.value += 1;
+  }, 1000);
+};
+
+const stopLoading = () => {
+  loading.value = false;
+  loadingForSeconds.value = 0;
+  clearInterval(loadingInterval.value);
+};
+
 const simulate = () => {
   errorText.value = null;
   owners.value = ownerRef.value.owners;
   formRef.value?.validate((errors) => {
     if (!errors) {
-      loadingBar.start();
+      startLoading();
       api
         .postSimulation({
           ...model.value,
@@ -147,6 +168,9 @@ const simulate = () => {
           loadingBar.error();
           message.error("Failed creating the Session!");
           errorText.value = e.message;
+        })
+        .finally(() => {
+          stopLoading();
         });
     } else {
       errorText.value = "Some Form fields are not Valid";

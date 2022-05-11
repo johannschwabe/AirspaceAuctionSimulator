@@ -161,7 +161,7 @@ onUnmounted(() => {
   right: 0;
   height: 140px;
   background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 20%, rgba(0,0,0,1) 100%);
-  z-index: 1000;
+  z-index: 2010;
 }
 .nav-margin {
   margin-bottom: 80px;
