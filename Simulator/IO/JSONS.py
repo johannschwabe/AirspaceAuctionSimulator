@@ -1,3 +1,4 @@
+
 import statistics
 from enum import Enum
 from typing import Dict, List
@@ -6,6 +7,8 @@ from .. import Blocker, Simulator, Statistics
 from ..Agent import Agent, AgentType
 from ..History import HistoryAgent
 from ..IO import Stringify
+from ..Generator.MapTile import MapTile
+
 
 
 class Path(Stringify):
@@ -128,10 +131,21 @@ class JSONBlocker(Stringify):
         self.dimension = blocker.dimension
 
 
+class JSONMaptile(Stringify):
+    def __init__(self, maptile: "MapTile"):
+        self.x = maptile.x
+        self.y = maptile.y
+        self.z = maptile.z
+        self.dimensions = maptile.dimensions
+        self.top_left_coordinate = maptile.top_left_coordinate
+        self.bottom_right_coordinate = maptile.bottom_right_coordinate
+
+
 class JSONEnvironment(Stringify):
-    def __init__(self, dimensions: "TimeCoordinate", blockers: List[Blocker]):
+    def __init__(self, dimensions: "TimeCoordinate", blockers: List[Blocker], maptiles: List[MapTile]):
         self.dimensions: "TimeCoordinate" = dimensions
         self.blockers: List[JSONBlocker] = [JSONBlocker(blocker) for blocker in blockers]
+        self.maptiles: List[JSONMaptile] = [JSONMaptile(maptile) for maptile in maptiles]
 
 
 class JSONStatistics(Stringify):
@@ -158,7 +172,7 @@ def build_json(simulator: Simulator, name: str, description: str):
     stats = Statistics(simulator)
     close_passings = stats.close_passings()
     nr_collisions = 0
-    json_env = JSONEnvironment(env._dimension, env.blockers)
+    json_env = JSONEnvironment(env._dimension, env.blockers, env.maptiles)
     owners: List[JSONOwner] = []
     for owner in history.owners:
         agents: List[JSONAgent] = []

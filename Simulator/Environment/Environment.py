@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, TYPE_CHECKING
 from rtree import index
 
 from ..Agent import Agent
@@ -6,13 +6,17 @@ from ..Coordinate import TimeCoordinate
 from ..Time import Tick
 from ..Blocker import Blocker
 
+if TYPE_CHECKING:
+    from ..Generator.MapTile import MapTile
+
 
 class Environment:
-    def __init__(self, dimension: TimeCoordinate, blocker: List[Blocker]):
+    def __init__(self, dimension: TimeCoordinate, blocker: List[Blocker], maptiles: List["MapTile"]):
         TimeCoordinate.dim = dimension
         self._dimension: TimeCoordinate = dimension
         self._agents: Dict[int, Agent] = {}
         self.blockers: List[Blocker] = blocker
+        self.maptiles: List["MapTile"] = maptiles
         props = index.Property()
         props.dimension = 4
         self.tree = index.Rtree(properties=props)
@@ -108,11 +112,11 @@ class Environment:
             print(" ↓\n Y")
 
     def new_clear(self):
-        new_env = Environment(self._dimension, self.blockers)
+        new_env = Environment(self._dimension, self.blockers, self.maptiles)
         return new_env
 
     def clone(self):
-        cloned = Environment(self._dimension, self.blockers)
+        cloned = Environment(self._dimension, self.blockers, self.maptiles)
         if len(self.tree) > 0:
             for item in self.tree.intersection(self.tree.bounds, objects=True):
                 cloned.tree.insert(item.id, item.bbox)

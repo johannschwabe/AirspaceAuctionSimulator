@@ -1,9 +1,9 @@
 from typing import List, Optional, Tuple, TYPE_CHECKING
 
+from .EnvironmentGen import EnvironmentGen
 from ..Owner.ABAOwner import ABAOwner
 from ..Owner.ABCOwner import ABCOwner
 from ..Owner.ABOwner import ABOwner
-from .EnvironmentGen import EnvironmentGen
 from ..Owner.StationaryOwner import StationaryOwner
 from ..Statistics.Statistics import Statistics
 from ..Allocator import FCFSAllocator
@@ -11,6 +11,7 @@ from ..History import History
 from ..Simulator import Simulator
 
 if TYPE_CHECKING:
+    from .MapTile import MapTile
     from ..Allocator import Allocator
     from ..Owner import Owner
     from ..Environment import Environment
@@ -24,6 +25,7 @@ class Generator:
         description: str,
         owners,
         dimensions: "TimeCoordinate",
+        maptiles: List["MapTile"]
     ):
         self.name: str = name
         self.description: str = description
@@ -31,7 +33,7 @@ class Generator:
         self.dimensions: "TimeCoordinate" = dimensions
         self.owners: List["Owner"] = []
         self.allocator: "Allocator" = FCFSAllocator()
-        self.environment: "Environment" = EnvironmentGen(self.dimensions).generate(10)
+        self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles).generate(10)
         self.simulator: Optional["Simulator"] = None
         self.history: Optional["History"] = None
         self.statistics: Optional[Statistics] = None

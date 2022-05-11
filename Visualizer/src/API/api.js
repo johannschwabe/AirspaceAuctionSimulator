@@ -18,9 +18,17 @@ import { saveAs } from "file-saver";
  */
 
 /**
+ * @typedef {Object} MapObject
+ * @property {int[][]} tiles
+ * @property {{long: number, lat: number}} topLeftCoordinate
+ * @property {{long: number, lat: number}} bottomRightCoordiante
+ */
+
+/**
  * @typedef {Object} ApiSimulationConfigType
  * @property {string} name
  * @property {?string} description
+ * @property {?MapObject} map
  * @property {ApiOwnerType} owners
  * @property {ApiDimensionType} dimension
  */
