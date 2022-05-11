@@ -175,7 +175,11 @@ const simulate = () => {
           owners: owners.value,
         })
         .then((data) => {
-          setSimulationSingleton(new Simulation(data));
+          const simulation = new Simulation(data);
+          return simulation.load();
+        })
+        .then((simulation) => {
+          setSimulationSingleton(simulation);
           loadingBar.finish();
           message.success("Simulation Created!");
           finished.value = true;

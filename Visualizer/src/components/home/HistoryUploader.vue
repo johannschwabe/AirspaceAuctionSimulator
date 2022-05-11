@@ -30,9 +30,11 @@ const router = useRouter();
 const onUpload = async (upload) => {
   loadingBar.start();
   const fileReader = new FileReader();
-  fileReader.onload = (event) => {
+  fileReader.onload = async (event) => {
     const data = JSON.parse(event.target.result);
-    setSimulationSingleton(new Simulation(data));
+    const simulation = new Simulation(data);
+    await simulation.load();
+    setSimulationSingleton(simulation);
     router.push({ name: "dashboard" });
   };
   fileReader.onerror = (error) => {

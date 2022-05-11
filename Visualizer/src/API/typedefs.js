@@ -105,8 +105,8 @@
  * @property {int} x
  * @property {int} y
  * @property {int} z
- * @property {{long: number, lat: number}} top_left_coordiante
- * @property {{long: number, lat: number}} bottom_right_coordiante
+ * @property {{long: number, lat: number}} top_left_coordinate
+ * @property {{long: number, lat: number}} bottom_right_coordinate
  * @property {RawTimeCoordiante} dimensions
  */
 
@@ -129,7 +129,6 @@
 /**
  * @typedef {Object} RawSimulation
  * @property {string} name
- * @property {?int[][]} tiles
  * @property {string} description
  * @property {RawEnvironment} environment
  * @property {RawStatistics} statistics

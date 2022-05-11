@@ -99,16 +99,15 @@ const mapInfo = computed(() => {
       if (i === -n && j === -n) {
         const projectedExtent = grid.getTileCoordExtent(updatedTileCord);
         const extent = transformExtent(projectedExtent, get("EPSG:3857"), get("EPSG:4326"));
-        topLeftCoordinate = { long: extent[3], lat: extent[0] };
+        topLeftCoordinate = { lat: extent[3], long: extent[0] };
       }
       if (i === n && j === n) {
         const projectedExtent = grid.getTileCoordExtent(updatedTileCord);
         const extent = transformExtent(projectedExtent, get("EPSG:3857"), get("EPSG:4326"));
-        bottomRightCoordiante = { long: extent[1], lat: extent[2] };
+        bottomRightCoordiante = { lat: extent[1], long: extent[2] };
       }
     }
   }
-  console.log({ topLeftCoordinate, bottomRightCoordiante });
   return {
     tiles,
     topLeftCoordinate,

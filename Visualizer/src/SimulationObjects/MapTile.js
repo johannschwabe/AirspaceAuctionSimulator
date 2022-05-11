@@ -1,4 +1,5 @@
 import axios from "axios";
+import simplify from "simplify-js";
 
 export default class MapTile {
   /**
@@ -8,12 +9,12 @@ export default class MapTile {
     this.x = rawMapTile.x;
     this.y = rawMapTile.y;
     this.z = rawMapTile.z;
-    this.top_left_coordinate = rawMapTile.top_left_coordiante;
-    this.bottom_right_coordinate = rawMapTile.bottom_right_coordiante;
+    this.top_left_coordinate = rawMapTile.top_left_coordinate;
+    this.bottom_right_coordinate = rawMapTile.bottom_right_coordinate;
     this.dimensions = rawMapTile.dimensions;
 
     /**
-     * @type {*[]}
+     * @type {{height: number, coordinates: {x: number, y: number}}[]}
      */
     this.buildings = [];
   }
@@ -23,27 +24,31 @@ export default class MapTile {
   }
 
   async load() {
-    const { data } = axios.get(this.url);
+    const { data } = await axios.get(this.url);
     this.buildings = data.features
       .filter((feature) => {
         const isFeature = feature?.type === "Feature";
         const hasHeight = feature?.properties?.height > 0;
         const isPolygon = feature?.geometry?.type === "Polygon";
-        const hasCoordinates = feature?.geometry?.coordinates?.length > 0;
+        const hasCoordinates =
+          feature?.geometry?.coordinates?.length > 0 && feature?.geometry?.coordinates[0].length > 0;
         return isFeature && hasHeight && isPolygon && hasCoordinates;
       })
       .map((feature) => {
         const height = feature.properties.height;
-        const coordinates = feature.geometry.coordinates.map(([long, lat]) => {
+        const coordinatesArray = feature.geometry.coordinates[0].map(([long, lat]) => {
           const x =
             ((long - this.top_left_coordinate.long) /
               (this.bottom_right_coordinate.long - this.top_left_coordinate.long)) *
-            this.dimensions.x;
-          const z =
+              this.dimensions.x -
+            this.dimensions.x / 2;
+          const y =
             ((lat - this.top_left_coordinate.lat) / (this.bottom_right_coordinate.lat - this.top_left_coordinate.lat)) *
-            this.dimensions.z;
-          return { x, y: 0, z };
+              this.dimensions.z -
+            this.dimensions.z / 2;
+          return { x, y };
         });
+        const coordinates = simplify(coordinatesArray, 3, false);
         return {
           height,
           coordinates,

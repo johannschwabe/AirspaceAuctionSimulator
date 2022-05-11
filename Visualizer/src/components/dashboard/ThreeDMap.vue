@@ -10,7 +10,9 @@ import {
   updateDrones,
   useAxisIndicators,
   useBlockerCache,
+  useBlockerMaterial,
   useBlockers,
+  useBuildings,
   useCamera,
   useDroneCache,
   useDrones,
@@ -35,14 +37,14 @@ let mainLight, hemisphereLight, selectionLight;
 let shadows;
 let focusOn, focusOff;
 let droneCache, blockerCache, focusCache;
+let blockerMaterial;
 
 const { x, y, z } = simulation.dimensions;
 
-const nLines = 2;
 const lineAlpha = 0.075;
 
 const doBlockerUpdate = () => {
-  updateBlockers({ scene, blockerCache, shadows, x, y, z });
+  // updateBlockers({ scene, blockerCache, shadows, x, y, z, blockerMaterial });
 };
 
 const doDroneUpdate = () => {
@@ -74,12 +76,13 @@ onMounted(() => {
   blockerCache = useBlockerCache();
   focusCache = useFocusCache({ scene });
 
+  blockerMaterial = useBlockerMaterial({ scene });
+
   useCamera({ x, y, z, scene, canvas });
   useGround({ scene, x, y, z });
 
   useAxisIndicators({ scene, x, y, z });
   useOrientationLights({
-    nLines,
     lineAlpha,
     x,
     y,
@@ -96,7 +99,8 @@ onMounted(() => {
   });
   focusOn = focusFunctions.focusOn;
   focusOff = focusFunctions.focusOff;
-  useBlockers({ scene, blockerCache, shadows, x, z });
+  // useBlockers({ scene, blockerCache, shadows, x, z, blockerMaterial });
+  useBuildings({ scene, shadows, mapTiles: simulation.mapTiles, blockerMaterial });
   useDrones({
     scene,
     droneCache,
