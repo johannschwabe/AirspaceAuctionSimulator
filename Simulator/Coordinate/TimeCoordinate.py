@@ -14,9 +14,10 @@ class TimeCoordinate(Coordinate):
         return f"{self.x}_{self.y}_{self.z}_{self.t}"
 
     def __repr__(self):
-        return f"({self.x}, {self.y}, {self.z}, {self.t})"
+        return f"({self.x}, {self.y}, {self.z}, {int(self.t)})"
 
     def __eq__(self, other):
+        if not isinstance(other, type(self)): return False
         return self.x == other.x and \
                self.y == other.y and \
                self.z == other.z and \
