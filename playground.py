@@ -11,7 +11,8 @@ from Simulator.Owner.ABOwner import ABOwner
 
 dimensions = TimeCoordinate(10, 10, 1, Tick(100))
 random.seed(2)
-environment = Environment(dimensions, [])
+environment = Environment(dimensions)
+environment.add_blocker([])
 allocator = FCFSAllocator()
 owners = [ABOwner("Schnabeltier", "red", [1,1,1,1,1])]
 
