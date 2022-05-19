@@ -33,7 +33,7 @@ class BiddingABOwner(ABOwner):
             target.t = start.t + travel_time + random.randint(0, 5)
             agent = BiddingABAgent(start, target, self.priority, speed=speed, battery=travel_time * 2)
             res.append(agent)
-            print(f"A-B created {agent}")
+            # print(f"A-B created {agent}")
 
         self.agents += res
         return res

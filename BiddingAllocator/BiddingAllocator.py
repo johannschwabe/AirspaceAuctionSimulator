@@ -26,4 +26,7 @@ class BiddingAllocator(Allocator):
                 to_add.union(collisions)
                 for agent_to_remove in collisions:
                     env.deallocate_agent(agent_to_remove, tick)
+                env.allocate_path_for_agent(agent, ab_path)
+                if not agent in env.get_agents():
+                    env.add_agent(agent)
         return res

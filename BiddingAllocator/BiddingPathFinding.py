@@ -15,7 +15,7 @@ def bidding_astar(
     env: Environment,
     agent: BiddingABAgent,
 ):
-    # print(f"{start} -> {end} ---->", end="")
+    # print(f"{start} -> {end}")
     # print(f"---->", end="")
     start_time = time_ns()
     open_nodes = []
@@ -71,6 +71,7 @@ def bidding_astar(
             valid_start = time_ns()
             collisions, valid = is_valid_for_allocation(env, next_neighbor, agent)
             valid_time += time_ns() - valid_start
+
             if valid:
                 neighbor = Node(next_neighbor, current_node, collisions)
                 # Closed node
@@ -83,7 +84,6 @@ def bidding_astar(
 
                 open_nodes.append(neighbor)
         neighbors_time += time_ns() - start_neighbors
-
     if len(path) == 0:
         print("ASTAR failed")
     wait_coords: List[TimeCoordinate] = []
@@ -93,15 +93,15 @@ def bidding_astar(
 
     complete_path = path + wait_coords
     complete_path.sort(key=lambda x: x.t)
-    stop_time = time_ns()
-    seconds = (stop_time - start_time) / 1e9
-    print(f"PathLen: {len(path)}, "
-          f"steps: {steps}, "
-          f"time: {seconds:.2f}, "
-          f"t/p: {seconds / (len(path) + 1) * 1000:.2f}, "
-          f"sort: {sort_time/1e9:.2f}, "
-          f"neighbours: {neighbors_time/1e9:.2f}, "
-          f"valid: {valid_time/1e9:.2f}, ")
+    # stop_time = time_ns()
+    # seconds = (stop_time - start_time) / 1e9
+    # print(f"PathLen: {len(path)}, "
+    #       f"steps: {steps}, "
+    #       f"time: {seconds:.2f}, "
+    #       f"t/p: {seconds / (len(path) + 1) * 1000:.2f}, "
+    #       f"sort: {sort_time/1e9:.2f}, "
+    #       f"neighbours: {neighbors_time/1e9:.2f}, "
+    #       f"valid: {valid_time/1e9:.2f}, ")
     return complete_path, total_collisions
 
 

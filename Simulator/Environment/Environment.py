@@ -46,6 +46,8 @@ class Environment:
             self.allocate_path_for_agent(agent, path)
 
     def allocate_path_for_agent(self, agent: Agent, path: List[TimeCoordinate]):
+        if len(path) == 0:
+            return
         agent.add_allocated_paths(path)
         iterator = path[0]
         for coord in path:
@@ -66,8 +68,7 @@ class Environment:
             else:
                 self._agents[agent.id] = agent
 
-            for path in paths:
-                self.allocate_path_for_agent(agent, path)
+            self.allocate_paths_for_agent(agent, paths)
 
     def is_blocked(self, coords: TimeCoordinate) -> bool:
         for blocker in self.blockers:
