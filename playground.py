@@ -11,12 +11,12 @@ from Simulator.Owner.ABOwner import ABOwner
 from cbs.CBSAllocator import CBS
 from Simulator.Owner.CBSTestOwner import CBSTestOwner
 if __name__ == '__main__':
-    dimensions = TimeCoordinate(100, 100, 50, Tick(30))
+    dimensions = TimeCoordinate(20, 20, 5, Tick(30))
     random.seed(3)
     environment = Environment(dimensions, [])
-    allocator = FCFSAllocator()
-    # allocator = CBS()
-    owners = [ABOwner("Schnabeltier", "red", [0]*100)]
+    # allocator = FCFSAllocator()
+    allocator = CBS()
+    owners = [ABOwner("Schnabeltier", "red", [0]*15)]
 
     history = History(dimensions, allocator, environment, owners)
     simulator = Simulator(owners, allocator, environment, history)
