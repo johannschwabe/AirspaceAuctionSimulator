@@ -1,3 +1,4 @@
+from ..Time import Tick
 from ..History import HistoryAgent
 from ..Simulator import Owner, Simulator
 from ..Agent import Agent
@@ -15,7 +16,7 @@ class Statistics:
     def non_colliding_value(self, agent: Agent):
         local_agent = agent.clone()
         local_env = self.history.env.new_clear()
-        paths = self.history.allocator.allocate_for_agents([local_agent], local_env)[local_agent]
+        paths = self.history.allocator.allocate_for_agents([local_agent], local_env, Tick(0))[local_agent]
         return local_agent.value_for_paths(paths)
 
     def non_colliding_values(self):
