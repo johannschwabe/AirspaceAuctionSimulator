@@ -14,6 +14,7 @@ from Simulator.Agent import Agent
 from Simulator.Allocator import Allocator
 from Simulator.Coordinate import Coordinate, TimeCoordinate
 from .CBSHelpers import HighLevelNode, Constraints, Conflict, VertexConstraint, EdgeConstraint
+from multiprocessing import Process, Pool
 
 sys.path.insert(0, '../Simulator/')
 
@@ -76,14 +77,23 @@ class CBS(Allocator):
     @staticmethod
     def compute_solution(env, agents, constraint_dict):
         solution = {}
-        for agent in agents:
-            bid = agent.get_bid()
-            constraint = constraint_dict.setdefault(agent, Constraints())
-            local_solution = astar(bid.a, bid.b, env,agent, constraint)
+
+        with Pool(len(agents)) as p:
+            _solutions = p.map(CBS.parallelAstar, [(agent, constraint_dict.setdefault(agent, Constraints()), env) for agent in agents])
+        for agent, local_solution in zip(agents, _solutions):
             if not local_solution:
                 return False
-            solution.update({agent:local_solution})
+            solution.update({agent: local_solution})
         return solution
+
+    @staticmethod
+    def parallelAstar(args):
+        agent, constraint, env = args
+        bid = agent.get_bid()
+        local_solution = astar(bid.a, bid.b, env, agent, constraint)
+        if not local_solution:
+            return False
+        return local_solution
 
     @staticmethod
     def compute_solution_cost(solution):

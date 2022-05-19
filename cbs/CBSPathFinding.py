@@ -39,7 +39,7 @@ def astar(
     sort_time = 0
     neighbors_time = 0
     valid_time = 0
-    MAX_ITER = 1000
+    MAX_ITER = 10000
     while len(open_nodes) > 0 and steps < MAX_ITER:
         steps += 1
 
