@@ -96,9 +96,11 @@ class CBS(Allocator):
         agents = list(solution.keys())
         for t in range(start, max_t):
             posis = []
+            count = 0
             for agent in agents:
                 position = self.get_state(agent, solution, t)
                 if position == -1:
+                    count += 1
                     continue
                 adjacent =  next(filter(lambda  posi: abs(posi.x - position.x) <= 1 and abs(posi.y - position.y) <= 1 and abs(posi.z - position.z) <= 1 , posis ), None)
                 if adjacent:
@@ -106,8 +108,9 @@ class CBS(Allocator):
                     result.time = t
                     result.type = Conflict.VERTEX
                     result.location_1 = position
+                    result.location_2 = adjacent
                     result.agent_1 = agent
-                    result.agent_2 = agents[posis.index(adjacent)]
+                    result.agent_2 = agents[posis.index(adjacent) + count]
                     return result
                 else:
                     posis.append(position)
@@ -141,11 +144,15 @@ class CBS(Allocator):
     def create_constraints_from_conflict(conflict):
         constraint_dict = {}
         if conflict.type == Conflict.VERTEX:
-            v_constraint = VertexConstraint(conflict.location_1)
-            constraint = Constraints()
-            constraint.vertex_constraints |= {v_constraint}
-            constraint_dict[conflict.agent_1] = constraint
-            constraint_dict[conflict.agent_2] = constraint
+            constraint_1 = Constraints()
+            constraint_2 = Constraints()
+
+            v_constraint_1 = VertexConstraint(conflict.location_1)
+            v_constraint_2 = VertexConstraint(conflict.location_2)
+            constraint_1.vertex_constraints |= {v_constraint_1}
+            constraint_2.vertex_constraints |= {v_constraint_2}
+            constraint_dict[conflict.agent_1] = constraint_1
+            constraint_dict[conflict.agent_2] = constraint_2
 
         elif conflict.type == Conflict.EDGE:
             constraint1 = Constraints()

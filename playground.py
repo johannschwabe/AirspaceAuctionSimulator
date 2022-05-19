@@ -11,19 +11,19 @@ from Simulator.Owner.ABOwner import ABOwner
 from cbs.CBSAllocator import CBS
 from Simulator.Owner.CBSTestOwner import CBSTestOwner
 
-dimensions = TimeCoordinate(50, 50, 50, Tick(30))
+dimensions = TimeCoordinate(10, 10, 1, Tick(30))
 random.seed(2)
 environment = Environment(dimensions, [])
 # allocator = FCFSAllocator()
 allocator = CBS()
-owners = [ABOwner("Schnabeltier", "red", [0]*13)]
+owners = [ABOwner("Schnabeltier", "red", [0]*10)]
 
 history = History(dimensions, allocator, environment, owners)
 simulator = Simulator(owners, allocator, environment, history)
 t0 = time_ns()
 while simulator.time_step < dimensions.t:
     print(simulator.time_step)
-    # simulator.environment.visualize(simulator.time_step)
+    simulator.environment.visualize(simulator.time_step)
     simulator.tick()
 print(f"Total: {(time_ns() - t0)/1e9}")
 
