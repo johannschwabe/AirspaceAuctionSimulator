@@ -21,9 +21,11 @@ class Environment:
     def deallocate_agent(self, agent: Agent, time_step: Tick):
         # agent._allocated_paths = [[]]
         allocated_coords = agent.get_allocated_coords()
-        for coord in allocated_coords[time_step-allocated_coords[0]:]:
+        for coord in allocated_coords[max(time_step-allocated_coords[0].t,0):]:
             intersections = self.tree.intersection(coord.tree_query_rep(), objects=True)
-            for _index, bbox in intersections:
+            for intersection in intersections:
+                _index = intersection.id
+                bbox = intersection.bbox
                 if _index == agent.id:
                     self.tree.delete(agent.id, bbox)
                 if bbox[3] < int(time_step):
@@ -38,7 +40,7 @@ class Environment:
                 new_allocated_paths.append(path[:time_step - path[0].t])
             else:
                 new_allocated_paths.append(path)
-        agent.set_allocated_paths(path)
+        agent.set_allocated_paths(new_allocated_paths)
 
 
     def allocate_paths_for_agent(self, agent: Agent, paths: List[List[TimeCoordinate]]):
@@ -63,12 +65,22 @@ class Environment:
 
     def allocate_paths_for_agents(self, agents_paths: Dict[Agent, List[List[TimeCoordinate]]], time_step: Tick):
         for agent, paths in agents_paths.items():
-            if agent in self._agents:
+            if agent.id in self._agents:
                 self.deallocate_agent(agent, time_step)
             else:
                 self._agents[agent.id] = agent
 
             self.allocate_paths_for_agent(agent, paths)
+
+    def original_agents(self, agents_paths: Dict[Agent, List[List[TimeCoordinate]]], newcomers: List[Agent]):
+        res = {}
+        for agent, path in agents_paths.items():
+            newcomer_ids = [_agent.id for _agent in newcomers]
+            if agent.id in newcomer_ids:
+                res[newcomers[newcomer_ids.index(agent.id)]] = path
+            else:
+                res[self._agents[agent.id]] = path
+        return res
 
     def is_blocked(self, coords: TimeCoordinate) -> bool:
         for blocker in self.blockers:

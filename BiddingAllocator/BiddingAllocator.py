@@ -23,10 +23,10 @@ class BiddingAllocator(Allocator):
             if isinstance(bid, BiddingABBid):
                 ab_path, collisions = bidding_astar(bid.a, bid.b, env, agent)
                 res[agent] = [ab_path]
-                to_add.union(collisions)
+                to_add = to_add.union(collisions)
                 for agent_to_remove in collisions:
                     env.deallocate_agent(agent_to_remove, tick)
                 env.allocate_path_for_agent(agent, ab_path)
-                if not agent in env.get_agents():
+                if not agent.id in env.get_agents():
                     env.add_agent(agent)
         return res

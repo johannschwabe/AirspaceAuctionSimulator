@@ -56,7 +56,7 @@ def bidding_astar(
             reverse_path = []
             while not current_node.position.inter_temporal_equal(start):
                 reverse_path.append(current_node.position)
-                total_collisions.union(current_node.collision)
+                total_collisions = total_collisions.union(current_node.collision)
                 current_node = current_node.parent
 
             reverse_path.append(current_node.position)
@@ -85,7 +85,7 @@ def bidding_astar(
                 open_nodes.append(neighbor)
         neighbors_time += time_ns() - start_neighbors
     if len(path) == 0:
-        print("ASTAR failed")
+        print(f"ASTAR failed for agent: {agent.id}")
     wait_coords: List[TimeCoordinate] = []
     for near_coord in path:
         for t in range(1, agent.speed):
