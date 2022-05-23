@@ -75,8 +75,8 @@ class JSONAgent(Stringify):
         self.paths: List[Path] = [Path(path) for path in agent.get_allocated_paths()]
 
         self.branches: List[Branch] = []
-        for key, value in list(history_agent.past_allocations.items())[
-                          1:]:  # First reallocation isn't a reallocation but an allocation
+        # First reallocation isn't a reallocation but an allocation
+        for key, value in list(history_agent.past_allocations.items())[1:]:
             branch_paths = [Path(path) for path in value]
             self.branches.append(Branch(
                 key,
