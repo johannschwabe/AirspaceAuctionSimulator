@@ -19,7 +19,6 @@ class Environment:
         self.near_field_radius = 1
 
     def deallocate_agent(self, agent: Agent, time_step: Tick):
-        # agent._allocated_paths = [[]]
         allocated_coords = agent.get_allocated_coords()
         for coord in allocated_coords[max(time_step-allocated_coords[0].t,0):]:
             intersections = self.tree.intersection(coord.tree_query_rep(), objects=True)

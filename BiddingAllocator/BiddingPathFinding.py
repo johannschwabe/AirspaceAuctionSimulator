@@ -20,7 +20,7 @@ def bidding_astar(
     start_time = time_ns()
     open_nodes = []
     closed_nodes = []
-    valid_start = start
+    valid_start = start.clone()
     while True:
         start_conflicts, valid = is_valid_for_allocation(env, valid_start, agent)
         if not valid:
@@ -28,7 +28,7 @@ def bidding_astar(
         else:
             break
 
-    start_node = Node(start, None, start_conflicts)
+    start_node = Node(valid_start, None, start_conflicts)
     end_node = Node(end, None, set())
     open_nodes.append(start_node)
     steps = 0
