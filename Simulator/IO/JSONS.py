@@ -158,7 +158,7 @@ def build_json(simulator: Simulator, name: str, description: str):
     stats = Statistics(simulator)
     close_passings = stats.close_passings()
     nr_collisions = 0
-    json_env = JSONEnvironment(env._dimension, env.blockers)
+    json_env = JSONEnvironment(env._dimension, []) # TODO HANDLE BLOCKERS
     owners: List[JSONOwner] = []
     for owner in history.owners:
         agents: List[JSONAgent] = []

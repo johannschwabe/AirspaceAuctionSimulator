@@ -25,8 +25,12 @@ class TimeCoordinate(Coordinate):
     def inter_temporal_equal(self, other):
         return super().__eq__(other)
 
-    def tree_query_rep(self):
-        return [self.x, self.y, self.z, self.t, self.x, self.y, self.z, self.t]
+    def tree_query_point_rep(self):
+        list_rep = self.list_rep()
+        return list_rep + list_rep
+
+    def list_rep(self):
+        return [self.x, self.y, self.z, self.t]
 
     def to_inter_temporal(self):
         return Coordinate(self.x, self.y, self.z)
