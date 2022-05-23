@@ -75,7 +75,7 @@ class FCFSAllocator(Allocator):
                 if len(path) > 0:
                     optimal_paths.append(path)
                 res[agent] = optimal_paths
-                env.allocate_paths_for_agent(agent, optimal_paths)
+                env.allocate_spaces_for_agent(agent, optimal_paths)
                 env.add_agent(agent)
             elif isinstance(bid, ABCBid):
                 a = bid.locations[0]

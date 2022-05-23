@@ -44,6 +44,6 @@ class StationaryAgent(Agent):
         clone = StationaryAgent(self.block, self.start_t, self.end_t)
         clone.id = self.id
         clone.is_clone = True
-        Agent.id -= 1
+        Agent._id -= 1
 
         return clone

@@ -1,7 +1,7 @@
 from typing import List, Dict
 from rtree import index
 
-from ..Agent import Agent
+from ..Agent import Agent, AgentType
 from ..Coordinate import TimeCoordinate
 from ..Time import Tick
 from ..Blocker import Blocker
@@ -37,6 +37,10 @@ class Environment:
         for path in paths:
             self.allocate_path_for_agent(agent, path)
 
+    def allocate_spaces_for_agent(self, agent: Agent, spaces: List[List[TimeCoordinate]]):
+        for path in spaces:
+            self.allocate_space_for_agent(agent, path)
+
     def allocate_path_for_agent(self, agent: Agent, path: List[TimeCoordinate]):
         agent.add_allocated_paths(path)
         iterator = path[0]
@@ -47,9 +51,25 @@ class Environment:
             aggregated[7] = coord.t - 1
             self.tree.insert(agent.id, aggregated)
             iterator = coord
+
         aggregated = iterator.tree_query_point_rep()
         aggregated[7] = path[-1].t
         self.tree.insert(agent.id, aggregated)
+
+    def allocate_space_for_agent(self, agent: Agent, space: List[TimeCoordinate]):
+        agent.add_allocated_paths(space)
+        start_locations: Dict[str, TimeCoordinate] = {}
+        end_locations: Dict[str, TimeCoordinate] = {}
+        for coord in space:
+            key = coord.get_key()
+            if key not in start_locations:
+                start_locations[key] = coord
+                end_locations[key] = coord
+                continue
+            end_locations[key] = coord
+
+        for key in start_locations:
+            self.tree.insert(agent.id, start_locations[key].list_rep() + end_locations[key].list_rep())
 
     def allocate_paths_for_agents(self, agents_paths: Dict[Agent, List[List[TimeCoordinate]]], time_step: Tick):
         for agent, paths in agents_paths.items():
@@ -58,8 +78,10 @@ class Environment:
             else:
                 self._agents[agent.id] = agent
 
-            for path in paths:
-                self.allocate_path_for_agent(agent, path)
+            if agent.agent_type == AgentType.STATIONARY:
+                self.allocate_spaces_for_agent(agent, paths)
+            else:
+                self.allocate_paths_for_agent(agent, paths)
 
     def is_blocked(self, coords: TimeCoordinate) -> bool:
         blockers = self.blocker_tree.intersection(coords.tree_query_point_rep())
