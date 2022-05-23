@@ -4,7 +4,7 @@ from ..Coordinate import TimeCoordinate, Coordinate
 
 
 class Blocker:
-    _id: int = 0
+    _id: int = 1
 
     def __init__(self, locations: List[TimeCoordinate], dimension: Coordinate):
         self.id = -Blocker._id
