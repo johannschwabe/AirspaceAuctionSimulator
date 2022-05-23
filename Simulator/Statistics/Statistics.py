@@ -7,7 +7,6 @@ if TYPE_CHECKING:
     from ..Coordinate import TimeCoordinate
 
 
-
 class Statistics:
     def __init__(self, sim: Simulator):
         self.history = sim.history
@@ -44,8 +43,8 @@ class Statistics:
         summed_welfare = 0
         for owner in self.history.owners:
             summed_welfare += Statistics.owners_welfare(owner)
-        print(f"AOW: {summed_welfare/len(self.history.owners)}")
-        return summed_welfare/len(self.history.owners)
+        print(f"AOW: {summed_welfare / len(self.history.owners)}")
+        return summed_welfare / len(self.history.owners)
 
     def allocated_distance(self):
         length = 0
@@ -81,14 +80,14 @@ class Statistics:
         return res
 
     def violations(self, position: "TimeCoordinate", agent: HistoryAgent, radi: int):
-        box = [  position.x - radi,
-                 position.y - radi,
-                 position.z - radi,
-                 position.t,
-                 position.x + radi,
-                 position.y + radi,
-                 position.z + radi,
-                 position.t + agent.speed -1]
+        box = [position.x - radi,
+               position.y - radi,
+               position.z - radi,
+               position.t,
+               position.x + radi,
+               position.y + radi,
+               position.z + radi,
+               position.t + agent.speed - 1]
         collisions = self.history.env.tree.intersection(box, objects=True)
         real_collisions = filter(lambda col: col.id != agent.id, collisions)
         count = 0
@@ -102,14 +101,14 @@ class Statistics:
         max_radi = self.history.env.get_agents()[agent.id].max_far_field_radius
         near_radi = self.history.env.get_agents()[agent.id].near_radius
         fahrrad = self.history.env.get_agents()[agent.id].far_radius
-        box = [  position.x - max_radi * 2,
-                 position.y - max_radi * 2,
-                 position.z - max_radi * 2,
-                 position.t,
-                 position.x + max_radi * 2,
-                 position.y + max_radi * 2,
-                 position.z + max_radi * 2,
-                 position.t + agent.speed - 1]
+        box = [position.x - max_radi * 2,
+               position.y - max_radi * 2,
+               position.z - max_radi * 2,
+               position.t,
+               position.x + max_radi * 2,
+               position.y + max_radi * 2,
+               position.z + max_radi * 2,
+               position.t + agent.speed - 1]
         collisions = self.history.env.tree.intersection(box, objects=True)
         real_collisions = filter(lambda col: col.id != agent.id, collisions)
         near_intersections = 0
@@ -124,10 +123,8 @@ class Statistics:
             max_near_distance = near_radi + self.history.env.get_agents()[collision.id].near_radius
             max_far_distance = fahrrad + self.history.env.get_agents()[collision.id].far_radius
             if distance_x <= max_near_distance and distance_y <= max_near_distance and distance_z <= max_near_distance:
-                near_intersections +=  col_time
+                near_intersections += col_time
             if distance_x <= max_far_distance and distance_y <= max_far_distance and distance_z <= max_far_distance:
                 far_intersections += col_time
 
         return near_intersections, far_intersections
-
-
