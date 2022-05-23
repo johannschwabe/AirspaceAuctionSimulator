@@ -38,7 +38,7 @@ import { saveAs } from "file-saver";
  */
 const apiServer = axios.create({
   baseURL: "http://localhost:8000",
-  timeout: 10 * 60 * 1000,
+  timeout: 60 * 60 * 1000, // 1h
 });
 
 const STORAGE_KEY = "simulation";

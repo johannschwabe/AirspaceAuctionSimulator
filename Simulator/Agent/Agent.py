@@ -7,7 +7,7 @@ from ..Coordinate import TimeCoordinate
 
 
 class Agent(ABC):
-    id: int = 0
+    _id: int = 0
     max_near_field_radius = 2
     max_far_field_radius = 4
     default_near_radius = 1
@@ -22,8 +22,8 @@ class Agent(ABC):
         speed: Optional[int] = None,
         battery: Optional[int] = None,
     ):
-        self.id = Agent.id
-        Agent.id += 1
+        self.id = Agent._id
+        Agent._id += 1
         self.is_clone = False
 
         self.agent_type = agent_type

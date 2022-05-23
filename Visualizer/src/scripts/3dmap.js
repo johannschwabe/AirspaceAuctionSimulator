@@ -230,7 +230,6 @@ export function updateBlockers({ scene, blockerCache, shadows, x, z, blockerMate
 export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLight }) {
   const simulation = useSimulationSingleton();
   const focusOn = ({ agent, agent_x, agent_y, agent_z }) => {
-    console.log("Focus on", agent);
     // Turn on focus light
     const { selectionLight } = focusCache;
     selectionLight.position.x = agent_x - x / 2;
