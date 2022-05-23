@@ -1,12 +1,7 @@
 import AgentTypeEnum from "./AgentTypeEnum";
 import Path from "./Path";
 import Branch from "./Branch";
-import {
-  ArrivalEvent,
-  FlightEvent,
-  ReallocationEvent,
-  TakeOffEvent,
-} from "./FlightEvent";
+import { ArrivalEvent, FlightEvent, ReallocationEvent, TakeOffEvent } from "./FlightEvent";
 
 export default class Agent {
   /**
@@ -54,11 +49,7 @@ export default class Agent {
     });
     this.branches.forEach((branch) => {
       const reallocationLocation = branch.paths[0].firstLocation;
-      const reallocationEvent = new ReallocationEvent(
-        branch.tick,
-        reallocationLocation,
-        branch.collision.reason
-      );
+      const reallocationEvent = new ReallocationEvent(branch.tick, reallocationLocation, branch.collision.reason);
       events.push(reallocationEvent);
     });
     events.sort(FlightEvent.sortEventsFunction);

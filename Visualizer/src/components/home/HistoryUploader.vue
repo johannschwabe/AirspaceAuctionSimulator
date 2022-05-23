@@ -6,12 +6,10 @@
           <archive-outline />
         </n-icon>
       </div>
-      <n-text style="font-size: 16px">
-        Click or drag a file to this area to upload
-      </n-text>
+      <n-text style="font-size: 16px"> Click or drag a file to this area to upload </n-text>
       <n-p depth="3" style="margin: 8px 0 0 0">
-        Strictly prohibit from uploading sensitive information. For example,
-        your bank card PIN or your credit card expiry date.
+        Strictly prohibit from uploading sensitive information. For example, your bank card PIN or your credit card
+        expiry date.
       </n-p>
     </n-upload-dragger>
   </n-upload>
@@ -35,8 +33,6 @@ const onUpload = async (upload) => {
   fileReader.onload = (event) => {
     const data = JSON.parse(event.target.result);
     setSimulationSingleton(new Simulation(data));
-    loadingBar.finish();
-    message.success("Simulation Imported!");
     router.push({ name: "dashboard" });
   };
   fileReader.onerror = (error) => {

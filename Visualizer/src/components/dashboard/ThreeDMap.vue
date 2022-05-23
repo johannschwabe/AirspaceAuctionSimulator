@@ -4,11 +4,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import {
-  onAgentsSelected,
-  onFocusOffAgent,
-  onTick,
-} from "../../scripts/emitter";
+import { onAgentsSelected, onFocusOffAgent, onTick } from "../../scripts/emitter";
 import {
   updateBlockers,
   updateDrones,
@@ -50,20 +46,11 @@ const doBlockerUpdate = () => {
 };
 
 const doDroneUpdate = () => {
-  updateDrones({
-    scene,
-    droneCache,
-    x,
-    y,
-    z,
-    mainLight,
-    hemisphereLight,
-    selectionLight,
-  });
+  updateDrones({ scene, droneCache, x, z, focusOn });
 };
 
 onTick(() => {
-  console.log("3D TICK!")
+  console.log("3D TICK!");
   doBlockerUpdate();
   doDroneUpdate();
 });

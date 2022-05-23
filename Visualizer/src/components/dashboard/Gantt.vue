@@ -1,21 +1,17 @@
 <template>
-  <vue-apex-charts
-    type="rangeBar"
-    height="250"
-    :options="chartOptions"
-    :series="series"
-  />
+  <vue-apex-charts ref="chart" type="rangeBar" height="250" :options="chartOptions" :series="series" />
 </template>
 
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
-import { reactive } from "vue";
-import { head, last } from "lodash-es";
+import { reactive, ref } from "vue";
 
 import { useSimulationSingleton } from "../../scripts/simulation";
-import { onAgentsSelected } from "../../scripts/emitter";
+import { onAgentsSelected, onTick } from "../../scripts/emitter";
 
 const simulation = useSimulationSingleton();
+
+const chart = ref(null);
 
 const chartOptions = {
   chart: {
@@ -55,9 +51,8 @@ const series = reactive([
   },
 ]);
 
-const updateState = () => {
+const updateSeries = () => {
   const gantt = [];
-  console.log("Welfare: Update State");
   simulation.selectedAgents.forEach((agent) => {
     agent.paths.forEach((path) => {
       const start = path.firstTick;
@@ -73,11 +68,11 @@ const updateState = () => {
   console.log("Welfare: Done");
 };
 
-updateState();
-
 onAgentsSelected(() => {
-  updateState();
+  updateSeries();
 });
+
+updateSeries();
 </script>
 
 <style scoped></style>

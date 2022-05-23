@@ -43,9 +43,7 @@ const apiPostErrorToString = (e) => {
   if (!e.response) {
     return e.message;
   }
-  return e.response.data.detail
-    .map((d) => `${d.msg}: ${d.loc.join(".")}`)
-    .join("\n");
+  return e.response.data.detail.map((d) => `${d.msg}: ${d.loc.join(".")}`).join("\n");
 };
 
 /**
@@ -76,6 +74,10 @@ export function persistSimulation(data) {
   }
 }
 
+export function canLoadSimulation() {
+  return !!localStorage.getItem(STORAGE_KEY);
+}
+
 /**
  * @returns {null|RawSimulation}
  */
@@ -92,7 +94,7 @@ export function downloadSimulation() {
   const fileToSave = new Blob([JSON.stringify(data, undefined, 2)], {
     type: "application/json",
   });
-  saveAs(fileToSave, `${this.name}.json`);
+  saveAs(fileToSave, `${data.name}.json`);
 }
 
 export default {

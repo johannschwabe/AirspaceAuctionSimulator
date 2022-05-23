@@ -2,16 +2,8 @@
   <n-dynamic-input v-model:value="owners" :on-create="onCreate">
     <template #default="{ value }">
       <div style="display: flex; column-gap: 10px; width: 100%">
-        <n-color-picker
-          :modes="['hex']"
-          :show-alpha="false"
-          v-model:value="value.color"
-        />
-        <n-input
-          v-model:value="value.name"
-          type="text"
-          placeholder="Owner Name"
-        />
+        <n-color-picker :modes="['hex']" :show-alpha="false" v-model:value="value.color" />
+        <n-input v-model:value="value.name" type="text" placeholder="Owner Name" />
         <n-input-number
           v-model:value="value.agents"
           :min="1"
@@ -19,12 +11,7 @@
           style="min-width: 130px"
           placeholder="Nr. Agents"
         />
-        <n-select
-          v-model:value="value.type"
-          :options="options"
-          placeholder="Type"
-          filterable
-        />
+        <n-select v-model:value="value.type" :options="options" placeholder="Type" filterable />
       </div>
     </template>
   </n-dynamic-input>

@@ -7,6 +7,8 @@ export const useSimulationStore = defineStore({
   state: () => ({
     selectedAgentIDs: useStorage("simulation-selected-agent-ids", []),
     agentInFocus: false,
+    agentInFocusId: -1,
+    ownerInFocusId: -1,
     tick: useStorage("simulation-tick", 0),
   }),
   getters: {
