@@ -1,10 +1,5 @@
 <template>
-  <vue-apex-charts
-    type="heatmap"
-    height="250"
-    :options="chartOptions"
-    :series="series"
-  />
+  <vue-apex-charts type="heatmap" height="250" :options="chartOptions" :series="series" />
 </template>
 
 <script setup>
@@ -18,7 +13,7 @@ const props = defineProps({
   title: String,
   dimX: String,
   dimY: String,
-  granularity: { type: Number, default: 5, required: false },
+  buckets: { type: Number, default: 10, required: false },
 });
 
 const simulation = useSimulationSingleton();
@@ -80,23 +75,19 @@ const chartOptions = {
 const series = reactive([]);
 
 // Fill series with zeroes
-const dimXlength = Math.floor(
-  simulation.dimensions[props.dimX] / props.granularity
-);
-const dimYlength = Math.floor(
-  simulation.dimensions[props.dimY] / props.granularity
-);
+const dimXlength = simulation.dimensions[props.dimX] / props.buckets;
+const dimYlength = simulation.dimensions[props.dimY] / props.buckets;
 
-for (let dimy = 0; dimy < dimYlength; dimy++) {
+for (let bucket = 0; bucket < props.buckets; bucket++) {
   series.push({
-    name: `${dimy * props.granularity}`,
-    data: Array(dimXlength).fill(0),
+    name: `${Math.floor(bucket * dimXlength)}`,
+    data: Array(props.buckets).fill(0),
   });
 }
 
 const resetState = () => {
-  for (let dimy = 0; dimy < dimYlength; dimy++) {
-    series[dimy].data = Array(dimXlength).fill(0);
+  for (let bucket = 0; bucket < props.buckets; bucket++) {
+    series[bucket].data = Array(props.buckets).fill(0);
   }
 };
 
@@ -105,8 +96,8 @@ const updateState = () => {
   simulation.activeAgents.forEach((agent) => {
     const loc_dimx = agent.combinedPath.at(simulation.tick)[props.dimX];
     const loc_dimy = agent.combinedPath.at(simulation.tick)[props.dimY];
-    const dim1 = Math.floor(loc_dimx / props.granularity);
-    const dim2 = Math.floor(loc_dimy / props.granularity);
+    const dim1 = Math.floor(loc_dimx / dimXlength);
+    const dim2 = Math.floor(loc_dimy / dimYlength);
     series[dim2].data[dim1] += 1;
   });
   console.log("Heatmap: Done");

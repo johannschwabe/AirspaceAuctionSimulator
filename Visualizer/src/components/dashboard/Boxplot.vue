@@ -1,10 +1,5 @@
 <template>
-  <vue-apex-charts
-    type="boxPlot"
-    height="100"
-    :options="chartOptions"
-    :series="series"
-  />
+  <vue-apex-charts type="boxPlot" height="100" :options="chartOptions" :series="series" />
 </template>
 
 <script setup>

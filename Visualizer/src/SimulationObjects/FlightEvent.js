@@ -1,8 +1,4 @@
-import {
-  mdiAirplaneLanding,
-  mdiAirplaneTakeoff,
-  mdiSourceBranch,
-} from "@mdi/js";
+import { mdiAirplaneLanding, mdiAirplaneTakeoff, mdiSourceBranch } from "@mdi/js";
 
 export class FlightEvent {
   /**
@@ -17,12 +13,10 @@ export class FlightEvent {
     this.type = type;
     this.icon = icon;
     this.tick = tick;
+    this.time = `Tick: ${this.tick}`;
     this.content = content;
   }
 
-  get time() {
-    return `Tick: ${this.tick}`;
-  }
 
   static get sortEventsFunction() {
     return (e1, e2) => {
@@ -63,13 +57,7 @@ export class ReallocationEvent extends FlightEvent {
    * @param {ReasonEnum} reallocationReason
    */
   constructor(tick, location, reallocationReason) {
-    super(
-      "Reallocation",
-      "warning",
-      mdiSourceBranch,
-      tick,
-      reallocationReason.name
-    );
+    super("Reallocation", "warning", mdiSourceBranch, tick, reallocationReason.name);
     this.location = location;
   }
 }

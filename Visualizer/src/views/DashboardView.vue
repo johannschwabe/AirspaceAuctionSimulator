@@ -71,7 +71,11 @@
     display-directive="if"
     to="#drawer-target"
   >
-    <n-drawer-content :title="simulation.ownerInFocus?.name" :closable="true">
+    <n-drawer-content
+      :title="simulation.ownerInFocus?.name"
+      :closable="true"
+      :key="simulationStore.ownerInFocusId || 0"
+    >
       <owner-info />
     </n-drawer-content>
   </n-drawer>
@@ -88,7 +92,11 @@
     display-directive="if"
     to="#drawer-target"
   >
-    <n-drawer-content :title="simulation.agentInFocus?.name" :closable="true">
+    <n-drawer-content
+      :title="simulation.agentInFocus?.name"
+      :closable="true"
+      :key="simulationStore.agentInFocusId || 0"
+    >
       <agent-info />
     </n-drawer-content>
   </n-drawer>
@@ -100,6 +108,7 @@
 
 <script setup>
 import { onUnmounted } from "vue";
+import { useRouter } from "vue-router";
 
 // import DataTable from "../components/dashboard/DataTable.vue";
 import TopBar from "../components/dashboard/TopBar.vue";
@@ -112,18 +121,28 @@ import AgentInfo from "../components/dashboard/AgentInfo.vue";
 import OwnerInfo from "../components/dashboard/OwnerInfo.vue";
 import Timeline from "../components/dashboard/Timeline.vue";
 import { offAll } from "../scripts/emitter";
-import { loadSimulation } from "../API/api";
-import {
-  hasSimulationSingleton,
-  setSimulationSingleton,
-  useSimulationSingleton,
-} from "../scripts/simulation";
-import Simulation from "../SimulationObjects/Simulation";
+import { hasSimulationSingleton, loadSimulationSingleton, useSimulationSingleton } from "../scripts/simulation";
 import { useSimulationStore } from "../stores/simulation";
+import { useLoadingBar, useMessage } from "naive-ui";
+
+const router = useRouter();
+const message = useMessage();
+const loadingBar = useLoadingBar();
 
 if (!hasSimulationSingleton()) {
-  const data = loadSimulation();
-  setSimulationSingleton(new Simulation(data));
+  try {
+    loadSimulationSingleton();
+    message.success("Simulation recovered!");
+  } catch (e) {
+    console.error(e);
+    message.error(e.message);
+    router.push("/");
+  } finally {
+    loadingBar.finish();
+  }
+} else {
+  message.success("Simulation loaded!");
+  loadingBar.finish();
 }
 
 const simulationStore = useSimulationStore();
@@ -140,9 +159,9 @@ onUnmounted(() => {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 75px;
-  background-color: rgb(16, 16, 16);
-  z-index: 100000;
+  height: 140px;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 20%, rgba(0,0,0,1) 100%);
+  z-index: 2010;
 }
 .nav-margin {
   margin-bottom: 80px;

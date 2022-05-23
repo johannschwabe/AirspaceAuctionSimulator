@@ -55,6 +55,8 @@ import {
   NTimeline,
   NTimelineItem,
   NDataTable,
+  NModal,
+  NPopconfirm,
 } from "naive-ui";
 
 const naive = create({
@@ -103,6 +105,8 @@ const naive = create({
     NTimeline,
     NTimelineItem,
     NDataTable,
+    NModal,
+    NPopconfirm,
   ],
 });
 

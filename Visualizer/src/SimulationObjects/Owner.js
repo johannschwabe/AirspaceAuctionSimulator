@@ -34,9 +34,7 @@ export default class Owner {
      * All agents belonging to this owner
      * @type {Agent[]}
      */
-    this.agents = rawOwner.agents.map(
-      (agent) => new Agent(agent, this, simulation)
-    );
+    this.agents = rawOwner.agents.map((agent) => new Agent(agent, this, simulation));
 
     this._simulation = simulation;
   }
