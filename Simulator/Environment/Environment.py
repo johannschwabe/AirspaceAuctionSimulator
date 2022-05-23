@@ -22,7 +22,7 @@ class Environment:
         agent._allocated_paths = [[]]
         for coord in agent.get_allocated_coords():
             if coord.t > time_step:
-                self.tree.delete(agent.id, coord.tree_query_rep())
+                self.tree.delete(agent.id, coord.tree_query_point_rep())
 
     def add_blocker(self, blockers: List[Blocker]):
         props = index.Property()
@@ -42,11 +42,11 @@ class Environment:
         for coord in path:
             if coord.inter_temporal_equal(iterator):
                 continue
-            aggregated = iterator.tree_query_rep()
+            aggregated = iterator.tree_query_point_rep()
             aggregated[7] = coord.t - 1
             self.tree.insert(agent.id, aggregated)
             iterator = coord
-        aggregated = iterator.tree_query_rep()
+        aggregated = iterator.tree_query_point_rep()
         aggregated[7] = path[-1].t
         self.tree.insert(agent.id, aggregated)
 
@@ -61,7 +61,7 @@ class Environment:
                 self.allocate_path_for_agent(agent, path)
 
     def is_blocked(self, coords: TimeCoordinate) -> bool:
-        blockers = self.blocker_tree.intersection(coords.tree_query_rep())
+        blockers = self.blocker_tree.intersection(coords.tree_query_point_rep())
         return len(list(blockers)) > 0
 
 
@@ -84,7 +84,7 @@ class Environment:
         return len(list(agents)) == 0 and not self.is_blocked(coords)
 
     def get_agents_at(self, coords: TimeCoordinate) -> List[Agent]:
-        return [self._agents[_id] for _id in self.tree.intersection(coords.tree_query_rep())]
+        return [self._agents[_id] for _id in self.tree.intersection(coords.tree_query_point_rep())]
 
     def visualize(self, current_time_step, before=0, nr_steps=1):
         for t in range(current_time_step - before, current_time_step + nr_steps):
@@ -98,7 +98,7 @@ class Environment:
                     print(f"  {y: >2} ", end="")
                     for x in range(self._dimension.x):
                         coord = TimeCoordinate(x, y, z, Tick(t))
-                        agents = list(self.tree.intersection(coord.tree_query_rep()))
+                        agents = list(self.tree.intersection(coord.tree_query_point_rep()))
                         if len(agents) > 0:
                             print(f" {','.join(map(str, agents))}".rjust(5, ' '), end="")
 

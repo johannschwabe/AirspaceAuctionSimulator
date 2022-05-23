@@ -15,15 +15,18 @@ class Blocker:
     def add_to_tree(self, tree):
         if not self.locations or len(self.locations) == 0:
             return
-        iter = 0
-        while iter < len(self.locations):
-            start = self.locations[iter]
-            while self.locations[iter].inter_temporal_equal(start) and iter < len(self.locations):
-                iter += 1
-            min_pos = start + self.dimension
-            tree_rep = min_pos.tree_query_rep()
-            tree_rep[7] = self.locations[iter].t - 1
+        idx = 0
+        start = self.locations[idx]
+        while idx < len(self.locations):
+            if self.locations[idx].inter_temporal_equal(start):
+                idx += 1
+                continue
+            end = self.locations[idx - 1]
+            max_pos = start + self.dimension
+            max_pos.t = end.t
+            tree_rep = start.list_rep() + max_pos.list_rep()
             tree.insert(self.id, tree_rep)
+            start = self.locations[idx]
 
     def get_coordinates_at(self, t: int) -> List[Coordinate]:
         t -= self.locations[0]
