@@ -10,6 +10,7 @@ from .Owner import Owner
 if TYPE_CHECKING:
     from .History import History
 
+
 class Simulator:
     def __init__(self,
                  owners: List[Owner],
@@ -37,4 +38,3 @@ class Simulator:
 
         self.time_step += 1
         return True
-
