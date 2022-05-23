@@ -75,7 +75,8 @@ class JSONAgent(Stringify):
         self.paths: List[Path] = [Path(path) for path in agent.get_allocated_paths()]
 
         self.branches: List[Branch] = []
-        for key, value in list(history_agent.past_allocations.items())[1:]:         #First reallocation isn't a reallocation but an allocation
+        for key, value in list(history_agent.past_allocations.items())[
+                          1:]:  # First reallocation isn't a reallocation but an allocation
             branch_paths = [Path(path) for path in value]
             self.branches.append(Branch(
                 key,
@@ -124,7 +125,7 @@ class JSONOwner(Stringify):
 class JSONBlocker(Stringify):
     def __init__(self, blocker: Blocker):
         self.id: int = blocker.id
-        self.path: Path = Path(list(blocker.locations.values()))
+        self.path: Path = Path(blocker.locations)
         self.dimension = blocker.dimension
 
 
@@ -152,13 +153,14 @@ class JSONSimulation(Stringify):
         self.statistics: JSONStatistics = statistics
         self.owners: List[JSONOwner] = owners
 
+
 def build_json(simulator: Simulator, name: str, description: str):
     env = simulator.environment
     history = simulator.history
     stats = Statistics(simulator)
     close_passings = stats.close_passings()
     nr_collisions = 0
-    json_env = JSONEnvironment(env._dimension, []) # TODO HANDLE BLOCKERS
+    json_env = JSONEnvironment(env._dimension, env._blockers)
     owners: List[JSONOwner] = []
     for owner in history.owners:
         agents: List[JSONAgent] = []
@@ -175,7 +177,7 @@ def build_json(simulator: Simulator, name: str, description: str):
                 owner.id,
                 owner.name,
             ))
-            nr_collisions += close_passings[agent.id]["total_near_field_violations"] #todo different collision metric
+            nr_collisions += close_passings[agent.id]["total_near_field_violations"]  # todo different collision metric
         owners.append(JSONOwner(owner.name, owner.id, owner.color, agents))
     json_stats = JSONStatistics(len(simulator.owners), len(env._agents), stats.total_agents_welfare(), nr_collisions, 0)
     json_simulation = JSONSimulation(name, description, json_env, json_stats, owners)

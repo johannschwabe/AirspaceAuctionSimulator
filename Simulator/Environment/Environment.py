@@ -12,6 +12,7 @@ class Environment:
         TimeCoordinate.dim = dimension
         self._dimension: TimeCoordinate = dimension
         self._agents: Dict[int, Agent] = {}
+        self._blockers: List[Blocker] = []
         props = index.Property()
         props.dimension = 4
         self.tree = index.Rtree(properties=props)
@@ -24,13 +25,13 @@ class Environment:
             if coord.t > time_step:
                 self.tree.delete(agent.id, coord.tree_query_point_rep())
 
-    def add_blocker(self, blockers: List[Blocker]):
+    def set_blockers(self, blockers: List[Blocker]):
+        self._blockers = blockers
         props = index.Property()
         props.dimension = 4
         self.blocker_tree = index.Rtree(properties=props)
         for blocker in blockers:
             blocker.add_to_tree(self.blocker_tree)
-
 
     def allocate_paths_for_agent(self, agent: Agent, paths: List[List[TimeCoordinate]]):
         for path in paths:
@@ -63,7 +64,6 @@ class Environment:
     def is_blocked(self, coords: TimeCoordinate) -> bool:
         blockers = self.blocker_tree.intersection(coords.tree_query_point_rep())
         return len(list(blockers)) > 0
-
 
     def add_agent(self, agent: Agent):
         self._agents[agent.id] = agent
