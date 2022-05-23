@@ -33,8 +33,6 @@ class Agent(ABC):
 
         self._allocated_paths: List[List["TimeCoordinate"]] = []
 
-        self._allocated_coords: List["TimeCoordinate"] = []
-
         self.near_radius = Agent.default_near_radius
         self.far_radius = Agent.default_far_radius
 
@@ -82,6 +80,9 @@ class Agent(ABC):
 
     def get_allocated_value(self):
         return self.value_for_paths(self._allocated_paths)
+
+    def set_allocated_paths(self, paths: List[List["TimeCoordinate"]]):
+        self._allocated_paths = paths
 
     def __repr__(self):
         return str(self.id)
