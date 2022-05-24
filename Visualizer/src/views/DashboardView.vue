@@ -18,7 +18,7 @@
       <n-grid-item span="6" id="drawer-target">
         <n-grid cols="1">
           <n-grid-item>
-            <three-d-map />
+            <three-d-map v-show="simulation" />
           </n-grid-item>
         </n-grid>
       </n-grid-item>
@@ -102,7 +102,7 @@
   </n-drawer>
 
   <div class="abs-nav">
-    <timeline />
+    <timeline v-show="simulation" />
   </div>
 </template>
 
@@ -160,7 +160,7 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   height: 140px;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 20%, rgba(0,0,0,1) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.8) 20%, rgba(0, 0, 0, 1) 100%);
   z-index: 2010;
 }
 .nav-margin {
@@ -172,7 +172,7 @@ onUnmounted(() => {
   border-left: 1px solid rgba(255, 255, 255, 0.09);
   border-right: 1px solid rgba(255, 255, 255, 0.09);
 }
-#drawer-target /deep/ .n-drawer-mask {
+#drawer-target :deep(.n-drawer-mask) {
   background-color: transparent;
   pointer-events: none;
 }

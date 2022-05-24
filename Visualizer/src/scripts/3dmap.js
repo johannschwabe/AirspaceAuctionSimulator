@@ -7,13 +7,13 @@ import {
   Engine,
   ExecuteCodeAction,
   HemisphericLight,
-  Mesh,
   MeshBuilder,
   PointLight,
   Scene,
   ShadowGenerator,
   StandardMaterial,
   Vector3,
+  Color4,
 } from "babylonjs";
 import { useSimulationSingleton } from "./simulation";
 
@@ -26,7 +26,7 @@ export function useEngine({ canvas }) {
 
 export function useScene({ engine }) {
   const scene = new Scene(engine);
-  scene.clearColor = Color3.FromHexString("#101010");
+  scene.clearColor = Color4.FromHexString("#101010");
   return scene;
 }
 
@@ -134,7 +134,7 @@ export function useFocusCache({ scene }) {
   selectionLight.intensity = 0;
 
   // Create nearField
-  const nearFieldSphere = Mesh.CreateSphere("near-field-sphere", 8, 1, scene);
+  const nearFieldSphere = MeshBuilder.CreateSphere("near-field-sphere", { segments: 8, diameter: 1 }, scene);
   nearFieldSphere.scaling = new Vector3(0, 0, 0);
   const nearFieldMaterial = new StandardMaterial("near-field-material", scene);
   nearFieldMaterial.wireframe = true;
@@ -142,7 +142,7 @@ export function useFocusCache({ scene }) {
   nearFieldSphere.material = nearFieldMaterial;
 
   // Create farField
-  const farFieldSphere = Mesh.CreateSphere("far-field-sphere", 16, 1, scene);
+  const farFieldSphere = MeshBuilder.CreateSphere("far-field-sphere", { segments: 16, diameter: 1 }, scene);
   farFieldSphere.scaling = new Vector3(0, 0, 0);
   const farFieldMaterial = new StandardMaterial("far-field-material", scene);
   farFieldMaterial.wireframe = true;
@@ -301,7 +301,11 @@ export function useDrones({ scene, droneCache, x, z, focusOn }) {
       ownerMaterial.alpha = 1;
 
       // Draw drone
-      const agentLocationSphere = Mesh.CreateSphere(`sphere-agent-${agent.id}`, 4, 1, scene);
+      const agentLocationSphere = MeshBuilder.CreateSphere(
+        `sphere-agent-${agent.id}`,
+        { segments: 4, diameter: 1 },
+        scene
+      );
       agentLocationSphere.material = ownerMaterial;
       agentLocationSphere.isPickable = true;
       agentLocationSphere.actionManager = new ActionManager(scene);
