@@ -102,7 +102,7 @@
   </n-drawer>
 
   <div class="abs-nav">
-    <timeline v-show="simulation" />
+    <timeline />
   </div>
 </template>
 
