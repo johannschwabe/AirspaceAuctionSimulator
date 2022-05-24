@@ -158,7 +158,7 @@ def build_json(simulator: Simulator, name: str, description: str):
     env = simulator.environment
     history = simulator.history
     stats = Statistics(simulator)
-    close_passings = stats.close_passings()
+    # close_passings = stats.close_passings()
     nr_collisions = 0
     json_env = JSONEnvironment(env._dimension, env._blockers)
     owners: List[JSONOwner] = []
@@ -169,15 +169,19 @@ def build_json(simulator: Simulator, name: str, description: str):
                 history.agents[agent],
                 agent,
                 stats.non_colliding_value(agent),
-                close_passings[agent.id]["total_near_field_intersection"],
-                close_passings[agent.id]["total_far_field_intersection"],
-                close_passings[agent.id]["total_near_field_violations"],
-                close_passings[agent.id]["total_far_field_violations"],
+                # close_passings[agent.id]["total_near_field_intersection"],
+                # close_passings[agent.id]["total_far_field_intersection"],
+                # close_passings[agent.id]["total_near_field_violations"],
+                # close_passings[agent.id]["total_far_field_violations"],
+                0,
+                0,
+                0,
+                0,
                 0,
                 owner.id,
                 owner.name,
             ))
-            nr_collisions += close_passings[agent.id]["total_near_field_violations"]  # todo different collision metric
+            # nr_collisions += close_passings[agent.id]["total_near_field_violations"]  # todo different collision metric
         owners.append(JSONOwner(owner.name, owner.id, owner.color, agents))
     json_stats = JSONStatistics(len(simulator.owners), len(env._agents), stats.total_agents_welfare(), nr_collisions, 0)
     json_simulation = JSONSimulation(name, description, json_env, json_stats, owners)

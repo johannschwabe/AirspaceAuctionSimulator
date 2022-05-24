@@ -17,11 +17,11 @@ class BlockerGen:
             int(self.dimension.y / 2),
             int(self.dimension.z / 10),
         )
-        for i in range(n_blockers):
+        for _ in range(n_blockers):
             origin = Coordinate.random(self.dimension)
             origin.y = 0
             dimension = Coordinate.random(max_size)
             locations: List[TimeCoordinate] = \
-                [TimeCoordinate(origin.x + i, origin.y, origin.z, Tick(t)) for i, t in enumerate(range(self.dimension.t + 1))]
+                [TimeCoordinate(origin.x, origin.y, origin.z, Tick(t)) for t in range(self.dimension.t + 1)]
             blockers.append(Blocker(locations, dimension))
         return blockers
