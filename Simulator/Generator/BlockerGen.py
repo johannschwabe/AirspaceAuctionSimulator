@@ -14,6 +14,12 @@ class BlockerGen:
         self.dimension: TimeCoordinate = dimension
         self.maptiles: List["MapTile"] = maptiles
 
+    def generate_maptile_blockers(self):
+        blockers: List[Blocker] = []
+        for tile in self.maptiles:
+            blockers += tile.resolve_buildings()
+        return blockers
+
     def generate(self, n_blockers: int):
         # TODO generate according to maptiles!
         blockers: List[Blocker] = []

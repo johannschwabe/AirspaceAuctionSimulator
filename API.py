@@ -78,6 +78,7 @@ def read_root(config: SimulationConfigType):
     else:
         maptiles = []
     TimeCoordinate.dim = dimensions
+
     g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions,
                   maptiles=maptiles)
     g.simulate()
