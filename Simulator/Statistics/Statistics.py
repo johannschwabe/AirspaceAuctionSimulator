@@ -16,7 +16,7 @@ class Statistics:
         local_agent = agent.clone()
         local_env = self.history.env.new_clear()
         paths = self.history.allocator.allocate_for_agents([local_agent], local_env, Tick(0))[local_agent]
-        return local_agent.value_for_paths(paths)
+        return local_agent.value_for_segments(paths)
 
     def non_colliding_values(self):
         for agent in self.history.env.get_agents().values():

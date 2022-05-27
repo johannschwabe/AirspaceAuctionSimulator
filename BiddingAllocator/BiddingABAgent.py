@@ -20,10 +20,10 @@ class BiddingABAgent(ABAgent):
         self.priority = priority
 
     def get_bid(self, t: "Tick") -> BiddingABBid:
-        if self._allocated_paths[0][0].t >= t:
+        if self._allocated_segments[0][0].t >= t:
             return BiddingABBid(self.battery, self.a, self.b, self.priority, False)
-        start = self._allocated_paths[0][t - self._allocated_paths[0][0]]
-        return BiddingABBid(self.battery - (t - self._allocated_paths[0][0]), start, self.b, self.priority, True)
+        start = self._allocated_segments[0][t - self._allocated_segments[0][0]]
+        return BiddingABBid(self.battery - (t - self._allocated_segments[0][0]), start, self.b, self.priority, True)
 
     def clone(self):
         clone = BiddingABAgent(self.a, self.b, self.priority, self.speed, self.battery)

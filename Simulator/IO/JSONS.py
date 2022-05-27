@@ -85,7 +85,7 @@ class JSONAgent(Stringify):
             self.branches.append(Branch(
                 key,
                 branch_paths,
-                agent.value_for_paths(value),
+                agent.value_for_segments(value),
                 Collision(Reason.NOT_IMPLEMENTED)
             ))
 
