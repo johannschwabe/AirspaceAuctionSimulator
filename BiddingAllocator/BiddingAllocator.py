@@ -1,5 +1,6 @@
 from typing import List, Dict
 
+from Simulator.Path import PathSegment
 from .BiddingABAgent import BiddingABAgent
 from .BiddingABBid import BiddingABBid
 from .BiddingPathFinding import bidding_astar
@@ -13,20 +14,20 @@ class BiddingAllocator(Allocator):
     def __init__(self):
         super().__init__()
 
-    def allocate_for_agents(self, agents: List[BiddingABAgent], env: Environment, tick: Tick) -> Dict[Agent, List[List[TimeCoordinate]]]:
+    def allocate_for_agents(self, agents: List[BiddingABAgent], env: Environment, tick: Tick) -> Dict[Agent, List[PathSegment]]:
         res = {}
         to_add = set(agents)
         while len(to_add) > 0:
             agent = max(to_add, key=lambda _agent: _agent.get_bid().priority)
             to_add.remove(agent)
-            bid = agent.get_bid()
+            bid = agent.get_bid(tick)
             if isinstance(bid, BiddingABBid):
-                ab_path, collisions = bidding_astar(bid.a, bid.b, env, agent)
-                res[agent] = [ab_path]
+                ab_path, collisions = bidding_astar(bid.a, bid.b, env, agent, bid.flying)
+                res[agent] = [PathSegment(bid.a.to_inter_temporal(), bid.b.to_inter_temporal(), ab_path)]
                 to_add = to_add.union(collisions)
                 for agent_to_remove in collisions:
                     env.deallocate_agent(agent_to_remove, tick)
-                env.allocate_path_for_agent(agent, ab_path)
+                env.allocate_path_segment_for_agent(agent, ab_path)
                 if not agent.id in env.get_agents():
                     env.add_agent(agent)
         return res

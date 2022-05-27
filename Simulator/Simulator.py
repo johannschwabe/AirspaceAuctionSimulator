@@ -1,5 +1,6 @@
 from typing import List, Dict, TYPE_CHECKING
 
+from .Path import PathSegment
 from .Time import Tick
 from .Agent import Agent
 from .Coordinate import TimeCoordinate
@@ -32,7 +33,7 @@ class Simulator:
         if len(newcomers) > 0:
             self.history.add_new_agents(newcomers, self.time_step)
             temp_env = self.environment.clone()
-            cloned_agents_paths: Dict[Agent, List[List[TimeCoordinate]]] = self.allocator.temp_allocation(newcomers, temp_env, self.time_step)
+            cloned_agents_paths: Dict[Agent, List[PathSegment]] = self.allocator.temp_allocation(newcomers, temp_env, self.time_step)
             agents_paths = self.environment.original_agents(cloned_agents_paths, newcomers)
             self.environment.allocate_paths_for_agents(agents_paths, self.time_step)
             self.history.update_allocations(agents_paths, self.time_step)

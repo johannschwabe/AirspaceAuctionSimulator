@@ -49,7 +49,7 @@ class FCFSAllocator(Allocator):
 
                     optimal_paths.append(ba_path)
                 res[agent] = optimal_paths
-                env.allocate_paths_for_agent(agent, optimal_paths)
+                env.allocate_path_for_agent(agent, optimal_paths)
                 env.add_agent(agent)
 
             elif isinstance(bid, StationaryBid):
@@ -99,6 +99,6 @@ class FCFSAllocator(Allocator):
                     a = b
 
                 res[agent] = optimal_paths
-                env.allocate_paths_for_agent(agent, optimal_paths)
+                env.allocate_path_for_agent(agent, optimal_paths)
                 env.add_agent(agent)
         return res

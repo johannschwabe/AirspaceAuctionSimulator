@@ -1,10 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 from .AgentType import AgentType
 from ..Bid import Bid
 from ..Coordinate import TimeCoordinate
+from ..Path import PathSegment, SpaceSegment
 
+if TYPE_CHECKING:
+    from .. import Tick
 
 class Agent(ABC):
     _id: int = 0
@@ -31,7 +34,7 @@ class Agent(ABC):
         self.speed: int = speed if speed is not None else Agent.default_speed
         self.battery: int = battery if battery is not None else Agent.default_battery
 
-        self._allocated_paths: List[List["TimeCoordinate"]] = []
+        self._allocated_paths: List[PathSegment] = []
 
         self.near_radius = Agent.default_near_radius
         self.far_radius = Agent.default_far_radius
@@ -52,11 +55,11 @@ class Agent(ABC):
         return self.value_for_paths(self._allocated_paths)
 
     @abstractmethod
-    def value_for_paths(self, paths: List[List[TimeCoordinate]]) -> float:
+    def value_for_paths(self, paths: List[PathSegment]) -> float:
         pass
 
     @abstractmethod
-    def get_bid(self) -> Bid:
+    def get_bid(self, t: "Tick") -> Bid:
         pass
 
     @abstractmethod
@@ -65,23 +68,26 @@ class Agent(ABC):
 
     def get_airtime(self) -> int:
         airtime = 0
-        for path in self._allocated_paths:
-            airtime += path[-1].t - path[0].t
+        for path_segment in self._allocated_paths:
+            airtime += path_segment.coordinates[-1].t - path_segment.coordinates[0].t
         return airtime
 
     def get_allocated_coords(self) -> List["TimeCoordinate"]:
-        return [y for x in self._allocated_paths for y in x]
+        return [coord for path_segment in self._allocated_paths for coord in path_segment.coordinates]
 
-    def add_allocated_paths(self, path: List["TimeCoordinate"]):
-        self._allocated_paths.append(path)
+    def add_allocated_path_segment(self, path_segment: PathSegment):
+        if self._allocated_paths[-1].same(path_segment):
+            self._allocated_paths[-1].join(path_segment)
+        else:
+            self._allocated_paths.append(path_segment)
 
-    def get_allocated_paths(self):
+    def get_allocated_paths(self) -> List["PathSegment"]:
         return self._allocated_paths
 
-    def get_allocated_value(self):
+    def get_allocated_value(self) -> float:
         return self.value_for_paths(self._allocated_paths)
 
-    def set_allocated_paths(self, paths: List[List["TimeCoordinate"]]):
+    def set_allocated_paths(self, paths: List["PathSegment"]):
         self._allocated_paths = paths
 
     def __repr__(self):

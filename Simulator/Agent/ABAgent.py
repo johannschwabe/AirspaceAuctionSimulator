@@ -1,10 +1,12 @@
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 from . import Agent
 from .AgentType import AgentType
 from ..Bid import ABBid, Bid
 from ..Coordinate import TimeCoordinate
 
+if TYPE_CHECKING:
+    from .. import Tick
 
 class ABAgent(Agent):
     def __init__(
@@ -40,7 +42,7 @@ class ABAgent(Agent):
 
         return 1.
 
-    def get_bid(self) -> Bid:
+    def get_bid(self, t: "Tick") -> Bid:
         return ABBid(self.battery, self.a, self.b)
 
     def clone(self):

@@ -76,6 +76,9 @@ class JSONAgent(Stringify):
         self.paths: List[Path] = [Path(path) for path in agent.get_allocated_paths()]
 
         self.branches: List[Branch] = []
+
+        res = find_flown_path(list(history_agent.past_allocations.values()))
+
         # First reallocation isn't a reallocation but an allocation
         for key, value in list(history_agent.past_allocations.items())[1:]:
             branch_paths = [Path(path) for path in value]
@@ -86,6 +89,24 @@ class JSONAgent(Stringify):
                 Collision(Reason.NOT_IMPLEMENTED)
             ))
 
+def find_flown_path(reallocations):
+    res = reallocations[-1]
+    for allocation_index in range(len(reallocations) - 1, 0, -1):  # DER CODE IST SELBSTERKLÄREND
+        path = reallocations[allocation_index]
+        previous_allocation = reallocations[allocation_index - 1]
+
+        if len(path[0]) == 0:
+            print("send help")
+            continue
+        start_location = path[0][0]
+        nr_stops = len(path)
+        search_path = previous_allocation[-nr_stops]
+        reallocation_index = start_location.t - search_path[0].t
+        res[0] = search_path[0:reallocation_index] + res[0]
+        if len(previous_allocation) > nr_stops:
+            res = previous_allocation[0:-nr_stops] + res
+
+    return res
 
 class JSONOwner(Stringify):
     def __init__(self, name: str, id: int, color: str, agents: List[JSONAgent]):
@@ -172,7 +193,7 @@ def build_json(simulator: Simulator, name: str, description: str):
     stats = Statistics(simulator)
     # close_passings = stats.close_passings()
     nr_collisions = 0
-    json_env = JSONEnvironment(env._dimension, env.blockers, env.maptiles)
+    json_env = JSONEnvironment(env._dimension, env.blockers, env.map_tiles)
     owners: List[JSONOwner] = []
     for owner in history.owners:
         agents: List[JSONAgent] = []
