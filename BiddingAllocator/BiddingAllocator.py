@@ -18,7 +18,7 @@ class BiddingAllocator(Allocator):
         res = {}
         to_add = set(agents)
         while len(to_add) > 0:
-            agent = max(to_add, key=lambda _agent: _agent.get_bid().priority)
+            agent = max(to_add, key=lambda _agent: _agent.get_bid(tick).priority)
             to_add.remove(agent)
             bid = agent.get_bid(tick)
             if isinstance(bid, BiddingABBid):

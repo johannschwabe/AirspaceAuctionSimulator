@@ -3,7 +3,7 @@ from rtree import index
 
 from ..Agent import Agent, SpaceAgent, PathAgent
 from ..Coordinate import TimeCoordinate
-from ..Path import PathSegment, SpaceSegment, Segment
+from ..Path import PathSegment, SpaceSegment
 from ..Time import Tick
 from ..Blocker import Blocker
 
@@ -106,7 +106,7 @@ class Environment:
         for key in start_locations:
             self.tree.insert(agent.id, start_locations[key].list_rep() + end_locations[key].list_rep())
 
-    def allocate_segments_for_agents(self, agents_segments: Dict[Agent, List[Segment]], time_step: Tick):
+    def allocate_segments_for_agents(self, agents_segments: Dict[Agent, List[PathSegment|SpaceSegment]], time_step: Tick):
         for agent, segments in agents_segments.items():
             if agent.id in self._agents:
                 self.deallocate_agent(agent, time_step)
@@ -120,7 +120,7 @@ class Environment:
             else:
                 raise Exception("You gufed")
 
-    def original_agents(self, agents_segments: Dict[Agent, List[Segment]], newcomers: List[Agent]):
+    def original_agents(self, agents_segments: Dict[Agent, List[PathSegment|SpaceSegment]], newcomers: List[Agent]):
         res = {}
         for agent, segments in agents_segments.items():
             newcomer_ids = [_agent.id for _agent in newcomers]
@@ -158,8 +158,11 @@ class Environment:
             agents = self.intersect(coords, radius, agent.speed)
             return len(list(agents)) == 0 and not self.is_blocked(coords, radius, agent.speed)
         elif isinstance(agent, SpaceAgent):
-            self.tree.intersection()
-            return len(list(agents)) == 0 and not self.is_blocked(coords, radius, agent.speed)
+            agents = self.intersect(coords, 0, 0)
+            return len(list(agents)) == 0 and not self.is_blocked(coords, 0, 0)
+
+    def intersect_box(self, mini: TimeCoordinate, maxi: TimeCoordinate):
+        return self.tree.intersection(mini.list_rep() + maxi.list_rep(), objects=True)
 
     def intersect(self, coords: TimeCoordinate, radius: int = 0, speed: int = 0):
         return self.tree.intersection((
@@ -202,7 +205,7 @@ class Environment:
     def clone(self):
         cloned = Environment(self._dimension, list(self.blockers.values()), self.map_tiles)
         if len(self.tree) > 0:
-            for item in self.tree.intersection(self.tree.bounds, objects=True):
+            for item in self.tree.intersection(self.tree.bounds, objects=True):     #Todo faster deepCopy of tree
                 cloned.tree.insert(item.id, item.bbox)
         cloned.blocker_tree = self.blocker_tree
         for agent in self._agents.values():

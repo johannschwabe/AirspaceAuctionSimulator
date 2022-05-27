@@ -1,9 +1,7 @@
-from typing import List
-
-from .Segment import Segment
 from ..Coordinate import TimeCoordinate
 
 
-class SpaceSegment(Segment):
-    def __init__(self, coords: List["TimeCoordinate"]):
-        super().__init__(coords)
+class SpaceSegment:
+    def __init__(self, mini: TimeCoordinate, maxi: TimeCoordinate):
+        self.min = mini
+        self.max = maxi

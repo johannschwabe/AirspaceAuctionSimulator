@@ -1,13 +1,15 @@
 import statistics
+from abc import ABC
 from enum import Enum
-from typing import Dict, List
+from typing import Dict, List, TYPE_CHECKING
 
 from .. import Blocker, Simulator, Statistics
-from ..Agent import Agent, AgentType
+from ..Agent import Agent, PathAgent, SpaceAgent
 from ..History import HistoryAgent
 from ..IO import Stringify
 from ..Generator.MapTile import MapTile
-
+if TYPE_CHECKING:
+    from ..Coordinate import TimeCoordinate
 
 class Path(Stringify):
     def __init__(self, path: List["TimeCoordinate"]):
@@ -38,12 +40,44 @@ class Reason(Enum):
     OWNER = 3
     NOT_IMPLEMENTED = 4
 
+class JSONAgent(ABC):
+    def __init__(
+        self,
+        agent: Agent,
+        non_colliding_welfare: float,
+        bid: int,
+        owner_id: int,
+        owner_name: str,
+    ):
+        self.agent_type: str = agent.__class__.__name__
+        self.id: int = agent.id
+        self.welfare: float = agent.get_allocated_value()
 
-class JSONAgent(Stringify):
+        self.non_colliding_welfare: float = non_colliding_welfare
+
+        self.bid: int = bid
+        self.owner_id: int = owner_id
+        self.owner_name: str = owner_name
+        self.name: str = f"{self.owner_name}-{self.agent_type}-Agent-{self.id}"
+
+
+class JSONSpaceAgent(JSONAgent, Stringify):
+    def __init__(
+        self,
+        agent: SpaceAgent,
+        non_colliding_welfare: float,
+        bid: int,
+        owner_id: int,
+        owner_name: str,
+    ):
+        super().__init__(agent, non_colliding_welfare, bid, owner_id, owner_name)
+
+
+class JSONPathAgent(JSONAgent, Stringify):
     def __init__(
         self,
         history_agent: HistoryAgent,
-        agent: Agent,
+        agent: PathAgent,
         non_colliding_welfare: float,
         near_field_intersections: int,
         far_field_intersections: int,
@@ -53,31 +87,21 @@ class JSONAgent(Stringify):
         owner_id: int,
         owner_name: str,
     ):
-        self.agent_type: AgentType = agent.agent_type
-        self.id: int = agent.id
+        super().__init__(agent, non_colliding_welfare, bid, owner_id, owner_name)
         self.speed: int = agent.speed
         self.near_radius: int = agent.near_radius
         self.far_radius: int = agent.far_radius
-        self.welfare: float = agent.get_allocated_value()
         self.battery: int = agent.battery
         self.time_in_air: int = agent.get_airtime()
 
-        self.non_colliding_welfare: float = non_colliding_welfare
         self.near_field_intersections: int = near_field_intersections
         self.far_field_intersections: int = far_field_intersections
         self.near_field_violations: int = near_field_violations
         self.far_field_violations: int = far_field_violations
 
-        self.bid: int = bid
-        self.owner_id: int = owner_id
-        self.owner_name: str = owner_name
-        self.name: str = f"{self.owner_name}-{self.agent_type.name}-Agent-{self.id}"
-
-        self.paths: List[Path] = [Path(path) for path in agent.get_allocated_paths()]
+        self.paths: List[Path] = [Path(path.coordinates) for path in agent.get_allocated_segments()]
 
         self.branches: List[Branch] = []
-
-        res = find_flown_path(list(history_agent.past_allocations.values()))
 
         # First reallocation isn't a reallocation but an allocation
         for key, value in list(history_agent.past_allocations.items())[1:]:
@@ -89,24 +113,6 @@ class JSONAgent(Stringify):
                 Collision(Reason.NOT_IMPLEMENTED)
             ))
 
-def find_flown_path(reallocations):
-    res = reallocations[-1]
-    for allocation_index in range(len(reallocations) - 1, 0, -1):  # DER CODE IST SELBSTERKLÄREND
-        path = reallocations[allocation_index]
-        previous_allocation = reallocations[allocation_index - 1]
-
-        if len(path[0]) == 0:
-            print("send help")
-            continue
-        start_location = path[0][0]
-        nr_stops = len(path)
-        search_path = previous_allocation[-nr_stops]
-        reallocation_index = start_location.t - search_path[0].t
-        res[0] = search_path[0:reallocation_index] + res[0]
-        if len(previous_allocation) > nr_stops:
-            res = previous_allocation[0:-nr_stops] + res
-
-    return res
 
 class JSONOwner(Stringify):
     def __init__(self, name: str, id: int, color: str, agents: List[JSONAgent]):
@@ -114,7 +120,7 @@ class JSONOwner(Stringify):
         self.id: int = id
         self.color: str = color
         self.agents: List[JSONAgent] = agents
-        self.total_time_in_air: int = sum([agent.time_in_air for agent in self.agents])
+        self.total_time_in_air: int = sum([agent.time_in_air if isinstance(agent, JSONPathAgent) else 0 for agent in self.agents])
 
         bids = [agent.bid for agent in self.agents]
         self.total_bid_value: int = sum(bids)
@@ -137,11 +143,10 @@ class JSONOwner(Stringify):
                                               w < self.welfare_quantiles[0] or w > self.welfare_quantiles[-1]]
 
         self.number_of_agents: int = len(self.agents)
-        self.number_of_ab_agents: int = sum([int(agent.agent_type == AgentType.AB) for agent in self.agents])
-        self.number_of_aba_agents: int = sum([int(agent.agent_type == AgentType.ABA) for agent in self.agents])
-        self.number_of_abc_agents: int = sum([int(agent.agent_type == AgentType.ABC) for agent in self.agents])
-        self.number_of_stationary_agents: int = sum(
-            [int(agent.agent_type == AgentType.STATIONARY) for agent in self.agents])
+        self.number_per_type = {}
+        for agent in self.agents:
+            self.number_per_type[agent.agent_type] = self.number_per_type.get(agent.agent_type, default=0) + 1
+
 
 
 class JSONBlocker(Stringify):
@@ -193,27 +198,36 @@ def build_json(simulator: Simulator, name: str, description: str):
     stats = Statistics(simulator)
     # close_passings = stats.close_passings()
     nr_collisions = 0
-    json_env = JSONEnvironment(env._dimension, env.blockers, env.map_tiles)
+    json_env = JSONEnvironment(env._dimension, list(env.blockers.values()), env.map_tiles)
     owners: List[JSONOwner] = []
     for owner in history.owners:
         agents: List[JSONAgent] = []
         for agent in owner.agents:
-            agents.append(JSONAgent(
-                history.agents[agent],
-                agent,
-                stats.non_colliding_value(agent),
-                # close_passings[agent.id]["total_near_field_intersection"],
-                # close_passings[agent.id]["total_far_field_intersection"],
-                # close_passings[agent.id]["total_near_field_violations"],
-                # close_passings[agent.id]["total_far_field_violations"],
-                0,
-                0,
-                0,
-                0,
-                0,
-                owner.id,
-                owner.name,
-            ))
+            if isinstance(agent, PathAgent):
+                agents.append(JSONPathAgent(
+                    history.agents[agent],
+                    agent,
+                    stats.non_colliding_value(agent),
+                    # close_passings[agent.id]["total_near_field_intersection"],
+                    # close_passings[agent.id]["total_far_field_intersection"],
+                    # close_passings[agent.id]["total_near_field_violations"],
+                    # close_passings[agent.id]["total_far_field_violations"],
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    owner.id,
+                    owner.name,
+                ))
+            elif isinstance(agent, SpaceAgent):
+                agents.append(JSONSpaceAgent(
+                    agent,
+                    stats.non_colliding_value(agent),
+                    0,
+                    owner.id,
+                    owner.name
+                ))
             # nr_collisions += close_passings[agent.id]["total_near_field_violations"]  # todo different collision metric
         owners.append(JSONOwner(owner.name, owner.id, owner.color, agents))
     json_stats = JSONStatistics(len(simulator.owners), len(env._agents), stats.total_agents_welfare(), nr_collisions, 0)

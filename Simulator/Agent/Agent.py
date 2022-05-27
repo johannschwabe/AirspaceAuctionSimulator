@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 
 from ..Bid import Bid
 from ..Coordinate import TimeCoordinate
-from ..Path import Segment
+from ..Path import PathSegment, SpaceSegment
 
 if TYPE_CHECKING:
     from .. import Tick
@@ -18,7 +18,7 @@ class Agent(ABC):
         Agent._id += 1
         self.is_clone = False
 
-        self._allocated_segments: List[Segment] = []
+        self._allocated_segments: List[PathSegment|SpaceSegment] = []
 
         self.optimal_welfare: float = 1.
         self.costs: float = 0.
@@ -28,7 +28,7 @@ class Agent(ABC):
         return self.value_for_segments(self._allocated_segments)
 
     @abstractmethod
-    def value_for_segments(self, segments: List[Segment]) -> float:
+    def value_for_segments(self, segments: List[PathSegment|SpaceSegment]) -> float:
         pass
 
     @abstractmethod
@@ -43,16 +43,16 @@ class Agent(ABC):
         return [coord for path_segment in self._allocated_segments for coord in path_segment.coordinates]
 
     @abstractmethod
-    def add_allocated_segment(self, segment: Segment):
+    def add_allocated_segment(self, segment: PathSegment|SpaceSegment):
         pass
 
-    def get_allocated_segments(self) -> List["Segment"]:
+    def get_allocated_segments(self) -> List["PathSegment|SpaceSegment"]:
         return self._allocated_segments
 
     def get_allocated_value(self) -> float:
         return self.value_for_segments(self._allocated_segments)
 
-    def set_allocated_segments(self, segments: List["Segment"]):
+    def set_allocated_segments(self, segments: List["PathSegment|SpaceSegment"]):
         self._allocated_segments = segments
 
     def __repr__(self):
