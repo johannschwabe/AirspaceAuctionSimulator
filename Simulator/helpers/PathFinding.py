@@ -87,15 +87,15 @@ def astar(
 
     complete_path = path + wait_coords
     complete_path.sort(key=lambda x: x.t)
-    stop_time = time_ns()
-    seconds = (stop_time - start_time) / 1e9
-    print(f"PathLen: {len(path)}, "
-          f"steps: {steps}, "
-          f"time: {seconds:.2f}, "
-          f"t/p: {seconds / (len(path) + 1) * 1000:.2f}, "
-          f"sort: {sort_time/1e9:.2f}, "
-          f"neighbours: {neighbors_time/1e9:.2f}, "
-          f"valid: {valid_time/1e9:.2f}, ")
+    # stop_time = time_ns()
+    # seconds = (stop_time - start_time) / 1e9
+    # print(f"PathLen: {len(path)}, "
+    #       f"steps: {steps}, "
+    #       f"time: {seconds:.2f}, "
+    #       f"t/p: {seconds / (len(path) + 1) * 1000:.2f}, "
+    #       f"sort: {sort_time/1e9:.2f}, "
+    #       f"neighbours: {neighbors_time/1e9:.2f}, "
+    #       f"valid: {valid_time/1e9:.2f}, ")
     return complete_path
 
 

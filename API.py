@@ -79,6 +79,7 @@ def read_root(config: SimulationConfigType):
         maptiles = []
     TimeCoordinate.dim = dimensions
 
+    random.seed(2)
     g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions,
                   maptiles=maptiles)
     g.simulate()

@@ -116,8 +116,11 @@ class Environment:
                 res[self._agents[agent.id]] = path
         return res
 
-    def is_blocked(self, coord: TimeCoordinate) -> bool:
-        blockers = self.blocker_tree.intersection(coord.tree_query_point_rep())
+    def is_blocked(self, coord: TimeCoordinate, radius: int = 0, speed: int = 0) -> bool:
+        blockers = self.blocker_tree.intersection((
+            coord.x - radius, coord.y - radius, coord.z - radius, coord.t,
+            coord.x + radius, coord.y + radius, coord.z + radius, coord.t + speed
+        ))
         for blocker_id in blockers:
             if self.blockers[blocker_id].is_blocking(coord):
                 return True
@@ -138,7 +141,7 @@ class Environment:
     def is_valid_for_allocation(self, coords: TimeCoordinate, agent: Agent) -> bool: #Todo: Could be in the near-field of another agent
         radius: int = agent.near_radius
         agents = self.intersect(coords, radius, agent.speed)
-        return len(list(agents)) == 0
+        return len(list(agents)) == 0 and not self.is_blocked(coords, radius, agent.speed)
 
     def intersect(self, coords: TimeCoordinate, radius: int = 0, speed: int = 0):
         return self.tree.intersection((
@@ -152,13 +155,13 @@ class Environment:
     def visualize(self, current_time_step, before=0, nr_steps=1):
         for t in range(current_time_step - before, current_time_step + nr_steps):
             print(f"t = {t}")
-            for z in range(self._dimension.z):
-                print(f"z={z: >2}", end="")
+            for y in range(self._dimension.y):
+                print(f"y={y: >2}", end="")
                 for i in range(self._dimension.x):
                     print(f" {i: >4}", end="")
                 print("  -> X")
-                for y in range(self._dimension.y):
-                    print(f"  {y: >2} ", end="")
+                for z in range(self._dimension.z):
+                    print(f"  {z: >2} ", end="")
                     for x in range(self._dimension.x):
                         coord = TimeCoordinate(x, y, z, Tick(t))
                         agents = list(self.tree.intersection(coord.tree_query_point_rep()))
@@ -167,15 +170,11 @@ class Environment:
 
                         elif self.is_blocked(coord):
                             print("✖".rjust(5, ' '), end="")
-                        # elif field.is_near():
-                        #     print("*".rjust(5, ' '), end="")
-                        # elif field.is_far():
-                        #     print("-".rjust(5, ' '), end="")
                         else:
                             print(".".rjust(5, ' '), end="")
                     print("")
                 print("")
-            print(" ↓\n Y")
+            print(" ↓\n Z")
 
     def new_clear(self):
         new_env = Environment(self._dimension, self.blockers, self.maptiles)

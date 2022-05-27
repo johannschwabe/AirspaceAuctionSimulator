@@ -25,7 +25,7 @@
         <n-grid-item span="6" id="drawer-target">
           <n-grid cols="1">
             <n-grid-item>
-              <three-d-map />
+              <three-d-map v-show="simulation" />
             </n-grid-item>
           </n-grid>
         </n-grid-item>
@@ -189,7 +189,7 @@ onUnmounted(() => {
   border-left: 1px solid rgba(255, 255, 255, 0.09);
   border-right: 1px solid rgba(255, 255, 255, 0.09);
 }
-#drawer-target /deep/ .n-drawer-mask {
+#drawer-target :deep(.n-drawer-mask) {
   background-color: transparent;
   pointer-events: none;
 }

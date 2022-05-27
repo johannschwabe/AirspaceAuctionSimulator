@@ -22,12 +22,15 @@ class Blocker:
         idx = 0
         start = self.locations[idx]
         while idx < len(self.locations):
-            if self.locations[idx].inter_temporal_equal(start):
-                idx += 1
-                continue
-            end = self.locations[idx - 1]
-            max_pos = start + self.dimension
-            max_pos.t = end.t
-            tree_rep = start.list_rep() + max_pos.list_rep()
-            tree.insert(self.id, tree_rep)
-            start = self.locations[idx]
+            end = None
+            if not self.locations[idx].inter_temporal_equal(start):
+                end = self.locations[idx - 1]
+            elif idx == len(self.locations) - 1:
+                end = self.locations[idx]
+            if end is not None:
+                max_pos = start + self.dimension
+                max_pos.t = end.t
+                tree_rep = start.list_rep() + max_pos.list_rep()
+                tree.insert(self.id, tree_rep)
+                start = self.locations[idx]
+            idx += 1
