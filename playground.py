@@ -14,9 +14,10 @@ from Simulator.Owner.ABCOwner import ABCOwner
 from Simulator.Owner.ABOwner import ABOwner
 from Simulator.Owner.StationaryOwner import StationaryOwner
 
-dimensions = TimeCoordinate(5, 5, 1, Tick(40))
+dimensions = TimeCoordinate(5, 1, 5, Tick(40))
 random.seed(3)
-environment = Environment(dimensions, [])
+environment = Environment(dimensions, [], [])
+environment.set_blockers()
 allocator = BiddingAllocator()
 owners = []
 for i in range(3):

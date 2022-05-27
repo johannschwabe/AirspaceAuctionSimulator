@@ -26,7 +26,7 @@ class Environment:
     def deallocate_agent(self, agent: Agent, time_step: Tick):
         allocated_coords = agent.get_allocated_coords()
         for coord in allocated_coords[max(time_step - allocated_coords[0].t, 0):]:
-            intersections = self.tree.intersection(coord.tree_query_rep(), objects=True)
+            intersections = self.tree.intersection(coord.tree_query_point_rep(), objects=True)
             for intersection in intersections:
                 _index = intersection.id
                 bbox = intersection.bbox
@@ -46,12 +46,11 @@ class Environment:
                 new_allocated_paths.append(path)
         agent.set_allocated_paths(new_allocated_paths)
 
-    def set_blockers(self, blockers: List[Blocker]):
-        self.blockers = blockers
+    def set_blockers(self):
         props = index.Property()
         props.dimension = 4
         self.blocker_tree = index.Rtree(properties=props)
-        for blocker in blockers:
+        for blocker in self.blockers.values():
             blocker.add_to_tree(self.blocker_tree)
 
     def allocate_paths_for_agent(self, agent: Agent, paths: List[List[TimeCoordinate]]):
@@ -177,12 +176,12 @@ class Environment:
             print(" ↓\n Z")
 
     def new_clear(self):
-        new_env = Environment(self._dimension, self.blockers, self.maptiles)
+        new_env = Environment(self._dimension, list(self.blockers.values()), self.maptiles)
         new_env.blocker_tree = self.blocker_tree
         return new_env
 
     def clone(self):
-        cloned = Environment(self._dimension, self.blockers, self.maptiles)
+        cloned = Environment(self._dimension, list(self.blockers.values()), self.maptiles)
         if len(self.tree) > 0:
             for item in self.tree.intersection(self.tree.bounds, objects=True):
                 cloned.tree.insert(item.id, item.bbox)

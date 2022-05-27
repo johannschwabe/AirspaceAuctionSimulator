@@ -24,5 +24,5 @@ class BiddingABAgent(ABAgent):
         clone.id = self.id
         clone.set_allocated_paths([[coord for coord in path] for path in self.get_allocated_paths()])
         clone.is_clone = True
-        Agent.id -= 1
+        Agent._id -= 1
         return clone
