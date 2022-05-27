@@ -22,7 +22,7 @@ class StationaryOwner(Owner):
             dimensions = env._dimension
             corner_1 = Coordinate(
                 random.randint(0, dimensions.x - 1),
-                random.randint(0, 0),
+                0,
                 random.randint(0, dimensions.z - 1),
             )
             corner_2 = Coordinate(

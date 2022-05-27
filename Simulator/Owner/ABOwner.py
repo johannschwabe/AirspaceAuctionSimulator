@@ -21,11 +21,11 @@ class ABOwner(Owner):
         for _ in range(self.creation_ticks.count(t)):
             dimensions = env._dimension
             start = TimeCoordinate(random.randint(0, dimensions.x - 1),
-                                   random.randint(0, 0),
+                                   0,
                                    random.randint(0, dimensions.z - 1),
                                    Tick(t + random.randint(0, 10)))
             target = TimeCoordinate(random.randint(0, dimensions.x - 1),
-                                    random.randint(0, 0),
+                                    0,
                                     random.randint(0, dimensions.z - 1),
                                     Tick(0))
             speed = random.randint(1, 3)
