@@ -7,7 +7,7 @@ from ..Environment import Environment
 
 
 class Owner(ABC):
-    id: int = 0
+    _id: int = 10000
 
     def __init__(self, name: str, color: str):
         self.name: str = name
@@ -16,8 +16,8 @@ class Owner(ABC):
         self.total_achieved_welfare: float = 0.
         self.total_optimal_welfare: float = 0.
         self.total_costs: float = 0.
-        self.id: int = Owner.id
-        Owner.id += 1
+        self.id: int = Owner._id
+        Owner._id += 1
 
     @abstractmethod
     def generate_agents(self, t: int, env: Environment) -> List[Agent]:

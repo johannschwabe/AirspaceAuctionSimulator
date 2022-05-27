@@ -14,13 +14,13 @@ class BlockerGen:
         blockers: List[Blocker] = []
         max_size = Coordinate(
             int(self.dimension.x / 5),
-            int(self.dimension.y / 2),
-            int(self.dimension.z / 10),
+            int(self.dimension.y),
+            int(self.dimension.z / 5),
         )
         for _ in range(n_blockers):
             origin = Coordinate.random(self.dimension)
             origin.y = 0
-            dimension = Coordinate.random(max_size)
+            dimension = Coordinate.random(max_size, strict_positive=True)
             locations: List[TimeCoordinate] = \
                 [TimeCoordinate(origin.x, origin.y, origin.z, Tick(t)) for t in range(self.dimension.t + 1)]
             blockers.append(Blocker(locations, dimension))
