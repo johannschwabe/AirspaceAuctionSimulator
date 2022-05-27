@@ -20,7 +20,7 @@ class BiddingABAgent(ABAgent):
         self.priority = priority
 
     def get_bid(self, t: "Tick") -> BiddingABBid:
-        if self._allocated_segments[0][0].t >= t:
+        if len(self._allocated_segments) == 0 or self._allocated_segments[0][0].t >= t:
             return BiddingABBid(self.battery, self.a, self.b, self.priority, False)
         start = self._allocated_segments[0][t - self._allocated_segments[0][0]]
         return BiddingABBid(self.battery - (t - self._allocated_segments[0][0]), start, self.b, self.priority, True)

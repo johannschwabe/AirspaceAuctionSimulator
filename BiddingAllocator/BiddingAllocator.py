@@ -23,11 +23,12 @@ class BiddingAllocator(Allocator):
             bid = agent.get_bid(tick)
             if isinstance(bid, BiddingABBid):
                 ab_path, collisions = bidding_astar(bid.a, bid.b, env, agent, bid.flying)
-                res[agent] = [PathSegment(bid.a.to_inter_temporal(), bid.b.to_inter_temporal(), ab_path)]
+                new_path_segment = PathSegment(bid.a.to_inter_temporal(), bid.b.to_inter_temporal(), 0, ab_path)
+                res[agent] = [new_path_segment]
                 to_add = to_add.union(collisions)
                 for agent_to_remove in collisions:
                     env.deallocate_agent(agent_to_remove, tick)
-                env.allocate_path_segment_for_agent(agent, ab_path)
+                env.allocate_path_segment_for_agent(agent, new_path_segment)
                 if not agent.id in env.get_agents():
                     env.add_agent(agent)
         return res

@@ -35,7 +35,7 @@ class PathAgent(Agent, ABC):
         return airtime
 
     def add_allocated_segment(self, path_segment: PathSegment):
-        if self._allocated_segments[-1].same(path_segment):
+        if len(self._allocated_segments) > 0 and self._allocated_segments[-1].same(path_segment):
             self._allocated_segments[-1].join(path_segment)
         else:
             self._allocated_segments.append(path_segment)

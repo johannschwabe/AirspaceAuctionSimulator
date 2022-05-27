@@ -121,7 +121,7 @@ def is_valid_for_allocation(env: Environment, position: TimeCoordinate, agent: B
     res = set()
     for agent_id in agents:
         colliding_agent = env.get_agent(agent_id)
-        if colliding_agent.get_bid().priority < agent.get_bid().priority:
+        if colliding_agent.priority < agent.priority:
             res.add(colliding_agent)
         else:
             return set(), False

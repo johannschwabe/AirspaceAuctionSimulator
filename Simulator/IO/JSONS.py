@@ -145,7 +145,7 @@ class JSONOwner(Stringify):
         self.number_of_agents: int = len(self.agents)
         self.number_per_type = {}
         for agent in self.agents:
-            self.number_per_type[agent.agent_type] = self.number_per_type.get(agent.agent_type, default=0) + 1
+            self.number_per_type[agent.agent_type] = self.number_per_type.get(agent.agent_type, 0) + 1
 
 
 
