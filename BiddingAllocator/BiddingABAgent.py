@@ -28,7 +28,7 @@ class BiddingABAgent(ABAgent):
     def clone(self):
         clone = BiddingABAgent(self.a, self.b, self.priority, self.speed, self.battery)
         clone.id = self.id
-        clone.set_allocated_paths([[coord for coord in path] for path in self.get_allocated_paths()])
+        clone.set_allocated_segments([segment.clone() for segment in self.get_allocated_segments()])
         clone.is_clone = True
         Agent._id -= 1
         return clone

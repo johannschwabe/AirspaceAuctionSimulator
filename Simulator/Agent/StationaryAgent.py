@@ -1,7 +1,7 @@
 from typing import List, TYPE_CHECKING
 
-from . import Agent
-from . import SpaceAgent
+from .Agent import Agent
+from .SpaceAgent import SpaceAgent
 from ..Path import SpaceSegment
 from ..Time import Tick
 from ..Bid import Bid, StationaryBid
@@ -41,7 +41,7 @@ class StationaryAgent(SpaceAgent):
         return round(value, 2)
 
     def get_bid(self, t: "Tick") -> Bid:
-        return StationaryBid(self.battery, self.block, self.start_t, self.end_t)
+        return StationaryBid(self.block, self.start_t, self.end_t)
 
     def clone(self):
         clone = StationaryAgent(self.block, self.start_t, self.end_t)
