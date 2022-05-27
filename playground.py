@@ -8,10 +8,10 @@ from Simulator import Simulator, Tick
 from Simulator.Generator.BlockerGen import BlockerGen
 from Simulator.IO.JSONS import build_json
 from Simulator.History import History
-from Simulator.Owner.ABAOwner import ABAOwner
-from Simulator.Owner.ABCOwner import ABCOwner
-from Simulator.Owner.ABOwner import ABOwner
-from Simulator.Owner.StationaryOwner import StationaryOwner
+from Simulator.Owner.PathOwners.ABAOwner import ABAOwner
+from Simulator.Owner.PathOwners.ABCOwner import ABCOwner
+from Simulator.Owner.PathOwners.ABOwner import ABOwner
+from Simulator.Owner.SpaceOwners.StationaryOwner import StationaryOwner
 
 dimensions = TimeCoordinate(20, 2, 20, Tick(20))
 random.seed(2)

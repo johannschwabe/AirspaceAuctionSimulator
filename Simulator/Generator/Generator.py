@@ -1,10 +1,10 @@
-from typing import List, Optional, Tuple, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
 
-from ..Owner.ABAOwner import ABAOwner
-from ..Owner.ABCOwner import ABCOwner
-from ..Owner.ABOwner import ABOwner
+from Simulator.Owner.PathOwners.ABAOwner import ABAOwner
+from Simulator.Owner.PathOwners.ABCOwner import ABCOwner
+from Simulator.Owner.PathOwners.ABOwner import ABOwner
 from .EnvironmentGen import EnvironmentGen
-from ..Owner.StationaryOwner import StationaryOwner
+from Simulator.Owner.SpaceOwners.StationaryOwner import StationaryOwner
 from ..Statistics.Statistics import Statistics
 from ..Allocator import FCFSAllocator
 from ..History import History

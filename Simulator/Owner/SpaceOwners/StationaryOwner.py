@@ -1,17 +1,17 @@
 import random
 from typing import List, TYPE_CHECKING
 
-from .Owner import Owner
-from ..Coordinate import Coordinate
-from ..Time import Tick
-from ..Agent import StationaryAgent
+from Simulator.Coordinate import Coordinate
+from Simulator.Owner.SpaceOwner import SpaceOwner
+from Simulator.Time import Tick
+from Simulator.Agent import StationaryAgent
 
 if TYPE_CHECKING:
     from Simulator import Environment
     from Simulator.Agent import Agent
 
 
-class StationaryOwner(Owner):
+class StationaryOwner(SpaceOwner):
     def __init__(self, name: str, color: str, creation_ticks: List[int]):
         super().__init__(name, color)
         self.creation_ticks = creation_ticks
