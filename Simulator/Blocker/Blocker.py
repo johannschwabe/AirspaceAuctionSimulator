@@ -12,6 +12,10 @@ class Blocker:
         self.locations = locations
         self.dimension: Coordinate = dimension
 
+    @staticmethod
+    def is_blocking(coord: TimeCoordinate):
+        return True
+
     def add_to_tree(self, tree):
         if not self.locations or len(self.locations) == 0:
             return
@@ -27,12 +31,3 @@ class Blocker:
             tree_rep = start.list_rep() + max_pos.list_rep()
             tree.insert(self.id, tree_rep)
             start = self.locations[idx]
-
-    def get_coordinates_at(self, t: int) -> List[Coordinate]:
-        t -= self.locations[0]
-        res = []
-        for x in range(self.dimension.x):
-            for y in range(self.dimension.y):
-                for z in range(self.dimension.z):
-                    res.append(Coordinate(self.locations[t].x + x, self.locations[t].y + y, self.locations[t].z + z))
-        return res

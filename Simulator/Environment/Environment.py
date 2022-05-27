@@ -15,7 +15,7 @@ class Environment:
         TimeCoordinate.dim = dimension
         self._dimension: TimeCoordinate = dimension
         self._agents: Dict[int, Agent] = {}
-        self.blockers: List[Blocker] = blocker
+        self.blockers: Dict[int, Blocker] = {blocky.id: blocky for blocky in blocker}
         self.maptiles: List["MapTile"] = maptiles
         props = index.Property()
         props.dimension = 4
@@ -116,9 +116,12 @@ class Environment:
                 res[self._agents[agent.id]] = path
         return res
 
-    def is_blocked(self, coords: TimeCoordinate) -> bool:
-        blockers = self.blocker_tree.intersection(coords.tree_query_point_rep())
-        return len(list(blockers)) > 0
+    def is_blocked(self, coord: TimeCoordinate) -> bool:
+        blockers = self.blocker_tree.intersection(coord.tree_query_point_rep())
+        for blocker_id in blockers:
+            if self.blockers[blocker_id].is_blocking(coord):
+                return True
+        return False
 
     def add_agent(self, agent: Agent):
         self._agents[agent.id] = agent
@@ -132,7 +135,7 @@ class Environment:
     def get_dim(self):
         return self._dimension
 
-    def is_valid_for_allocation(self, coords: TimeCoordinate, agent: Agent) -> bool:
+    def is_valid_for_allocation(self, coords: TimeCoordinate, agent: Agent) -> bool: #Todo: Could be in the near-field of another agent
         radius: int = agent.near_radius
         agents = self.intersect(coords, radius, agent.speed)
         return len(list(agents)) == 0

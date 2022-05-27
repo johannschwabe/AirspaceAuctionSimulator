@@ -45,14 +45,10 @@ class MapTile:
                 max_x = -100000
                 min_z = 100000
                 max_z = -100000
-                print(self.dimensions)
                 for coord in building['geometry']['coordinates'][0]:
-                    print(coord)
                     x = ((coord[0] - self.top_left_coordinate.long) / (self.bottom_right_coordinate.long - self.top_left_coordinate.long)) * self.dimensions.x
                     z = ((coord[1] - self.top_left_coordinate.lat) / (self.bottom_right_coordinate.lat - self.top_left_coordinate.lat)) * self.dimensions.z
                     coords.append([x,z])
-                    print(x)
-                    print(z)
 
                     if min_x > x:
                         min_x = x
@@ -63,7 +59,6 @@ class MapTile:
                     if max_z < z:
                         max_z = z
                 converted = {
-                    "height": building['properties']['height'],
                     "coords": coords,
                     "bounds": Coordinate(max_x - min_x, building['properties']['height'], max_z - min_z)
                 }
