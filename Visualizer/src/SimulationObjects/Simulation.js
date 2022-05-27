@@ -8,6 +8,7 @@ import TimeCoordinate from "./TimeCoordinate";
 import Blocker from "./Blocker";
 import Statistics from "./Statistics";
 import Owner from "./Owner";
+import MapTile from "./MapTile";
 import { emitFocusOffAgent, onAgentsSelected, onTick } from "../scripts/emitter";
 
 export default class Simulation {
@@ -89,6 +90,11 @@ export default class Simulation {
      * @type {Blocker[]}
      */
     this.activeBlockersPerTickIndex = this.buildActiveBlockersPerTickIndex();
+
+    /**
+     * @type {MapTile[]}
+     */
+    this.mapTiles = rawSimulation.environment.maptiles.map((tile) => new MapTile(tile));
 
     /**
      * Stores how many active agents are present over all possible ticks
@@ -238,5 +244,14 @@ export default class Simulation {
     this._simulationStore.agentInFocus = false;
     emitFocusOffAgent();
     this.agentInFocus = null;
+  }
+
+  /**
+   * @returns {Promise<Simulation>}
+   */
+  async load() {
+    const promises = this.mapTiles.map((maptile) => maptile.load());
+    await Promise.all(promises);
+    return this;
   }
 }

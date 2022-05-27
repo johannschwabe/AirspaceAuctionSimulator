@@ -21,12 +21,14 @@ export function canRecoverSimulationSingleton() {
   return canLoadSimulation();
 }
 
-export function loadSimulationSingleton() {
+export async function loadSimulationSingleton() {
   const data = loadSimulation();
   if (!data) {
     throw new Error("Unable to recover last simulation!");
   }
-  simulationSingleton = new Simulation(data);
+  const simulation = new Simulation(data);
+  simulationSingleton = await simulation.load();
+  return simulationSingleton;
 }
 
 export function useSimulationSingleton() {

@@ -1,2 +1,1 @@
 from .Generator import Generator
-

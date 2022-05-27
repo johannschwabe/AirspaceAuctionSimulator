@@ -8,9 +8,7 @@ import App from "./App.vue";
 import router from "./router";
 
 import {
-  // create naive ui
   create,
-  // component
   NButton,
   NConfigProvider,
   NLoadingBarProvider,
@@ -31,6 +29,7 @@ import {
   NText,
   NP,
   NInput,
+  NInputGroup,
   NInputNumber,
   NForm,
   NFormItem,
@@ -57,6 +56,8 @@ import {
   NDataTable,
   NModal,
   NPopconfirm,
+  NTabs,
+  NTabPane,
 } from "naive-ui";
 
 const naive = create({
@@ -81,6 +82,7 @@ const naive = create({
     NText,
     NP,
     NInput,
+    NInputGroup,
     NInputNumber,
     NForm,
     NFormItem,
@@ -107,6 +109,8 @@ const naive = create({
     NDataTable,
     NModal,
     NPopconfirm,
+    NTabs,
+    NTabPane,
   ],
 });
 

@@ -6,23 +6,32 @@
     <n-form-item path="description" label="Model Description">
       <n-input v-model:value="model.description" type="textarea" placeholder="Model description (Metadata)" />
     </n-form-item>
-    <n-grid cols="3" x-gap="12">
-      <n-grid-item span="1">
-        <n-form-item path="dimension.x" label="Dimension X">
-          <n-input-number v-model:value="model.dimension.x" :min="10" :max="1000" :step="10" />
-        </n-form-item>
-      </n-grid-item>
-      <n-grid-item span="1">
-        <n-form-item path="dimension.y" label="Dimension Y">
-          <n-input-number v-model:value="model.dimension.y" :min="10" :max="1000" :step="10" />
-        </n-form-item>
-      </n-grid-item>
-      <n-grid-item span="1">
-        <n-form-item path="dimension.z" label="Dimension Z">
-          <n-input-number v-model:value="model.dimension.z" :min="10" :max="1000" :step="10" />
-        </n-form-item>
-      </n-grid-item>
-    </n-grid>
+
+    <n-tabs type="line" animated>
+      <n-tab-pane name="coordinates" tab="Coordinates">
+        <n-grid cols="3" x-gap="12">
+          <n-grid-item span="1">
+            <n-form-item path="dimension.x" label="Dimension X">
+              <n-input-number v-model:value="model.dimension.x" :min="10" :max="10000" :step="10" />
+            </n-form-item>
+          </n-grid-item>
+          <n-grid-item span="1">
+            <n-form-item path="dimension.y" label="Dimension Y">
+              <n-input-number v-model:value="model.dimension.y" :min="10" :max="1000" :step="10" />
+            </n-form-item>
+          </n-grid-item>
+          <n-grid-item span="1">
+            <n-form-item path="dimension.z" label="Dimension Z">
+              <n-input-number v-model:value="model.dimension.z" :min="10" :max="10000" :step="10" />
+            </n-form-item>
+          </n-grid-item>
+        </n-grid>
+      </n-tab-pane>
+      <n-tab-pane name="map" tab="Map">
+        <map-selector @dimensionChange="setDimension" @map-change="(map) => (model.map = map)" />
+      </n-tab-pane>
+    </n-tabs>
+
     <n-form-item path="dimension.t" label="Timesteps">
       <n-slider show-tooltip v-model:value="model.dimension.t" :min="10" :max="1000" :step="10" />
     </n-form-item>
@@ -77,14 +86,15 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import { useMessage, useLoadingBar } from "naive-ui";
 import { useRouter } from "vue-router";
 import { CloudDownloadOutline, ArrowForwardOutline } from "@vicons/ionicons5";
 
-import api from "../../API/api.js";
 import Owner from "./Owner.vue";
+import MapSelector from "./MapSelector.vue";
 import Simulation from "../../SimulationObjects/Simulation.js";
+import api from "../../API/api.js";
 import {
   canRecoverSimulationSingleton,
   hasSimulationSingleton,
@@ -105,9 +115,10 @@ const loadingInterval = ref(undefined);
 const finished = ref(false);
 const canRecover = ref(hasSimulationSingleton() || canRecoverSimulationSingleton());
 
-const model = ref({
+const model = reactive({
   name: null,
   description: null,
+  map: null,
   dimension: {
     x: 100,
     y: 20,
@@ -125,6 +136,12 @@ const rules = {
       trigger: ["input", "blur"],
     },
   ],
+};
+
+const setDimension = (dimension) => {
+  model.dimension.x = dimension.x;
+  model.dimension.y = dimension.y;
+  model.dimension.z = dimension.z;
 };
 
 const goToSimulation = () => {
@@ -154,11 +171,15 @@ const simulate = () => {
       startLoading();
       api
         .postSimulation({
-          ...model.value,
+          ...model,
           owners: owners.value,
         })
         .then((data) => {
-          setSimulationSingleton(new Simulation(data));
+          const simulation = new Simulation(data);
+          return simulation.load();
+        })
+        .then((simulation) => {
+          setSimulationSingleton(simulation);
           loadingBar.finish();
           message.success("Simulation Created!");
           finished.value = true;
@@ -166,7 +187,7 @@ const simulate = () => {
         .catch((e) => {
           console.error(e);
           loadingBar.error();
-          message.error("Failed creating the Session!");
+          message.error(e.message);
           errorText.value = e.message;
         })
         .finally(() => {

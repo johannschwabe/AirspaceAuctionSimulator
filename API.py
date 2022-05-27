@@ -13,6 +13,7 @@ from Simulator.Coordinate import TimeCoordinate
 from Simulator.IO.JSONS import build_json
 from Simulator.Time import Tick
 from Simulator.Generator import Generator
+from Simulator.Generator.MapTile import MapTile
 
 app = FastAPI()
 
@@ -22,7 +23,7 @@ origins = [
     "http://localhost:3000",
     "http://localhost:8080",
     "http://localhost:5050",
-    "*", # REMOVE for production
+    "*",  # REMOVE for production
 ]
 
 app.add_middleware(
@@ -48,9 +49,21 @@ class DimensionType(BaseModel):
     t: int
 
 
+class SimpleCoordinateType(BaseModel):
+    long: float
+    lat: float
+
+
+class MapType(BaseModel):
+    tiles: List[List[int]]
+    topLeftCoordinate: SimpleCoordinateType
+    bottomRightCoordiante: SimpleCoordinateType
+
+
 class SimulationConfigType(BaseModel):
     name: str
     description: Optional[str] = ""
+    map: Optional[MapType] = None
     owners: List[OwnerType]
     dimension: DimensionType
 
@@ -58,9 +71,17 @@ class SimulationConfigType(BaseModel):
 @app.post("/simulation")
 def read_root(config: SimulationConfigType):
     dimensions = TimeCoordinate(config.dimension.x, config.dimension.y, config.dimension.z, Tick(config.dimension.t))
+    if config.map:
+        topLeftCoordinate = config.map.topLeftCoordinate
+        bottomRightCoordiante = config.map.bottomRightCoordiante
+        maptiles = [MapTile(tile, dimensions, topLeftCoordinate, bottomRightCoordiante) for tile in config.map.tiles]
+    else:
+        maptiles = []
     TimeCoordinate.dim = dimensions
+
     random.seed(2)
-    g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions)
+    g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions,
+                  maptiles=maptiles)
     g.simulate()
     json = build_json(g.simulator, g.name, g.description)
     return json

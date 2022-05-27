@@ -30,6 +30,14 @@ export function useScene({ engine }) {
   return scene;
 }
 
+export function useBlockerMaterial({ scene }) {
+  const blockerMaterial = new StandardMaterial("blocker-material", scene);
+  blockerMaterial.diffuseColor = new Color3.FromHexString("#313336");
+  blockerMaterial.maxSimultaneousLights = 10;
+  blockerMaterial.alpha = 1;
+  return blockerMaterial;
+}
+
 export function useMainLight({ scene, x, y, z }) {
   const mainLight = new DirectionalLight("directionalLight", new Vector3(-1, -1, -1), scene);
   mainLight.diffuse = new Color3.FromHexString("#ffffff");
@@ -83,14 +91,29 @@ export function useGround({ scene, x, z }) {
   return ground;
 }
 
-export function useOrientationLights({ nLines, lineAlpha, x, y, z }) {
-  const stepX = Math.floor(x / nLines);
-  const stepY = Math.floor(y / nLines);
-  const stepZ = Math.floor(z / nLines);
-  const lineStep = Math.min(stepX, stepY, stepZ);
+export function useBuildings({ scene, shadows, mapTiles, blockerMaterial }) {
+  mapTiles.forEach((mapTile, i) => {
+    mapTile.buildings.forEach((building, j) => {
+      const options = {
+        shape: building.coordinates.map(({ x, y }) => new Vector3(x, y, 0)),
+        path: [new Vector3(0, 0, 0), new Vector3(0, building.height, 0)],
+        cap: Mesh.CAP_END,
+      };
+      const buildingMesh = MeshBuilder.ExtrudeShape(`tile-${i}-building-${j}`, options, scene);
+      buildingMesh.material = blockerMaterial;
+      buildingMesh.receiveShadows = true;
+      shadows.getShadowMap().renderList.push(buildingMesh);
+    });
+  });
+}
 
-  for (let xi = 0; xi <= x; xi += lineStep) {
-    for (let yi = 0; yi <= y; yi += lineStep) {
+export function useOrientationLights({ lineAlpha, x, y, z }) {
+  const stepX = Math.floor(x / 1);
+  const stepY = Math.floor(y / 10);
+  const stepZ = Math.floor(z / 1);
+
+  for (let xi = 0; xi <= x; xi += stepX) {
+    for (let yi = 0; yi <= y; yi += stepY) {
       const line = MeshBuilder.CreateLines(`line-x${xi}-y${yi}`, {
         points: [new Vector3(xi - x / 2, yi, 0 - z / 2), new Vector3(xi - x / 2, yi, z - z / 2)],
       });
@@ -98,8 +121,8 @@ export function useOrientationLights({ nLines, lineAlpha, x, y, z }) {
       line.color = new Color3.White();
     }
   }
-  for (let xi = 0; xi <= x; xi += lineStep) {
-    for (let zi = 0; zi <= z; zi += lineStep) {
+  for (let xi = 0; xi <= x; xi += stepX) {
+    for (let zi = 0; zi <= z; zi += stepZ) {
       const line = MeshBuilder.CreateLines(`line-x${xi}-z${zi}`, {
         points: [new Vector3(xi - x / 2, 0, zi - z / 2), new Vector3(xi - x / 2, y, zi - z / 2)],
       });
@@ -108,8 +131,8 @@ export function useOrientationLights({ nLines, lineAlpha, x, y, z }) {
     }
   }
 
-  for (let yi = 0; yi <= y; yi += lineStep) {
-    for (let zi = 0; zi <= z; zi += lineStep) {
+  for (let yi = 0; yi <= y; yi += stepY) {
+    for (let zi = 0; zi <= z; zi += stepZ) {
       const line = MeshBuilder.CreateLines(`line-y${yi}-z${zi}`, {
         points: [new Vector3(0 - x / 2, yi, zi - z / 2), new Vector3(x - x / 2, yi, zi - z / 2)],
       });
@@ -158,15 +181,10 @@ export function useFocusCache({ scene }) {
   };
 }
 
-export function useBlockers({ scene, blockerCache, shadows, x, z }) {
+export function useBlockers({ scene, blockerCache, shadows, x, z, blockerMaterial }) {
   const simulation = useSimulationSingleton();
 
   // Create blockers
-  const blockerMaterial = new StandardMaterial("blocker-material", scene);
-  blockerMaterial.diffuseColor = new Color3.FromHexString("#313336");
-  blockerMaterial.maxSimultaneousLights = 10;
-  blockerMaterial.alpha = 1;
-
   simulation.activeBlockers.forEach((blocker) => {
     if (!(blocker.id in blockerCache)) {
       const blockerCube = MeshBuilder.CreateBox(
@@ -192,7 +210,7 @@ export function useBlockers({ scene, blockerCache, shadows, x, z }) {
   });
 }
 
-export function updateBlockers({ scene, blockerCache, shadows, x, z }) {
+export function updateBlockers({ scene, blockerCache, shadows, x, z, blockerMaterial }) {
   const simulation = useSimulationSingleton();
 
   // Remove unused meshes
@@ -206,7 +224,7 @@ export function updateBlockers({ scene, blockerCache, shadows, x, z }) {
     }
   });
 
-  useBlockers({ scene, blockerCache, shadows, x, z });
+  useBlockers({ scene, blockerCache, shadows, x, z, blockerMaterial });
 }
 
 export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLight }) {
