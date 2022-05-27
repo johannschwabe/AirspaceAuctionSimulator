@@ -67,8 +67,8 @@ class Statistics:
                 "total_far_field_violations": 0,
                 "total_far_field_intersection": 0,
             }
-            for path in agent.get_allocated_paths():
-                for step in path[::agent.speed]:
+            for segment in agent.get_allocated_segments():
+                for step in segment[::agent.speed]:
                     res[agent.id]["near_field_violations"][step.t] = self.violations(step, agent, agent.near_radius)
                     res[agent.id]["far_field_violations"][step.t] = self.violations(step, agent, agent.far_radius)
                     near_intersections, far_intersections = self.intersections(step, agent)

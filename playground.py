@@ -10,7 +10,7 @@ from Simulator.IO.JSONS import build_json
 from Simulator.History import History
 
 
-dimensions = TimeCoordinate(5, 1, 5, Tick(40))
+dimensions = TimeCoordinate(10, 1, 10, Tick(40))
 random.seed(3)
 environment = Environment(dimensions, [], [])
 environment.init_blocker_tree()

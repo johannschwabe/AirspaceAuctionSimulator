@@ -93,18 +93,7 @@ class Environment:
 
     def allocate_space_for_agent(self, agent: SpaceAgent, space: SpaceSegment):
         agent.add_allocated_segment(space)
-        start_locations: Dict[str, TimeCoordinate] = {}
-        end_locations: Dict[str, TimeCoordinate] = {}
-        for coord in space:
-            key = coord.get_key()
-            if key not in start_locations:
-                start_locations[key] = coord
-                end_locations[key] = coord
-                continue
-            end_locations[key] = coord
-
-        for key in start_locations:
-            self.tree.insert(agent.id, start_locations[key].list_rep() + end_locations[key].list_rep())
+        self.tree.insert(agent.id, space.min.list_rep() + space.max.list_rep())
 
     def allocate_segments_for_agents(self, agents_segments: Dict[Agent, List[PathSegment|SpaceSegment]], time_step: Tick):
         for agent, segments in agents_segments.items():
