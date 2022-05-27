@@ -9,7 +9,7 @@
         :value="simulation.tick"
         @update:value="(t) => (simulation.tick = t)"
         :min="0"
-        :max="simulation.maxTick - 1"
+        :max="maxTick"
         show-tooltip
         placement="bottom"
       />
@@ -19,12 +19,14 @@
 
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 
 import { onAgentsSelected } from "../../scripts/emitter";
 import { useSimulationSingleton } from "../../scripts/simulation";
 
 const simulation = useSimulationSingleton();
+
+const maxTick = ref(simulation.maxTick - 1);
 
 const agentChartOptions = {
   chart: {
@@ -122,6 +124,7 @@ const updateEventSeries = () => {
 };
 
 onAgentsSelected(() => {
+  maxTick.value = simulation.maxTick;
   updateAgentSeries();
   updateEventSeries();
 });

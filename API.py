@@ -59,6 +59,7 @@ class SimulationConfigType(BaseModel):
 def read_root(config: SimulationConfigType):
     dimensions = TimeCoordinate(config.dimension.x, config.dimension.y, config.dimension.z, Tick(config.dimension.t))
     TimeCoordinate.dim = dimensions
+    random.seed(2)
     g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions)
     g.simulate()
     json = build_json(g.simulator, g.name, g.description)
