@@ -16,7 +16,7 @@ class Statistics:
         local_agent = agent.clone()
         local_env = self.history.env.new_clear()
         paths = self.history.allocator.allocate_for_agents([local_agent], local_env, Tick(0))[local_agent]
-        return local_agent.value_for_paths(paths)
+        return local_agent.value_for_segments(paths)
 
     def non_colliding_values(self):
         for agent in self.history.env.get_agents().values():
@@ -67,8 +67,8 @@ class Statistics:
                 "total_far_field_violations": 0,
                 "total_far_field_intersection": 0,
             }
-            for path in agent.get_allocated_paths():
-                for step in path[::agent.speed]:
+            for segment in agent.get_allocated_segments():
+                for step in segment[::agent.speed]:
                     res[agent.id]["near_field_violations"][step.t] = self.violations(step, agent, agent.near_radius)
                     res[agent.id]["far_field_violations"][step.t] = self.violations(step, agent, agent.far_radius)
                     near_intersections, far_intersections = self.intersections(step, agent)

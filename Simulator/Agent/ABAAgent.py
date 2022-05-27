@@ -1,10 +1,12 @@
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 from . import Agent, ABAgent
-from .AgentType import AgentType
 from ..Bid import Bid, ABABid
 from ..Coordinate import TimeCoordinate
+from ..Path import PathSegment
 
+if TYPE_CHECKING:
+    from .. import Tick
 
 class ABAAgent(ABAgent):
     def __init__(
@@ -16,15 +18,14 @@ class ABAAgent(ABAgent):
         battery: Optional[int] = None,
     ):
         super().__init__(a, b, speed=speed, battery=battery)
-        self.agent_type = AgentType.ABA
         self.stay: int = stay
 
-    def value_for_paths(self, paths: List[List[TimeCoordinate]]) -> float:
-        if len(paths) != 2:
+    def value_for_segments(self, path_segments: List[PathSegment]) -> float:
+        if len(path_segments) != 2:
             return 0.
 
-        ab_path = paths[0]
-        ba_path = paths[1]
+        ab_path = path_segments[0]
+        ba_path = path_segments[1]
 
         if len(ab_path) == 0 or len(ba_path) == 0:
             return 0.
@@ -39,11 +40,12 @@ class ABAAgent(ABAgent):
 
         return 1.
 
-    def get_bid(self) -> Bid:
+    def get_bid(self, t: "Tick") -> Bid:
         return ABABid(self.battery, self.a, self.b, self.stay)
 
     def clone(self):
         clone = ABAAgent(self.a, self.b, self.stay, self.speed, self.battery)
+        clone.set_allocated_segments([segment.clone() for segment in self.get_allocated_segments()])
         clone.id = self.id
         clone.is_clone = True
         Agent._id -= 1

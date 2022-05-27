@@ -1,8 +1,9 @@
 from typing import List, Dict, TYPE_CHECKING
 from rtree import index
 
-from ..Agent import Agent, AgentType
+from ..Agent import Agent, SpaceAgent, PathAgent
 from ..Coordinate import TimeCoordinate
+from ..Path import PathSegment, SpaceSegment
 from ..Time import Tick
 from ..Blocker import Blocker
 
@@ -16,7 +17,7 @@ class Environment:
         self._dimension: TimeCoordinate = dimension
         self._agents: Dict[int, Agent] = {}
         self.blockers: Dict[int, Blocker] = {blocky.id: blocky for blocky in blocker}
-        self.maptiles: List["MapTile"] = maptiles
+        self.map_tiles: List["MapTile"] = maptiles
         props = index.Property()
         props.dimension = 4
         self.tree = index.Rtree(properties=props)
@@ -24,49 +25,61 @@ class Environment:
         self.near_field_radius = 1
 
     def deallocate_agent(self, agent: Agent, time_step: Tick):
-        allocated_coords = agent.get_allocated_coords()
-        for coord in allocated_coords[max(time_step - allocated_coords[0].t, 0):]:
-            intersections = self.tree.intersection(coord.tree_query_point_rep(), objects=True)
-            for intersection in intersections:
-                _index = intersection.id
-                bbox = intersection.bbox
-                if _index == agent.id:
-                    self.tree.delete(agent.id, bbox)
-                if bbox[3] < int(time_step):
-                    bbox[7] = int(time_step)
-                    self.tree.insert(agent.id, bbox)
+        if isinstance(agent, PathAgent):
+            self.deallocate_path_agent(agent, time_step)
+        elif isinstance(agent, SpaceAgent):
+            self.deallocate_space_agent(agent, time_step)
+        else:
+            raise Exception("You gufed")
+
+    def deallocate_path_agent(self, agent: PathAgent, time_step: "Tick"):
+        for path_segment in agent.get_allocated_segments():
+            if path_segment[-1].t > time_step:
+                for coord in path_segment[max(time_step-path_segment[0].t, 0):]:
+                    intersections = self.tree.intersection(coord.tree_query_point_rep(), objects=True)
+                    for intersection in intersections:
+                        _index = intersection.id
+                        bbox = intersection.bbox
+                        if _index == agent.id:
+                            self.tree.delete(agent.id, bbox)
+                        if bbox[3] < int(time_step):
+                            bbox[7] = int(time_step)
+                            self.tree.insert(agent.id, bbox)
 
         new_allocated_paths = []
-        for path in agent.get_allocated_paths():
+        for path in agent.get_allocated_segments():
             if path[0].t > time_step:
                 break
             if path[-1].t > time_step:
                 new_allocated_paths.append(path[:time_step - path[0].t])
             else:
                 new_allocated_paths.append(path)
-        agent.set_allocated_paths(new_allocated_paths)
+        agent.set_allocated_segments(new_allocated_paths)
 
-    def set_blockers(self):
+    def deallocate_space_agent(self, agent: SpaceAgent, time_step: "Tick"):
+        pass
+
+    def init_blocker_tree(self):
         props = index.Property()
         props.dimension = 4
         self.blocker_tree = index.Rtree(properties=props)
         for blocker in self.blockers.values():
             blocker.add_to_tree(self.blocker_tree)
 
-    def allocate_paths_for_agent(self, agent: Agent, paths: List[List[TimeCoordinate]]):
-        for path in paths:
-            self.allocate_path_for_agent(agent, path)
+    def allocate_path_for_agent(self, agent: PathAgent, path: List[PathSegment]):
+        for path_segment in path:
+            self.allocate_path_segment_for_agent(agent, path_segment)
 
-    def allocate_spaces_for_agent(self, agent: Agent, spaces: List[List[TimeCoordinate]]):
-        for path in spaces:
-            self.allocate_space_for_agent(agent, path)
+    def allocate_spaces_for_agent(self, agent: SpaceAgent, spaces: List[SpaceSegment]):
+        for space in spaces:
+            self.allocate_space_for_agent(agent, space)
 
-    def allocate_path_for_agent(self, agent: Agent, path: List[TimeCoordinate]):
-        if len(path) == 0:
+    def allocate_path_segment_for_agent(self, agent: PathAgent, path_segment: PathSegment):
+        if len(path_segment) == 0:
             return
-        agent.add_allocated_paths(path)
-        iterator = path[0]
-        for coord in path:
+        agent.add_allocated_segment(path_segment)
+        iterator = path_segment[0]
+        for coord in path_segment:
             if coord.inter_temporal_equal(iterator):
                 continue
             aggregated = iterator.tree_query_point_rep()
@@ -75,44 +88,35 @@ class Environment:
             iterator = coord
 
         aggregated = iterator.tree_query_point_rep()
-        aggregated[7] = path[-1].t
+        aggregated[7] = path_segment[-1].t
         self.tree.insert(agent.id, aggregated)
 
-    def allocate_space_for_agent(self, agent: Agent, space: List[TimeCoordinate]):
-        agent.add_allocated_paths(space)
-        start_locations: Dict[str, TimeCoordinate] = {}
-        end_locations: Dict[str, TimeCoordinate] = {}
-        for coord in space:
-            key = coord.get_key()
-            if key not in start_locations:
-                start_locations[key] = coord
-                end_locations[key] = coord
-                continue
-            end_locations[key] = coord
+    def allocate_space_for_agent(self, agent: SpaceAgent, space: SpaceSegment):
+        agent.add_allocated_segment(space)
+        self.tree.insert(agent.id, space.min.list_rep() + space.max.list_rep())
 
-        for key in start_locations:
-            self.tree.insert(agent.id, start_locations[key].list_rep() + end_locations[key].list_rep())
-
-    def allocate_paths_for_agents(self, agents_paths: Dict[Agent, List[List[TimeCoordinate]]], time_step: Tick):
-        for agent, paths in agents_paths.items():
+    def allocate_segments_for_agents(self, agents_segments: Dict[Agent, List[PathSegment|SpaceSegment]], time_step: Tick):
+        for agent, segments in agents_segments.items():
             if agent.id in self._agents:
                 self.deallocate_agent(agent, time_step)
             else:
                 self._agents[agent.id] = agent
 
-            if agent.agent_type == AgentType.STATIONARY:
-                self.allocate_spaces_for_agent(agent, paths)
+            if isinstance(agent, SpaceAgent):
+                self.allocate_spaces_for_agent(agent, segments)
+            elif isinstance(agent, PathAgent):
+                self.allocate_path_for_agent(agent, segments)
             else:
-                self.allocate_paths_for_agent(agent, paths)
+                raise Exception("You gufed")
 
-    def original_agents(self, agents_paths: Dict[Agent, List[List[TimeCoordinate]]], newcomers: List[Agent]):
+    def original_agents(self, agents_segments: Dict[Agent, List[PathSegment|SpaceSegment]], newcomers: List[Agent]):
         res = {}
-        for agent, path in agents_paths.items():
+        for agent, segments in agents_segments.items():
             newcomer_ids = [_agent.id for _agent in newcomers]
             if agent.id in newcomer_ids:
-                res[newcomers[newcomer_ids.index(agent.id)]] = path
+                res[newcomers[newcomer_ids.index(agent.id)]] = segments
             else:
-                res[self._agents[agent.id]] = path
+                res[self._agents[agent.id]] = segments
         return res
 
     def is_blocked(self, coord: TimeCoordinate, radius: int = 0, speed: int = 0) -> bool:
@@ -138,9 +142,16 @@ class Environment:
         return self._dimension
 
     def is_valid_for_allocation(self, coords: TimeCoordinate, agent: Agent) -> bool: #Todo: Could be in the near-field of another agent
-        radius: int = agent.near_radius
-        agents = self.intersect(coords, radius, agent.speed)
-        return len(list(agents)) == 0 and not self.is_blocked(coords, radius, agent.speed)
+        if isinstance(agent, PathAgent):
+            radius: int = agent.near_radius
+            agents = self.intersect(coords, radius, agent.speed)
+            return len(list(agents)) == 0 and not self.is_blocked(coords, radius, agent.speed)
+        elif isinstance(agent, SpaceAgent):
+            agents = self.intersect(coords, 0, 0)
+            return len(list(agents)) == 0 and not self.is_blocked(coords, 0, 0)
+
+    def intersect_box(self, mini: TimeCoordinate, maxi: TimeCoordinate):
+        return self.tree.intersection(mini.list_rep() + maxi.list_rep(), objects=True)
 
     def intersect(self, coords: TimeCoordinate, radius: int = 0, speed: int = 0):
         return self.tree.intersection((
@@ -176,14 +187,14 @@ class Environment:
             print(" ↓\n Z")
 
     def new_clear(self):
-        new_env = Environment(self._dimension, list(self.blockers.values()), self.maptiles)
+        new_env = Environment(self._dimension, list(self.blockers.values()), self.map_tiles)
         new_env.blocker_tree = self.blocker_tree
         return new_env
 
     def clone(self):
-        cloned = Environment(self._dimension, list(self.blockers.values()), self.maptiles)
+        cloned = Environment(self._dimension, list(self.blockers.values()), self.map_tiles)
         if len(self.tree) > 0:
-            for item in self.tree.intersection(self.tree.bounds, objects=True):
+            for item in self.tree.intersection(self.tree.bounds, objects=True):     #Todo faster deepCopy of tree
                 cloned.tree.insert(item.id, item.bbox)
         cloned.blocker_tree = self.blocker_tree
         for agent in self._agents.values():

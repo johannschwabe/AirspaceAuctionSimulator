@@ -14,6 +14,7 @@ def bidding_astar(
     end: TimeCoordinate,
     env: Environment,
     agent: BiddingABAgent,
+    flying: bool
 ):
     # print(f"{start} -> {end}")
     # print(f"---->", end="")
@@ -24,6 +25,9 @@ def bidding_astar(
     while True:
         start_conflicts, valid = is_valid_for_allocation(env, valid_start, agent)
         if not valid:
+            if flying:
+                print("Astar couldn't find valid start")
+                return [], set()
             valid_start.t += 1
         else:
             break
@@ -117,7 +121,7 @@ def is_valid_for_allocation(env: Environment, position: TimeCoordinate, agent: B
     res = set()
     for agent_id in agents:
         colliding_agent = env.get_agent(agent_id)
-        if colliding_agent.get_bid().priority < agent.get_bid().priority:
+        if colliding_agent.priority < agent.priority:
             res.add(colliding_agent)
         else:
             return set(), False

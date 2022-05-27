@@ -1,12 +1,15 @@
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 from . import Agent
-from .AgentType import AgentType
+from .PathAgent import PathAgent
 from ..Bid import ABBid, Bid
 from ..Coordinate import TimeCoordinate
+from ..Path import PathSegment
 
+if TYPE_CHECKING:
+    from .. import Tick
 
-class ABAgent(Agent):
+class ABAgent(PathAgent):
     def __init__(
         self,
         a: TimeCoordinate,
@@ -14,22 +17,22 @@ class ABAgent(Agent):
         speed: Optional[int] = None,
         battery: Optional[int] = None,
     ):
-        super().__init__(AgentType.AB, speed=speed, battery=battery)
+        super().__init__(speed, battery)
 
         self.a: TimeCoordinate = a
         self.b: TimeCoordinate = b
 
-    def value_for_paths(self, paths: List[List[TimeCoordinate]]) -> float:
-        if len(paths) != 1:
+    def value_for_segments(self, path_segments: List[PathSegment]) -> float:
+        if len(path_segments) != 1:
             return 0.
 
-        path = paths[0]
+        path_segment = path_segments[0]
 
-        if len(path) == 0:
+        if len(path_segment) == 0:
             return 0.
 
-        start: TimeCoordinate = path[0]
-        destination: TimeCoordinate = path[-1]
+        start: TimeCoordinate = path_segment[0]
+        destination: TimeCoordinate = path_segment[-1]
         time = destination.t - start.t
         if time > self.battery:
             return -1.
@@ -40,13 +43,13 @@ class ABAgent(Agent):
 
         return 1.
 
-    def get_bid(self) -> Bid:
+    def get_bid(self, t: "Tick") -> Bid:
         return ABBid(self.battery, self.a, self.b)
 
     def clone(self):
         clone = ABAgent(self.a, self.b, self.speed, self.battery)
         clone.id = self.id
-        clone.set_allocated_paths([[coord for coord in path] for path in self.get_allocated_paths()])
+        clone.set_allocated_segments([segment.clone() for segment in self.get_allocated_segments()])
         clone.is_clone = True
         Agent._id -= 1
         return clone
