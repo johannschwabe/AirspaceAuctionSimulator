@@ -2,7 +2,7 @@ import math
 from typing import List
 from time import time_ns
 
-from ..Agent import Agent
+from ..Agent import Agent, PathAgent
 from ..Environment import Environment
 from ..Time import Tick
 from ..Coordinate import TimeCoordinate, Coordinate
@@ -13,7 +13,7 @@ def astar(
     start: TimeCoordinate,
     end: TimeCoordinate,
     env: Environment,
-    agent: Agent,
+    agent: PathAgent,
 ):
     # print(f"{start} -> {end} ---->", end="")
     # print(f"---->", end="")
@@ -68,10 +68,10 @@ def astar(
             if valid:
                 neighbor = Node(next_neighbor, current_node)
                 # Closed node
-                if neighbor in closed_nodes:
-                    break
+                if neighbor in closed_nodes or neighbor in open_nodes:
+                    continue
 
-                neighbor.g = current_node.g + 0.5
+                neighbor.g = current_node.g + 0.2
                 neighbor.h = distance2(neighbor.position, end_node.position)
                 neighbor.f = neighbor.g + neighbor.h
 

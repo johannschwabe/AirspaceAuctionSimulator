@@ -26,7 +26,7 @@ class ABAOwner(Owner):
                                    random.randint(0, dimensions.z - 1),
                                    Tick(t + random.randint(0, 10)))
             while True:
-                if env.is_blocked(start, ABAAgent.default_near_radius, speed):
+                if not env.is_blocked(start, ABAAgent.default_near_radius, speed):
                     break
                 if start.y >= env.get_dim().y:
                     start = TimeCoordinate(random.randint(0, dimensions.x - 1),
@@ -39,7 +39,7 @@ class ABAOwner(Owner):
                                     random.randint(0, dimensions.z - 1),
                                     Tick(0))
             while True:
-                if env.is_blocked(target, ABAAgent.default_near_radius, speed):
+                if not env.is_blocked(target, ABAAgent.default_near_radius, speed):
                     break
                 if target.y >= env.get_dim().y:
                     target = TimeCoordinate(random.randint(0, dimensions.x - 1),
