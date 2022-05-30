@@ -16,8 +16,9 @@ class ABAgent(PathAgent):
         b: TimeCoordinate,
         speed: Optional[int] = None,
         battery: Optional[int] = None,
+        near_radius: Optional[int] = None
     ):
-        super().__init__(speed, battery)
+        super().__init__(speed, battery, near_radius)
 
         self.a: TimeCoordinate = a
         self.b: TimeCoordinate = b

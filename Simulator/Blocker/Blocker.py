@@ -12,8 +12,7 @@ class Blocker:
         self.locations = locations
         self.dimension: Coordinate = dimension
 
-    @staticmethod
-    def is_blocking(coord: TimeCoordinate):
+    def is_blocking(self, coord: TimeCoordinate, radius:int = 0):
         return True
 
     def add_to_tree(self, tree):

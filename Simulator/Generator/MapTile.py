@@ -2,6 +2,7 @@ from typing import List, TYPE_CHECKING
 
 import requests
 
+from Simulator import Tick
 from Simulator.Blocker.BuildingBlocker import BuildingBlocker
 from Simulator.Coordinate import TimeCoordinate, Coordinate
 
@@ -32,7 +33,6 @@ class MapTile:
     def resolve_buildings(self):
         data = requests.get(self.url).json()
         res = []
-        self
         for building in data["features"]:
             is_feature = building["type"] == 'Feature'
             has_height = building['properties']['height'] > 0
@@ -58,11 +58,9 @@ class MapTile:
                         max_x = x
                     if max_z < z:
                         max_z = z
-                converted = {
-                    "coords": coords,
-                    "bounds": Coordinate(max_x - min_x, building['properties']['height'], max_z - min_z)
-                }
-                new_blocker = BuildingBlocker(TimeCoordinate(min_x, 0, min_z, self.dimensions.t), converted)
+                bounds = [TimeCoordinate(min_x, 0, min_z, Tick(0)),
+                          TimeCoordinate(max_x, building['properties']['height'], max_z, self.dimensions.t * 100)]
+                new_blocker = BuildingBlocker(coords, bounds)
                 res.append(new_blocker)
 
         return res

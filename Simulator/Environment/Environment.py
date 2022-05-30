@@ -18,6 +18,9 @@ class Environment:
         self._agents: Dict[int, Agent] = {}
         self.blockers: Dict[int, Blocker] = {blocky.id: blocky for blocky in blocker}
         self.map_tiles: List["MapTile"] = maptiles
+        for tile in self.map_tiles:
+            for block in tile.resolve_buildings():
+                self.blockers[block.id] = block
         props = index.Property()
         props.dimension = 4
         self.tree = index.Rtree(properties=props)
@@ -125,7 +128,7 @@ class Environment:
             coord.x + radius, coord.y + radius, coord.z + radius, coord.t + speed
         ))
         for blocker_id in blockers:
-            if self.blockers[blocker_id].is_blocking(coord):
+            if self.blockers[blocker_id].is_blocking(coord, radius):
                 return True
         return False
 

@@ -14,6 +14,7 @@ import {
   StandardMaterial,
   Vector3,
   Color4,
+  Mesh,
 } from "babylonjs";
 import { useSimulationSingleton } from "./simulation";
 

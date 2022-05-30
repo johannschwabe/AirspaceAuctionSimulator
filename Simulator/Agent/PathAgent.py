@@ -17,6 +17,7 @@ class PathAgent(Agent, ABC):
         self,
         speed: Optional[int] = None,
         battery: Optional[int] = None,
+        near_radius: Optional[int|float] = None
     ):
         super().__init__()
 
@@ -24,7 +25,7 @@ class PathAgent(Agent, ABC):
         self.battery: int = battery if battery is not None else PathAgent.default_battery
 
 
-        self.near_radius = PathAgent.default_near_radius
+        self.near_radius = near_radius if near_radius is not None else PathAgent.default_near_radius
         self.far_radius = PathAgent.default_far_radius
         self.flight_time: int = 0
 
