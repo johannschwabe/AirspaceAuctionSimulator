@@ -6,8 +6,8 @@
     </div>
     <div style="padding: 0 15px 0 35px; margin-top: -85px; z-index: 100000">
       <n-slider
-        :value="simulation.tick"
-        @update:value="(t) => (simulation.tick = t)"
+        :value="currentTick"
+        @update:value="updateTick"
         :min="0"
         :max="maxTick"
         show-tooltip
@@ -23,10 +23,12 @@ import { reactive, ref } from "vue";
 
 import { onAgentsSelected } from "../../scripts/emitter";
 import { useSimulationSingleton } from "../../scripts/simulation";
-
+import { debounce } from "lodash-es";
 const simulation = useSimulationSingleton();
 
 const maxTick = ref(simulation.maxTick - 1);
+
+const currentTick = ref(simulation.tick);
 
 const agentChartOptions = {
   chart: {
@@ -122,6 +124,18 @@ const updateAgentSeries = () => {
 const updateEventSeries = () => {
   eventSeries[0].data = simulation.timeline.map((y, x) => ({ x, y: -y }));
 };
+
+function updateTick(t) {
+  currentTick.value = t;
+  setTick();
+}
+const setTick = debounce(
+  () => {
+    simulation.tick = currentTick.value;
+  },
+  10,
+  { leading: false }
+);
 
 onAgentsSelected(() => {
   maxTick.value = simulation.maxTick;

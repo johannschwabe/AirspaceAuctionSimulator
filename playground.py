@@ -13,6 +13,7 @@ from Simulator.IO.JSONS import build_json
 from Simulator.History import History
 from Simulator.Owner.ABOwner import ABOwner
 
+
 dimensions = TimeCoordinate(831,100,831,Tick(20))
 random.seed(3)
 environment = Environment(dimensions, [], [MapTile(

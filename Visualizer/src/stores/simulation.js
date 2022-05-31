@@ -11,19 +11,6 @@ export const useSimulationStore = defineStore({
     ownerInFocusId: -1,
     tick: useStorage("simulation-tick", 0),
   }),
-  getters: {
-    timeline(state) {
-      const timeseries = Array(state.dimensions.t).fill(0);
-      this.selectedAgents.forEach((agent) => {
-        Object.keys(agent.positions)
-          .filter((t) => t <= state.dimensions.t)
-          .forEach((t) => {
-            timeseries[t] += 1;
-          });
-      });
-      return timeseries;
-    },
-  },
   actions: {
     updateTick(tick) {
       this.tick = tick;

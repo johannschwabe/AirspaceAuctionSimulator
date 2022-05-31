@@ -44,7 +44,7 @@ const { x, y, z } = simulation.dimensions;
 const lineAlpha = 0.075;
 
 const doBlockerUpdate = () => {
-  // updateBlockers({ scene, blockerCache, shadows, x, y, z, blockerMaterial });
+  updateBlockers({ scene, blockerCache, shadows, x, y, z, blockerMaterial });
 };
 
 const doDroneUpdate = () => {
@@ -99,8 +99,8 @@ onMounted(() => {
   });
   focusOn = focusFunctions.focusOn;
   focusOff = focusFunctions.focusOff;
-  // useBlockers({ scene, blockerCache, shadows, x, z, blockerMaterial });
-  useBuildings({ scene, shadows, mapTiles: simulation.mapTiles, blockerMaterial });
+  useBlockers({ scene, blockerCache, shadows, x, z, blockerMaterial });
+  // useBuildings({ scene, shadows, mapTiles: simulation.mapTiles, blockerMaterial });
   useDrones({
     scene,
     droneCache,
