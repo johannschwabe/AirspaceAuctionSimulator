@@ -25,11 +25,11 @@ export default class MapTile {
 
   extractPolygon([long, lat]) {
     const x =
-      ((long - this.top_left_coordinate.long) / (this.bottom_right_coordinate.long - this.top_left_coordinate.long)) *
+      ((lat - this.top_left_coordinate.lat) / (this.bottom_right_coordinate.lat - this.top_left_coordinate.lat)) *
         this.dimensions.x -
       this.dimensions.x / 2;
     const y =
-      ((lat - this.top_left_coordinate.lat) / (this.bottom_right_coordinate.lat - this.top_left_coordinate.lat)) *
+      ((long - this.top_left_coordinate.long) / (this.bottom_right_coordinate.long - this.top_left_coordinate.long)) *
         this.dimensions.z -
       this.dimensions.z / 2;
     return { x, y };

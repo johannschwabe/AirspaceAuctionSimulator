@@ -99,8 +99,8 @@ onMounted(() => {
   });
   focusOn = focusFunctions.focusOn;
   focusOff = focusFunctions.focusOff;
-  useBlockers({ scene, blockerCache, shadows, x, z, blockerMaterial });
-  // useBuildings({ scene, shadows, mapTiles: simulation.mapTiles, blockerMaterial });
+  // useBlockers({ scene, blockerCache, shadows, x, z, blockerMaterial });
+  useBuildings({ scene, shadows, mapTiles: simulation.mapTiles, blockerMaterial });
   useDrones({
     scene,
     droneCache,
