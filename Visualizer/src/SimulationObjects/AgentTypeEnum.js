@@ -1,8 +1,8 @@
 export default class AgentTypeEnum {
 
-  static AB = new AgentTypeEnum("AB");
-  static ABA = new AgentTypeEnum("ABA");
-  static ABC = new AgentTypeEnum("ABC");
+  static AB = new AgentTypeEnum("ABAgent");
+  static ABA = new AgentTypeEnum("ABAAgent");
+  static ABC = new AgentTypeEnum("ABCAgent");
   static STATIONARY = new AgentTypeEnum("STATIONARY");
 
   constructor(name) {

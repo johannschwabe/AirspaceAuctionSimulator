@@ -3,7 +3,7 @@ import Path from "./Path";
 import Branch from "./Branch";
 import { ArrivalEvent, FlightEvent, ReallocationEvent, TakeOffEvent } from "./FlightEvent";
 
-export default class Agent {
+export default class PathAgent {
   /**
    *
    * @param {RawAgent} rawAgent

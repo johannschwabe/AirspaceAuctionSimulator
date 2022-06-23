@@ -1,7 +1,9 @@
+import cloudscraper
 from typing import List, TYPE_CHECKING
 
 import requests
 
+from Simulator import Tick
 from Simulator.Blocker.BuildingBlocker import BuildingBlocker
 from Simulator.Coordinate import TimeCoordinate, Coordinate
 
@@ -30,7 +32,7 @@ class MapTile:
         return f"https://a.data.osmbuildings.org/0.2/anonymous/tile/{self.z}/{self.x}/{self.y}.json"
 
     def resolve_buildings(self):
-        data = requests.get(self.url).json()
+        data = cloudscraper.create_scraper().get(self.url).json()
         res = []
         for building in data["features"]:
             is_feature = building["type"] == 'Feature'
@@ -46,11 +48,9 @@ class MapTile:
                 min_z = 100000
                 max_z = -100000
                 for coord in building['geometry']['coordinates'][0]:
-                    x = ((coord[0] - self.top_left_coordinate.long) / (
-                        self.bottom_right_coordinate.long - self.top_left_coordinate.long)) * self.dimensions.x
-                    z = ((coord[1] - self.top_left_coordinate.lat) / (
-                        self.bottom_right_coordinate.lat - self.top_left_coordinate.lat)) * self.dimensions.z
-                    coords.append([x, z])
+                    z = ((coord[0] - self.top_left_coordinate.long) / (self.bottom_right_coordinate.long - self.top_left_coordinate.long)) * self.dimensions.x
+                    x = ((coord[1] - self.top_left_coordinate.lat) / (self.bottom_right_coordinate.lat - self.top_left_coordinate.lat)) * self.dimensions.z
+                    coords.append([x,z])
 
                     if min_x > x:
                         min_x = x
@@ -60,11 +60,9 @@ class MapTile:
                         max_x = x
                     if max_z < z:
                         max_z = z
-                converted = {
-                    "coords": coords,
-                    "bounds": Coordinate(max_x - min_x, building['properties']['height'], max_z - min_z)
-                }
-                new_blocker = BuildingBlocker(TimeCoordinate(min_x, 0, min_z, self.dimensions.t), converted)
+                bounds = [TimeCoordinate(min_x, 0, min_z, Tick(0)),
+                          TimeCoordinate(max_x, building['properties']['height'], max_z, self.dimensions.t * 100)]
+                new_blocker = BuildingBlocker(coords, bounds)
                 res.append(new_blocker)
 
         return res

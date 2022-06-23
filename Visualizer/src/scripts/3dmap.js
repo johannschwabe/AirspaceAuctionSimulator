@@ -1,6 +1,8 @@
 import {
   ActionManager,
   ArcRotateCamera,
+  UniversalCamera,
+  FlyCamera,
   AxesViewer,
   Color3,
   DirectionalLight,
@@ -14,7 +16,9 @@ import {
   StandardMaterial,
   Vector3,
   Color4,
+  Mesh,
 } from "babylonjs";
+import earcut from "earcut";
 import { useSimulationSingleton } from "./simulation";
 
 export function useEngine({ canvas }) {
@@ -53,8 +57,11 @@ export function useMainLight({ scene, x, y, z }) {
 export function useCamera({ x, y, z, scene, canvas }) {
   const target = new Vector3(0, (y / 4) * 2, 0);
   const camera = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, target, scene);
+  // const camera = new UniversalCamera("camera", new Vector3(0, 0, 0), scene);
+  // const camera = new FlyCamera("camera", new Vector3(0, 0, 0), scene);
   camera.attachControl(canvas, true);
   camera.setTarget(target);
+  // camera.rollCorrect = 10;
   camera.setPosition(new Vector3(-x, y * 2.5, -z));
   return camera;
 }
@@ -95,13 +102,16 @@ export function useBuildings({ scene, shadows, mapTiles, blockerMaterial }) {
   mapTiles.forEach((mapTile, i) => {
     mapTile.buildings.forEach((building, j) => {
       const options = {
-        shape: building.coordinates.map(({ x, y }) => new Vector3(x, y, 0)),
-        path: [new Vector3(0, 0, 0), new Vector3(0, building.height, 0)],
-        cap: Mesh.CAP_END,
+        shape: building.coordinates.map(({ x, y }) => new Vector3(x, 0, y)).reverse(),
+        depth: building.height,
+        // path: [new Vector3(0, 0, 0), new Vector3(0, building.height, 0)],
+        // cap: Mesh.CAP_END,
+        holes: building.holes.map((hole) => hole.map(({ x, y }) => new Vector3(x, 0, y))).reverse(),
       };
-      const buildingMesh = MeshBuilder.ExtrudeShape(`tile-${i}-building-${j}`, options, scene);
+      const buildingMesh = MeshBuilder.ExtrudePolygon(`tile-${i}-building-${j}`, options, scene, earcut);
       buildingMesh.material = blockerMaterial;
       buildingMesh.receiveShadows = true;
+      buildingMesh.position.y = building.height;
       shadows.getShadowMap().renderList.push(buildingMesh);
     });
   });
@@ -207,6 +217,7 @@ export function useBlockers({ scene, blockerCache, shadows, x, z, blockerMateria
     storedBlockerCube.position.x = blocker.positionAtTick(simulation.tick).x - x / 2;
     storedBlockerCube.position.y = blocker.positionAtTick(simulation.tick).y + blocker.dimension.y / 2;
     storedBlockerCube.position.z = blocker.positionAtTick(simulation.tick).z - z / 2;
+    console.log(storedBlockerCube);
   });
 }
 
@@ -298,7 +309,15 @@ export function useDrones({ scene, droneCache, x, z, focusOn }) {
   // Push new meshes
   simulation.activeAgents.forEach((agent) => {
     const path = agent.paths.find((p) => p.isActiveAtTick(simulation.tick));
+    const pathIdx = agent.paths.indexOf(path);
     const { x: agent_x, y: agent_y, z: agent_z } = agent.combinedPath.at(simulation.tick);
+
+    if (agent.id in droneCache && droneCache[agent.id].pathIdx !== pathIdx) {
+      droneCache[agent.id].meshes.forEach((mesh) => {
+        mesh.dispose();
+      });
+      delete droneCache[agent.id];
+    }
 
     if (!(agent.id in droneCache)) {
       // Draw path
@@ -332,11 +351,11 @@ export function useDrones({ scene, droneCache, x, z, focusOn }) {
         new ExecuteCodeAction(ActionManager.OnPickTrigger, () => focusOn({ agent, agent_x, agent_y, agent_z }))
       );
 
-      droneCache[agent.id] = [agentPathLine, agentLocationSphere];
+      droneCache[agent.id] = { meshes: [agentPathLine, agentLocationSphere], pathIdx };
     }
 
     // Update sphere position
-    const storedAgentLocationSphere = droneCache[agent.id][1];
+    const storedAgentLocationSphere = droneCache[agent.id].meshes[1];
     storedAgentLocationSphere.position.x = agent_x - x / 2;
     storedAgentLocationSphere.position.y = agent_y;
     storedAgentLocationSphere.position.z = agent_z - z / 2;
@@ -348,9 +367,9 @@ export function updateDrones({ scene, droneCache, x, z, focusOn }) {
 
   // Remove unused meshes
   const activeUUIDs = simulation.activeAgentIDs;
-  Object.entries(droneCache).forEach(([uuid, meshes]) => {
+  Object.entries(droneCache).forEach(([uuid, cache]) => {
     if (!(uuid in activeUUIDs)) {
-      meshes.forEach((mesh) => {
+      cache.meshes.forEach((mesh) => {
         mesh.dispose();
       });
       delete droneCache[uuid];

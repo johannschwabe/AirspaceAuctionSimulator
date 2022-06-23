@@ -44,7 +44,7 @@ const { x, y, z } = simulation.dimensions;
 const lineAlpha = 0.075;
 
 const doBlockerUpdate = () => {
-  // updateBlockers({ scene, blockerCache, shadows, x, y, z, blockerMaterial });
+  updateBlockers({ scene, blockerCache, shadows, x, y, z, blockerMaterial });
 };
 
 const doDroneUpdate = () => {

@@ -145,7 +145,6 @@ const setDimension = (dimension) => {
 };
 
 const goToSimulation = () => {
-  loadingBar.start();
   router.push({ name: "dashboard" });
 };
 

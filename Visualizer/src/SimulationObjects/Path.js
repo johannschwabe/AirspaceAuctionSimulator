@@ -54,6 +54,7 @@ export default class Path {
    * @returns {Path}
    */
   static join(paths) {
+    console.log(paths);
     const rawPath = {};
     paths.forEach((path) => {
       Object.entries(path.ticks).forEach(([t, loc]) => {

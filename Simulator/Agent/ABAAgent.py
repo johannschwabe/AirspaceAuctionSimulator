@@ -16,8 +16,9 @@ class ABAAgent(ABAgent):
         stay: int = 5,
         speed: Optional[int] = None,
         battery: Optional[int] = None,
+        near_radius: Optional[int|float] = None
     ):
-        super().__init__(a, b, speed=speed, battery=battery)
+        super().__init__(a, b, speed=speed, battery=battery, near_radius=near_radius)
         self.stay: int = stay
 
     def value_for_segments(self, path_segments: List[PathSegment]) -> float:

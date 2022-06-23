@@ -23,6 +23,18 @@ export default class MapTile {
     return `https://data.osmbuildings.org/0.2/anonymous/tile/${this.z}/${this.x}/${this.y}.json`;
   }
 
+  extractPolygon([long, lat]) {
+    const x =
+      ((lat - this.top_left_coordinate.lat) / (this.bottom_right_coordinate.lat - this.top_left_coordinate.lat)) *
+        this.dimensions.x -
+      this.dimensions.x / 2;
+    const y =
+      ((long - this.top_left_coordinate.long) / (this.bottom_right_coordinate.long - this.top_left_coordinate.long)) *
+        this.dimensions.z -
+      this.dimensions.z / 2;
+    return { x, y };
+  }
+
   async load() {
     const { data } = await axios.get(this.url);
     this.buildings = data.features
@@ -34,24 +46,21 @@ export default class MapTile {
           feature?.geometry?.coordinates?.length > 0 && feature?.geometry?.coordinates[0].length > 0;
         return isFeature && hasHeight && isPolygon && hasCoordinates;
       })
+      // .filter((feat, idx) => {
+      //   return idx === 0;
+      // })
       .map((feature) => {
         const height = feature.properties.height;
-        const coordinatesArray = feature.geometry.coordinates[0].map(([long, lat]) => {
-          const x =
-            ((long - this.top_left_coordinate.long) /
-              (this.bottom_right_coordinate.long - this.top_left_coordinate.long)) *
-              this.dimensions.x -
-            this.dimensions.x / 2;
-          const y =
-            ((lat - this.top_left_coordinate.lat) / (this.bottom_right_coordinate.lat - this.top_left_coordinate.lat)) *
-              this.dimensions.z -
-            this.dimensions.z / 2;
-          return { x, y };
+        const coordinatesArray = feature.geometry.coordinates[0].map(([long, lat]) => this.extractPolygon([long, lat]));
+        const holesArray = feature.geometry.coordinates.slice(1).map((hole) => {
+          return hole.map(([long, lat]) => this.extractPolygon([long, lat]));
         });
-        const coordinates = simplify(coordinatesArray, 3, false);
+        const coordinates = coordinatesArray;
+        // const coordinates = simplify(coordinatesArray, 3, false);
         return {
           height,
           coordinates,
+          holes: holesArray,
         };
       });
   }

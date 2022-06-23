@@ -1,9 +1,7 @@
 <template>
   <div v-if="loading" class="loading">
     <n-avatar :src="loadingGif" color="transparent" />
-    <p>
-      Loading...
-    </p>
+    <p>Loading...</p>
   </div>
   <div v-else>
     <top-bar />
@@ -25,7 +23,7 @@
         <n-grid-item span="6" id="drawer-target">
           <n-grid cols="1">
             <n-grid-item>
-              <three-d-map v-show="simulation" />
+              <three-d-map />
             </n-grid-item>
           </n-grid>
         </n-grid-item>
@@ -115,7 +113,7 @@
 </template>
 
 <script setup>
-import { onUnmounted, ref } from "vue";
+import { nextTick, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 import loadingGif from "../assets/loading.gif";
@@ -140,7 +138,9 @@ const loadingBar = useLoadingBar();
 const loading = ref(true);
 let simulation;
 
-loadingBar.start();
+// loadingBar.start();
+const simulationStore = useSimulationStore();
+
 if (!hasSimulationSingleton()) {
   loadSimulationSingleton()
     .then((simulationSingleton) => {
@@ -153,7 +153,9 @@ if (!hasSimulationSingleton()) {
       router.push("/");
     })
     .finally(() => {
-      loadingBar.finish();
+      nextTick(() => {
+        loadingBar.finish();
+      });
       loading.value = false;
     });
 } else {
@@ -161,9 +163,16 @@ if (!hasSimulationSingleton()) {
   simulation = useSimulationSingleton();
   loadingBar.finish();
   loading.value = false;
+  // const allAgentIds = [];
+  // simulation.owners.forEach((owner) => {
+  //   allAgentIds.push(owner.id);
+  //   owner.agents.forEach((agent) => {
+  //     allAgentIds.push(agent.id);
+  //   });
+  // });
+  // console.log(allAgentIds);
+  // simulationStore.setSelectedAgentIDs(allAgentIds);
 }
-
-const simulationStore = useSimulationStore();
 
 onUnmounted(() => {
   offAll();

@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, TYPE_CHECKING
 
 from ..Agent import Agent
-from ..Coordinate import TimeCoordinate
 from ..Environment import Environment
 from ..Path import PathSegment
 

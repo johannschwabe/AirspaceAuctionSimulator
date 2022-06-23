@@ -2,7 +2,7 @@ import math
 from typing import List
 from time import time_ns
 
-from ..Agent import Agent
+from ..Agent import Agent, PathAgent
 from ..Environment import Environment
 from ..Time import Tick
 from ..Coordinate import TimeCoordinate, Coordinate
@@ -13,13 +13,13 @@ def astar(
     start: TimeCoordinate,
     end: TimeCoordinate,
     env: Environment,
-    agent: Agent,
+    agent: PathAgent,
 ):
     # print(f"{start} -> {end} ---->", end="")
     # print(f"---->", end="")
     start_time = time_ns()
-    open_nodes = []
-    closed_nodes = []
+    open_nodes = {}
+    closed_nodes = {}
 
     valid_start = start
     while not env.is_valid_for_allocation(valid_start, agent):
@@ -27,23 +27,26 @@ def astar(
 
     start_node = Node(start, None)
     end_node = Node(end, None)
-    open_nodes.append(start_node)
+    open_nodes[hash(start_node)] = start_node
     steps = 0
 
     path = []
     sort_time = 0
     neighbors_time = 0
     valid_time = 0
-    MAX_ITER = 1000
+    in_check_t = 0
+    in_check_2_t = 0
+    MAX_ITER = 4500
+
     while len(open_nodes) > 0 and steps < MAX_ITER:
         steps += 1
 
         start_sort = time_ns()
-        open_nodes.sort()
+        current_node = min(list(open_nodes.values()))
         sort_time += time_ns() - start_sort
 
-        current_node = open_nodes.pop(0)
-        closed_nodes.append(current_node)
+        del open_nodes[hash(current_node)]
+        closed_nodes[hash(current_node)] = current_node
 
         # if steps % 50 == 0:
         #     print(current_node)
@@ -67,19 +70,31 @@ def astar(
             valid_time += time_ns() - valid_start
             if valid:
                 neighbor = Node(next_neighbor, current_node)
+
+                in_check_start = time_ns()
                 # Closed node
-                if neighbor in closed_nodes:
-                    break
+                if hash(neighbor) in closed_nodes:
+                    continue
+                in_check_t += time_ns() - in_check_start
 
-                neighbor.g = current_node.g + 0.5
-                neighbor.h = distance2(neighbor.position, end_node.position)
+                neighbor.g = current_node.g + 0.7
+                neighbor.h = distance(neighbor.position, end_node.position)
                 neighbor.f = neighbor.g + neighbor.h
+                # neighbor.f = neighbor.g + neighbor.h - neighbor.position.y / env.get_dim().y * 0.2 * neighbor.h
 
-                open_nodes.append(neighbor)
+                in_check_2_start = time_ns()
+                if hash(neighbor) in open_nodes:
+                    if open_nodes[hash(neighbor)].f > neighbor.f:
+                        open_nodes[hash(neighbor)] = neighbor
+                in_check_2_t += time_ns() - in_check_2_start
+
+                open_nodes[hash(neighbor)] = neighbor
         neighbors_time += time_ns() - start_neighbors
 
     if len(path) == 0:
         print("ASTAR failed")
+        print(len(open_nodes))
+        print(len(closed_nodes))
     wait_coords: List[TimeCoordinate] = []
     for near_coord in path:
         for t in range(1, agent.speed):
@@ -87,15 +102,18 @@ def astar(
 
     complete_path = path + wait_coords
     complete_path.sort(key=lambda x: x.t)
-    # stop_time = time_ns()
-    # seconds = (stop_time - start_time) / 1e9
-    # print(f"PathLen: {len(path)}, "
-    #       f"steps: {steps}, "
-    #       f"time: {seconds:.2f}, "
-    #       f"t/p: {seconds / (len(path) + 1) * 1000:.2f}, "
-    #       f"sort: {sort_time/1e9:.2f}, "
-    #       f"neighbours: {neighbors_time/1e9:.2f}, "
-    #       f"valid: {valid_time/1e9:.2f}, ")
+    stop_time = time_ns()
+    seconds = (stop_time - start_time) / 1e9
+    print(start.distance(end) / len(path))
+    print(f"PathLen: {len(path)}, "
+          f"steps: {steps}, "
+          f"time: {seconds:.2f}s, "
+          f"t/p: {seconds / (len(path) + 1):.4f}s, "
+          f"sort: {sort_time/1e9:.2f}s, "
+          f"neighbours: {neighbors_time/1e9:.2f}s, "
+          f"valid: {valid_time/1e9:.2f}s, "
+          f"in_check: {in_check_t/1e9:.2f}s, "
+          f"in_check_2: {in_check_2_t/1e9:.2f}s ")
     return complete_path
 
 
@@ -106,6 +124,8 @@ def distance(start: TimeCoordinate, end: TimeCoordinate):
 def distance2(start: TimeCoordinate, end: TimeCoordinate):
     return math.pow((start.x - end.x) ** 2 + (start.y - end.y) ** 2 + (start.z - end.z) ** 2, 0.5)
 
+def distance3(start: TimeCoordinate, end: TimeCoordinate):
+    return math.pow((start.x - end.x) ** 4 + (start.y - end.y) ** 4 + (start.z - end.z) ** 4, 1/4)
 
 class Node:
     def __init__(self, position: TimeCoordinate, parent):
@@ -116,10 +136,17 @@ class Node:
         self.f = 0  # Total cost
 
     def __eq__(self, other):
-        return self.position == other.position
+        return self.position.x == other.position.y and \
+            self.position.y == other.position.y and \
+            self.position.z == other.position.z and \
+            self.position.t == other.position.t
+        # return self.position == other.position
 
     def __lt__(self, other):
         return self.f < other.f
+
+    def __hash__(self):
+        return hash(self.position)
 
     def __repr__(self):
         return f"{self.position}: {self.f}, {self.h}"

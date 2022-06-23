@@ -1,5 +1,5 @@
 from typing import List, Dict, TYPE_CHECKING
-
+from time import time
 from .Path import PathSegment
 from .Time import Tick
 from .Agent import Agent
@@ -26,17 +26,31 @@ class Simulator:
         self.time_step = Tick(0)
 
     def tick(self) -> bool:
+        start_t = time() * 1000
         newcomers: List[Agent] = []
         for owner in self.owners:
             newcomers += owner.generate_agents(self.time_step, self.environment)
+        agents_created_t = time() * 1000
 
         if len(newcomers) > 0:
             self.history.add_new_agents(newcomers, self.time_step)
+            history_updated_t = time() * 1000
             temp_env = self.environment.clone()
+            temp_env_created_t = time() * 1000
             cloned_agents_paths: Dict[Agent, List[PathSegment]] = self.allocator.temp_allocation(newcomers, temp_env, self.time_step)
+            temp_allocations_t = time() * 1000
             agents_paths = self.environment.original_agents(cloned_agents_paths, newcomers)
+            path_translated_t = time() * 1000
             self.environment.allocate_segments_for_agents(agents_paths, self.time_step)
+            real_env_updated_t = time() * 1000
             self.history.update_allocations(agents_paths, self.time_step)
-
+            history_updated_2_t = time() * 1000
+            # print(f"agents_created: {agents_created_t-start_t}\n"
+            #       f"HistoryUpdated: {history_updated_t-agents_created_t}\n"
+            #       f"TempEnvCreated: {temp_env_created_t-history_updated_t}\n"
+            #       f"TempAllocations: {temp_allocations_t- temp_env_created_t}\n"
+            #       f"PathTranslated: {path_translated_t-temp_allocations_t}\n"
+            #       f"RealEnvUpdate: {real_env_updated_t-path_translated_t}\n"
+            #       f"History2Updated: {history_updated_2_t - real_env_updated_t}\n-----\n")
         self.time_step += 1
         return True
