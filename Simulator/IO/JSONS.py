@@ -1,6 +1,7 @@
 import statistics
 from abc import ABC
 from enum import Enum
+from multiprocessing import Pool
 from typing import Dict, List, TYPE_CHECKING
 
 from .. import Blocker, Simulator, Statistics
@@ -202,12 +203,13 @@ def build_json(simulator: Simulator, name: str, description: str):
     owners: List[JSONOwner] = []
     for owner in history.owners:
         agents: List[JSONAgent] = []
+        non_colliding_values = generatePathAgent(owner.agents, stats)
         for agent in owner.agents:
             if isinstance(agent, PathAgent):
                 agents.append(JSONPathAgent(
                     history.agents[agent],
                     agent,
-                    stats.non_colliding_value(agent),
+                    non_colliding_values[agent],
                     close_passings[agent.id]["total_near_field_intersection"],
                     close_passings[agent.id]["total_far_field_intersection"],
                     close_passings[agent.id]["total_near_field_violations"],
@@ -233,3 +235,12 @@ def build_json(simulator: Simulator, name: str, description: str):
     json_stats = JSONStatistics(len(simulator.owners), len(env._agents), stats.total_agents_welfare(), nr_collisions, 0)
     json_simulation = JSONSimulation(name, description, json_env, json_stats, owners)
     return json_simulation.as_dict()
+
+
+def generatePathAgent(agents: List[Agent], stats: Statistics):
+    res = {}
+    with Pool(len(agents)) as p:
+        non_colliding_values = p.map(stats.non_colliding_value, [agent for agent in agents])
+    for agent, non_colliding_value in zip(agents, non_colliding_values):
+        res[agent] = non_colliding_value
+    return res
