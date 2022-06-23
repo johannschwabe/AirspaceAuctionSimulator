@@ -81,6 +81,7 @@ class FCFSAllocator(Allocator):
             elif isinstance(bid, ABCBid):
                 a = bid.locations[0]
                 time = 0
+                count = 0
                 for b, stay in zip(bid.locations[1:], bid.stays + [0]):
                     ab_path = astar(
                         a,
@@ -96,7 +97,9 @@ class FCFSAllocator(Allocator):
                     if time > agent.battery:
                         break
 
-                    optimal_path_segments.append(ab_path)
+                    optimal_path_segments.append(PathSegment(a.to_inter_temporal(), b.to_inter_temporal(), count, ab_path))
+                    count += 1
+                    # optimal_path_segments.append(ab_path)
                     a = b
 
                 res[agent] = optimal_path_segments
