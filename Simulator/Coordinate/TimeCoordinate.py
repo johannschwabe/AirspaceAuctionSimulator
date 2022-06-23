@@ -57,7 +57,7 @@ class TimeCoordinate(Coordinate):
             temp = abs(self.t - other.t)
         return super().distance(other, l2), temp
 
-    def inter_temporal_distance(self, other: Coordinate, l2: bool = False):
+    def inter_temporal_distance(self, other: Coordinate, l2: bool = False) -> float:
         return super().distance(other, l2)
 
     def clone(self):
