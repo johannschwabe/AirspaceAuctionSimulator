@@ -91,8 +91,6 @@ def creation_ticks(duration, total, std=-1) -> List[int]:
     for i in range(duration-2):
         expected = (total - sum)/(duration - i)
         next = max(int(round(random.gauss(expected, std))), 0)
-        print(expected)
-        print(next)
         res.extend(next*[i])
         sum += next
     next_1 = max(int((total-sum)/2), 0)
@@ -101,6 +99,4 @@ def creation_ticks(duration, total, std=-1) -> List[int]:
     next_2 = max(total - sum, 0)
     res.extend(next_2* [duration - 1])
     sum += next_2
-    print(sum)
-    print(",".join([str(t) for t in res]))
     return res

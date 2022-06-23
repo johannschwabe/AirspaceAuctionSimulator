@@ -80,7 +80,7 @@ def astar(
                 neighbor.g = current_node.g + 0.5
                 neighbor.h = distance2(neighbor.position, end_node.position)
                 # neighbor.f = neighbor.g + neighbor.h
-                neighbor.f = neighbor.g + neighbor.h - neighbor.position.y / env.get_dim().y * 0.1 * neighbor.h
+                neighbor.f = neighbor.g + neighbor.h - neighbor.position.y / env.get_dim().y * 0.05 * neighbor.h
 
                 in_check_2_start = time_ns()
                 if hash(neighbor) in open_nodes:

@@ -203,7 +203,7 @@ def build_json(simulator: Simulator, name: str, description: str):
     owners: List[JSONOwner] = []
     for owner in history.owners:
         agents: List[JSONAgent] = []
-        non_colliding_values = generatePathAgent(owner.agents, stats)
+        non_colliding_values = calculate_non_colliding_values(owner.agents, stats)
         for agent in owner.agents:
             if isinstance(agent, PathAgent):
                 agents.append(JSONPathAgent(
@@ -237,7 +237,7 @@ def build_json(simulator: Simulator, name: str, description: str):
     return json_simulation.as_dict()
 
 
-def generatePathAgent(agents: List[Agent], stats: Statistics):
+def calculate_non_colliding_values(agents: List[Agent], stats: Statistics):
     res = {}
     with Pool(len(agents)) as p:
         non_colliding_values = p.map(stats.non_colliding_value, [agent for agent in agents])
