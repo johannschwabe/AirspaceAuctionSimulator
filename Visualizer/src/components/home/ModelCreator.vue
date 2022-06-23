@@ -36,7 +36,7 @@
       <n-slider show-tooltip v-model:value="model.dimension.t" :min="10" :max="1000" :step="10" />
     </n-form-item>
     <n-form-item path="owners" label="Owners">
-      <owner ref="ownerRef" />
+      <owner ref="ownerRef" :dimension="model.dimension" :tiles="model.map?.tiles" />
     </n-form-item>
   </n-form>
 

@@ -1,24 +1,72 @@
 <template>
-  <n-dynamic-input v-model:value="owners" :on-create="onCreate">
-    <template #default="{ value }">
-      <div style="display: flex; column-gap: 10px; width: 100%">
-        <n-color-picker :modes="['hex']" :show-alpha="false" v-model:value="value.color" />
-        <n-input v-model:value="value.name" type="text" placeholder="Owner Name" />
-        <n-input-number
-          v-model:value="value.agents"
-          :min="1"
-          :max="100"
-          style="min-width: 130px"
-          placeholder="Nr. Agents"
-        />
-        <n-select v-model:value="value.type" :options="options" placeholder="Type" filterable />
-      </div>
-    </template>
-  </n-dynamic-input>
+  <div>
+    <n-dynamic-input v-model:value="owners" :on-create="onCreate">
+      <template #default="{ value, index }">
+        <div style="display: flex; column-gap: 10px; width: 100%">
+          <owner-form :model-value="value" @update:modelValue="updateOwner(index, $event)" />
+          <n-button tertiary circle @click="onOptions(index)">
+            <template #icon>
+              <n-icon><Options /></n-icon>
+            </template>
+          </n-button>
+        </div>
+      </template>
+    </n-dynamic-input>
+    <n-drawer v-model:show="showOptions" :width="565" placement="left">
+      <n-drawer-content v-if="option !== null" :title="`Owner: ${option.name}`">
+        <owner-options :model-value="option" @update:modelValue="updateOwner(optionsIndex, $event)" :tiles="tiles" />
+      </n-drawer-content>
+    </n-drawer>
+  </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, ref, watchEffect } from "vue";
+import { Options } from "@vicons/ionicons5";
+import OwnerOptions from "./OwnerOptions.vue";
+import OwnerForm from "./OwnerForm.vue";
+
+defineProps({
+  dimension: {
+    type: Object,
+    required: true,
+  },
+  tiles: {
+    type: Array,
+    required: false,
+    default: null,
+  },
+});
+
+function updateOwner(ownerIndex, updatedOwner) {
+  if (ownerIndex !== null) {
+    const originalOwner = owners.value[ownerIndex];
+    originalOwner.color = updatedOwner.color;
+    originalOwner.name = updatedOwner.name;
+    originalOwner.agents = updatedOwner.agents;
+    originalOwner.type = updatedOwner.type;
+  }
+}
+
+const optionsIndex = ref(null);
+const showOptions = ref(false);
+const option = computed(() => (optionsIndex.value !== null ? owners.value[optionsIndex.value] : null));
+
+function onOptions(index) {
+  if (optionsIndex.value === index) {
+    showOptions.value = false;
+    optionsIndex.value = null;
+  } else {
+    optionsIndex.value = index;
+    showOptions.value = true;
+  }
+}
+
+watchEffect(() => {
+  if (showOptions.value === false) {
+    optionsIndex.value = null;
+  }
+});
 
 const owners = ref([
   {
@@ -37,25 +85,6 @@ const onCreate = () => {
     type: null,
   };
 };
-
-const options = [
-  {
-    label: "A to B",
-    value: "ab",
-  },
-  {
-    label: "A to B to A",
-    value: "aba",
-  },
-  {
-    label: "A to B to C",
-    value: "abc",
-  },
-  {
-    label: "Stationary",
-    value: "stat",
-  },
-];
 
 defineExpose({
   owners,

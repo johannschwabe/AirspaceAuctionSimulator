@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <div class="wrapper" :style="{ width: `${size}px`, heigth: `${size}px` }">
     <img
       v-for="tile in tiles"
       :key="tile"
@@ -18,17 +18,20 @@ import { computed } from "vue";
 
 const props = defineProps({
   tiles: Array,
+  size: {
+    type: Number,
+    required: false,
+    default: 256,
+  },
 });
 
 const dim = computed(() => {
-  return Math.floor(256 / Math.sqrt(props.tiles.length));
+  return Math.floor(props.size / Math.sqrt(props.tiles.length));
 });
 </script>
 
 <style scoped>
 .wrapper {
-  width: 256px;
-  height: 256px;
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
