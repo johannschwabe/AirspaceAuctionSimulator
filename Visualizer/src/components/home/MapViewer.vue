@@ -1,23 +1,28 @@
 <template>
-  <div class="wrapper" :style="{ width: `${size}px`, heigth: `${size}px` }">
-    <img
-      v-for="tile in tiles"
-      :key="tile"
-      :src="tile"
-      alt="OSM Tile"
-      :width="dim"
-      :height="dim"
-      class="tile"
-      :style="{ width: dim, height: dim }"
-    />
-  </div>
+  <div ref="map_root" :style="{ width: `${size}px`, height: `${size}px` }"></div>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref, watchEffect } from "vue";
+import TileLayer from "ol/layer/Tile";
+import OSM from "ol/source/OSM";
+import { boundingExtent } from "ol/extent";
+import { fromLonLat } from "ol/proj";
+import { View, Map, Feature } from "ol";
+import { Heatmap } from "ol/layer";
+import VectorSource from "ol/source/Vector";
+import { Point } from "ol/geom";
 
 const props = defineProps({
+  topLeftCoordinate: Object,
+  bottomRightCoordiante: Object,
+  centerCoordinates: Object,
   tiles: Array,
+  heatmap: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
   size: {
     type: Number,
     required: false,
@@ -25,21 +30,71 @@ const props = defineProps({
   },
 });
 
-const dim = computed(() => {
-  return Math.floor(props.size / Math.sqrt(props.tiles.length));
+const map_root = ref(null);
+const min = computed(() => fromLonLat([props.topLeftCoordinate.long, props.topLeftCoordinate.lat]));
+const max = computed(() => fromLonLat([props.bottomRightCoordiante.long, props.bottomRightCoordiante.lat]));
+const extent = computed(() => boundingExtent([min.value, max.value]));
+const center = computed(() => [(min.value[0] + max.value[0]) / 2, (min.value[1] + max.value[1]) / 2]);
+const zoom = computed(() => {
+  return Math.floor(15 / Math.sqrt(props.tiles.length));
 });
-</script>
 
-<style scoped>
-.wrapper {
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: flex-start;
-  align-items: flex-start;
-  align-content: flex-start;
-  gap: 0;
+const features = ref([
+  new Feature(new Point(center.value)),
+  new Feature(new Point(min.value)),
+  new Feature(new Point(max.value)),
+]);
+
+const layers = computed(() => {
+  const val = [
+    // adding a background tiled layer
+    new TileLayer({
+      source: new OSM(), // tiles are served by OpenStreetMap
+      zIndex: 0,
+    }),
+    new Heatmap({
+      source: new VectorSource({
+        features: features.value,
+        radius: 20,
+        zIndex: 1,
+      }),
+    }),
+  ];
+  if (!props.heatmap) {
+    val.pop();
+  }
+  return val;
+});
+
+function renderMap() {
+  if (map_root.value) {
+    while (map_root.value.firstChild) {
+      map_root.value.removeChild(map_root.value.firstChild);
+    }
+    // this is where we create the OpenLayers map
+    const map = new Map({
+      // the map will be created using the 'map-root' ref
+      target: map_root.value,
+      layers: layers.value,
+      controls: [],
+
+      // the map view will initially show the whole world
+      view: new View({
+        zoom: zoom.value,
+        center: center.value,
+        extent: extent.value,
+        showFullExtent: true,
+      }),
+    });
+
+    if (props.heatmap) {
+      map.on("singleclick", (event) => {
+        features.value.push(new Feature(new Point(event.coordinate)));
+        console.log(features.value);
+      });
+    }
+  }
 }
-.tile {
-  image-rendering: pixelated;
-}
-</style>
+
+watchEffect(renderMap);
+</script>

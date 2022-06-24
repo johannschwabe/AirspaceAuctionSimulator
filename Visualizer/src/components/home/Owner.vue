@@ -14,7 +14,11 @@
     </n-dynamic-input>
     <n-drawer v-model:show="showOptions" :width="565" placement="left">
       <n-drawer-content v-if="option !== null" :title="`Owner: ${option.name}`">
-        <owner-options :model-value="option" @update:modelValue="updateOwner(optionsIndex, $event)" :tiles="tiles" />
+        <owner-options
+          :model-value="option"
+          @update:modelValue="updateOwner(optionsIndex, $event)"
+          :map-info="mapInfo"
+        />
       </n-drawer-content>
     </n-drawer>
   </div>
@@ -31,8 +35,8 @@ defineProps({
     type: Object,
     required: true,
   },
-  tiles: {
-    type: Array,
+  mapInfo: {
+    type: Object,
     required: false,
     default: null,
   },

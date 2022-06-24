@@ -45,7 +45,12 @@
     </n-grid-item>
 
     <n-grid-item span="3">
-      <map-viewer :tiles="tileUrls" />
+      <map-viewer
+        :tiles="tileUrls"
+        :top-left-coordinate="mapInfo.topLeftCoordinate"
+        :bottom-right-coordiante="mapInfo.bottomRightCoordiante"
+        :center-coordinates="coordinates"
+      />
     </n-grid-item>
   </n-grid>
 </template>
@@ -112,6 +117,7 @@ const mapInfo = computed(() => {
     tiles,
     topLeftCoordinate,
     bottomRightCoordiante,
+    coordinates,
   };
 });
 watch(mapInfo, () => {

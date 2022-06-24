@@ -9,7 +9,7 @@
             <n-select v-model:value="value.type" :options="options" placeholder="Type" filterable />
           </n-grid-item>
           <n-grid-item v-if="value.type === 'heatmap'">
-            <owner-heatmap :tiles="tiles" />
+            <owner-heatmap :map-info="mapInfo" />
           </n-grid-item>
         </n-grid>
       </template>
@@ -27,8 +27,8 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  tiles: {
-    type: Array,
+  mapInfo: {
+    type: Object,
     required: false,
     default: null,
   },
