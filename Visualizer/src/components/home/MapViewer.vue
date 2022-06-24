@@ -28,21 +28,33 @@ const props = defineProps({
     required: false,
     default: 256,
   },
+  dimension: {
+    type: Object,
+    required: false,
+    default: null,
+  },
 });
 
 const map_root = ref(null);
-const min = computed(() => fromLonLat([props.topLeftCoordinate.long, props.topLeftCoordinate.lat]));
-const max = computed(() => fromLonLat([props.bottomRightCoordiante.long, props.bottomRightCoordiante.lat]));
-const extent = computed(() => boundingExtent([min.value, max.value]));
-const center = computed(() => [(min.value[0] + max.value[0]) / 2, (min.value[1] + max.value[1]) / 2]);
+const topLeft = computed(() => fromLonLat([props.topLeftCoordinate.long, props.topLeftCoordinate.lat]));
+const bottomRight = computed(() => fromLonLat([props.bottomRightCoordiante.long, props.bottomRightCoordiante.lat]));
+const extent = computed(() => boundingExtent([topLeft.value, bottomRight.value]));
+const min = computed(() => extent.value.slice(0, 2));
+const max = computed(() => extent.value.slice(2, 4));
+const dimensions = computed(() => [max.value[0] - min.value[0], max.value[1] - min.value[1]]);
+const meterCoordsRatio = computed(() => (props.heatmap ? dimensions.value[0] / props.dimension.x : null));
+const center = computed(() => [
+  (topLeft.value[0] + bottomRight.value[0]) / 2,
+  (topLeft.value[1] + bottomRight.value[1]) / 2,
+]);
 const zoom = computed(() => {
   return Math.floor(15 / Math.sqrt(props.tiles.length));
 });
 
 const features = new Collection([
   new Feature(new Point(center.value)),
-  new Feature(new Point(min.value)),
-  new Feature(new Point(max.value)),
+  new Feature(new Point(topLeft.value)),
+  new Feature(new Point(bottomRight.value)),
 ]);
 
 const layers = computed(() => {
@@ -52,51 +64,85 @@ const layers = computed(() => {
       source: new OSM(), // tiles are served by OpenStreetMap
       zIndex: 0,
     }),
-    new Heatmap({
-      source: new VectorSource({
-        features: features,
-        radius: 20,
-        zIndex: 1,
-      }),
-    }),
   ];
-  if (!props.heatmap) {
-    val.pop();
+  if (props.heatmap) {
+    val.push(
+      new Heatmap({
+        source: new VectorSource({
+          features: features,
+          radius: 20,
+          zIndex: 1,
+        }),
+      })
+    );
   }
   return val;
 });
 
-function renderMap() {
-  if (map_root.value) {
-    while (map_root.value.firstChild) {
-      map_root.value.removeChild(map_root.value.firstChild);
-    }
-    // this is where we create the OpenLayers map
-    const map = new Map({
-      // the map will be created using the 'map-root' ref
-      target: map_root.value,
-      layers: layers.value,
-      controls: [],
-      interactions: [],
+const heatmapCoordinates = {};
+let map = null;
 
-      // the map view will initially show the whole world
-      view: new View({
+function renderMap() {
+  // this is where we create the OpenLayers map
+  map = new Map({
+    // the map will be created using the 'map-root' ref
+    target: map_root.value,
+    layers: layers.value,
+    controls: [],
+    interactions: [],
+
+    // the map view will initially show the whole world
+    view: new View({
+      zoom: zoom.value,
+      center: center.value,
+      extent: extent.value,
+      showFullExtent: true,
+    }),
+  });
+
+  if (props.heatmap) {
+    map.on("click", onClickOrDrag);
+    map.on("pointerdrag", onClickOrDrag);
+  }
+}
+
+function onClickOrDrag(event) {
+  const coords = event.coordinate;
+  const gridCoords = [
+    Math.floor((coords[0] - min.value[0]) / meterCoordsRatio.value),
+    Math.floor((coords[1] - min.value[1]) / meterCoordsRatio.value),
+  ];
+  if (
+    gridCoords[0] >= 0 &&
+    gridCoords[1] >= 0 &&
+    gridCoords[0] < props.dimension.x &&
+    gridCoords[1] < props.dimension.z
+  ) {
+    const key = `${gridCoords[0]}_${gridCoords[1]}`;
+    if (heatmapCoordinates[key] !== undefined) {
+      if (heatmapCoordinates[key] >= 1) {
+        return;
+      }
+      heatmapCoordinates[key] = Math.round(heatmapCoordinates[key] * 10 + 1) / 10;
+      console.log(heatmapCoordinates[key]);
+    } else {
+      heatmapCoordinates[key] = 0.1;
+    }
+    features.push(new Feature(new Point(coords)));
+  }
+}
+
+watch(extent, () => {
+  if (map !== null) {
+    map.setView(
+      new View({
         zoom: zoom.value,
         center: center.value,
         extent: extent.value,
         showFullExtent: true,
-      }),
-    });
-
-    if (props.heatmap) {
-      map.on("click", (event) => {
-        features.push(new Feature(new Point(event.coordinate)));
-        console.log(features);
-      });
-    }
+      })
+    );
   }
-}
-
-watch(extent, renderMap);
+});
 onMounted(renderMap);
 </script>

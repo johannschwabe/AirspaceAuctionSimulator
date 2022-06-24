@@ -18,6 +18,7 @@
           :model-value="option"
           @update:modelValue="updateOwner(optionsIndex, $event)"
           :map-info="mapInfo"
+          :dimension="dimension"
         />
       </n-drawer-content>
     </n-drawer>

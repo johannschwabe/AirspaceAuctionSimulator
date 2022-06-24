@@ -6,6 +6,7 @@
     :bottom-right-coordiante="mapInfo.bottomRightCoordiante"
     :top-left-coordinate="mapInfo.topLeftCoordinate"
     :size="512"
+    :dimension="dimension"
     heatmap
   />
 </template>
@@ -19,6 +20,10 @@ defineProps({
     type: Object,
     required: false,
     default: null,
+  },
+  dimension: {
+    type: Object,
+    required: true,
   },
 });
 </script>
