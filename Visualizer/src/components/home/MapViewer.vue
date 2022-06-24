@@ -3,12 +3,12 @@
 </template>
 
 <script setup>
-import { computed, ref, watchEffect } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import TileLayer from "ol/layer/Tile";
 import OSM from "ol/source/OSM";
 import { boundingExtent } from "ol/extent";
 import { fromLonLat } from "ol/proj";
-import { View, Map, Feature } from "ol";
+import { View, Map, Feature, Collection } from "ol";
 import { Heatmap } from "ol/layer";
 import VectorSource from "ol/source/Vector";
 import { Point } from "ol/geom";
@@ -39,7 +39,7 @@ const zoom = computed(() => {
   return Math.floor(15 / Math.sqrt(props.tiles.length));
 });
 
-const features = ref([
+const features = new Collection([
   new Feature(new Point(center.value)),
   new Feature(new Point(min.value)),
   new Feature(new Point(max.value)),
@@ -54,7 +54,7 @@ const layers = computed(() => {
     }),
     new Heatmap({
       source: new VectorSource({
-        features: features.value,
+        features: features,
         radius: 20,
         zIndex: 1,
       }),
@@ -77,6 +77,7 @@ function renderMap() {
       target: map_root.value,
       layers: layers.value,
       controls: [],
+      interactions: [],
 
       // the map view will initially show the whole world
       view: new View({
@@ -88,13 +89,14 @@ function renderMap() {
     });
 
     if (props.heatmap) {
-      map.on("singleclick", (event) => {
-        features.value.push(new Feature(new Point(event.coordinate)));
-        console.log(features.value);
+      map.on("click", (event) => {
+        features.push(new Feature(new Point(event.coordinate)));
+        console.log(features);
       });
     }
   }
 }
 
-watchEffect(renderMap);
+watch(extent, renderMap);
+onMounted(renderMap);
 </script>
