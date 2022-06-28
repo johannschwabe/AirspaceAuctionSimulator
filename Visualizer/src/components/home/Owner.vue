@@ -30,6 +30,7 @@ import { computed, ref, watchEffect } from "vue";
 import { Options } from "@vicons/ionicons5";
 import OwnerOptions from "./OwnerOptions.vue";
 import OwnerForm from "./OwnerForm.vue";
+import { createDefaultStop } from "../../scripts/stops";
 
 defineProps({
   dimension: {
@@ -73,20 +74,14 @@ watchEffect(() => {
   }
 });
 
-const defaultStop = {
-  type: "random",
-  position: null,
-  heatmap: {},
-};
-
 const owners = ref([
   {
     color: "#00559d",
     name: "Digitec",
     agents: 20,
     type: "aba",
-    start: { ...defaultStop },
-    target: { ...defaultStop },
+    start: createDefaultStop(),
+    target: createDefaultStop(),
     stops: [],
   },
 ]);
@@ -97,8 +92,8 @@ const onCreate = () => {
     name: null,
     agents: null,
     type: "ab",
-    start: { ...defaultStop },
-    target: { ...defaultStop },
+    start: createDefaultStop(),
+    target: createDefaultStop(),
     stops: [],
   };
 };
@@ -107,5 +102,3 @@ defineExpose({
   owners,
 });
 </script>
-
-<style scoped></style>

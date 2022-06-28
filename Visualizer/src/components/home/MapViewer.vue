@@ -8,31 +8,19 @@ import TileLayer from "ol/layer/Tile";
 import OSM from "ol/source/OSM";
 import { boundingExtent } from "ol/extent";
 import { fromLonLat } from "ol/proj";
-import { View, Map, Feature, Collection } from "ol";
+import { View, Map, Feature } from "ol";
 import { Heatmap } from "ol/layer";
 import VectorSource from "ol/source/Vector";
 import { Point } from "ol/geom";
 import VectorLayer from "ol/layer/Vector";
 
 const props = defineProps({
-  topLeftCoordinate: {
+  mapInfo: {
     type: Object,
     required: true,
   },
-  bottomRightCoordiante: {
+  stop: {
     type: Object,
-    required: true,
-  },
-  centerCoordinates: {
-    type: Object,
-    required: true,
-  },
-  tiles: {
-    type: Array,
-    required: true,
-  },
-  selection: {
-    type: String,
     required: false,
     default: null,
   },
@@ -45,22 +33,14 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  position: {
-    type: String,
-    required: false,
-    default: null,
-  },
-  heatmap: {
-    type: Object,
-    required: false,
-    default: () => ({}),
-  },
 });
 
-const selectionType = computed(() => props.selection);
+const selectionType = computed(() => props.stop?.type);
 const map_root = ref(null);
-const topLeft = computed(() => fromLonLat([props.topLeftCoordinate.long, props.topLeftCoordinate.lat]));
-const bottomRight = computed(() => fromLonLat([props.bottomRightCoordiante.long, props.bottomRightCoordiante.lat]));
+const topLeft = computed(() => fromLonLat([props.mapInfo.topLeftCoordinate.long, props.mapInfo.topLeftCoordinate.lat]));
+const bottomRight = computed(() =>
+  fromLonLat([props.mapInfo.bottomRightCoordiante.long, props.mapInfo.bottomRightCoordiante.lat])
+);
 const extent = computed(() => boundingExtent([topLeft.value, bottomRight.value]));
 const min = computed(() => extent.value.slice(0, 2));
 const max = computed(() => extent.value.slice(2, 4));
@@ -71,11 +51,10 @@ const center = computed(() => [
   (topLeft.value[1] + bottomRight.value[1]) / 2,
 ]);
 const zoom = computed(() => {
-  return Math.floor(15 / Math.sqrt(props.tiles.length));
+  return Math.floor(15 / Math.sqrt(props.mapInfo.tiles.length));
 });
-
-const features = new Collection([]);
-const position = new Collection([]);
+const positionValue = { ...props.stop?.position };
+const heatmapValue = { ...props.stop?.heatmap };
 
 const layers = computed(() => {
   const val = [
@@ -85,31 +64,30 @@ const layers = computed(() => {
       zIndex: 0,
     }),
   ];
-  if (props.selection !== null) {
-    if (props.selection === "heatmap") {
+  switch (selectionType.value) {
+    case "heatmap":
       val.push(
         new Heatmap({
           source: new VectorSource({
-            features: features,
+            features: heatmapValue.features,
           }),
         })
       );
-    }
-    if (props.selection === "position") {
+      break;
+    case "position":
       val.push(
         new VectorLayer({
           source: new VectorSource({
-            features: position,
+            features: positionValue.features,
           }),
         })
       );
-    }
+      break;
+    default:
+      break;
   }
   return val;
 });
-
-const positionCoordinates = ref(props.position);
-const heatmapCoordinates = ref(props.heatmap);
 
 let map = null;
 
@@ -131,7 +109,7 @@ function renderMap() {
     }),
   });
 
-  if (props.selection !== null) {
+  if (selectionType.value !== null) {
     map.on("click", onClickOrDrag);
     map.on("pointerdrag", onClickOrDrag);
   }
@@ -152,22 +130,27 @@ function onClickOrDrag(event) {
     gridCoords[1] < props.dimension.z
   ) {
     const key = `${gridCoords[0]}_${gridCoords[1]}`;
-    if (props.selection === "position") {
-      positionCoordinates.value = key;
-      position.pop();
-      position.push(new Feature(new Point(coords)));
-      emit("update:position", positionCoordinates.value);
-    } else if (props.selection === "heatmap") {
-      if (heatmapCoordinates.value[key] !== undefined) {
-        if (heatmapCoordinates.value[key] >= 1) {
-          return;
+    switch (selectionType.value) {
+      case "heatmap":
+        if (heatmapValue.features[key] !== undefined) {
+          if (heatmapValue.features[key] >= 1) {
+            break;
+          }
+          heatmapValue.features[key] = Math.round(heatmapValue.features[key] * 10 + 1) / 10;
+        } else {
+          heatmapValue.features[key] = 0.1;
         }
-        heatmapCoordinates.value[key] = Math.round(heatmapCoordinates.value[key] * 10 + 1) / 10;
-      } else {
-        heatmapCoordinates.value[key] = 0.1;
-      }
-      features.push(new Feature(new Point(coords)));
-      emit("update:heatmap", heatmapCoordinates.value);
+        heatmapValue.features.push(new Feature(new Point(coords)));
+        emit("update:heatmap", heatmapValue);
+        break;
+      case "position":
+        positionValue.key = key;
+        positionValue.features.pop();
+        positionValue.features.push(new Feature(new Point(coords)));
+        emit("update:position", positionValue);
+        break;
+      default:
+        break;
     }
   }
 }

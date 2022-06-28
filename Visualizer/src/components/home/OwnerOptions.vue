@@ -29,6 +29,7 @@
 import { ref, watchEffect } from "vue";
 import OwnerForm from "./OwnerForm.vue";
 import OwnerStop from "./OwnerStop.vue";
+import { createDefaultStop } from "../../scripts/stops";
 
 const props = defineProps({
   modelValue: {
@@ -46,16 +47,8 @@ const props = defineProps({
   },
 });
 
-const defaultStop = {
-  type: "random",
-  position: null,
-  heatmap: {},
-};
-
 const onCreate = () => {
-  return {
-    ...defaultStop,
-  };
+  return createDefaultStop();
 };
 
 function updateStop(index, stop) {
@@ -70,5 +63,3 @@ function updateValue(updatedValue) {
   emit("update:modelValue", updatedValue);
 }
 </script>
-
-<style scoped></style>

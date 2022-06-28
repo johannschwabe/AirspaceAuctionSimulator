@@ -1,15 +1,10 @@
 <template>
   <map-viewer
     id="map"
-    :tiles="mapInfo.tiles"
-    :center-coordinates="mapInfo.coordinates"
-    :bottom-right-coordiante="mapInfo.bottomRightCoordiante"
-    :top-left-coordinate="mapInfo.topLeftCoordinate"
+    :map-info="mapInfo"
     :size="512"
     :dimension="dimension"
-    :selection="value.type"
-    :position="value.position"
-    :heatmap="value.heatmap"
+    :stop="value"
     @update:position="updatePosition"
     @update:heatmap="updateHeatmap"
   />
@@ -42,10 +37,10 @@ function updateValue(updatedValue) {
 }
 const emit = defineEmits(["update:modelValue"]);
 
-function updatePosition(coords) {
-  value.value.position = coords;
+function updatePosition(position) {
+  value.value.position = position;
 }
-function updateHeatmap(coords) {
-  value.value.heatmap = coords;
+function updateHeatmap(heatmap) {
+  value.value.heatmap = heatmap;
 }
 </script>
