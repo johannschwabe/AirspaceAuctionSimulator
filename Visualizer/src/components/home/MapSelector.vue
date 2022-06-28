@@ -50,6 +50,7 @@
         :top-left-coordinate="mapInfo.topLeftCoordinate"
         :bottom-right-coordiante="mapInfo.bottomRightCoordiante"
         :center-coordinates="coordinates"
+        :dimension="dimension"
       />
     </n-grid-item>
   </n-grid>

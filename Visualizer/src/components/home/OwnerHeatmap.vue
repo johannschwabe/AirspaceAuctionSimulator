@@ -17,8 +17,7 @@ import MapViewer from "./MapViewer.vue";
 defineProps({
   mapInfo: {
     type: Object,
-    required: false,
-    default: null,
+    required: true,
   },
   dimension: {
     type: Object,

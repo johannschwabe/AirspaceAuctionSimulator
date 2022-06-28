@@ -14,10 +14,22 @@ import VectorSource from "ol/source/Vector";
 import { Point } from "ol/geom";
 
 const props = defineProps({
-  topLeftCoordinate: Object,
-  bottomRightCoordiante: Object,
-  centerCoordinates: Object,
-  tiles: Array,
+  topLeftCoordinate: {
+    type: Object,
+    required: true,
+  },
+  bottomRightCoordiante: {
+    type: Object,
+    required: true,
+  },
+  centerCoordinates: {
+    type: Object,
+    required: true,
+  },
+  tiles: {
+    type: Array,
+    required: true,
+  },
   heatmap: {
     type: Boolean,
     required: false,
@@ -30,8 +42,7 @@ const props = defineProps({
   },
   dimension: {
     type: Object,
-    required: false,
-    default: null,
+    required: true,
   },
 });
 
@@ -124,7 +135,6 @@ function onClickOrDrag(event) {
         return;
       }
       heatmapCoordinates[key] = Math.round(heatmapCoordinates[key] * 10 + 1) / 10;
-      console.log(heatmapCoordinates[key]);
     } else {
       heatmapCoordinates[key] = 0.1;
     }
