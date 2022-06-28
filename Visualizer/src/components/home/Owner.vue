@@ -3,7 +3,7 @@
     <n-dynamic-input v-model:value="owners" :on-create="onCreate">
       <template #default="{ value, index }">
         <div style="display: flex; column-gap: 10px; width: 100%">
-          <owner-form :model-value="value" @update:modelValue="updateOwner(index, $event)" />
+          <owner-form v-model="value.owner" />
           <n-button tertiary circle @click="onOptions(index)">
             <template #icon>
               <n-icon><Options /></n-icon>
@@ -47,16 +47,18 @@ defineProps({
 function updateOwner(ownerIndex, updatedOwner) {
   if (ownerIndex !== null) {
     const originalOwner = owners.value[ownerIndex];
-    originalOwner.color = updatedOwner.color;
-    originalOwner.name = updatedOwner.name;
-    originalOwner.agents = updatedOwner.agents;
-    originalOwner.type = updatedOwner.type;
+    if (originalOwner) {
+      originalOwner.color = updatedOwner.color;
+      originalOwner.name = updatedOwner.name;
+      originalOwner.agents = updatedOwner.agents;
+      originalOwner.type = updatedOwner.type;
+    }
   }
 }
 
 const optionsIndex = ref(null);
 const showOptions = ref(false);
-const option = computed(() => (optionsIndex.value !== null ? owners.value[optionsIndex.value] : null));
+const option = computed(() => (optionsIndex.value !== null ? owners.value[optionsIndex.value].owner : null));
 
 function onOptions(index) {
   if (optionsIndex.value === index) {
@@ -76,28 +78,29 @@ watchEffect(() => {
 
 const owners = ref([
   {
-    color: "#00559d",
-    name: "Digitec",
-    agents: 20,
-    type: "aba",
-    start: createDefaultStop(),
-    target: createDefaultStop(),
-    stops: [],
+    owner: {
+      color: "#00559d",
+      name: "Digitec",
+      agents: 20,
+      type: "aba",
+      start: createDefaultStop(),
+      target: createDefaultStop(),
+      stops: [],
+    },
   },
 ]);
 
 function getData() {
   return owners.value.map((owner) => {
-    const stops = [owner.start, ...owner.stops, owner.target];
+    const stops = [owner.owner.start, ...owner.owner.stops, owner.owner.target];
     const cleanedStops = stops.map((stop) => {
-      const cleanStop = { type: stop.type };
-      switch (stop.type) {
+      const cleanStop = { type: stop.stop.type };
+      switch (stop.stop.type) {
         case "heatmap":
-          console.log(stop.heatmap.keys);
-          cleanStop.heatmap = { ...stop.heatmap.keys };
+          cleanStop.heatmap = { ...stop.stop.heatmap.keys };
           break;
         case "position":
-          cleanStop.position = stop.position.key;
+          cleanStop.position = stop.stop.position.key;
           break;
         case "random":
         default:
@@ -106,10 +109,10 @@ function getData() {
       return cleanStop;
     });
     return {
-      color: owner.color,
-      name: owner.name,
-      agents: owner.agents,
-      type: owner.type,
+      color: owner.owner.color,
+      name: owner.owner.name,
+      agents: owner.owner.agents,
+      type: owner.owner.type,
       stops: cleanedStops,
     };
   });
@@ -117,13 +120,15 @@ function getData() {
 
 const onCreate = () => {
   return {
-    color: "#63e2b7",
-    name: null,
-    agents: null,
-    type: "ab",
-    start: createDefaultStop(),
-    target: createDefaultStop(),
-    stops: [],
+    owner: {
+      color: "#63e2b7",
+      name: null,
+      agents: null,
+      type: "ab",
+      start: createDefaultStop(),
+      target: createDefaultStop(),
+      stops: [],
+    },
   };
 };
 

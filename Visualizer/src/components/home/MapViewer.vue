@@ -1,5 +1,8 @@
 <template>
-  <div ref="map_root" :style="{ width: `${size}px`, height: `${size}px` }"></div>
+  <div ref="map_root" :style="{ width: `${size}px`, height: `${size}px` }" />
+  <n-button ghost v-if="selectionType === 'heatmap'" @click="onClear" style="width: 100%; margin-top: 5px"
+    >clear</n-button
+  >
 </template>
 
 <script setup>
@@ -174,4 +177,9 @@ watch(extent, () => {
   }
 });
 onMounted(renderMap);
+
+function onClear() {
+  heatmapValue.features.clear();
+  heatmapValue.keys = {};
+}
 </script>

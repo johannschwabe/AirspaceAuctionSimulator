@@ -1,6 +1,5 @@
 <template>
   <map-viewer
-    id="map"
     :map-info="mapInfo"
     :size="512"
     :dimension="dimension"
