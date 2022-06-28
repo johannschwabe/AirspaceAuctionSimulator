@@ -17,5 +17,6 @@ class TestOwner(Owner):
 
     def generate_agents(self, t: int, env: "Environment") -> List["Agent"]:
         if t == 0:
-            return [ABCAgent(self.locations, len(self.locations)*[0])]
+            self.agents = [ABCAgent(self.locations, len(self.locations)*[0])]
+            return self.agents
         return []

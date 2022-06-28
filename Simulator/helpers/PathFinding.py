@@ -82,13 +82,11 @@ def astar(
                 # neighbor.f = neighbor.g + neighbor.h
                 neighbor.f = neighbor.g + neighbor.h - neighbor.position.y / env.get_dim().y * 0.05 * neighbor.h
 
-                in_check_2_start = time_ns()
                 if hash(neighbor) in open_nodes:
                     if open_nodes[hash(neighbor)].f > neighbor.f:
                         open_nodes[hash(neighbor)] = neighbor
-                in_check_2_t += time_ns() - in_check_2_start
-
-                open_nodes[hash(neighbor)] = neighbor
+                else:
+                    open_nodes[hash(neighbor)] = neighbor
         neighbors_time += time_ns() - start_neighbors
 
     if len(path) == 0:
