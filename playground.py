@@ -11,13 +11,11 @@ from Simulator import Simulator, Tick
 from Simulator.Generator.MapTile import MapTile
 from Simulator.IO.JSONS import build_json
 from Simulator.History import History
-from Simulator.Owner.PathOwners.ABAOwner import ABAOwner
-from Simulator.Owner.PathOwners.ABCOwner import ABCOwner
-from Simulator.Owner.PathOwners.ABOwner import ABOwner
-from Simulator.Owner.SpaceOwners.StationaryOwner import StationaryOwner
+from Simulator.Owner.ABCOwner import ABCOwner
+from Simulator.Owner.ABOwner import ABOwner
+from Simulator.Owner.TestOwner import TestOwner
 
-
-dimensions = TimeCoordinate(831,40,831,Tick(20))
+dimensions = TimeCoordinate(831,100,831,Tick(20))
 random.seed(3)
 environment = Environment(dimensions, [], [MapTile(
     [15,17161, 11475],
@@ -29,8 +27,9 @@ environment.init_blocker_tree()
 # allocator = BiddingAllocator()
 allocator = FCFSAllocator()
 owners = []
-for i in range(3):
-    owners.append(ABCOwner("Schnabeltier"+ str(i), "red", [random.randint(0,5) for _ in range(2)]))
+# owners.append(TestOwner("test", "red", [TimeCoordinate(217, 0, 621, Tick(1)), TimeCoordinate(595, 0, 697, Tick(1371))]))
+# for i in range(3):
+#     owners.append(ABCOwner("Schnabeltier"+ str(i), "red", [random.randint(0,5) for _ in range(2)]))
 # owners = [BiddingABOwner("Schnabeltier", "red", [1,1,1,2], 0.5), BiddingABOwner("Schnabeltier", "red", [1,1,3,3,3], 0.7)]
 
 history = History(dimensions, allocator, environment, owners)

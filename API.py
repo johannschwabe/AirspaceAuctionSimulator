@@ -83,5 +83,6 @@ def read_root(config: SimulationConfigType):
     g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions,
                   maptiles=maptiles)
     g.simulate()
+    print("--Simulation Completed--")
     json = build_json(g.simulator, g.name, g.description)
     return json

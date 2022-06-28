@@ -53,7 +53,7 @@ const doDroneUpdate = () => {
 
 onTick(() => {
   console.log("3D TICK!");
-  doBlockerUpdate();
+  // doBlockerUpdate();
   doDroneUpdate();
 });
 
@@ -73,7 +73,7 @@ onMounted(() => {
   shadows = useShadows({ mainLight });
 
   droneCache = useDroneCache();
-  blockerCache = useBlockerCache();
+  // blockerCache = useBlockerCache();
   focusCache = useFocusCache({ scene });
 
   blockerMaterial = useBlockerMaterial({ scene });

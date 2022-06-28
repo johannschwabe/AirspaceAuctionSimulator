@@ -36,7 +36,7 @@ def astar(
     valid_time = 0
     in_check_t = 0
     in_check_2_t = 0
-    MAX_ITER = 4500
+    MAX_ITER = 10000
 
     while len(open_nodes) > 0 and steps < MAX_ITER:
         steps += 1
@@ -77,10 +77,10 @@ def astar(
                     continue
                 in_check_t += time_ns() - in_check_start
 
-                neighbor.g = current_node.g + 0.7
-                neighbor.h = distance(neighbor.position, end_node.position)
-                neighbor.f = neighbor.g + neighbor.h
-                # neighbor.f = neighbor.g + neighbor.h - neighbor.position.y / env.get_dim().y * 0.2 * neighbor.h
+                neighbor.g = current_node.g + 0.5
+                neighbor.h = distance2(neighbor.position, end_node.position)
+                # neighbor.f = neighbor.g + neighbor.h
+                neighbor.f = neighbor.g + neighbor.h - neighbor.position.y / env.get_dim().y * 0.05 * neighbor.h
 
                 in_check_2_start = time_ns()
                 if hash(neighbor) in open_nodes:
@@ -93,8 +93,11 @@ def astar(
 
     if len(path) == 0:
         print("ASTAR failed")
-        print(len(open_nodes))
-        print(len(closed_nodes))
+
+        # print(len(open_nodes))
+        # print(len(closed_nodes))
+    print(str(start))
+    print(str(end))
     wait_coords: List[TimeCoordinate] = []
     for near_coord in path:
         for t in range(1, agent.speed):
@@ -104,7 +107,7 @@ def astar(
     complete_path.sort(key=lambda x: x.t)
     stop_time = time_ns()
     seconds = (stop_time - start_time) / 1e9
-    print(start.distance(end) / len(path))
+    # print(start.inter_temporal_distance(end) / (len(path) + 1))
     print(f"PathLen: {len(path)}, "
           f"steps: {steps}, "
           f"time: {seconds:.2f}s, "
@@ -120,6 +123,8 @@ def astar(
 def distance(start: TimeCoordinate, end: TimeCoordinate):
     return abs(start.x - end.x) + abs(start.y - end.y) + abs(start.z - end.z)
 
+def distance15(start: TimeCoordinate, end: TimeCoordinate):
+    return math.pow(abs(start.x - end.x) ** 2 + abs(start.y - end.y) ** 2 + abs(start.z - end.z) ** 2, 0.333)
 
 def distance2(start: TimeCoordinate, end: TimeCoordinate):
     return math.pow((start.x - end.x) ** 2 + (start.y - end.y) ** 2 + (start.z - end.z) ** 2, 0.5)

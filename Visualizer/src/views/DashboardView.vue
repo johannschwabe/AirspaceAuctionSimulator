@@ -163,15 +163,15 @@ if (!hasSimulationSingleton()) {
   simulation = useSimulationSingleton();
   loadingBar.finish();
   loading.value = false;
-  // const allAgentIds = [];
-  // simulation.owners.forEach((owner) => {
-  //   allAgentIds.push(owner.id);
-  //   owner.agents.forEach((agent) => {
-  //     allAgentIds.push(agent.id);
-  //   });
-  // });
-  // console.log(allAgentIds);
-  // simulationStore.setSelectedAgentIDs(allAgentIds);
+  const allAgentIds = [];
+  simulation.owners.forEach((owner) => {
+    allAgentIds.push(owner.id);
+    owner.agents.forEach((agent) => {
+      allAgentIds.push(agent.id);
+    });
+  });
+  console.log(allAgentIds);
+  simulationStore.setSelectedAgentIDs(allAgentIds);
 }
 
 onUnmounted(() => {
