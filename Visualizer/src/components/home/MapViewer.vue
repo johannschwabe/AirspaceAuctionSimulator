@@ -12,6 +12,7 @@ import { View, Map, Feature, Collection } from "ol";
 import { Heatmap } from "ol/layer";
 import VectorSource from "ol/source/Vector";
 import { Point } from "ol/geom";
+import VectorLayer from "ol/layer/Vector";
 
 const props = defineProps({
   topLeftCoordinate: {
@@ -30,10 +31,10 @@ const props = defineProps({
     type: Array,
     required: true,
   },
-  heatmap: {
-    type: Boolean,
+  selection: {
+    type: String,
     required: false,
-    default: false,
+    default: null,
   },
   size: {
     type: Number,
@@ -46,6 +47,7 @@ const props = defineProps({
   },
 });
 
+const selectionType = computed(() => props.selection);
 const map_root = ref(null);
 const topLeft = computed(() => fromLonLat([props.topLeftCoordinate.long, props.topLeftCoordinate.lat]));
 const bottomRight = computed(() => fromLonLat([props.bottomRightCoordiante.long, props.bottomRightCoordiante.lat]));
@@ -53,7 +55,7 @@ const extent = computed(() => boundingExtent([topLeft.value, bottomRight.value])
 const min = computed(() => extent.value.slice(0, 2));
 const max = computed(() => extent.value.slice(2, 4));
 const dimensions = computed(() => [max.value[0] - min.value[0], max.value[1] - min.value[1]]);
-const meterCoordsRatio = computed(() => (props.heatmap ? dimensions.value[0] / props.dimension.x : null));
+const meterCoordsRatio = computed(() => dimensions.value[0] / props.dimension.x);
 const center = computed(() => [
   (topLeft.value[0] + bottomRight.value[0]) / 2,
   (topLeft.value[1] + bottomRight.value[1]) / 2,
@@ -62,11 +64,8 @@ const zoom = computed(() => {
   return Math.floor(15 / Math.sqrt(props.tiles.length));
 });
 
-const features = new Collection([
-  new Feature(new Point(center.value)),
-  new Feature(new Point(topLeft.value)),
-  new Feature(new Point(bottomRight.value)),
-]);
+const features = new Collection([]);
+const position = new Collection([]);
 
 const layers = computed(() => {
   const val = [
@@ -76,21 +75,32 @@ const layers = computed(() => {
       zIndex: 0,
     }),
   ];
-  if (props.heatmap) {
-    val.push(
-      new Heatmap({
-        source: new VectorSource({
-          features: features,
-          radius: 20,
-          zIndex: 1,
-        }),
-      })
-    );
+  if (props.selection !== null) {
+    if (props.selection === "heatmap") {
+      val.push(
+        new Heatmap({
+          source: new VectorSource({
+            features: features,
+          }),
+        })
+      );
+    }
+    if (props.selection === "position") {
+      val.push(
+        new VectorLayer({
+          source: new VectorSource({
+            features: position,
+          }),
+        })
+      );
+    }
   }
   return val;
 });
 
-const heatmapCoordinates = {};
+const positionCoordinates = ref(null);
+const heatmapCoordinates = ref({});
+
 let map = null;
 
 function renderMap() {
@@ -111,11 +121,13 @@ function renderMap() {
     }),
   });
 
-  if (props.heatmap) {
+  if (props.selection !== null) {
     map.on("click", onClickOrDrag);
     map.on("pointerdrag", onClickOrDrag);
   }
 }
+
+const emit = defineEmits(["update"]);
 
 function onClickOrDrag(event) {
   const coords = event.coordinate;
@@ -130,17 +142,31 @@ function onClickOrDrag(event) {
     gridCoords[1] < props.dimension.z
   ) {
     const key = `${gridCoords[0]}_${gridCoords[1]}`;
-    if (heatmapCoordinates[key] !== undefined) {
-      if (heatmapCoordinates[key] >= 1) {
-        return;
+    if (props.selection === "position") {
+      positionCoordinates.value = key;
+      position.pop();
+      position.push(new Feature(new Point(coords)));
+      emit("update", positionCoordinates.value);
+    } else if (props.selection === "heatmap") {
+      if (heatmapCoordinates.value[key] !== undefined) {
+        if (heatmapCoordinates.value[key] >= 1) {
+          return;
+        }
+        heatmapCoordinates.value[key] = Math.round(heatmapCoordinates.value[key] * 10 + 1) / 10;
+      } else {
+        heatmapCoordinates.value[key] = 0.1;
       }
-      heatmapCoordinates[key] = Math.round(heatmapCoordinates[key] * 10 + 1) / 10;
-    } else {
-      heatmapCoordinates[key] = 0.1;
+      features.push(new Feature(new Point(coords)));
+      emit("update", heatmapCoordinates.value);
     }
-    features.push(new Feature(new Point(coords)));
   }
 }
+
+watch(selectionType, () => {
+  if (map !== null) {
+    map.setLayers(layers.value);
+  }
+});
 
 watch(extent, () => {
   if (map !== null) {
