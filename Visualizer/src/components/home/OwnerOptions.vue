@@ -2,14 +2,14 @@
   <owner-form v-model="value" />
   <h3>Start:</h3>
   <div style="margin-left: 5px">
-    <path-stop v-model="start" :dimension="dimension" :map-info="mapInfo" />
+    <owner-stop v-model="value.start" :dimension="dimension" :map-info="mapInfo" />
   </div>
   <template v-if="value.type === 'abc'">
     <h3>Stops:</h3>
     <div style="margin-left: 5px">
-      <n-dynamic-input v-model:value="stops" :on-create="onCreate">
+      <n-dynamic-input v-model:value="value.stops" :on-create="onCreate">
         <template #default="{ value, index }">
-          <path-stop
+          <owner-stop
             :model-value="value"
             @update:modelValue="updateStop(index, $event)"
             :dimension="dimension"
@@ -21,14 +21,14 @@
   </template>
   <h3>Target:</h3>
   <div style="margin-left: 5px">
-    <path-stop v-model="target" :dimension="dimension" :map-info="mapInfo" />
+    <owner-stop v-model="value.target" :dimension="dimension" :map-info="mapInfo" />
   </div>
 </template>
 
 <script setup>
 import { ref, watchEffect } from "vue";
 import OwnerForm from "./OwnerForm.vue";
-import PathStop from "./PathStop.vue";
+import OwnerStop from "./OwnerStop.vue";
 
 const props = defineProps({
   modelValue: {
@@ -46,27 +46,20 @@ const props = defineProps({
   },
 });
 
-const start = ref({
+const defaultStop = {
   type: "random",
-});
-const target = ref({
-  type: "random",
-});
-
-const stops = ref([
-  {
-    type: "random",
-  },
-]);
+  position: null,
+  heatmap: {},
+};
 
 const onCreate = () => {
   return {
-    type: "random",
+    ...defaultStop,
   };
 };
 
 function updateStop(index, stop) {
-  stops[index] = stop;
+  value.value.stops[index] = stop;
 }
 
 const value = ref({ ...props.modelValue });

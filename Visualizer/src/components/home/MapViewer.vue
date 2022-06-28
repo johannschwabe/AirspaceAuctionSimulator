@@ -45,6 +45,16 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  position: {
+    type: String,
+    required: false,
+    default: null,
+  },
+  heatmap: {
+    type: Object,
+    required: false,
+    default: () => ({}),
+  },
 });
 
 const selectionType = computed(() => props.selection);
@@ -98,8 +108,8 @@ const layers = computed(() => {
   return val;
 });
 
-const positionCoordinates = ref(null);
-const heatmapCoordinates = ref({});
+const positionCoordinates = ref(props.position);
+const heatmapCoordinates = ref(props.heatmap);
 
 let map = null;
 
@@ -127,7 +137,7 @@ function renderMap() {
   }
 }
 
-const emit = defineEmits(["update"]);
+const emit = defineEmits(["update:position", "update:heatmap"]);
 
 function onClickOrDrag(event) {
   const coords = event.coordinate;
@@ -146,7 +156,7 @@ function onClickOrDrag(event) {
       positionCoordinates.value = key;
       position.pop();
       position.push(new Feature(new Point(coords)));
-      emit("update", positionCoordinates.value);
+      emit("update:position", positionCoordinates.value);
     } else if (props.selection === "heatmap") {
       if (heatmapCoordinates.value[key] !== undefined) {
         if (heatmapCoordinates.value[key] >= 1) {
@@ -157,7 +167,7 @@ function onClickOrDrag(event) {
         heatmapCoordinates.value[key] = 0.1;
       }
       features.push(new Feature(new Point(coords)));
-      emit("update", heatmapCoordinates.value);
+      emit("update:heatmap", heatmapCoordinates.value);
     }
   }
 }

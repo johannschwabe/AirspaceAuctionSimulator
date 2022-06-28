@@ -8,7 +8,10 @@
     :size="512"
     :dimension="dimension"
     :selection="value.type"
-    @update="updateCoords"
+    :position="value.position"
+    :heatmap="value.heatmap"
+    @update:position="updatePosition"
+    @update:heatmap="updateHeatmap"
   />
 </template>
 
@@ -39,7 +42,10 @@ function updateValue(updatedValue) {
 }
 const emit = defineEmits(["update:modelValue"]);
 
-function updateCoords(coords) {
-  value.value.coords = coords;
+function updatePosition(coords) {
+  value.value.position = coords;
+}
+function updateHeatmap(coords) {
+  value.value.heatmap = coords;
 }
 </script>

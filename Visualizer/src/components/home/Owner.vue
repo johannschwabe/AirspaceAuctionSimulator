@@ -12,7 +12,7 @@
         </div>
       </template>
     </n-dynamic-input>
-    <n-drawer v-model:show="showOptions" :width="565" placement="left">
+    <n-drawer v-model:show="showOptions" :width="580" placement="left">
       <n-drawer-content v-if="option !== null" :title="`Owner: ${option.name}`">
         <owner-options
           :model-value="option"
@@ -73,12 +73,21 @@ watchEffect(() => {
   }
 });
 
+const defaultStop = {
+  type: "random",
+  position: null,
+  heatmap: {},
+};
+
 const owners = ref([
   {
     color: "#00559d",
     name: "Digitec",
     agents: 20,
     type: "aba",
+    start: { ...defaultStop },
+    target: { ...defaultStop },
+    stops: [],
   },
 ]);
 
@@ -87,7 +96,10 @@ const onCreate = () => {
     color: "#63e2b7",
     name: null,
     agents: null,
-    type: null,
+    type: "ab",
+    start: { ...defaultStop },
+    target: { ...defaultStop },
+    stops: [],
   };
 };
 

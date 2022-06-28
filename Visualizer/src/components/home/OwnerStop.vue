@@ -11,7 +11,7 @@
 
 <script setup>
 import { ref, watchEffect } from "vue";
-import OwnerHeatmap from "./OwnerHeatmap.vue";
+import OwnerHeatmap from "./OwnerStopMap.vue";
 
 const props = defineProps({
   modelValue: {
