@@ -86,6 +86,35 @@ const owners = ref([
   },
 ]);
 
+function getData() {
+  return owners.value.map((owner) => {
+    const stops = [owner.start, ...owner.stops, owner.target];
+    const cleanedStops = stops.map((stop) => {
+      const cleanStop = { type: stop.type };
+      switch (stop.type) {
+        case "heatmap":
+          console.log(stop.heatmap.keys);
+          cleanStop.heatmap = { ...stop.heatmap.keys };
+          break;
+        case "position":
+          cleanStop.position = stop.position.key;
+          break;
+        case "random":
+        default:
+          break;
+      }
+      return cleanStop;
+    });
+    return {
+      color: owner.color,
+      name: owner.name,
+      agents: owner.agents,
+      type: owner.type,
+      stops: cleanedStops,
+    };
+  });
+}
+
 const onCreate = () => {
   return {
     color: "#63e2b7",
@@ -99,6 +128,6 @@ const onCreate = () => {
 };
 
 defineExpose({
-  owners,
+  getData,
 });
 </script>

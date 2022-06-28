@@ -141,7 +141,7 @@ const stopLoading = () => {
 
 const simulate = () => {
   errorText.value = null;
-  owners.value = ownerRef.value.owners;
+  owners.value = ownerRef.value.getData();
   formRef.value?.validate((errors) => {
     if (!errors) {
       startLoading();

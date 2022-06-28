@@ -132,13 +132,13 @@ function onClickOrDrag(event) {
     const key = `${gridCoords[0]}_${gridCoords[1]}`;
     switch (selectionType.value) {
       case "heatmap":
-        if (heatmapValue.features[key] !== undefined) {
-          if (heatmapValue.features[key] >= 1) {
+        if (heatmapValue.keys[key] !== undefined) {
+          if (heatmapValue.keys[key] >= 1) {
             break;
           }
-          heatmapValue.features[key] = Math.round(heatmapValue.features[key] * 10 + 1) / 10;
+          heatmapValue.keys[key] = Math.round(heatmapValue.keys[key] * 10 + 1) / 10;
         } else {
-          heatmapValue.features[key] = 0.1;
+          heatmapValue.keys[key] = 0.1;
         }
         heatmapValue.features.push(new Feature(new Point(coords)));
         emit("update:heatmap", heatmapValue);
