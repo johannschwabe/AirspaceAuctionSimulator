@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { defineProps, ref, watchEffect } from "vue";
+import { ref, watchEffect } from "vue";
 import OwnerForm from "./OwnerForm.vue";
 import OwnerHeatmap from "./OwnerHeatmap.vue";
 
