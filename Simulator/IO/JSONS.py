@@ -176,7 +176,6 @@ class JSONMaptile(Stringify):
 class JSONEnvironment(Stringify):
     def __init__(self, dimensions: "TimeCoordinate", blockers: List[Blocker], maptiles: List[MapTile]):
         self.dimensions: "TimeCoordinate" = dimensions
-        # self.blockers: List[JSONBlocker] = [JSONBlocker(blocker) for blocker in blockers]
         self.blockers: List[JSONBlocker] = [JSONBlocker(blocker) for blocker in blockers if not isinstance(blocker, BuildingBlocker)]
         self.maptiles: List[JSONMaptile] = [JSONMaptile(maptile) for maptile in maptiles]
 
