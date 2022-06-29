@@ -2,6 +2,7 @@
 Run server using >>> uvicorn API:app --reload
 App runs on 'https://localhost:8000/'
 """
+import math
 import random
 from typing import Optional, List
 
@@ -70,13 +71,19 @@ class SimulationConfigType(BaseModel):
 
 @app.post("/simulation")
 def read_root(config: SimulationConfigType):
+    tile_dime = int(math.sqrt(len(config.map.tiles)))
     dimensions = TimeCoordinate(config.dimension.x, config.dimension.y, config.dimension.z, Tick(config.dimension.t))
+    tile_dimensions = TimeCoordinate(int(config.dimension.x / tile_dime),
+                                     config.dimension.y,
+                                     int(config.dimension.z / tile_dime),
+                                     Tick(config.dimension.t))
     if config.map:
         topLeftCoordinate = config.map.topLeftCoordinate
         bottomRightCoordiante = config.map.bottomRightCoordiante
         maptiles = [MapTile(tile, dimensions, topLeftCoordinate, bottomRightCoordiante) for tile in config.map.tiles]
     else:
         maptiles = []
+
     TimeCoordinate.dim = dimensions
 
     random.seed(2)
