@@ -1,5 +1,5 @@
 import random
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING, Dict
 
 from .EnvironmentGen import EnvironmentGen
 from ..Owner.PathOwners.ABAOwner import ABAOwner
@@ -14,9 +14,10 @@ from ..Simulator import Simulator
 if TYPE_CHECKING:
     from .MapTile import MapTile
     from ..Allocator import Allocator
-    from ..Owner import Owner
+    from ..Owner import Owner, PathStop
     from ..Environment import Environment
-    from ..Coordinate import TimeCoordinate
+    from ..Coordinate import Coordinate4D, Coordinate3D, Coordinate2D
+    from API import OwnerType
 
 
 class Generator:
@@ -24,14 +25,14 @@ class Generator:
         self,
         name: str,
         description: str,
-        owners,
-        dimensions: "TimeCoordinate",
+        owners: List[OwnerType],
+        dimensions: "Coordinate4D",
         maptiles: List["MapTile"]
     ):
         self.name: str = name
         self.description: str = description
-        self.ownerTypes = owners
-        self.dimensions: "TimeCoordinate" = dimensions
+        self.ownerTypes: List[OwnerType] = owners
+        self.dimensions: "Coordinate4D" = dimensions
         self.owners: List["Owner"] = []
         self.allocator: "Allocator" = FCFSAllocator()
         self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles).generate(10)
@@ -39,6 +40,26 @@ class Generator:
         self.history: Optional["History"] = None
         self.statistics: Optional[Statistics] = None
         self.simulator: Optional[Simulator] = None
+
+    @staticmethod
+    def extract_owner_stops(owner: OwnerType):
+        stops: List[PathStop] = []
+        for stop in owner.stops:
+            if stop.type == "random":
+                stops.append(PathStop(stop.type))
+            elif stop.type == "position":
+                x_str, z_str = stop.position.split("_")
+                stops.append(PathStop(stop.type, position=Coordinate2D(int(x_str), int(z_str))))
+            elif stop.type == "heatmap":
+                heat_dict: Dict[float, List[Coordinate2D]] = {}
+                for key in stop.heatmap:
+                    float_key: float = float(key.replace("_", "."))
+                    coordinates: List[Coordinate2D] = []
+                    for coord_str in stop.heatmap[key]:
+                        x_str, z_str = coord_str.split("_")
+                        coordinates.append(Coordinate2D(int(x_str), int(z_str)))
+                    heat_dict[float_key] = coordinates
+                stops.append(PathStop(stop.type, heatmap=heat_dict))
 
     def simulate(self):
         for ownerType in self.ownerTypes:
@@ -74,7 +95,7 @@ class Generator:
         )
         while self.simulator.time_step <= self.dimensions.t:
             print(f"STEP: {self.simulator.time_step}")
-            self.simulator.tick()
+            self.simulator.)
 
 def creation_ticks(duration, total, std=-1) -> List[int]:
     res = []

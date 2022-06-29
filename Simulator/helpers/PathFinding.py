@@ -4,14 +4,13 @@ from time import time_ns
 
 from ..Agent import Agent, PathAgent
 from ..Environment import Environment
-from ..Time import Tick
-from ..Coordinate import TimeCoordinate, Coordinate
+from ..Coordinate import Coordinate4D, Coordinate3D
 
 
 # Implemented based on https://www.annytab.com/a-star-search-algorithm-in-python/
 def astar(
-    start: TimeCoordinate,
-    end: TimeCoordinate,
+    start: Coordinate4D,
+    end: Coordinate4D,
     env: Environment,
     agent: PathAgent,
 ):
@@ -93,10 +92,10 @@ def astar(
 
     print(str(start))
     print(str(end))
-    wait_coords: List[TimeCoordinate] = []
+    wait_coords: List[Coordinate4D] = []
     for near_coord in path:
         for t in range(1, agent.speed):
-            wait_coords.append(TimeCoordinate(near_coord.x, near_coord.y, near_coord.z, near_coord.t + Tick(t)))
+            wait_coords.append(Coordinate4D(near_coord.x, near_coord.y, near_coord.z, near_coord.t + t)))
 
     complete_path = path + wait_coords
     complete_path.sort(key=lambda x: x.t)
@@ -114,20 +113,20 @@ def astar(
     return complete_path
 
 
-def distance(start: TimeCoordinate, end: TimeCoordinate):
+def distance(start: Coordinate4D, end: Coordinate4D):
     return abs(start.x - end.x) + abs(start.y - end.y) + abs(start.z - end.z)
 
-def distance15(start: TimeCoordinate, end: TimeCoordinate):
+def distance15(start: Coordinate4D, end: Coordinate4D):
     return math.pow(abs(start.x - end.x) ** 2 + abs(start.y - end.y) ** 2 + abs(start.z - end.z) ** 2, 0.333)
 
-def distance2(start: TimeCoordinate, end: TimeCoordinate):
+def distance2(start: Coordinate4D, end: Coordinate4D):
     return math.pow((start.x - end.x) ** 2 + (start.y - end.y) ** 2 + (start.z - end.z) ** 2, 0.5)
 
-def distance3(start: TimeCoordinate, end: TimeCoordinate):
+def distance3(start: Coordinate4D, end: Coordinate4D):
     return math.pow((start.x - end.x) ** 4 + (start.y - end.y) ** 4 + (start.z - end.z) ** 4, 1/4)
 
 class Node:
-    def __init__(self, position: TimeCoordinate, parent):
+    def __init__(self, position: Coordinate4D, parent):
         self.position = position
         self.parent = parent
         self.g = 0  # Distance to start node
@@ -149,25 +148,25 @@ class Node:
     def __repr__(self):
         return f"{self.position}: {self.f}, {self.h}"
 
-    def adjacent_coordinates(self, dim: Coordinate, speed: int) -> List[TimeCoordinate]:
-        res = [TimeCoordinate(self.position.x, self.position.y, self.position.z, Tick(
+    def adjacent_coordinates(self, dim: Coordinate, speed: int) -> List[Coordinate4D]:
+        res = [Coordinate4D(self.position.x, self.position.y, self.position.z,
             self.position.t + speed))]
         if self.position.x > 0:
-            res.append(TimeCoordinate(self.position.x - 1, self.position.y, self.position.z,
-                                      Tick(self.position.t + speed)))
+            res.append(Coordinate4D(self.position.x - 1, self.position.y, self.position.z,
+                                      self.position.t + speed)))
         if self.position.y > 0:
-            res.append(TimeCoordinate(self.position.x, self.position.y - 1, self.position.z,
-                                      Tick(self.position.t + speed)))
+            res.append(Coordinate4D(self.position.x, self.position.y - 1, self.position.z,
+                                      self.position.t + speed)))
         if self.position.z > 0:
-            res.append(TimeCoordinate(self.position.x, self.position.y, self.position.z - 1,
-                                      Tick(self.position.t + speed)))
+            res.append(Coordinate4D(self.position.x, self.position.y, self.position.z - 1,
+                                      self.position.t + speed)))
         if self.position.x < dim.x - 1:
-            res.append(TimeCoordinate(self.position.x + 1, self.position.y, self.position.z,
-                                      Tick(self.position.t + speed)))
+            res.append(Coordinate4D(self.position.x + 1, self.position.y, self.position.z,
+                                      self.position.t + speed)))
         if self.position.y < dim.y - 1:
-            res.append(TimeCoordinate(self.position.x, self.position.y + 1, self.position.z,
-                                      Tick(self.position.t + speed)))
+            res.append(Coordinate4D(self.position.x, self.position.y + 1, self.position.z,
+                                      self.position.t + speed)))
         if self.position.z < dim.z - 1:
-            res.append(TimeCoordinate(self.position.x, self.position.y, self.position.z + 1,
-                                      Tick(self.position.t + speed)))
+            res.append(Coordinate4D(self.position.x, self.position.y, self.position.z + 1,
+                                      self.position.t + speed)))
         return res

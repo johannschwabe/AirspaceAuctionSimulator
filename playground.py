@@ -6,7 +6,7 @@ from API import SimpleCoordinateType
 from BiddingAllocator.BiddingABOwner import BiddingABOwner
 from BiddingAllocator.BiddingAllocator import BiddingAllocator
 from Simulator.Allocator import FCFSAllocator
-from Simulator.Coordinate import TimeCoordinate
+from Simulator.Coordinate import Coordinate4D
 from Simulator.Environment import Environment
 from Simulator import Simulator, Tick
 from Simulator.Generator.MapTile import MapTile
@@ -18,7 +18,7 @@ from Simulator.Owner.TestOwner import TestOwner
 
 
 def setup():
-    dimensions = TimeCoordinate(831, 30, 831, Tick(20))
+    dimensions = Coordinate4D(831, 30, 831, Tick(20))
     random.seed(3)
     environment = Environment(dimensions, [], [MapTile(
         [15, 17161, 11475],
@@ -31,8 +31,8 @@ def setup():
     # allocator = FCFSAllocator()
     owners = []
     # owners.append(TestOwner("test", "#6EFF40", [
-    #     TimeCoordinate(457, 0, 493, Tick(1)),
-    #     TimeCoordinate(431, 21, 519, Tick(21))
+    #     Coordinate4D(457, 0, 493, Tick(1)),
+    #     Coordinate4D(431, 21, 519, Tick(21))
     # ]))
     # for i in range(4):
     #     owners.append(ABCOwner("Schnabeltier"+ str(i), "#00C362", [random.randint(0,5) for _ in range(10)]))

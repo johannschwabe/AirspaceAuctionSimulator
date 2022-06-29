@@ -1,14 +1,13 @@
-from ..Time import Tick
 from ..Path import TravelPath
 from ..Value import ValueFunction
 from ..Value.SpatialValueFunction import SpatialOnlyOneValue
 from ..Value.TemporalValueFunction import TemporalOnlyOneValue
-from ..Coordinate import Coordinate, TimeCoordinate
+from ..Coordinate import Coordinate3D, Coordinate4D
 
 
 class PointOfInterest:
 
-    def __init__(self, location: Coordinate, tick: Tick):
+    def __init__(self, location: Coordinate, tick: int):
         self.location = location
         self.tick = tick
 
@@ -31,7 +30,7 @@ class PointOfInterest:
         self._temporal_value_function = value_function(self.tick, **kwargs)
 
     def to_time_coordinate(self):
-        return TimeCoordinate(self.location.x, self.location.y, self.location.z, self.tick)
+        return Coordinate4D(self.location.x, self.location.y, self.location.z, self.tick)
 
     def clone(self):
         return PointOfInterest(self.location.clone(), self.tick)

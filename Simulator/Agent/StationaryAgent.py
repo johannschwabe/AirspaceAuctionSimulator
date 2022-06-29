@@ -3,25 +3,20 @@ from typing import List, TYPE_CHECKING
 from .Agent import Agent
 from .SpaceAgent import SpaceAgent
 from ..Path import SpaceSegment
-from ..Time import Tick
 from ..Bid import Bid, StationaryBid
-from ..Coordinate import Coordinate
-
-if TYPE_CHECKING:
-    from .. import Tick
 
 class StationaryAgent(SpaceAgent):
     def __init__(
         self,
         block: List[Coordinate],
-        start_t: Tick,
-        end_t: Tick,
+        start_t: int,
+        end_t: int,
     ):
         super().__init__()
 
         self.block: List[Coordinate] = block
-        self.start_t: Tick = start_t
-        self.end_t: Tick = end_t
+        self.start_t: int = start_t
+        self.end_t: int = end_t
 
     def value_for_segments(self, paths: List[SpaceSegment]) -> float:
         if len(paths) == 0:
@@ -40,7 +35,7 @@ class StationaryAgent(SpaceAgent):
 
         return round(value, 2)
 
-    def get_bid(self, t: "Tick") -> Bid:
+    def get_bid(self, t: int) -> Bid:
         return StationaryBid(self.block, self.start_t, self.end_t)
 
     def clone(self):

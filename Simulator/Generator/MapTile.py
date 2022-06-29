@@ -1,9 +1,8 @@
 import cloudscraper
 from typing import List, TYPE_CHECKING
 
-from Simulator import Tick
 from Simulator.Blocker.BuildingBlocker import BuildingBlocker
-from Simulator.Coordinate import TimeCoordinate
+from Simulator.Coordinate import Coordinate4D
 
 if TYPE_CHECKING:
     from API import SimpleCoordinateType
@@ -14,7 +13,7 @@ class MapTile:
     def __init__(
         self,
         tile_ids: List[int],
-        dimensions: TimeCoordinate,
+        dimensions: Coordinate4D,
         top_left_coordinate: "SimpleCoordinateType",
         bottom_right_coordinate: "SimpleCoordinateType",
     ):
@@ -64,8 +63,8 @@ class MapTile:
                         max_x = x
                     if max_z < z:
                         max_z = z
-                bounds = [TimeCoordinate(min_x, 0, min_z, Tick(0)),
-                          TimeCoordinate(max_x, building['properties']['height'], max_z, self.dimensions.t * 10000)]
+                bounds = [Coordinate4D(min_x, 0, min_z, 0)),
+                          Coordinate4D(max_x, building['properties']['height'], max_z, self.dimensions.t * 10000)]
                 new_blocker = BuildingBlocker(coords, bounds)
                 res.append(new_blocker)
 

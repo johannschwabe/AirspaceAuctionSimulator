@@ -1,8 +1,7 @@
 from typing import List, Dict
 
 from ..Agent import Agent
-from ..Coordinate import TimeCoordinate
-from ..Time import Tick
+from ..Coordinate import Coordinate4D
 
 
 class HistoryAgent:
@@ -10,8 +9,8 @@ class HistoryAgent:
         self.id = agent.id
         self.registered: int = registered
         self.traveled_paths = []
-        self.past_allocations: Dict[int, List[List[TimeCoordinate]]] = {}
+        self.past_allocations: Dict[int, List[List[Coordinate4D]]] = {}
         self.speed = speed
 
-    def reallocation(self, new_path: List[List[TimeCoordinate]], time_step: Tick):
+    def reallocation(self, new_path: List[List[Coordinate4D]], time_step: int):
         self.past_allocations[time_step] = new_path

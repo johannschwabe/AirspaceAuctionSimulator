@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
-from Simulator.Coordinate import TimeCoordinate
+from Simulator.Coordinate import Coordinate4D
 from Simulator.IO.JSONS import build_json
 from Simulator.Time import Tick
 from Simulator.Generator import Generator
@@ -78,7 +78,7 @@ class SimulationConfigType(BaseModel):
 @app.post("/simulation")
 def read_root(config: SimulationConfigType):
     print(config)
-    dimensions = TimeCoordinate(config.dimension.x, config.dimension.y, config.dimension.z, Tick(config.dimension.t))
+    dimensions = Coordinate4D(config.dimension.x, config.dimension.y, config.dimension.z, Tick(config.dimension.t))
     if config.map:
         topLeftCoordinate = config.map.topLeftCoordinate
         bottomRightCoordiante = config.map.bottomRightCoordiante
@@ -86,7 +86,7 @@ def read_root(config: SimulationConfigType):
     else:
         maptiles = []
 
-    TimeCoordinate.dim = dimensions
+    Coordinate4D.dim = dimensions
 
     random.seed(2)
     g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions,

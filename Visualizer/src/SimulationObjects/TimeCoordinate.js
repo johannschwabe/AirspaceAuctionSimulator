@@ -1,4 +1,4 @@
-export default class TimeCoordinate {
+export default class Coordinate4D {
   /**
    * @param {int} x
    * @param {int} y

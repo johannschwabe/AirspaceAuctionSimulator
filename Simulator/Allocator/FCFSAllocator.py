@@ -1,12 +1,11 @@
 from typing import List, Dict
 
 from ..Path import PathSegment, SpaceSegment
-from ..Time import Tick
 from ..Environment import Environment
 from ..Agent import Agent, PathAgent
 from ..Allocator import Allocator
 from ..Bid import ABBid, Bid, ABABid, StationaryBid, ABCBid
-from ..Coordinate import TimeCoordinate
+from ..Coordinate import Coordinate4D
 from ..helpers.PathFinding import astar
 
 
@@ -14,7 +13,7 @@ class FCFSAllocator(Allocator):
     def __init__(self):
         super().__init__()
 
-    def allocate_for_agents(self, agents: List[Agent], env: Environment, tick: Tick) -> Dict[Agent, List[List[TimeCoordinate]]]:
+    def allocate_for_agents(self, agents: List[Agent], env: Environment, tick: int) -> Dict[Agent, List[List[Coordinate4D]]]:
         res = {}
         for agent in agents:
             optimal_path_segments: List[PathSegment|SpaceSegment] = []
@@ -38,7 +37,7 @@ class FCFSAllocator(Allocator):
                 if isinstance(bid, ABABid):
                     b = ab_path[-1]
                     ba_path = astar(
-                        TimeCoordinate(b.x, b.y, b.z, b.t + Tick(bid.stay)),
+                        Coordinate4D(b.x, b.y, b.z, b.t + bid.stay)),
                         bid.a2,
                         env,
                         agent,
@@ -59,7 +58,7 @@ class FCFSAllocator(Allocator):
                     path_t = []
                     occupied = False
                     for coordinate in bid.block:
-                        time_coord = TimeCoordinate(coordinate.x, coordinate.y, coordinate.z, Tick(t))
+                        time_coord = Coordinate4D(coordinate.x, coordinate.y, coordinate.z, t))
                         if env.is_valid_for_allocation(time_coord, agent):
                             path_t.append(time_coord)
                         else:

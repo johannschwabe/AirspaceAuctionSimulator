@@ -1,9 +1,7 @@
 from typing import List, Dict, TYPE_CHECKING
 from time import time
 from .Path import PathSegment
-from .Time import Tick
 from .Agent import Agent
-from .Coordinate import TimeCoordinate
 from .Environment import Environment
 from .Allocator import Allocator
 from .Owner import Owner
@@ -23,9 +21,9 @@ class Simulator:
         self.environment: Environment = environment
         self.history: "History" = history
         # self.agents: List[Agent] = []
-        self.time_step = Tick(0)
+        self.time_step = 0)
 
-    def tick(self) -> bool:
+    def self) -> bool:
         start_t = time() * 1000
         newcomers: List[Agent] = []
         for owner in self.owners:

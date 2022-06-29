@@ -1,18 +1,18 @@
 from typing import List, Dict
 
-from ..Coordinate import TimeCoordinate, Coordinate
+from ..Coordinate import Coordinate4D, Coordinate3D
 
 
 class Blocker:
     _id: int = 1
 
-    def __init__(self, locations: List[TimeCoordinate], dimension: Coordinate):
+    def __init__(self, locations: List[Coordinate4D], dimension: Coordinate):
         self.id = -Blocker._id
         Blocker._id += 1
         self.locations = locations
         self.dimension: Coordinate = dimension
 
-    def is_blocking(self, coord: TimeCoordinate, radius:int = 0):
+    def is_blocking(self, coord: Coordinate4D, radius:int = 0):
         return True
 
     def add_to_tree(self, tree):

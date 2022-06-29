@@ -1,8 +1,7 @@
 from typing import List, TYPE_CHECKING
 
 from ..Blocker import Blocker
-from ..Coordinate import Coordinate, TimeCoordinate
-from ..Time import Tick
+from ..Coordinate import Coordinate4D
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
@@ -10,8 +9,8 @@ if TYPE_CHECKING:
 
 class BlockerGen:
 
-    def __init__(self, dimension: TimeCoordinate, maptiles: List["MapTile"]):
-        self.dimension: TimeCoordinate = dimension
+    def __init__(self, dimension: Coordinate4D, maptiles: List["MapTile"]):
+        self.dimension: Coordinate4D = dimension
         self.maptiles: List["MapTile"] = maptiles
 
     def generate_maptile_blockers(self):
@@ -31,7 +30,7 @@ class BlockerGen:
             origin = Coordinate.random(self.dimension)
             origin.y = 0
             dimension = Coordinate.random(max_size, strict_positive=True)
-            locations: List[TimeCoordinate] = \
-                [TimeCoordinate(origin.x, origin.y, origin.z, Tick(t)) for t in range(self.dimension.t + 1)]
+            locations: List[Coordinate4D] = \
+                [Coordinate4D(origin.x, origin.y, origin.z, t)) for t in range(self.dimension.t + 1)]
             blockers.append(Blocker(locations, dimension))
         return blockers

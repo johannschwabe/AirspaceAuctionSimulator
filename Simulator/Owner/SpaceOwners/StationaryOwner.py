@@ -1,9 +1,7 @@
 import random
 from typing import List, TYPE_CHECKING
 
-from Simulator.Coordinate import Coordinate
 from Simulator.Owner.SpaceOwner import SpaceOwner
-from Simulator.Time import Tick
 from Simulator.Agent import StationaryAgent
 
 if TYPE_CHECKING:
@@ -41,7 +39,7 @@ class StationaryOwner(SpaceOwner):
             t_start = t + random.randint(0, 10)
             t_end = t_start + random.randint(5, 10)
 
-            agent = StationaryAgent(block, Tick(t_start), Tick(t_end))
+            agent = StationaryAgent(block, t_start), t_end))
             res.append(agent)
             print(f"Stationary created {agent}")
 

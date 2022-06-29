@@ -4,7 +4,7 @@ import { first } from "lodash-es";
 
 import { useSimulationStore } from "../stores/simulation.js";
 
-import TimeCoordinate from "./TimeCoordinate";
+import Coordinate4D from "./Coordinate4D";
 import Blocker from "./Blocker";
 import Statistics from "./Statistics";
 import Owner from "./Owner";
@@ -24,9 +24,9 @@ export default class Simulation {
     /**
      * Simulated dimension. Note: The dimension t describes how long new agents
      * were spawned. Agents might have flight-times exceeding t!
-     * @type {TimeCoordinate}
+     * @type {Coordinate4D}
      */
-    this.dimensions = new TimeCoordinate(...Object.values(rawSimulation.environment.dimensions));
+    this.dimensions = new Coordinate4D(...Object.values(rawSimulation.environment.dimensions));
 
     /**
      * Object containing statistics about the simulation

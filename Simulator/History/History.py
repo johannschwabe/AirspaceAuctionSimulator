@@ -1,8 +1,8 @@
 from typing import List, Dict
 
 from .HistoryAgent import HistoryAgent
-from ..Coordinate import Coordinate, TimeCoordinate
-from ..Simulator import Environment, Tick
+from ..Coordinate import Coordinate4D
+from ..Simulator import Environment
 from ..Agent import Agent
 from ..Allocator import Allocator
 from ..Owner import Owner
@@ -19,11 +19,11 @@ class History:
     def set_owners(self, owners: List[Owner]):
         self.owners = owners
 
-    def add_new_agents(self, agents: List[Agent], time_step: Tick):
+    def add_new_agents(self, agents: List[Agent], time_step: int):
         for agent in agents:
             self.agents[agent] = HistoryAgent(agent, time_step, agent.speed)
 
-    def update_allocations(self, new_allocations: Dict[Agent, List[List[TimeCoordinate]]], time_step):
+    def update_allocations(self, new_allocations: Dict[Agent, List[List[Coordinate4D]]], time_step):
         for agent, paths in new_allocations.items():
             history_agent = self.agents[agent]
             history_agent.reallocation(paths, time_step)

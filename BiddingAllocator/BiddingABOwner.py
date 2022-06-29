@@ -2,7 +2,7 @@ import random
 from typing import List, TYPE_CHECKING
 
 from BiddingAllocator.BiddingABAgent import BiddingABAgent
-from Simulator.Coordinate import TimeCoordinate
+from Simulator.Coordinate import Coordinate4D
 from Simulator.Owner.ABOwner import ABOwner
 from Simulator import Tick
 

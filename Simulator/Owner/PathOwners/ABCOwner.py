@@ -1,9 +1,8 @@
 import random
 from typing import List, TYPE_CHECKING
 
-from Simulator.Coordinate import TimeCoordinate
+from Simulator.Owner import PathStop
 from Simulator.Owner.PathOwner import PathOwner
-from Simulator.Time import Tick
 from Simulator.Agent import ABCAgent
 
 if TYPE_CHECKING:
@@ -12,22 +11,22 @@ if TYPE_CHECKING:
 
 
 class ABCOwner(PathOwner):
-    def __init__(self, name: str, color: str, creation_ticks: List[int]):
-        super().__init__(name, color)
+    def __init__(self, name: str, color: str, stops: List[PathStop], creation_ticks: List[int]):
+        super().__init__(name, color, stops)
         self.creation_ticks = creation_ticks
 
     def generate_agents(self, t: int, env: "Environment") -> List["Agent"]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
             speed = 1
-            start = self.valid_random_coordinate(env, Tick(t + random.randint(0, 10)), ABCAgent.default_near_radius,
+            start = self.valid_random_coordinate(env, t + random.randint(0, 10), ABCAgent.default_near_radius,
                                                  speed)
 
             locations = [start]
             prev_location = start
             stays = []
             for i in range(random.randint(2, 5)):
-                location = self.valid_random_coordinate(env, Tick(0), ABCAgent.default_near_radius,
+                location = self.valid_random_coordinate(env, 0, ABCAgent.default_near_radius,
                                                         speed)
                 distance = prev_location.inter_temporal_distance(location)
                 stay = random.randint(1, 3)
