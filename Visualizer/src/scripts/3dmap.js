@@ -59,7 +59,6 @@ export function useCamera({ x, y, z, scene, canvas }) {
   const camera = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, target, scene);
   camera.attachControl(canvas, true);
   camera.setTarget(target);
-  // camera.rollCorrect = 10;
   camera.setPosition(new Vector3(-x, y * 2.5, -z));
   return camera;
 }
