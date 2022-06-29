@@ -221,10 +221,6 @@ def build_json(simulator: Simulator, name: str, description: str):
                     close_passings[agent.id]["total_near_field_violations"],
                     close_passings[agent.id]["total_far_field_violations"],
                     0,
-                    # 0,
-                    # 0,
-                    # 0,
-                    # 0,
                     owner.id,
                     owner.name,
                 ))
