@@ -95,9 +95,19 @@ function getData() {
     const stops = [owner.owner.start, ...owner.owner.stops, owner.owner.target];
     const cleanedStops = stops.map((stop) => {
       const cleanStop = { type: stop.stop.type };
+      const heatmap = {};
+
       switch (stop.stop.type) {
         case "heatmap":
-          cleanStop.heatmap = { ...stop.stop.heatmap.keys };
+          Object.entries(stop.stop.heatmap.keys).forEach(([key, value]) => {
+            const stringValue = `${value}`.replace(".", "_");
+            if (heatmap[stringValue] === undefined) {
+              heatmap[stringValue] = [key];
+            } else {
+              heatmap[stringValue].push(key);
+            }
+          });
+          cleanStop.heatmap = heatmap;
           break;
         case "position":
           cleanStop.position = stop.stop.position.key;

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Union
 
 from ..Bid import Bid
 from ..Coordinate import TimeCoordinate
@@ -7,6 +7,7 @@ from ..Path import PathSegment, SpaceSegment
 
 if TYPE_CHECKING:
     from .. import Tick
+
 
 class Agent(ABC):
     _id: int = 0

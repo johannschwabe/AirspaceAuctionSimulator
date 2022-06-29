@@ -63,13 +63,15 @@ const layers = computed(() => {
   const val = [
     // adding a background tiled layer
     new TileLayer({
-      source: new OSM(), // tiles are served by OpenStreetMap
+      // tiles are served by OpenStreetMap
+      source: new OSM(),
       zIndex: 0,
     }),
   ];
   switch (selectionType.value) {
     case "heatmap":
       val.push(
+        // adding a heatmap layer to display created heatmap
         new Heatmap({
           source: new VectorSource({
             features: heatmapValue.features,
@@ -79,6 +81,7 @@ const layers = computed(() => {
       break;
     case "position":
       val.push(
+        // adding a vector layer to display selected position
         new VectorLayer({
           source: new VectorSource({
             features: positionValue.features,
@@ -103,7 +106,7 @@ function renderMap() {
     controls: [],
     interactions: [],
 
-    // the map view will initially show the whole world
+    // the map view only shows the selected tiles
     view: new View({
       zoom: zoom.value,
       center: center.value,
@@ -155,6 +158,8 @@ function onClickOrDrag(event) {
       default:
         break;
     }
+  } else {
+    console.error(`Invalid coordinates selected: ${coords} map to ${gridCoords}`);
   }
 }
 
@@ -176,6 +181,7 @@ watch(extent, () => {
     );
   }
 });
+
 onMounted(renderMap);
 
 function onClear() {

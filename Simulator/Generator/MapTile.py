@@ -1,11 +1,9 @@
 import cloudscraper
 from typing import List, TYPE_CHECKING
 
-import requests
-
 from Simulator import Tick
 from Simulator.Blocker.BuildingBlocker import BuildingBlocker
-from Simulator.Coordinate import TimeCoordinate, Coordinate
+from Simulator.Coordinate import TimeCoordinate
 
 if TYPE_CHECKING:
     from API import SimpleCoordinateType

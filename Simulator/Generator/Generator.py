@@ -1,12 +1,11 @@
-import math
 import random
-from typing import List, Optional, Tuple, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
 
 from .EnvironmentGen import EnvironmentGen
-from ..Owner.ABAOwner import ABAOwner
-from ..Owner.ABCOwner import ABCOwner
-from ..Owner.ABOwner import ABOwner
-from ..Owner.StationaryOwner import StationaryOwner
+from ..Owner.PathOwners.ABAOwner import ABAOwner
+from ..Owner.PathOwners.ABCOwner import ABCOwner
+from ..Owner.PathOwners.ABOwner import ABOwner
+from ..Owner.SpaceOwners.StationaryOwner import StationaryOwner
 from ..Statistics.Statistics import Statistics
 from ..Allocator import FCFSAllocator
 from ..History import History
