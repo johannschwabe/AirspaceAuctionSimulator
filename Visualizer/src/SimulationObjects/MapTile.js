@@ -46,9 +46,6 @@ export default class MapTile {
           feature?.geometry?.coordinates?.length > 0 && feature?.geometry?.coordinates[0].length > 0;
         return isFeature && hasHeight && isPolygon && hasCoordinates;
       })
-      // .filter((feat, idx) => {
-      //   return idx === 0;
-      // })
       .map((feature) => {
         const height = feature.properties.height;
         const coordinatesArray = feature.geometry.coordinates[0].map(([long, lat]) => this.extractPolygon([long, lat]));
