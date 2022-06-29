@@ -128,7 +128,6 @@ export default class Simulation {
       this.updateActiveAgents();
       this.updateActiveBlockers();
       console.log({ UpdatedSimulation: this });
-      console.log("end");
     });
     onAgentsSelected(() => {
       this.updateSelectedAgents();
