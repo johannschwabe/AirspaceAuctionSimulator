@@ -14,7 +14,8 @@ class BiddingAllocator(Allocator):
     def __init__(self):
         super().__init__()
 
-    def allocate_for_agents(self, agents: List[BiddingABAgent], env: Environment, tick: Tick) -> Dict[Agent, List[PathSegment]]:
+    def allocate_for_agents(self, agents: List[BiddingABAgent], env: Environment, tick: Tick) -> Dict[
+        Agent, List[PathSegment]]:
         res = {}
         to_add = set(agents)
         while len(to_add) > 0:
@@ -27,8 +28,9 @@ class BiddingAllocator(Allocator):
                 res[agent] = [new_path_segment]
                 to_add = to_add.union(collisions)
                 for agent_to_remove in collisions:
+                    print(f"reallocating: {agent_to_remove.id}")
                     env.deallocate_agent(agent_to_remove, tick)
                 env.allocate_path_segment_for_agent(agent, new_path_segment)
-                if not agent.id in env.get_agents():
+                if agent.id not in env.get_agents():
                     env.add_agent(agent)
         return res

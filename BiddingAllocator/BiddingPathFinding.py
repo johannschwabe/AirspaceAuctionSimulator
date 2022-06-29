@@ -42,7 +42,7 @@ def bidding_astar(
     sort_time = 0
     neighbors_time = 0
     valid_time = 0
-    MAX_ITER = 2000
+    MAX_ITER = 10000
     while len(open_nodes) > 0 and steps < MAX_ITER:
         steps += 1
 
@@ -84,7 +84,7 @@ def bidding_astar(
 
                 neighbor.g = current_node.g + 0.5
                 neighbor.h = distance2(neighbor.position, end_node.position)
-                neighbor.f = neighbor.g + neighbor.h
+                neighbor.f = neighbor.g + neighbor.h - neighbor.position.y / env.get_dim().y * 0.05 * neighbor.h
 
                 if hash(neighbor) in open_nodes:
                     if open_nodes[hash(neighbor)].f > neighbor.f:
@@ -131,6 +131,7 @@ def is_valid_for_allocation(env: Environment, position: TimeCoordinate, agent: B
         if colliding_agent.priority < agent.priority:
             res.add(colliding_agent)
         else:
+            print("blocked by agent")
             return set(), False
     return res, True
 

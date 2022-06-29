@@ -36,8 +36,14 @@ def setup():
     # ]))
     # for i in range(4):
     #     owners.append(ABCOwner("Schnabeltier"+ str(i), "#00C362", [random.randint(0,5) for _ in range(10)]))
-    owners = [BiddingABOwner("Schnabeltier", "#00C362", [1, 1, 1, 2], 0.5),
-              BiddingABOwner("Schnabeltier", "#DE4242", [1, 1, 3, 3, 3], 0.7)]
+    for i in range(30):
+        owners.append(BiddingABOwner("Schnabeltier" + str(i),
+                                     color_generator(),
+                                     [random.randint(0, 5) for _ in range(10)],
+                                     random.uniform(0,1)
+                                     ))
+    # owners = [BiddingABOwner("Schnabeltier", "#00C362", [1, 1, 1, 2], 0.5),
+    #           BiddingABOwner("Schnabeltier", "#DE4242", [1, 1, 3, 3, 3], 0.7)]
 
     history = History(dimensions, allocator, environment, owners)
     SimulaterAligator = Simulator(owners, allocator, environment, history)
@@ -57,6 +63,18 @@ def setup():
     # print("cols: ", res['statistics']['total_number_of_collisions'])
     # print("wf: ", res['statistics']['total_achieved_welfare'])
     print("done")
+
+
+def color_generator():
+    while True:
+        r = random.randint(0, 255)
+        g = random.randint(0, 255)
+        b = random.randint(0, 255)
+
+        if r + g + b > 350:
+            break
+    return f"#{hex(r)}{hex(g)}{hex(b)}"
+
 
 
 if __name__ == "__main__":

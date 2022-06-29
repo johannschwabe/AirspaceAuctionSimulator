@@ -241,8 +241,11 @@ def build_json(simulator: Simulator, name: str, description: str):
 
 def calculate_non_colliding_values(agents: List[Agent], stats: Statistics):
     res = {}
-    with Pool(len(agents)) as p:
-        non_colliding_values = p.map(stats.non_colliding_value, [agent for agent in agents])
-    for agent, non_colliding_value in zip(agents, non_colliding_values):
+    # with Pool(len(agents)) as p: #ToDo: doesn't work idk
+    #     non_colliding_values = p.map(lambda _agent: stats.non_colliding_value(_agent), agents)
+    non_colliding_values_2 = []
+    for agent in agents:
+        non_colliding_values_2.append(stats.non_colliding_value(agent))
+    for agent, non_colliding_value in zip(agents, non_colliding_values_2):
         res[agent] = non_colliding_value
     return res

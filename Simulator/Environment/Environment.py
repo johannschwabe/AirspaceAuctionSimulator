@@ -25,7 +25,6 @@ class Environment:
         props.dimension = 4
         self.tree = index.Rtree(properties=props)
         self.blocker_tree = None
-        self.near_field_radius = 1
 
     def deallocate_agent(self, agent: Agent, time_step: Tick):
         if isinstance(agent, PathAgent):
