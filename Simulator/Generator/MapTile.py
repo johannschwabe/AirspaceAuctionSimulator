@@ -32,7 +32,6 @@ class MapTile:
         return f"https://a.data.osmbuildings.org/0.2/anonymous/tile/{self.z}/{self.x}/{self.y}.json"
 
     def resolve_buildings(self):
-        # data = requests.get(self.url).json()
         data = cloudscraper.create_scraper().get(self.url).json()
         res = []
         for building in data["features"]:
