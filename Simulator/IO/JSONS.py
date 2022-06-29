@@ -156,7 +156,6 @@ class JSONOwner(Stringify):
             self.number_per_type[agent.agent_type] = self.number_per_type.get(agent.agent_type, 0) + 1
 
 
-
 class JSONBlocker(Stringify):
     def __init__(self, blocker: Blocker):
         self.id: int = blocker.id
