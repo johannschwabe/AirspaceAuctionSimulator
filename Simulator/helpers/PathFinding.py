@@ -102,7 +102,6 @@ def astar(
     complete_path.sort(key=lambda x: x.t)
     stop_time = time_ns()
     seconds = (stop_time - start_time) / 1e9
-    # print(start.inter_temporal_distance(end) / (len(path) + 1))
     print(f"PathLen: {len(path)}, "
           f"steps: {steps}, "
           f"time: {seconds:.2f}s, "
