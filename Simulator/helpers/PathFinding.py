@@ -91,8 +91,6 @@ def astar(
     if len(path) == 0:
         print("ASTAR failed")
 
-        # print(len(open_nodes))
-        # print(len(closed_nodes))
     print(str(start))
     print(str(end))
     wait_coords: List[TimeCoordinate] = []
