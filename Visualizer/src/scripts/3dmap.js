@@ -101,8 +101,6 @@ export function useBuildings({ scene, shadows, mapTiles, blockerMaterial }) {
       const options = {
         shape: building.coordinates.map(({ x, y }) => new Vector3(x, 0, y)).reverse(),
         depth: building.height,
-        // path: [new Vector3(0, 0, 0), new Vector3(0, building.height, 0)],
-        // cap: Mesh.CAP_END,
         holes: building.holes.map((hole) => hole.map(({ x, y }) => new Vector3(x, 0, y))).reverse(),
       };
       const buildingMesh = MeshBuilder.ExtrudePolygon(`tile-${i}-building-${j}`, options, scene, earcut);
