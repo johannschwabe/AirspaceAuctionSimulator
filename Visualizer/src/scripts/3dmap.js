@@ -212,7 +212,6 @@ export function useBlockers({ scene, blockerCache, shadows, x, z, blockerMateria
     storedBlockerCube.position.x = blocker.positionAtTick(simulation.tick).x - x / 2;
     storedBlockerCube.position.y = blocker.positionAtTick(simulation.tick).y + blocker.dimension.y / 2;
     storedBlockerCube.position.z = blocker.positionAtTick(simulation.tick).z - z / 2;
-    console.log(storedBlockerCube);
   });
 }
 
