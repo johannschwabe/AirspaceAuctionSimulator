@@ -139,7 +139,6 @@ class Node:
             self.position.y == other.position.y and \
             self.position.z == other.position.z and \
             self.position.t == other.position.t
-        # return self.position == other.position
 
     def __lt__(self, other):
         return self.f < other.f
