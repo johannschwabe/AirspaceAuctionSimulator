@@ -50,7 +50,6 @@ import {
 import { useSimulationSingleton } from "../../scripts/simulation";
 
 const simulation = useSimulationSingleton();
-console.log(simulation);
 const datapoints = computed(() => [
   { label: "Agent ID", value: simulation.agentInFocus.id, icon: FingerPrint },
   { label: "Type", value: simulation.agentInFocus.agentType?.name || "-", icon: Airplane },
