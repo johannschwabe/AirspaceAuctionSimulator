@@ -66,7 +66,6 @@ class MapTile:
                 res.append(new_blocker)
 
         return res
-        # print("***OSM***", data)
 
     def __str__(self):
         return f"x:{self.x}, y:{self.y}, z:{self.z}"
