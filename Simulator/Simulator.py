@@ -45,12 +45,5 @@ class Simulator:
             real_env_updated_t = time() * 1000
             self.history.update_allocations(agents_paths, self.time_step)
             history_updated_2_t = time() * 1000
-            # print(f"agents_created: {agents_created_t-start_t}\n"
-            #       f"HistoryUpdated: {history_updated_t-agents_created_t}\n"
-            #       f"TempEnvCreated: {temp_env_created_t-history_updated_t}\n"
-            #       f"TempAllocations: {temp_allocations_t- temp_env_created_t}\n"
-            #       f"PathTranslated: {path_translated_t-temp_allocations_t}\n"
-            #       f"RealEnvUpdate: {real_env_updated_t-path_translated_t}\n"
-            #       f"History2Updated: {history_updated_2_t - real_env_updated_t}\n-----\n")
         self.time_step += 1
         return True
