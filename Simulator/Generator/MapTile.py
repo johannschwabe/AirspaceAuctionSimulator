@@ -69,4 +69,4 @@ class MapTile:
         # print("***OSM***", data)
 
     def __str__(self):
-        return f"x:{self.x}, y:{self.y}, z:{self.z}, dim: {self.dimensions}"
+        return f"x:{self.x}, y:{self.y}, z:{self.z}"
