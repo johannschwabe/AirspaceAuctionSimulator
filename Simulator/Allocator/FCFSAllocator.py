@@ -82,7 +82,7 @@ class FCFSAllocator(Allocator):
                 a = bid.locations[0]
                 time = 0
                 count = 0
-                for b, stay in zip(bid.locations[1:], bid.stays + [0]):
+                for b, stay in zip(bid.locations[1:], bid.stays):
                     ab_path = astar(
                         a,
                         b,
@@ -91,6 +91,7 @@ class FCFSAllocator(Allocator):
                     )
 
                     if len(ab_path) == 0:
+                        optimal_path_segments = []
                         break
 
                     time += ab_path[-1].t - ab_path[0].t
@@ -100,7 +101,7 @@ class FCFSAllocator(Allocator):
                     optimal_path_segments.append(PathSegment(a.to_inter_temporal(), b.to_inter_temporal(), count, ab_path))
                     count += 1
                     # optimal_path_segments.append(ab_path)
-                    a = b
+                    a = ab_path[-1].clone()
 
                 res[agent] = optimal_path_segments
                 env.allocate_path_for_agent(agent, optimal_path_segments)

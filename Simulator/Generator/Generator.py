@@ -77,7 +77,6 @@ class Generator:
             print(f"STEP: {self.simulator.time_step}")
             self.simulator.tick()
 
-
 def creation_ticks(duration, total, std=-1) -> List[int]:
     res = []
     if duration == 1:

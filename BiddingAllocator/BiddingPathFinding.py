@@ -2,7 +2,6 @@ import math
 from typing import List
 from time import time_ns
 
-
 # Implemented based on https://www.annytab.com/a-star-search-algorithm-in-python/
 from .BiddingABAgent import BiddingABAgent
 from Simulator import Environment, Tick
@@ -19,8 +18,9 @@ def bidding_astar(
     # print(f"{start} -> {end}")
     # print(f"---->", end="")
     start_time = time_ns()
-    open_nodes = []
-    closed_nodes = []
+    open_nodes = {}
+    closed_nodes = {}
+
     valid_start = start.clone()
     while True:
         start_conflicts, valid = is_valid_for_allocation(env, valid_start, agent)
@@ -34,7 +34,7 @@ def bidding_astar(
 
     start_node = Node(valid_start, None, start_conflicts)
     end_node = Node(end, None, set())
-    open_nodes.append(start_node)
+    open_nodes[hash(start_node)] = start_node
     steps = 0
 
     path = []
@@ -47,11 +47,11 @@ def bidding_astar(
         steps += 1
 
         start_sort = time_ns()
-        open_nodes.sort()
+        current_node = min(list(open_nodes.values()))
         sort_time += time_ns() - start_sort
 
-        current_node = open_nodes.pop(0)
-        closed_nodes.append(current_node)
+        del open_nodes[hash(current_node)]
+        closed_nodes[hash(current_node)] = current_node
 
         # if steps % 50 == 0:
         #     print(current_node)
@@ -79,15 +79,19 @@ def bidding_astar(
             if valid:
                 neighbor = Node(next_neighbor, current_node, collisions)
                 # Closed node
-                if neighbor in closed_nodes:
+                if hash(neighbor) in closed_nodes:
                     break
 
                 neighbor.g = current_node.g + 0.5
                 neighbor.h = distance2(neighbor.position, end_node.position)
                 neighbor.f = neighbor.g + neighbor.h
 
-                open_nodes.append(neighbor)
-        neighbors_time += time_ns() - start_neighbors
+                if hash(neighbor) in open_nodes:
+                    if open_nodes[hash(neighbor)].f > neighbor.f:
+                        open_nodes[hash(neighbor)] = neighbor
+                else:
+                    open_nodes[hash(neighbor)] = neighbor
+
     if len(path) == 0:
         print(f"ASTAR failed for agent: {agent.id}")
     wait_coords: List[TimeCoordinate] = []
@@ -116,7 +120,10 @@ def distance(start: TimeCoordinate, end: TimeCoordinate):
 def distance2(start: TimeCoordinate, end: TimeCoordinate):
     return math.pow((start.x - end.x) ** 2 + (start.y - end.y) ** 2 + (start.z - end.z) ** 2, 0.5)
 
+
 def is_valid_for_allocation(env: Environment, position: TimeCoordinate, agent: BiddingABAgent):
+    if env.is_blocked(position, agent.near_radius, agent.speed):
+        return set(), False
     agents = env.intersect(position, agent.near_radius, agent.speed)
     res = set()
     for agent_id in agents:
@@ -126,6 +133,7 @@ def is_valid_for_allocation(env: Environment, position: TimeCoordinate, agent: B
         else:
             return set(), False
     return res, True
+
 
 class Node:
     def __init__(self, position: TimeCoordinate, parent, collision: set[BiddingABAgent]):
@@ -141,6 +149,9 @@ class Node:
 
     def __lt__(self, other):
         return self.f < other.f
+
+    def __hash__(self):
+        return hash(self.position)
 
     def __repr__(self):
         return f"{self.position}: {self.f}, {self.h}"

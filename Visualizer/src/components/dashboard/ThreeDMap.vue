@@ -53,7 +53,7 @@ const doDroneUpdate = () => {
 
 onTick(() => {
   console.log("3D TICK!");
-  // doBlockerUpdate();
+  doBlockerUpdate();
   doDroneUpdate();
 });
 
@@ -73,7 +73,7 @@ onMounted(() => {
   shadows = useShadows({ mainLight });
 
   droneCache = useDroneCache();
-  // blockerCache = useBlockerCache();
+  blockerCache = useBlockerCache();
   focusCache = useFocusCache({ scene });
 
   blockerMaterial = useBlockerMaterial({ scene });
@@ -99,7 +99,7 @@ onMounted(() => {
   });
   focusOn = focusFunctions.focusOn;
   focusOff = focusFunctions.focusOff;
-  // useBlockers({ scene, blockerCache, shadows, x, z, blockerMaterial });
+  useBlockers({ scene, blockerCache, shadows, x, z, blockerMaterial });
   useBuildings({ scene, shadows, mapTiles: simulation.mapTiles, blockerMaterial });
   useDrones({
     scene,

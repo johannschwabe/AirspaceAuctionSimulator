@@ -125,11 +125,9 @@ export default class Simulation {
 
   registerCallbacks() {
     onTick(() => {
-      console.log("start");
       this.updateActiveAgents();
       this.updateActiveBlockers();
       console.log({ UpdatedSimulation: this });
-      console.log("end");
     });
     onAgentsSelected(() => {
       this.updateSelectedAgents();

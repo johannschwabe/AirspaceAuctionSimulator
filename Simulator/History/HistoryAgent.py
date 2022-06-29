@@ -14,5 +14,4 @@ class HistoryAgent:
         self.speed = speed
 
     def reallocation(self, new_path: List[List[TimeCoordinate]], time_step: Tick):
-
         self.past_allocations[time_step] = new_path

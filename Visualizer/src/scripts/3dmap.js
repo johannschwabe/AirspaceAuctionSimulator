@@ -57,11 +57,8 @@ export function useMainLight({ scene, x, y, z }) {
 export function useCamera({ x, y, z, scene, canvas }) {
   const target = new Vector3(0, (y / 4) * 2, 0);
   const camera = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, target, scene);
-  // const camera = new UniversalCamera("camera", new Vector3(0, 0, 0), scene);
-  // const camera = new FlyCamera("camera", new Vector3(0, 0, 0), scene);
   camera.attachControl(canvas, true);
   camera.setTarget(target);
-  // camera.rollCorrect = 10;
   camera.setPosition(new Vector3(-x, y * 2.5, -z));
   return camera;
 }
@@ -104,8 +101,6 @@ export function useBuildings({ scene, shadows, mapTiles, blockerMaterial }) {
       const options = {
         shape: building.coordinates.map(({ x, y }) => new Vector3(x, 0, y)).reverse(),
         depth: building.height,
-        // path: [new Vector3(0, 0, 0), new Vector3(0, building.height, 0)],
-        // cap: Mesh.CAP_END,
         holes: building.holes.map((hole) => hole.map(({ x, y }) => new Vector3(x, 0, y))).reverse(),
       };
       const buildingMesh = MeshBuilder.ExtrudePolygon(`tile-${i}-building-${j}`, options, scene, earcut);
@@ -217,7 +212,6 @@ export function useBlockers({ scene, blockerCache, shadows, x, z, blockerMateria
     storedBlockerCube.position.x = blocker.positionAtTick(simulation.tick).x - x / 2;
     storedBlockerCube.position.y = blocker.positionAtTick(simulation.tick).y + blocker.dimension.y / 2;
     storedBlockerCube.position.z = blocker.positionAtTick(simulation.tick).z - z / 2;
-    console.log(storedBlockerCube);
   });
 }
 

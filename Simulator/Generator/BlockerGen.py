@@ -21,7 +21,6 @@ class BlockerGen:
         return blockers
 
     def generate(self, n_blockers: int):
-        # TODO generate according to maptiles!
         blockers: List[Blocker] = []
         max_size = Coordinate(
             int(self.dimension.x / 5),

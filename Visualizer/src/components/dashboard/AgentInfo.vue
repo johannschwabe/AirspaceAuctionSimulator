@@ -50,10 +50,9 @@ import {
 import { useSimulationSingleton } from "../../scripts/simulation";
 
 const simulation = useSimulationSingleton();
-
 const datapoints = computed(() => [
   { label: "Agent ID", value: simulation.agentInFocus.id, icon: FingerPrint },
-  { label: "Type", value: simulation.agentInFocus.agentType.name, icon: Airplane },
+  { label: "Type", value: simulation.agentInFocus.agentType?.name || "-", icon: Airplane },
   { label: "Battery", value: simulation.agentInFocus.battery, icon: BatteryHalf },
   { label: "Bid", value: simulation.agentInFocus.bid, icon: Wallet },
   { label: "Speed", value: simulation.agentInFocus.speed, icon: Speedometer },

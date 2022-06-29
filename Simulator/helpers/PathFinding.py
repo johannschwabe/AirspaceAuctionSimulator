@@ -79,23 +79,18 @@ def astar(
 
                 neighbor.g = current_node.g + 0.5
                 neighbor.h = distance2(neighbor.position, end_node.position)
-                # neighbor.f = neighbor.g + neighbor.h
                 neighbor.f = neighbor.g + neighbor.h - neighbor.position.y / env.get_dim().y * 0.05 * neighbor.h
 
-                in_check_2_start = time_ns()
                 if hash(neighbor) in open_nodes:
                     if open_nodes[hash(neighbor)].f > neighbor.f:
                         open_nodes[hash(neighbor)] = neighbor
-                in_check_2_t += time_ns() - in_check_2_start
-
-                open_nodes[hash(neighbor)] = neighbor
+                else:
+                    open_nodes[hash(neighbor)] = neighbor
         neighbors_time += time_ns() - start_neighbors
 
     if len(path) == 0:
         print("ASTAR failed")
 
-        # print(len(open_nodes))
-        # print(len(closed_nodes))
     print(str(start))
     print(str(end))
     wait_coords: List[TimeCoordinate] = []
@@ -107,7 +102,6 @@ def astar(
     complete_path.sort(key=lambda x: x.t)
     stop_time = time_ns()
     seconds = (stop_time - start_time) / 1e9
-    # print(start.inter_temporal_distance(end) / (len(path) + 1))
     print(f"PathLen: {len(path)}, "
           f"steps: {steps}, "
           f"time: {seconds:.2f}s, "
@@ -145,7 +139,6 @@ class Node:
             self.position.y == other.position.y and \
             self.position.z == other.position.z and \
             self.position.t == other.position.t
-        # return self.position == other.position
 
     def __lt__(self, other):
         return self.f < other.f

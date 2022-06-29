@@ -67,12 +67,11 @@ class MapTile:
                     if max_z < z:
                         max_z = z
                 bounds = [TimeCoordinate(min_x, 0, min_z, Tick(0)),
-                          TimeCoordinate(max_x, building['properties']['height'], max_z, self.dimensions.t * 100)]
+                          TimeCoordinate(max_x, building['properties']['height'], max_z, self.dimensions.t * 10000)]
                 new_blocker = BuildingBlocker(coords, bounds)
                 res.append(new_blocker)
 
         return res
-        # print("***OSM***", data)
 
     def __str__(self):
-        return f"x:{self.x}, y:{self.y}, z:{self.z}, dim: {self.dimensions}"
+        return f"x:{self.x}, y:{self.y}, z:{self.z}"
