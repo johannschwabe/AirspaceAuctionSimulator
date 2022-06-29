@@ -19,20 +19,18 @@ class ABAOwner(Owner):
     def generate_agents(self, t: int, env: "Environment") -> List["Agent"]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
-            dimensions = env._dimension
-            start = TimeCoordinate(random.randint(0, dimensions.x - 1),
-                                   0,
-                                   random.randint(0, dimensions.z - 1),
-                                   Tick(t + random.randint(0, 10)))
-            target = TimeCoordinate(random.randint(0, dimensions.x - 1),
-                                    0,
-                                    random.randint(0, dimensions.z - 1),
-                                    Tick(0))
             speed = random.randint(1, 3)
+            start = self.valid_random_coordinate(env,
+                                                 Tick(t + random.randint(0, 10)),
+                                                 ABAAgent.default_near_radius,
+                                                 speed)
+
+            target = self.valid_random_coordinate(env, Tick(0),  ABAAgent.default_near_radius, speed)
+
             stay = random.randint(1, 5)
             distance = start.inter_temporal_distance(target)
             target.t = start.t + stay + distance * speed + random.randint(0, 10)
-            agent = ABAAgent(start, target, speed=speed, stay=stay)
+            agent = ABAAgent(start, target, speed=speed, stay=stay, near_radius=0.3)
             res.append(agent)
             print(f"A-B-A created {agent}")
 

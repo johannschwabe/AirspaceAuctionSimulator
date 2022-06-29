@@ -1,26 +1,29 @@
-from typing import List
+from typing import List, TYPE_CHECKING
 
-from . import Agent
-from .AgentType import AgentType
+from .Agent import Agent
+from .SpaceAgent import SpaceAgent
+from ..Path import SpaceSegment
 from ..Time import Tick
 from ..Bid import Bid, StationaryBid
-from ..Coordinate import Coordinate, TimeCoordinate
+from ..Coordinate import Coordinate
 
+if TYPE_CHECKING:
+    from .. import Tick
 
-class StationaryAgent(Agent):
+class StationaryAgent(SpaceAgent):
     def __init__(
         self,
         block: List[Coordinate],
         start_t: Tick,
         end_t: Tick,
     ):
-        super().__init__(AgentType.STATIONARY)
+        super().__init__()
 
         self.block: List[Coordinate] = block
         self.start_t: Tick = start_t
         self.end_t: Tick = end_t
 
-    def value_for_paths(self, paths: List[List[TimeCoordinate]]) -> float:
+    def value_for_segments(self, paths: List[SpaceSegment]) -> float:
         if len(paths) == 0:
             return 0.
 
@@ -37,11 +40,12 @@ class StationaryAgent(Agent):
 
         return round(value, 2)
 
-    def get_bid(self) -> Bid:
-        return StationaryBid(self.battery, self.block, self.start_t, self.end_t)
+    def get_bid(self, t: "Tick") -> Bid:
+        return StationaryBid(self.block, self.start_t, self.end_t)
 
     def clone(self):
         clone = StationaryAgent(self.block, self.start_t, self.end_t)
+        clone.set_allocated_segments([segment.clone() for segment in self.get_allocated_segments()])
         clone.id = self.id
         clone.is_clone = True
         Agent._id -= 1

@@ -1,12 +1,17 @@
 import statistics
+from abc import ABC
 from enum import Enum
-from typing import Dict, List
+from multiprocessing import Pool
+from typing import Dict, List, TYPE_CHECKING
 
 from .. import Blocker, Simulator, Statistics
-from ..Agent import Agent, AgentType
+from ..Agent import Agent, PathAgent, SpaceAgent
+from ..Blocker.BuildingBlocker import BuildingBlocker
 from ..History import HistoryAgent
 from ..IO import Stringify
-
+from ..Generator.MapTile import MapTile
+if TYPE_CHECKING:
+    from ..Coordinate import TimeCoordinate
 
 class Path(Stringify):
     def __init__(self, path: List["TimeCoordinate"]):
@@ -37,12 +42,44 @@ class Reason(Enum):
     OWNER = 3
     NOT_IMPLEMENTED = 4
 
+class JSONAgent(ABC):
+    def __init__(
+        self,
+        agent: Agent,
+        non_colliding_welfare: float,
+        bid: int,
+        owner_id: int,
+        owner_name: str,
+    ):
+        self.agent_type: str = agent.__class__.__name__
+        self.id: int = agent.id
+        self.welfare: float = agent.get_allocated_value()
 
-class JSONAgent(Stringify):
+        self.non_colliding_welfare: float = non_colliding_welfare
+
+        self.bid: int = bid
+        self.owner_id: int = owner_id
+        self.owner_name: str = owner_name
+        self.name: str = f"{self.owner_name}-{self.agent_type}-{self.id}"
+
+
+class JSONSpaceAgent(JSONAgent, Stringify):
+    def __init__(
+        self,
+        agent: SpaceAgent,
+        non_colliding_welfare: float,
+        bid: int,
+        owner_id: int,
+        owner_name: str,
+    ):
+        super().__init__(agent, non_colliding_welfare, bid, owner_id, owner_name)
+
+
+class JSONPathAgent(JSONAgent, Stringify):
     def __init__(
         self,
         history_agent: HistoryAgent,
-        agent: Agent,
+        agent: PathAgent,
         non_colliding_welfare: float,
         near_field_intersections: int,
         far_field_intersections: int,
@@ -52,36 +89,29 @@ class JSONAgent(Stringify):
         owner_id: int,
         owner_name: str,
     ):
-        self.agent_type: AgentType = agent.agent_type
-        self.id: int = agent.id
+        super().__init__(agent, non_colliding_welfare, bid, owner_id, owner_name)
         self.speed: int = agent.speed
         self.near_radius: int = agent.near_radius
         self.far_radius: int = agent.far_radius
-        self.welfare: float = agent.get_allocated_value()
         self.battery: int = agent.battery
         self.time_in_air: int = agent.get_airtime()
 
-        self.non_colliding_welfare: float = non_colliding_welfare
         self.near_field_intersections: int = near_field_intersections
         self.far_field_intersections: int = far_field_intersections
         self.near_field_violations: int = near_field_violations
         self.far_field_violations: int = far_field_violations
 
-        self.bid: int = bid
-        self.owner_id: int = owner_id
-        self.owner_name: str = owner_name
-        self.name: str = f"{self.owner_name}-{self.agent_type.name}-Agent-{self.id}"
-
-        self.paths: List[Path] = [Path(path) for path in agent.get_allocated_paths()]
+        self.paths: List[Path] = [Path(path.coordinates) for path in agent.get_allocated_segments()]
 
         self.branches: List[Branch] = []
+
         # First reallocation isn't a reallocation but an allocation
         for key, value in list(history_agent.past_allocations.items())[1:]:
             branch_paths = [Path(path) for path in value]
             self.branches.append(Branch(
                 key,
                 branch_paths,
-                agent.value_for_paths(value),
+                agent.value_for_segments(value),
                 Collision(Reason.NOT_IMPLEMENTED)
             ))
 
@@ -92,7 +122,7 @@ class JSONOwner(Stringify):
         self.id: int = id
         self.color: str = color
         self.agents: List[JSONAgent] = agents
-        self.total_time_in_air: int = sum([agent.time_in_air for agent in self.agents])
+        self.total_time_in_air: int = sum([agent.time_in_air if isinstance(agent, JSONPathAgent) else 0 for agent in self.agents])
 
         bids = [agent.bid for agent in self.agents]
         self.total_bid_value: int = sum(bids)
@@ -100,7 +130,10 @@ class JSONOwner(Stringify):
         self.median_bid_value: float = statistics.median(bids)
         self.max_bid_value: float = max(bids)
         self.min_bid_value: float = min(bids)
-        self.bid_quantiles: List[float] = statistics.quantiles(bids)
+        if len(bids) < 2:
+            self.bid_quantiles = [0] * 4
+        else:
+            self.bid_quantiles: List[float] = statistics.quantiles(bids)
         self.bid_outliers: List[float] = [bid for bid in bids if
                                           bid < self.bid_quantiles[0] or bid > self.bid_quantiles[-1]]
 
@@ -110,16 +143,17 @@ class JSONOwner(Stringify):
         self.median_welfare: float = statistics.median(welfare)
         self.max_welfare: float = max(welfare)
         self.min_welfare: float = min(welfare)
-        self.welfare_quantiles: List[float] = statistics.quantiles(welfare)
+        if len(welfare) < 2:
+            self.welfare_quantiles = [0] * 4
+        else:
+            self.welfare_quantiles: List[float] = statistics.quantiles(welfare)
         self.welfare_outliers: List[float] = [w for w in welfare if
                                               w < self.welfare_quantiles[0] or w > self.welfare_quantiles[-1]]
 
         self.number_of_agents: int = len(self.agents)
-        self.number_of_ab_agents: int = sum([int(agent.agent_type == AgentType.AB) for agent in self.agents])
-        self.number_of_aba_agents: int = sum([int(agent.agent_type == AgentType.ABA) for agent in self.agents])
-        self.number_of_abc_agents: int = sum([int(agent.agent_type == AgentType.ABC) for agent in self.agents])
-        self.number_of_stationary_agents: int = sum(
-            [int(agent.agent_type == AgentType.STATIONARY) for agent in self.agents])
+        self.number_per_type = {}
+        for agent in self.agents:
+            self.number_per_type[agent.agent_type] = self.number_per_type.get(agent.agent_type, 0) + 1
 
 
 class JSONBlocker(Stringify):
@@ -129,10 +163,21 @@ class JSONBlocker(Stringify):
         self.dimension = blocker.dimension
 
 
+class JSONMaptile(Stringify):
+    def __init__(self, maptile: "MapTile"):
+        self.x = maptile.x
+        self.y = maptile.y
+        self.z = maptile.z
+        self.dimensions = maptile.dimensions
+        self.top_left_coordinate = maptile.top_left_coordinate
+        self.bottom_right_coordinate = maptile.bottom_right_coordinate
+
+
 class JSONEnvironment(Stringify):
-    def __init__(self, dimensions: "TimeCoordinate", blockers: List[Blocker]):
+    def __init__(self, dimensions: "TimeCoordinate", blockers: List[Blocker], maptiles: List[MapTile]):
         self.dimensions: "TimeCoordinate" = dimensions
-        self.blockers: List[JSONBlocker] = [JSONBlocker(blocker) for blocker in blockers]
+        self.blockers: List[JSONBlocker] = [JSONBlocker(blocker) for blocker in blockers if not isinstance(blocker, BuildingBlocker)]
+        self.maptiles: List[JSONMaptile] = [JSONMaptile(maptile) for maptile in maptiles]
 
 
 class JSONStatistics(Stringify):
@@ -158,31 +203,46 @@ def build_json(simulator: Simulator, name: str, description: str):
     env = simulator.environment
     history = simulator.history
     stats = Statistics(simulator)
-    # close_passings = stats.close_passings()
+    close_passings = stats.close_passings()
     nr_collisions = 0
-    json_env = JSONEnvironment(env._dimension, env._blockers)
+    json_env = JSONEnvironment(env._dimension, list(env.blockers.values()), env.map_tiles)
     owners: List[JSONOwner] = []
     for owner in history.owners:
         agents: List[JSONAgent] = []
+        non_colliding_values = calculate_non_colliding_values(owner.agents, stats)
         for agent in owner.agents:
-            agents.append(JSONAgent(
-                history.agents[agent],
-                agent,
-                stats.non_colliding_value(agent),
-                # close_passings[agent.id]["total_near_field_intersection"],
-                # close_passings[agent.id]["total_far_field_intersection"],
-                # close_passings[agent.id]["total_near_field_violations"],
-                # close_passings[agent.id]["total_far_field_violations"],
-                0,
-                0,
-                0,
-                0,
-                0,
-                owner.id,
-                owner.name,
-            ))
-            # nr_collisions += close_passings[agent.id]["total_near_field_violations"]  # todo different collision metric
+            if isinstance(agent, PathAgent):
+                agents.append(JSONPathAgent(
+                    history.agents[agent],
+                    agent,
+                    non_colliding_values[agent],
+                    close_passings[agent.id]["total_near_field_intersection"],
+                    close_passings[agent.id]["total_far_field_intersection"],
+                    close_passings[agent.id]["total_near_field_violations"],
+                    close_passings[agent.id]["total_far_field_violations"],
+                    0,
+                    owner.id,
+                    owner.name,
+                ))
+            elif isinstance(agent, SpaceAgent):
+                agents.append(JSONSpaceAgent(
+                    agent,
+                    stats.non_colliding_value(agent),
+                    0,
+                    owner.id,
+                    owner.name
+                ))
+            nr_collisions += close_passings[agent.id]["total_near_field_violations"]  # todo different collision metric
         owners.append(JSONOwner(owner.name, owner.id, owner.color, agents))
     json_stats = JSONStatistics(len(simulator.owners), len(env._agents), stats.total_agents_welfare(), nr_collisions, 0)
     json_simulation = JSONSimulation(name, description, json_env, json_stats, owners)
     return json_simulation.as_dict()
+
+
+def calculate_non_colliding_values(agents: List[Agent], stats: Statistics):
+    res = {}
+    with Pool(len(agents)) as p:
+        non_colliding_values = p.map(stats.non_colliding_value, [agent for agent in agents])
+    for agent, non_colliding_value in zip(agents, non_colliding_values):
+        res[agent] = non_colliding_value
+    return res

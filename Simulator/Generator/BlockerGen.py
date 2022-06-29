@@ -1,14 +1,24 @@
-from typing import List
+from typing import List, TYPE_CHECKING
 
 from ..Blocker import Blocker
 from ..Coordinate import Coordinate, TimeCoordinate
 from ..Time import Tick
 
+if TYPE_CHECKING:
+    from .MapTile import MapTile
+
 
 class BlockerGen:
 
-    def __init__(self, dimension: TimeCoordinate):
+    def __init__(self, dimension: TimeCoordinate, maptiles: List["MapTile"]):
         self.dimension: TimeCoordinate = dimension
+        self.maptiles: List["MapTile"] = maptiles
+
+    def generate_maptile_blockers(self):
+        blockers: List[Blocker] = []
+        for tile in self.maptiles:
+            blockers += tile.resolve_buildings()
+        return blockers
 
     def generate(self, n_blockers: int):
         blockers: List[Blocker] = []

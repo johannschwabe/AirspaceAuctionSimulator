@@ -66,11 +66,6 @@ const updateSeries = () => {
     const arrivalTick = agent.combinedPath.lastTick;
     optimalWelfare[arrivalTick] += agent.nonCollidingWelfare;
     achievedWelfare[arrivalTick] += agent.welfare;
-    console.log({
-      arrivalTick,
-      ncw: agent.nonCollidingWelfare,
-      w: agent.welfare,
-    });
   });
 
   for (let i = 1; i <= simulation.maxTick; i++) {

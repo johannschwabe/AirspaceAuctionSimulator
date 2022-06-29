@@ -1,12 +1,16 @@
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 from . import Agent
-from .AgentType import AgentType
+from .PathAgent import PathAgent
 from ..Bid import Bid, ABCBid
 from ..Coordinate import TimeCoordinate
+from ..Path import PathSegment
+
+if TYPE_CHECKING:
+    from .. import Tick
 
 
-class ABCAgent(Agent):
+class ABCAgent(PathAgent):
     def __init__(
         self,
         locations: List[TimeCoordinate],
@@ -14,12 +18,12 @@ class ABCAgent(Agent):
         speed: Optional[int] = None,
         battery: Optional[int] = None,
     ):
-        super().__init__(AgentType.ABC, speed=speed, battery=battery)
+        super().__init__(speed, battery)
 
         self._locations: List[TimeCoordinate] = locations
         self.stays: List[int] = stays
 
-    def value_for_paths(self, paths: List[List[TimeCoordinate]]) -> float:
+    def value_for_segments(self, paths: List[PathSegment]) -> float:
         if len(paths) == 0:
             return 0.
 
@@ -43,13 +47,13 @@ class ABCAgent(Agent):
 
         return round(max(0., value), 2)
 
-    def get_bid(self) -> Bid:
+    def get_bid(self, t: "Tick") -> Bid:
         return ABCBid(self.battery, self._locations, self.stays)
 
     def clone(self):
         clone = ABCAgent(self._locations, self.stays, self.speed, self.battery)
+        clone.set_allocated_segments([segment.clone() for segment in self.get_allocated_segments()])
         clone.id = self.id
         clone.is_clone = True
         Agent._id -= 1
-
         return clone

@@ -1,9 +1,13 @@
 import random
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, TYPE_CHECKING
 
 from ..Agent import Agent
+from ..Coordinate import TimeCoordinate
 from ..Environment import Environment
+
+if TYPE_CHECKING:
+    from .. import Tick
 
 
 class Owner(ABC):
@@ -22,3 +26,21 @@ class Owner(ABC):
     @abstractmethod
     def generate_agents(self, t: int, env: Environment) -> List[Agent]:
         pass
+
+    @staticmethod
+    def valid_random_coordinate(env: Environment, t: "Tick", near_radius: int, speed: int):
+        dimensions = env._dimension
+        coord = TimeCoordinate(random.randint(0, dimensions.x - 1),
+                               0,
+                               random.randint(0, dimensions.z - 1),
+                               t)
+        while True:
+            if not env.is_blocked(coord, near_radius, speed):
+                break
+            coord.y += 1
+            if coord.y >= env.get_dim().y:
+                coord = TimeCoordinate(random.randint(0, dimensions.x - 1),
+                                       0,
+                                       random.randint(0, dimensions.z - 1),
+                                       t)
+        return coord

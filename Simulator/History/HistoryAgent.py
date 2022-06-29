@@ -9,6 +9,7 @@ class HistoryAgent:
     def __init__(self, agent: Agent, registered: int, speed: int):
         self.id = agent.id
         self.registered: int = registered
+        self.traveled_paths = []
         self.past_allocations: Dict[int, List[List[TimeCoordinate]]] = {}
         self.speed = speed
 

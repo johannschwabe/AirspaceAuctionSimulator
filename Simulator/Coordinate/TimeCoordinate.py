@@ -6,6 +6,7 @@ from ..Time import Tick
 
 class TimeCoordinate(Coordinate):
     dim = None
+
     def __init__(self, x: int, y: int, z: int, t: Tick):
         super().__init__(x, y, z)
         self.t: Tick = t
@@ -21,6 +22,9 @@ class TimeCoordinate(Coordinate):
                self.y == other.y and \
                self.z == other.z and \
                self.t == other.t
+
+    def __hash__(self):
+        return hash(f"{self.x}:{self.y}:{self.z}:{self.t}")
 
     def inter_temporal_equal(self, other):
         return super().__eq__(other)
@@ -53,13 +57,13 @@ class TimeCoordinate(Coordinate):
             temp = abs(self.t - other.t)
         return super().distance(other, l2), temp
 
-    def inter_temporal_distance(self, other: Coordinate, l2: bool = False):
+    def inter_temporal_distance(self, other: Coordinate, l2: bool = False) -> float:
         return super().distance(other, l2)
 
     def clone(self):
         return TimeCoordinate(self.x, self.y, self.z, self.t)
 
-    def random_neighbor(self, delta_t=0, chance_x=1/3, chance_y=1/3, chance_forward=0.5):
+    def random_neighbor(self, delta_t=0, chance_x=1 / 3, chance_y=1 / 3, chance_forward=0.5):
         r = random()
         move = 1 if random() > chance_forward else -1
         if r <= chance_x:
@@ -72,8 +76,8 @@ class TimeCoordinate(Coordinate):
     @staticmethod
     def random(dimensions: "TimeCoordinate"):
         return TimeCoordinate(
-            randint(0, dimensions.x-1),
-            randint(0, dimensions.y-1),
-            randint(0, dimensions.z-1),
-            Tick(randint(0, dimensions.t-1))
+            randint(0, dimensions.x - 1),
+            randint(0, dimensions.y - 1),
+            randint(0, dimensions.z - 1),
+            Tick(randint(0, dimensions.t - 1))
         )
