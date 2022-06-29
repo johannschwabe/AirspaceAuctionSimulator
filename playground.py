@@ -17,7 +17,37 @@ from Simulator.Owner.ABOwner import ABOwner
 from Simulator.Owner.TestOwner import TestOwner
 
 
-def setup():
+def setup_empty():
+    dimensions = TimeCoordinate(50, 20, 50, Tick(20))
+    random.seed(3)
+    environment = Environment(dimensions, [], [])
+    environment.init_blocker_tree()
+    allocator = BiddingAllocator()
+    owners = []
+
+    for i in range(2):
+        owners.append(BiddingABOwner("Schnabeltier" + str(i),
+                                     color_generator(),
+                                     [random.randint(0, 5) for _ in range(10)],
+                                     random.uniform(0,1)
+                                     ))
+
+    history = History(dimensions, allocator, environment, owners)
+    SimulaterAligator = Simulator(owners, allocator, environment, history)
+    t0 = time_ns()
+    while SimulaterAligator.time_step < dimensions.t:
+        # print(simulator.time_step)
+        SimulaterAligator.tick()
+        # SimulaterAligator.environment.visualize(SimulaterAligator.time_step)
+    print(f"Total: {(time_ns() - t0) / 1e9}")
+
+    res = build_json(SimulaterAligator, "test", "Schnabeltier")
+    f = open("test.json", "w")
+    f.write(json.dumps(res))
+    f.close()
+
+
+def setup_map():
     dimensions = TimeCoordinate(831, 30, 831, Tick(20))
     random.seed(3)
     environment = Environment(dimensions, [], [MapTile(
@@ -73,9 +103,9 @@ def color_generator():
 
         if r + g + b > 350:
             break
-    return f"#{hex(r)}{hex(g)}{hex(b)}"
+    return f"#{hex(r)[2:]}{hex(g)[2:]}{hex(b)[2:]}"
 
 
 
 if __name__ == "__main__":
-    setup()
+    setup_empty()

@@ -53,7 +53,8 @@ class Environment:
             if path[0].t > time_step:
                 break
             if path[-1].t > time_step:
-                new_allocated_paths.append(path[:time_step - path[0].t])
+                sub_path = path[:time_step - path[0].t + 1]
+                new_allocated_paths.append(PathSegment(path.start, path.end, path.index, sub_path))
             else:
                 new_allocated_paths.append(path)
         agent.set_allocated_segments(new_allocated_paths)
