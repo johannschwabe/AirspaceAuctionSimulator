@@ -1,32 +1,35 @@
 <template>
-  <vue-apex-charts
-    type="rangeBar" height="250" :options="chartOptions" :series="series"
-  />
+  <vue-apex-charts ref="chart" type="rangeBar" height="250" :options="chartOptions" :series="series" />
 </template>
 
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
+import { reactive, ref } from "vue";
 
-import {useSimulationStore} from "../../stores/simulation";
-import {reactive} from "vue";
+import { useSimulationSingleton } from "../../scripts/simulation";
+import { onAgentsSelected, onTick } from "../../scripts/emitter";
 
-const simulationStore = useSimulationStore();
+const simulation = useSimulationSingleton();
+
+const chart = ref(null);
 
 const chartOptions = {
   chart: {
     height: 250,
-    type: 'rangeBar',
-    background: 'transparent',
-    toolbar: {show: false}
+    type: "rangeBar",
+    background: "transparent",
+    toolbar: { show: false },
+    zoom: { enabled: false },
+    animations: { enabled: false },
   },
   theme: {
-    mode: 'dark'
+    mode: "dark",
   },
   plotOptions: {
     bar: {
       horizontal: true,
       distributed: true,
-    }
+    },
   },
   stroke: { show: false },
   grid: { show: false },
@@ -40,24 +43,36 @@ const chartOptions = {
     axisTicks: { show: false },
     axisBorder: { show: false },
   },
-}
+};
 
-const series =  [{
-  data: [],
-}]
+const series = reactive([
+  {
+    data: [],
+  },
+]);
 
-simulationStore.agents.forEach((agent) => {
-  const start = agent.locations[0].t;
-  const end = agent.locations[agent.locations.length - 1].t;
-  series[0].data.push({
-    x: agent.uuid,
-    y: [start, end],
-    fillColor: agent.owner.color,
-  })
-})
+const updateSeries = () => {
+  const gantt = [];
+  simulation.selectedAgents.forEach((agent) => {
+    agent.paths.forEach((path) => {
+      const start = path.firstTick;
+      const end = path.lastTick;
+      gantt.push({
+        x: agent.name,
+        y: [start, end],
+        fillColor: agent.color,
+      });
+    });
+  });
+  series[0].data = gantt;
+  console.log("Welfare: Done");
+};
 
+onAgentsSelected(() => {
+  updateSeries();
+});
+
+updateSeries();
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

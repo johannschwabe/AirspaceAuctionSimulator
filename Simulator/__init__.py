@@ -1,7 +1,4 @@
-from . import Coordinate, Field, Value
-from .Agent import Agent
-from .Allocator import Allocator
-from .Bid import Bid
+from . import Coordinate, Value, Agent, Allocator, Bid, Environment
 from .Blocker import Blocker
 from .Environment import Environment
 from .Owner import Owner

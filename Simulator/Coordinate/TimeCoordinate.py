@@ -5,6 +5,7 @@ from ..Time import Tick
 
 
 class TimeCoordinate(Coordinate):
+    dim = None
 
     def __init__(self, x: int, y: int, z: int, t: Tick):
         super().__init__(x, y, z)
@@ -22,10 +23,18 @@ class TimeCoordinate(Coordinate):
                self.z == other.z and \
                self.t == other.t
 
+    def __hash__(self):
+        return hash(f"{self.x}:{self.y}:{self.z}:{self.t}")
+
     def inter_temporal_equal(self, other):
-        return self.x == other.x and \
-               self.y == other.y and \
-               self.z == other.z
+        return super().__eq__(other)
+
+    def tree_query_point_rep(self):
+        list_rep = self.list_rep()
+        return list_rep + list_rep
+
+    def list_rep(self):
+        return [self.x, self.y, self.z, self.t]
 
     def to_inter_temporal(self):
         return Coordinate(self.x, self.y, self.z)
@@ -42,19 +51,19 @@ class TimeCoordinate(Coordinate):
             t_other = other.t
         return TimeCoordinate(self.x - other.x, self.y - other.y, self.z - other.z, self.t - t_other)
 
-    def distance(self, other, l2: bool):
+    def distance(self, other, l2: bool = False):
         temp = 0
         if isinstance(other, TimeCoordinate):
             temp = abs(self.t - other.t)
-        if l2:
-            return ((self.x - other.x)**2 + (self.y - other.y)**2 + (self.z - other.xz)**2)**0.5, temp
-        else:
-            return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z), temp
+        return super().distance(other, l2), temp
+
+    def inter_temporal_distance(self, other: Coordinate, l2: bool = False) -> float:
+        return super().distance(other, l2)
 
     def clone(self):
         return TimeCoordinate(self.x, self.y, self.z, self.t)
 
-    def random_neighbor(self, delta_t=0, chance_x=1/3, chance_y=1/3, chance_forward=0.5):
+    def random_neighbor(self, delta_t=0, chance_x=1 / 3, chance_y=1 / 3, chance_forward=0.5):
         r = random()
         move = 1 if random() > chance_forward else -1
         if r <= chance_x:
@@ -67,8 +76,8 @@ class TimeCoordinate(Coordinate):
     @staticmethod
     def random(dimensions: "TimeCoordinate"):
         return TimeCoordinate(
-            randint(0, dimensions.x-1),
-            randint(0, dimensions.y-1),
-            randint(0, dimensions.z-1),
-            Tick(randint(0, dimensions.t-1))
+            randint(0, dimensions.x - 1),
+            randint(0, dimensions.y - 1),
+            randint(0, dimensions.z - 1),
+            Tick(randint(0, dimensions.t - 1))
         )

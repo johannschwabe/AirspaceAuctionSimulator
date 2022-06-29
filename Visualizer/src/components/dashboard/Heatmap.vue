@@ -1,45 +1,43 @@
 <template>
-  <vue-apex-charts
-    type="heatmap" height="250" :options="chartOptions" :series="series"
-  />
+  <vue-apex-charts type="heatmap" height="250" :options="chartOptions" :series="series" />
 </template>
 
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
-import { reactive, watch } from "vue";
+import { reactive } from "vue";
 
-import { useSimulationStore } from "../../stores/simulation";
+import { useSimulationSingleton } from "../../scripts/simulation";
+import { onAgentsSelected, onTick } from "../../scripts/emitter";
 
 const props = defineProps({
   title: String,
   dimX: String,
   dimY: String,
-  granularity: { type: Number, default: 10, required: false }
-})
+  buckets: { type: Number, default: 10, required: false },
+});
 
-const simulationStore = useSimulationStore();
+const simulation = useSimulationSingleton();
 
 const axisColors = {
-  x: 'red',
-  y: 'green',
-  z: 'blue',
-}
+  x: "red",
+  y: "green",
+  z: "blue",
+};
 
 const chartOptions = {
   chart: {
     height: 250,
-    type: 'heatmap',
-    background: 'transparent',
-    toolbar: { show: false }
+    type: "heatmap",
+    background: "transparent",
+    toolbar: { show: false },
+    zoom: { enabled: false },
+    animations: { enabled: false },
   },
   theme: {
-    mode: 'dark'
-  },
-  title: {
-    text: props.title,
+    mode: "dark",
   },
   dataLabels: {
-    enabled: false
+    enabled: false,
   },
   colors: ["#2a947d"],
   stroke: { show: false },
@@ -70,46 +68,52 @@ const chartOptions = {
     axisBorder: {
       show: true,
       color: axisColors[props.dimY],
-    }
-  }
-}
+    },
+  },
+};
 
 const series = reactive([]);
 
 // Fill series with zeroes
-const dimXlength = Math.floor(simulationStore.dimensions[props.dimX] / props.granularity);
-const dimYlength = Math.floor(simulationStore.dimensions[props.dimY] / props.granularity);
+const dimXlength = simulation.dimensions[props.dimX] / props.buckets;
+const dimYlength = simulation.dimensions[props.dimY] / props.buckets;
 
-for(let dimy = 0; dimy < dimYlength; dimy++) {
+for (let bucket = 0; bucket < props.buckets; bucket++) {
   series.push({
-    name: `${dimy * props.granularity}`,
-    data: Array(dimXlength).fill(0),
-  })
+    name: `${Math.floor(bucket * dimXlength)}`,
+    data: Array(props.buckets).fill(0),
+  });
 }
 
 const resetState = () => {
-  for(let dimy = 0; dimy < dimYlength; dimy++) {
-    series[dimy].data = Array(dimXlength).fill(0);
+  for (let bucket = 0; bucket < props.buckets; bucket++) {
+    series[bucket].data = Array(props.buckets).fill(0);
   }
-}
+};
 
 const updateState = () => {
-  simulationStore.pastLocations.forEach((loc) => {
-    const dim1 = Math.floor(loc[props.dimX] / props.granularity);
-    const dim2 = Math.floor(loc[props.dimY] / props.granularity);
+  console.log("Heatmap: Update state");
+  simulation.activeAgents.forEach((agent) => {
+    const loc_dimx = agent.combinedPath.at(simulation.tick)[props.dimX];
+    const loc_dimy = agent.combinedPath.at(simulation.tick)[props.dimY];
+    const dim1 = Math.floor(loc_dimx / dimXlength);
+    const dim2 = Math.floor(loc_dimy / dimYlength);
     series[dim2].data[dim1] += 1;
-  })
-}
+  });
+  console.log("Heatmap: Done");
+};
 
 updateState();
 
-simulationStore.$subscribe(() => {
+onTick(() => {
   resetState();
   updateState();
-})
+});
 
+onAgentsSelected(() => {
+  resetState();
+  updateState();
+});
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

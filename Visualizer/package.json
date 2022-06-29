@@ -5,18 +5,25 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview --port 5050",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
+    "lint:fix": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore --fix"
   },
   "dependencies": {
+    "@mdi/js": "^6.6.96",
     "@vicons/ionicons5": "^0.12.0",
-    "@vueuse/core": "^7.6.2",
-    "apexcharts": "^3.33.1",
-    "axios": "^0.26.0",
-    "babylonjs": "^4.2.1",
+    "@vueuse/core": "^8.4.2",
+    "apexcharts": "^3.35.2",
+    "axios": "^0.27.2",
+    "babylonjs": "^5.5.6",
+    "earcut": "^2.2.3",
     "file-saver": "^2.0.5",
+    "lodash-es": "^4.17.21",
+    "mitt": "^3.0.0",
+    "ol": "^6.14.1",
     "pinia": "^2.0.11",
-    "vue": "^3.2.31",
-    "vue-router": "^4.0.12",
+    "simplify-js": "^1.2.4",
+    "vue": "^3.2.33",
+    "vue-router": "^4.0.15",
     "vue3-apexcharts": "^1.4.1"
   },
   "devDependencies": {
@@ -25,9 +32,9 @@
     "@vue/eslint-config-prettier": "^7.0.0",
     "eslint": "^8.10.0",
     "eslint-plugin-vue": "^8.2.0",
-    "naive-ui": "^2.25.5",
+    "naive-ui": "2.27.0",
     "prettier": "^2.5.1",
     "vfonts": "^0.0.3",
-    "vite": "^2.8.4"
+    "vite": "^2.9.9"
   }
 }

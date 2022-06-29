@@ -34,7 +34,7 @@ class Coordinate:
     def l2(self):
         return math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
-    def distance(self, other, l2: bool):
+    def distance(self, other, l2: bool = False):
         if l2:
             return ((self.x - other.x) ** 2 + (self.y - other.y) ** 2 + (self.z - other.xz) ** 2) ** 0.5
         else:
@@ -44,9 +44,11 @@ class Coordinate:
         return Coordinate(self.x, self.y, self.z)
 
     @staticmethod
-    def random(dimensions: "Coordinate"):
+    def random(dimensions: "Coordinate", strict_positive: bool = False):
+        lower = 1 if strict_positive else 0
         return Coordinate(
-            randint(0, dimensions.x-1),
-            randint(0, dimensions.y-1),
-            randint(0, dimensions.z-1),
+            randint(lower, dimensions.x-1),
+            randint(lower, dimensions.y-1),
+            randint(lower, dimensions.z-1),
         )
+

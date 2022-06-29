@@ -1,16 +1,14 @@
-import 'vfonts/Lato.css'
-import 'vfonts/FiraCode.css'
+import "vfonts/Lato.css";
+import "vfonts/FiraCode.css";
 
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import { createApp } from "vue";
+import { createPinia } from "pinia";
 
-import App from './App.vue'
-import router from './router'
+import App from "./App.vue";
+import router from "./router";
 
 import {
-  // create naive ui
   create,
-  // component
   NButton,
   NConfigProvider,
   NLoadingBarProvider,
@@ -31,6 +29,7 @@ import {
   NText,
   NP,
   NInput,
+  NInputGroup,
   NInputNumber,
   NForm,
   NFormItem,
@@ -41,7 +40,25 @@ import {
   NSelect,
   NAlert,
   NProgress,
-} from 'naive-ui'
+  NPageHeader,
+  NStatistic,
+  NBreadcrumb,
+  NBreadcrumbItem,
+  NAvatar,
+  NDropdown,
+  NNumberAnimation,
+  NDrawer,
+  NDrawerContent,
+  NDivider,
+  NTree,
+  NTimeline,
+  NTimelineItem,
+  NDataTable,
+  NModal,
+  NPopconfirm,
+  NTabs,
+  NTabPane,
+} from "naive-ui";
 
 const naive = create({
   components: [
@@ -65,6 +82,7 @@ const naive = create({
     NText,
     NP,
     NInput,
+    NInputGroup,
     NInputNumber,
     NForm,
     NFormItem,
@@ -75,13 +93,32 @@ const naive = create({
     NSelect,
     NAlert,
     NProgress,
-  ]
-})
+    NPageHeader,
+    NStatistic,
+    NBreadcrumb,
+    NBreadcrumbItem,
+    NAvatar,
+    NDropdown,
+    NNumberAnimation,
+    NDrawer,
+    NDrawerContent,
+    NDivider,
+    NTree,
+    NTimeline,
+    NTimelineItem,
+    NDataTable,
+    NModal,
+    NPopconfirm,
+    NTabs,
+    NTabPane,
+  ],
+});
 
-const app = createApp(App)
+const app = createApp(App);
+const store = createPinia();
 
-app.use(createPinia())
-app.use(router)
-app.use(naive)
+app.use(store);
+app.use(router);
+app.use(naive);
 
-app.mount('#app')
+app.mount("#app");

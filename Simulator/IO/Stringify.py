@@ -1,10 +1,11 @@
+from enum import Enum
 from typing import Tuple
 import json
 from datetime import datetime
 
 
 class Stringify:
-    
+
     def as_dict(self, ignore_keys=tuple([]), date_format="%Y-%m-%d") -> dict:
         """
         Converts an instance of any class into a dictionary recursively. Private attributes, whose name starting with
@@ -14,7 +15,7 @@ class Stringify:
         :param date_format: String format into which dates shall be converted
         """
         return Stringify.to_dict(self, ignore_keys=ignore_keys, date_format=date_format, stop_recursion=True)
-    
+
     def json(self, ignore_keys: Tuple[str] = tuple([]), date_format="%Y-%m-%d") -> str:
         """
         Create string representation of current instance that can be sent as JSON object
@@ -27,7 +28,7 @@ class Stringify:
             sort_keys=False,
             indent=4,
         )
-    
+
     def __getitem__(self, name: str) -> any:
         """
         Allows accessing properties of the instance using []-syntax
@@ -35,7 +36,7 @@ class Stringify:
         :return: The value behind 'name'
         """
         return getattr(self, name)
-    
+
     @staticmethod
     def to_dict(obj, ignore_keys=tuple([]), date_format="%Y-%m-%d", stop_recursion=False):
         """
@@ -59,9 +60,13 @@ class Stringify:
         # Convert tick
         if isinstance(obj, int):
             return int(obj)
+        # Convert enumerations
+        if isinstance(obj, Enum):
+            return obj.name
         # Convert class objects
         if hasattr(obj, "__dict__"):
-            return dict([(key, recall(value)) for key, value in obj.__dict__.items() if valid_entry(key, value)])
+            dictict = dict([(key, recall(value)) for key, value in obj.__dict__.items() if valid_entry(key, value)])
+            return dictict
         # Convert objects
         if isinstance(obj, dict):
             return dict([(key, recall(value)) for key, value in obj.items() if valid_entry(key, value)])
