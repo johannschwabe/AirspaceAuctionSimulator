@@ -138,7 +138,6 @@ const loadingBar = useLoadingBar();
 const loading = ref(true);
 let simulation;
 
-// loadingBar.start();
 const simulationStore = useSimulationStore();
 
 if (!hasSimulationSingleton()) {
