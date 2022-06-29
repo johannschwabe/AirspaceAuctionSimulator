@@ -57,8 +57,6 @@ export function useMainLight({ scene, x, y, z }) {
 export function useCamera({ x, y, z, scene, canvas }) {
   const target = new Vector3(0, (y / 4) * 2, 0);
   const camera = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, target, scene);
-  // const camera = new UniversalCamera("camera", new Vector3(0, 0, 0), scene);
-  // const camera = new FlyCamera("camera", new Vector3(0, 0, 0), scene);
   camera.attachControl(canvas, true);
   camera.setTarget(target);
   // camera.rollCorrect = 10;
