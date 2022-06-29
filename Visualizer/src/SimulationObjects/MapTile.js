@@ -53,7 +53,6 @@ export default class MapTile {
           return hole.map(([long, lat]) => this.extractPolygon([long, lat]));
         });
         const coordinates = coordinatesArray;
-        // const coordinates = simplify(coordinatesArray, 3, false);
         return {
           height,
           coordinates,
