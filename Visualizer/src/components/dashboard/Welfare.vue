@@ -77,13 +77,11 @@ const updateSeries = () => {
   series[1].data = achievedWelfare.map((y, x) => ({ x, y }));
 };
 
-
 onAgentsSelected(() => {
   updateSeries();
 });
 
 updateSeries();
-
 </script>
 
 <style scoped></style>

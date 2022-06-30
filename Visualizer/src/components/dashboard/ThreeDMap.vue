@@ -7,7 +7,7 @@ import { ref, onMounted } from "vue";
 import { onAgentsSelected, onFocusOffAgent, onTick } from "../../scripts/emitter";
 import {
   updateBlockers,
-  updateDrones,
+  updateDrones, updateFocus,
   useAxisIndicators,
   useBlockerCache,
   useBlockerMaterial,
@@ -24,7 +24,7 @@ import {
   useMainLight,
   useOrientationLights,
   useScene,
-  useShadows,
+  useShadows
 } from "../../scripts/3dmap";
 import { useSimulationSingleton } from "../../scripts/simulation";
 
@@ -51,10 +51,19 @@ const doDroneUpdate = () => {
   updateDrones({ scene, droneCache, x, z, focusOn });
 };
 
+const doFocusUpdate = () => {
+  updateFocus({
+    focusCache,
+    focusOn,
+    focusOff,
+  });
+};
+
 onTick(() => {
   console.log("3D TICK!");
   doBlockerUpdate();
   doDroneUpdate();
+  doFocusUpdate();
 });
 
 onAgentsSelected(() => {
