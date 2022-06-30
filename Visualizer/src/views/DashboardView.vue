@@ -11,7 +11,7 @@
     <div class="nav-margin">
       <n-grid cols="12">
         <!-- Left Part -->
-        <n-grid-item span="3">
+        <n-grid-item span="2">
           <n-grid cols="1">
             <n-grid-item>
               <agent-selector />
@@ -20,7 +20,7 @@
         </n-grid-item>
 
         <!-- Central Part -->
-        <n-grid-item span="6" id="drawer-target">
+        <n-grid-item span="8" id="drawer-target">
           <n-grid cols="1">
             <n-grid-item>
               <three-d-map />
@@ -29,7 +29,7 @@
         </n-grid-item>
 
         <!-- Right Part -->
-        <n-grid-item span="3">
+        <n-grid-item span="2">
           <n-grid cols="1">
             <n-grid-item>
               <welfare />
