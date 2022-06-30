@@ -9,6 +9,7 @@ from ..Blocker import Blocker
 
 if TYPE_CHECKING:
     from ..Generator.MapTile import MapTile
+    from ..Path import PathReallocation, SpaceReallocation
 
 
 class Environment:
@@ -98,8 +99,10 @@ class Environment:
         agent.add_allocated_segment(space)
         self.tree.insert(agent.id, space.min.list_rep() + space.max.list_rep())
 
-    def allocate_segments_for_agents(self, agents_segments: Dict[Agent, List[PathSegment|SpaceSegment]], time_step: Tick):
-        for agent, segments in agents_segments.items():
+    def allocate_segments_for_agents(self, agents_segments: List["PathReallocation | SpaceReallocation"], time_step: Tick):
+        for reallocation in agents_segments:
+            agent = reallocation.agent
+            segments = reallocation.segments
             if agent.id in self._agents:
                 self.deallocate_agent(agent, time_step)
             else:
@@ -112,14 +115,17 @@ class Environment:
             else:
                 raise Exception("You gufed")
 
-    def original_agents(self, agents_segments: Dict[Agent, List[PathSegment|SpaceSegment]], newcomers: List[Agent]):
-        res = {}
-        for agent, segments in agents_segments.items():
+    def original_agents(self,
+                        agents_segments: List["PathReallocation | SpaceReallocation"],
+                        newcomers: List[Agent]) -> List["PathReallocation | SpaceReallocation"]:
+        res = []
+        for reallocation in agents_segments:
+            agent_id = reallocation.agent.id
             newcomer_ids = [_agent.id for _agent in newcomers]
-            if agent.id in newcomer_ids:
-                res[newcomers[newcomer_ids.index(agent.id)]] = segments
+            if agent_id in newcomer_ids:
+                res.append(reallocation.correct_agent(newcomers[newcomer_ids.index(agent_id)]))
             else:
-                res[self._agents[agent.id]] = segments
+                res.append(reallocation.correct_agent(self._agents[agent_id]))
         return res
 
     def is_blocked(self, coord: TimeCoordinate, radius: int = 0, speed: int = 0) -> bool:

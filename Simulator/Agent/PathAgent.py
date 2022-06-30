@@ -1,8 +1,10 @@
 from abc import ABC
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from . import Agent
-from ..Path import PathSegment
+
+if TYPE_CHECKING:
+    from ..Path import PathSegment
 
 
 class PathAgent(Agent, ABC):
@@ -35,7 +37,7 @@ class PathAgent(Agent, ABC):
             airtime += path_segment[-1].t - path_segment[0].t
         return airtime
 
-    def add_allocated_segment(self, path_segment: PathSegment):
+    def add_allocated_segment(self, path_segment: "PathSegment"):
         if len(self._allocated_segments) > 0 and self._allocated_segments[-1].same(path_segment):
             self._allocated_segments[-1].join(path_segment)
         else:

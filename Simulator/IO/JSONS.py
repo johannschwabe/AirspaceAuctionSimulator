@@ -1,12 +1,11 @@
 import statistics
 from abc import ABC
-from enum import Enum
-from multiprocessing import Pool
 from typing import Dict, List, TYPE_CHECKING
 
 from .. import Blocker, Simulator, Statistics
 from ..Agent import Agent, PathAgent, SpaceAgent
 from ..Blocker.BuildingBlocker import BuildingBlocker
+from ..Enum import Reason
 from ..History import HistoryAgent
 from ..IO import Stringify
 from ..Generator.MapTile import MapTile
@@ -35,12 +34,6 @@ class Branch(Stringify):
         self.value: float = value
         self.reason: "Collision" = reason
 
-
-class Reason(Enum):
-    AGENT = 1
-    BLOCKER = 2
-    OWNER = 3
-    NOT_IMPLEMENTED = 4
 
 class JSONAgent(ABC):
     def __init__(
@@ -107,12 +100,12 @@ class JSONPathAgent(JSONAgent, Stringify):
 
         # First reallocation isn't a reallocation but an allocation
         for key, value in list(history_agent.past_allocations.items())[1:]:
-            branch_paths = [Path(path) for path in value]
+            branch_paths = [Path(path) for path in value["path"]]
             self.branches.append(Branch(
                 key,
                 branch_paths,
                 agent.value_for_segments(value),
-                Collision(Reason.NOT_IMPLEMENTED)
+                Collision(value["reason"])
             ))
 
 
