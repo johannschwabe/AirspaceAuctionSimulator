@@ -16,4 +16,8 @@ export default class Coordinate {
   toArrayCoordinate() {
     return [this.x, this.y, this.z];
   }
+
+  get xyz() {
+    return parseInt(`${this.x}${this.y}${this.z}`, 10);
+  }
 }

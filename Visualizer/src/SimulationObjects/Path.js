@@ -36,6 +36,10 @@ export default class Path {
     return this.ticks[this.lastTick];
   }
 
+  get coordinates() {
+    return Object.values(this.ticks);
+  }
+
   isActiveAtTick(tick) {
     return this.ticksInAir.includes(`${tick}`);
   }
@@ -46,6 +50,10 @@ export default class Path {
 
   atIndex(index) {
     return this.ticks[this.ticksInAir[parseInt(index, 10)]];
+  }
+
+  containsCoordinate(coordinate) {
+    return this.coordinates.some((coord) => coord.xyz === coordinate.xyz);
   }
 
   /**
@@ -61,5 +69,39 @@ export default class Path {
       });
     });
     return new Path({ t: rawPath });
+  }
+
+  /**
+   * Subtracts all segments from path_to_subtract from path and returns the
+   * path snippets that are exclusive to path
+   * @param {Path} path
+   * @param {Path} path_to_subtract
+   * @returns {Path[]}
+   */
+  static subtract(path, path_to_subtract) {
+    const path_segments = [];
+    let segment_ticks = {};
+    let off_segment = false;
+    Object.entries(path.ticks).forEach(([tick, coordinate]) => {
+      const distinct_path = !path_to_subtract.containsCoordinate(coordinate);
+      if (distinct_path && !off_segment && path.isActiveAtTick(tick - 1)) {
+        segment_ticks[tick - 1] = path.at(tick - 1);
+      }
+      if (distinct_path) {
+        segment_ticks[tick] = coordinate;
+      }
+      if (!distinct_path && off_segment) {
+        segment_ticks[tick] = coordinate;
+        const path_segment = new Path({ t: {} });
+        path_segment.ticks = segment_ticks;
+        path_segments.push(path_segment);
+        segment_ticks = {};
+        off_segment = false;
+      }
+      if (distinct_path) {
+        off_segment = true;
+      }
+    });
+    return path_segments;
   }
 }

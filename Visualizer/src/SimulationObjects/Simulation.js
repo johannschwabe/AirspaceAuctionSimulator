@@ -9,7 +9,7 @@ import Blocker from "./Blocker";
 import Statistics from "./Statistics";
 import Owner from "./Owner";
 import MapTile from "./MapTile";
-import { emitFocusOffAgent, onAgentsSelected, onTick } from "../scripts/emitter";
+import { emitFocusOffAgent, emitFocusOnAgent, onAgentsSelected, onTick } from "../scripts/emitter";
 
 export default class Simulation {
   /**
@@ -234,17 +234,20 @@ export default class Simulation {
    * @param {Agent} agent
    */
   focusOnAgent(agent) {
-    if (this.agentInFocus === agent) { return; }
+    if (this.agentInFocus === agent || !agent.combinedPath.isActiveAtTick(this.tick)) {
+      return;
+    }
     this._simulationStore.agentInFocus = true;
     this._simulationStore.agentInFocusId = agent.id;
     this._simulationStore.ownerInFocusId = agent.owner.id;
     this.agentInFocus = agent;
+    emitFocusOnAgent(agent);
   }
 
   focusOff() {
     this._simulationStore.agentInFocus = false;
-    emitFocusOffAgent();
     this.agentInFocus = null;
+    emitFocusOffAgent();
   }
 
   /**

@@ -123,6 +123,7 @@ const updateAgentSeries = () => {
 
 const updateEventSeries = () => {
   eventSeries[0].data = simulation.timeline.map((y, x) => ({ x, y: -y }));
+  eventSeries[1].data = simulation.timeline.map((y, x) => ({ x, y: -y }));
 };
 
 function updateTick(t) {

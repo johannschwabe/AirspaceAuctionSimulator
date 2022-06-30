@@ -10,6 +10,7 @@
       key-field="id"
       label-field="name"
       children-field="agents"
+      :node-props="nodeProps"
       :default-checked-keys="simulationStore.selectedAgentIDs"
       @update:checked-keys="updateCheckedKeys"
     />
@@ -22,6 +23,7 @@ import { isEmpty, xor } from "lodash-es";
 import { ref, computed } from "vue";
 import { useSimulationStore } from "../../stores/simulation";
 import { useSimulationSingleton } from "../../scripts/simulation";
+import PathAgent from "../../SimulationObjects/Agent";
 
 const simulationStore = useSimulationStore();
 const simulation = useSimulationSingleton();
@@ -42,6 +44,16 @@ const updateCheckedKeys = (v) => {
 const apply = () => {
   simulationStore.setSelectedAgentIDs(selectedAgentIDs.value);
 };
+
+const nodeProps = ({ option }) => ({
+  onClick() {
+    if (option instanceof PathAgent) {
+      console.log("FOCUS ON ", option);
+      simulation.focusOnAgent(option);
+    }
+    console.log("onClick OPTION", option instanceof PathAgent);
+  },
+});
 </script>
 
 <style scoped></style>
