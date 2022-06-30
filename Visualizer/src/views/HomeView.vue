@@ -64,7 +64,7 @@ const canRecover = ref(hasSimulationSingleton() || canRecoverSimulationSingleton
 
 const recoverSession = () => {
   loadingBar.start();
-  router.push({ name: 'dashboard' });
+  router.push({ name: "dashboard" });
 };
 
 const ignoreRecoverableSession = () => {

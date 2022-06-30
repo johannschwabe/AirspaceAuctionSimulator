@@ -25,7 +25,7 @@ def setup_empty():
     allocator = BiddingAllocator()
     owners = []
 
-    for i in range(2):
+    for i in range(15):
         owners.append(BiddingABOwner("Schnabeltier" + str(i),
                                      color_generator(),
                                      [random.randint(0, 5) for _ in range(10)],
