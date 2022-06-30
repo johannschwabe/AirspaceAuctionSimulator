@@ -105,7 +105,7 @@ class JSONPathAgent(JSONAgent, Stringify):
                 key,
                 branch_paths,
                 agent.value_for_segments(value),
-                Collision(Reason.NOT_IMPLEMENTED)
+                Collision(value["reason"])
             ))
 
 

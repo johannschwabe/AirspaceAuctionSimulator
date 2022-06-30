@@ -25,7 +25,7 @@ def setup_empty():
     allocator = BiddingAllocator()
     owners = []
 
-    for i in range(2):
+    for i in range(15):
         owners.append(BiddingABOwner("Schnabeltier" + str(i),
                                      color_generator(),
                                      [random.randint(0, 5) for _ in range(10)],
@@ -103,7 +103,7 @@ def color_generator():
 
         if r + g + b > 350:
             break
-    return f"#{hex(r)[2:]}{hex(g)[2:]}{hex(b)[2:]}"
+    return f"#{hex(r)[2:]:02}{hex(g)[2:]:02}{hex(b)[2:]:02}"
 
 
 
