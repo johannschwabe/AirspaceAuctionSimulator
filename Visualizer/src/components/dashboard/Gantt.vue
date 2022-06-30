@@ -57,10 +57,14 @@ const updateSeries = () => {
     agent.paths.forEach((path) => {
       const start = path.firstTick;
       const end = path.lastTick;
+      if (start === null || end === null) {
+        console.log("failure");
+      }
       gantt.push({
         x: agent.name,
         y: [start, end],
         fillColor: agent.color,
+        // fillColor: "#259721",
       });
     });
   });

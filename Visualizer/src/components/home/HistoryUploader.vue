@@ -35,7 +35,7 @@ const onUpload = async (upload) => {
     const simulation = new Simulation(data);
     await simulation.load();
     setSimulationSingleton(simulation);
-    router.push({ name: "dashboard" });
+    await router.push({ name: "dashboard" });
   };
   fileReader.onerror = (error) => {
     loadingBar.error();
