@@ -20,6 +20,7 @@ import {
 } from "babylonjs";
 import earcut from "earcut";
 import { useSimulationSingleton } from "./simulation";
+import Path from "../SimulationObjects/Path";
 
 export function useEngine({ canvas }) {
   return new Engine(canvas.value, true, {
@@ -233,6 +234,7 @@ export function useFocusCache({ scene }) {
     nearFieldMaterial,
     farFieldSphere,
     farFieldMaterial,
+    pathLines: [],
     agent: undefined,
   };
 }
@@ -307,6 +309,7 @@ export function useFocusFunctions({
   focusCache,
   mainLight,
   hemisphereLight,
+  droneCache,
 }) {
   const simulation = useSimulationSingleton();
   const focusOn = ({ agent, agent_x, agent_y, agent_z, update }) => {
@@ -356,6 +359,46 @@ export function useFocusFunctions({
       farFieldMaterial.emissiveColor = new Color3.FromHexString(agent.color);
     }
 
+    // Darken all other drones
+    Object.values(droneCache).forEach(({ meshes }) => {
+      const [line, sphere] = meshes;
+      line.alpha = 0.1;
+      sphere.material.alpha = 0.2;
+    });
+
+    // Highlight own agents branches
+    if (!update) {
+      focusCache.pathLines.forEach((line) => {
+        console.log("Dispose", line);
+        line.dispose();
+      });
+      const drawPath = ({ path, color, alpha }) => {
+        const points = path.ticksInAir.map((_t, i) => {
+          const { x: ax, y: ay, z: az } = path.atIndex(i);
+          return new Vector3(ax - x / 2, ay, az - z / 2);
+        });
+        const pathLine = MeshBuilder.CreateLines(`branch-agent-${agent.id}`, {
+          points,
+        });
+        pathLine.alpha = alpha;
+        pathLine.color = new Color3.FromHexString(color);
+        return pathLine;
+      };
+      const pathLines = [];
+      agent.branches.forEach((branch) => {
+        branch.paths.forEach((branch_path) => {
+          const path_segments = Path.subtract(branch_path, agent.combinedPath);
+          path_segments.forEach((path) => {
+            pathLines.push(drawPath({ path, color: "#ffffff", alpha: 1 }));
+          });
+        });
+      });
+      agent.paths.forEach((path) => {
+        pathLines.push(drawPath({ path, color: agent.color, alpha: 1.0 }));
+      });
+      focusCache.pathLines = pathLines;
+    }
+
     simulation.focusOnAgent(agent);
   };
   const focusOff = () => {
@@ -374,6 +417,20 @@ export function useFocusFunctions({
     const { nearFieldSphere, farFieldSphere } = focusCache;
     nearFieldSphere.scaling = new Vector3(0, 0, 0);
     farFieldSphere.scaling = new Vector3(0, 0, 0);
+
+    // Set opacity of other drones to regular values
+    Object.values(droneCache).forEach(({ meshes }) => {
+      const [line, sphere] = meshes;
+      line.alpha = 0.5;
+      sphere.material.alpha = 1.0;
+    });
+
+    // Disable highlighted paths
+    focusCache.pathLines.forEach((line) => {
+      console.log("Dispose", line);
+      line.dispose();
+    });
+    focusCache.pathLines = [];
   };
   return {
     focusOn,

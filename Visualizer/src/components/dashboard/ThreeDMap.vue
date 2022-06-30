@@ -105,6 +105,7 @@ onMounted(() => {
     mainLight,
     hemisphereLight,
     selectionLight,
+    droneCache,
   });
   focusOn = focusFunctions.focusOn;
   focusOff = focusFunctions.focusOff;
