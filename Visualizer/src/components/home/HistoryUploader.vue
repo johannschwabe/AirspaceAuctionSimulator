@@ -22,6 +22,7 @@ import { useRouter } from "vue-router";
 
 import Simulation from "../../SimulationObjects/Simulation";
 import { setSimulationSingleton } from "../../scripts/simulation";
+import { persistSimulation } from "../../API/api";
 
 const message = useMessage();
 const loadingBar = useLoadingBar();
@@ -32,10 +33,11 @@ const onUpload = async (upload) => {
   const fileReader = new FileReader();
   fileReader.onload = async (event) => {
     const data = JSON.parse(event.target.result);
+    persistSimulation(data);
     const simulation = new Simulation(data);
     await simulation.load();
     setSimulationSingleton(simulation);
-    router.push({ name: "dashboard" });
+    await router.push({ name: "dashboard" });
   };
   fileReader.onerror = (error) => {
     loadingBar.error();
