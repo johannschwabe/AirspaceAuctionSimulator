@@ -17,7 +17,6 @@ export class FlightEvent {
     this.content = content;
   }
 
-
   static get sortEventsFunction() {
     return (e1, e2) => {
       if (e1.tick === e2.tick) {

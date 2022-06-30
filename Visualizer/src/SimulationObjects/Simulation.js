@@ -234,6 +234,7 @@ export default class Simulation {
    * @param {Agent} agent
    */
   focusOnAgent(agent) {
+    if (this.agentInFocus === agent) { return; }
     this._simulationStore.agentInFocus = true;
     this._simulationStore.agentInFocusId = agent.id;
     this._simulationStore.ownerInFocusId = agent.owner.id;
