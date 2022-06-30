@@ -1,6 +1,6 @@
 from typing import List, Dict, TYPE_CHECKING
 from time import time
-from .Path import PathSegment
+from .Path import PathSegment, PathReallocation, SpaceReallocation
 from .Time import Tick
 from .Agent import Agent
 from .Coordinate import TimeCoordinate
@@ -37,7 +37,7 @@ class Simulator:
             history_updated_t = time() * 1000
             temp_env = self.environment.clone()
             temp_env_created_t = time() * 1000
-            cloned_agents_paths: Dict[Agent, List[PathSegment]] = self.allocator.temp_allocation(newcomers, temp_env, self.time_step)
+            cloned_agents_paths: List[PathReallocation | SpaceReallocation] = self.allocator.temp_allocation(newcomers, temp_env, self.time_step)
             temp_allocations_t = time() * 1000
             agents_paths = self.environment.original_agents(cloned_agents_paths, newcomers)
             path_translated_t = time() * 1000
