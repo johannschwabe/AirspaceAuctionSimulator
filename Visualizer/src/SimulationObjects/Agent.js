@@ -11,7 +11,7 @@ export default class PathAgent {
    * @param {Simulation} simulation
    */
   constructor(rawAgent, owner, simulation) {
-    this.agentType = AgentTypeEnum.fromString(rawAgent.agent_type);
+    this.agentType = rawAgent.agent_type;
     this.id = rawAgent.id;
     this.name = rawAgent.name;
     this.speed = rawAgent.speed;
