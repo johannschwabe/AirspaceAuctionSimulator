@@ -14,15 +14,7 @@
       :default-checked-keys="simulationStore.selectedAgentIDs"
       @update:checked-keys="updateCheckedKeys"
     />
-    <n-button
-      block
-      ghost
-      type="primary"
-      @click.stop="apply"
-      :disabled="!changeMade"
-    >
-      Apply selection
-    </n-button>
+    <n-button block ghost type="primary" @click.stop="apply" :disabled="!changeMade"> Apply selection </n-button>
   </n-space>
 </template>
 
@@ -41,9 +33,7 @@ const selectedAgentIDs = ref([...simulationStore.selectedAgentIDs]);
 const data = simulation.owners;
 
 const changeMade = computed(() => {
-  return !isEmpty(
-    xor(selectedAgentIDs.value, simulationStore.selectedAgentIDs)
-  );
+  return !isEmpty(xor(selectedAgentIDs.value, simulationStore.selectedAgentIDs));
 });
 
 const updateCheckedKeys = (v) => {

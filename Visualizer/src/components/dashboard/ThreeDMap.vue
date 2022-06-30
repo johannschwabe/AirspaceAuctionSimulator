@@ -4,12 +4,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import {
-  onAgentsSelected,
-  onFocusOffAgent,
-  onFocusOnAgent,
-  onTick,
-} from "../../scripts/emitter";
+import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent, onTick } from "../../scripts/emitter";
 import {
   updateBlockers,
   updateDrones,
@@ -38,7 +33,7 @@ const simulation = useSimulationSingleton();
 
 const canvas = ref(null);
 
-let engine, scene;
+let engine, scene, camera;
 let mainLight, hemisphereLight, selectionLight;
 let shadows;
 let focusOn, focusOff;
@@ -78,11 +73,7 @@ onAgentsSelected(() => {
 
 onFocusOnAgent(() => {
   const agent = simulation.agentInFocus;
-  const {
-    x: agent_x,
-    y: agent_y,
-    z: agent_z,
-  } = agent.combinedPath.at(simulation.tick);
+  const { x: agent_x, y: agent_y, z: agent_z } = agent.combinedPath.at(simulation.tick);
   focusOn({ agent, agent_x, agent_y, agent_z });
 });
 
@@ -103,7 +94,7 @@ onMounted(() => {
 
   blockerMaterial = useBlockerMaterial({ scene });
 
-  useCamera({ x, y, z, scene, canvas });
+  camera = useCamera({ x, y, z, scene, canvas });
   useGround({ scene, x, y, z });
 
   useAxisIndicators({ scene, x, y, z });
@@ -122,6 +113,7 @@ onMounted(() => {
     hemisphereLight,
     selectionLight,
     droneCache,
+    camera,
   });
   focusOn = focusFunctions.focusOn;
   focusOff = focusFunctions.focusOff;

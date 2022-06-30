@@ -1,8 +1,6 @@
 import {
   ActionManager,
   ArcRotateCamera,
-  UniversalCamera,
-  FlyCamera,
   AxesViewer,
   Color3,
   DirectionalLight,
@@ -16,7 +14,6 @@ import {
   StandardMaterial,
   Vector3,
   Color4,
-  Mesh,
 } from "babylonjs";
 import earcut from "earcut";
 import { useSimulationSingleton } from "./simulation";
@@ -60,7 +57,7 @@ export function useMainLight({ scene, x, y, z }) {
 }
 
 export function useCamera({ x, y, z, scene, canvas }) {
-  const target = new Vector3(0, (y / 4) * 2, 0);
+  const target = new Vector3(0, y / 2, 0);
   const camera = new ArcRotateCamera(
     "camera",
     -Math.PI / 2,
@@ -310,6 +307,7 @@ export function useFocusFunctions({
   mainLight,
   hemisphereLight,
   droneCache,
+  camera,
 }) {
   const simulation = useSimulationSingleton();
   const focusOn = ({ agent, agent_x, agent_y, agent_z, update }) => {
@@ -399,6 +397,10 @@ export function useFocusFunctions({
       focusCache.pathLines = pathLines;
     }
 
+    // Focus camera to agent
+    const target = new Vector3(agent_x - x / 2, agent_y, agent_z - z / 2);
+    camera.setTarget(target);
+
     simulation.focusOnAgent(agent);
   };
   const focusOff = () => {
@@ -431,6 +433,10 @@ export function useFocusFunctions({
       line.dispose();
     });
     focusCache.pathLines = [];
+
+    // Focus camera to base again
+    const target = new Vector3(0, y / 2, 0);
+    camera.setTarget(target);
   };
   return {
     focusOn,

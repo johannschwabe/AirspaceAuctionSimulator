@@ -1,5 +1,4 @@
 import axios from "axios";
-import simplify from "simplify-js";
 
 export default class MapTile {
   /**
