@@ -113,7 +113,7 @@
 </template>
 
 <script setup>
-import { nextTick, onUnmounted, ref } from "vue";
+import { nextTick, onUnmounted, ref, shallowRef } from "vue";
 import { useRouter } from "vue-router";
 
 import loadingGif from "../assets/loading.gif";
@@ -136,7 +136,7 @@ const message = useMessage();
 const loadingBar = useLoadingBar();
 
 const loading = ref(true);
-let simulation;
+const simulation = shallowRef({});
 
 const simulationStore = useSimulationStore();
 
@@ -144,7 +144,7 @@ if (!hasSimulationSingleton()) {
   loadSimulationSingleton()
     .then((simulationSingleton) => {
       message.success("Simulation recovered!");
-      simulation = simulationSingleton;
+      simulation.value = simulationSingleton;
     })
     .catch((e) => {
       console.error(e);
@@ -159,11 +159,11 @@ if (!hasSimulationSingleton()) {
     });
 } else {
   message.success("Simulation loaded!");
-  simulation = useSimulationSingleton();
+  simulation.value = useSimulationSingleton();
   loadingBar.finish();
   loading.value = false;
   const allAgentIds = [];
-  simulation.owners.forEach((owner) => {
+  simulation.value.owners.forEach((owner) => {
     allAgentIds.push(owner.id);
     owner.agents.forEach((agent) => {
       allAgentIds.push(agent.id);

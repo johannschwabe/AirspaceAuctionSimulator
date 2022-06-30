@@ -4,10 +4,16 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { onAgentsSelected, onFocusOffAgent, onTick } from "../../scripts/emitter";
+import {
+  onAgentsSelected,
+  onFocusOffAgent,
+  onFocusOnAgent,
+  onTick,
+} from "../../scripts/emitter";
 import {
   updateBlockers,
-  updateDrones, updateFocus,
+  updateDrones,
+  updateFocus,
   useAxisIndicators,
   useBlockerCache,
   useBlockerMaterial,
@@ -24,7 +30,7 @@ import {
   useMainLight,
   useOrientationLights,
   useScene,
-  useShadows
+  useShadows,
 } from "../../scripts/3dmap";
 import { useSimulationSingleton } from "../../scripts/simulation";
 
@@ -70,6 +76,16 @@ onAgentsSelected(() => {
   doDroneUpdate();
 });
 
+onFocusOnAgent(() => {
+  const agent = simulation.agentInFocus;
+  const {
+    x: agent_x,
+    y: agent_y,
+    z: agent_z,
+  } = agent.combinedPath.at(simulation.tick);
+  focusOn({ agent, agent_x, agent_y, agent_z });
+});
+
 onFocusOffAgent(() => {
   focusOff();
 });
@@ -110,7 +126,12 @@ onMounted(() => {
   focusOn = focusFunctions.focusOn;
   focusOff = focusFunctions.focusOff;
   useBlockers({ scene, blockerCache, shadows, x, z, blockerMaterial });
-  useBuildings({ scene, shadows, mapTiles: simulation.mapTiles, blockerMaterial });
+  useBuildings({
+    scene,
+    shadows,
+    mapTiles: simulation.mapTiles,
+    blockerMaterial,
+  });
   useDrones({
     scene,
     droneCache,
