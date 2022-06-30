@@ -1,5 +1,8 @@
 <template>
-  <n-page-header :subtitle="simulation.description" @back="() => router.push('/')">
+  <n-page-header
+    :subtitle="simulation.description"
+    @back="() => router.push('/')"
+  >
     <n-grid :cols="stats.length">
       <n-gi v-for="stat in stats" :key="stat.label">
         <n-statistic :label="stat.label" tabular-nums>
@@ -13,7 +16,9 @@
 
     <template #header>
       <n-breadcrumb>
-        <n-breadcrumb-item @click="() => router.push('/')"> Home </n-breadcrumb-item>
+        <n-breadcrumb-item @click="() => router.push('/')">
+          Home
+        </n-breadcrumb-item>
         <n-breadcrumb-item>{{ simulation.name }}</n-breadcrumb-item>
       </n-breadcrumb>
     </template>
@@ -27,15 +32,40 @@
     <template #avatar>
       <n-avatar :src="logo" color="transparent" />
     </template>
+
+    <template #extra>
+      <n-button
+        icon-placement="right"
+        style="margin-right: 15px"
+        @click="downloadSimulation"
+      >
+        <template #icon>
+          <n-icon>
+            <cloud-download-outline />
+          </n-icon>
+        </template>
+        Download
+      </n-button>
+    </template>
   </n-page-header>
 </template>
 
 <script setup>
 import logo from "../../assets/drone.png";
-import { Cube, FingerPrint, Fish, HappyOutline, GitBranch, GitPullRequest } from "@vicons/ionicons5";
+import {
+  Cube,
+  FingerPrint,
+  Fish,
+  HappyOutline,
+  GitBranch,
+  GitPullRequest,
+} from "@vicons/ionicons5";
+import { CloudDownloadOutline } from "@vicons/ionicons5";
 
 import { computed } from "vue";
 import { useRouter } from "vue-router";
+
+import { downloadSimulation } from "../../API/api";
 import { useSimulationSingleton } from "../../scripts/simulation";
 
 const router = useRouter();
