@@ -55,5 +55,11 @@ class Agent(ABC):
     def set_allocated_segments(self, segments: List["PathSegment|SpaceSegment"]):
         self._allocated_segments = segments
 
+    def generalized_bid(self):
+        return {
+            "No Bid": "-",
+            "!value": -1
+        }
+
     def __repr__(self):
         return str(self.id)

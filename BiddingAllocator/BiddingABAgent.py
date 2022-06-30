@@ -36,3 +36,9 @@ class BiddingABAgent(ABAgent):
         clone.is_clone = True
         Agent._id -= 1
         return clone
+
+    def generalized_bid(self):
+        return {
+            "Prio": self.priority,
+            "!value": self.priority
+        }

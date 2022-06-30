@@ -54,7 +54,15 @@ const datapoints = computed(() => [
   { label: "Agent ID", value: simulation.agentInFocus.id, icon: FingerPrint },
   { label: "Type", value: simulation.agentInFocus.agentType?.name || "-", icon: Airplane },
   { label: "Battery", value: simulation.agentInFocus.battery, icon: BatteryHalf },
-  { label: "Bid", value: simulation.agentInFocus.bid, icon: Wallet },
+  ...Object.entries(simulation.agentInFocus.bid)
+    .filter(([key, _]) => key !== "!value")
+    .map(([key, value]) => {
+      return {
+        label: key,
+        value: value,
+        icon: Wallet,
+      };
+    }),
   { label: "Speed", value: simulation.agentInFocus.speed, icon: Speedometer },
   { label: "Welfare", value: simulation.agentInFocus.welfare, icon: Happy },
   { label: "Time in Air", value: simulation.agentInFocus.timeInAir, icon: Timer },

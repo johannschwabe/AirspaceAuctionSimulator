@@ -40,7 +40,7 @@ class JSONAgent(ABC):
         self,
         agent: Agent,
         non_colliding_welfare: float,
-        bid: int,
+        bid: Dict[str, str | int | float],
         owner_id: int,
         owner_name: str,
     ):
@@ -50,7 +50,7 @@ class JSONAgent(ABC):
 
         self.non_colliding_welfare: float = non_colliding_welfare
 
-        self.bid: int = bid
+        self.bid: Dict[str, str | int | float] = bid
         self.owner_id: int = owner_id
         self.owner_name: str = owner_name
         self.name: str = f"{self.owner_name}-{self.agent_type}-{self.id}"
@@ -61,7 +61,7 @@ class JSONSpaceAgent(JSONAgent, Stringify):
         self,
         agent: SpaceAgent,
         non_colliding_welfare: float,
-        bid: int,
+        bid: Dict[str, str | int | float],
         owner_id: int,
         owner_name: str,
     ):
@@ -78,7 +78,7 @@ class JSONPathAgent(JSONAgent, Stringify):
         far_field_intersections: int,
         near_field_violations: int,
         far_field_violations: int,
-        bid: int,
+        bid: Dict[str, str | int | float],
         owner_id: int,
         owner_name: str,
     ):
@@ -117,7 +117,7 @@ class JSONOwner(Stringify):
         self.agents: List[JSONAgent] = agents
         self.total_time_in_air: int = sum([agent.time_in_air if isinstance(agent, JSONPathAgent) else 0 for agent in self.agents])
 
-        bids = [agent.bid for agent in self.agents]
+        bids = [agent.bid["!value"] for agent in self.agents]
         self.total_bid_value: int = sum(bids)
         self.mean_bid_value: float = statistics.mean(bids)
         self.median_bid_value: float = statistics.median(bids)
@@ -213,7 +213,7 @@ def build_json(simulator: Simulator, name: str, description: str):
                     close_passings[agent.id]["total_far_field_intersection"],
                     close_passings[agent.id]["total_near_field_violations"],
                     close_passings[agent.id]["total_far_field_violations"],
-                    0,
+                    agent.generalized_bid(),
                     owner.id,
                     owner.name,
                 ))
