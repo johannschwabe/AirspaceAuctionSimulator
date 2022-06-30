@@ -52,7 +52,7 @@ import { useSimulationSingleton } from "../../scripts/simulation";
 const simulation = useSimulationSingleton();
 const datapoints = computed(() => [
   { label: "Agent ID", value: simulation.agentInFocus.id, icon: FingerPrint },
-  { label: "Type", value: simulation.agentInFocus.agentType?.name || "-", icon: Airplane },
+  { label: "Type", value: simulation.agentInFocus.agentType, icon: Airplane },
   { label: "Battery", value: simulation.agentInFocus.battery, icon: BatteryHalf },
   ...Object.entries(simulation.agentInFocus.bid)
     .filter(([key, _]) => key !== "!value")
