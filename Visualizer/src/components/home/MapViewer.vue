@@ -132,10 +132,11 @@ function onClickOrDrag(event) {
   if (
     gridCoords[0] >= 0 &&
     gridCoords[1] >= 0 &&
-    gridCoords[0] < props.dimension.x &&
-    gridCoords[1] < props.dimension.z
+    gridCoords[1] < props.dimension.x &&
+    gridCoords[0] < props.dimension.z
   ) {
-    const key = `${gridCoords[0]}_${gridCoords[1]}`;
+    // Inverted x coordinate
+    const key = `${props.dimension.x - gridCoords[1]}_${gridCoords[0]}`;
     switch (selectionType.value) {
       case "heatmap":
         if (heatmapValue.keys[key] !== undefined) {
