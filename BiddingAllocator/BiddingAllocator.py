@@ -39,13 +39,22 @@ class BiddingAllocator(Allocator):
             if isinstance(bid, BiddingStationaryBid) and isinstance(agent, BiddingStationaryAgent):
                 space_segments = []
                 for block in bid.blocks:
-                    intersecting_agents = env.intersect_box(block[0], block[1], True)
-                    blocking_agents = [_agent for _agent in intersecting_agents if
-                                       _agent.priority <= agent.priority and _agent.id != agent.id]
-                    if len(blocking_agents) == 0:
+                    intersecting_agents = env.intersect_box(block[0], block[1], False)
+                    blocking_agents = set()
+                    allocateable = True
+                    for agent_id in intersecting_agents:
+                        if agent_id == agent.id:
+                            continue
+                        colliding_agent = env.get_agent(agent_id)
+                        if colliding_agent.priority < agent.priority:
+                            blocking_agents.add(colliding_agent)
+                        else:
+                            allocateable = False
+                            break
+                    if allocateable:
                         space_segments.append(SpaceSegment(block[0], block[1]))
-                        to_add = to_add.union(intersecting_agents)
-                        for agent_to_remove in intersecting_agents:
+                        to_add = to_add.union(blocking_agents)
+                        for agent_to_remove in blocking_agents:
                             print(f"reallocating: {agent_to_remove.id}")
                             env.deallocate_agent(agent_to_remove, tick)
 
@@ -54,4 +63,4 @@ class BiddingAllocator(Allocator):
                 res.append(SpaceReallocation(agent, space_segments, reallocation_reason))
                 if agent.id not in env.get_agents():
                     env.add_agent(agent)
-                return res
+        return res
