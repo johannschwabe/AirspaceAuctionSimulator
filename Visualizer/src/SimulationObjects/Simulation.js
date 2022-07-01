@@ -26,7 +26,12 @@ export default class Simulation {
      * were spawned. Agents might have flight-times exceeding t!
      * @type {Coordinate4D}
      */
-    this.dimensions = new Coordinate4D(...Object.values(rawSimulation.environment.dimensions));
+    this.dimensions = new Coordinate4D(
+      rawSimulation.environment.dimensions.x,
+      rawSimulation.environment.dimensions.y,
+      rawSimulation.environment.dimensions.z,
+      rawSimulation.environment.dimensions.t
+    );
 
     /**
      * Object containing statistics about the simulation
