@@ -1,4 +1,4 @@
-from random import random, randint
+from random import random
 
 from .Coordinate3D import Coordinate3D
 

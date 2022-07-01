@@ -28,9 +28,9 @@ class ABAOwner(PathOwner):
             distance = start.inter_temporal_distance(target)
             travel_time = distance * speed
             target.t = start.t + travel_time + stay + random.randint(0, 100)
-            agent = ABAAgent(start, target, speed=speed, battery=travel_time * 2, stay=stay)
+            agent = ABAAgent(start, target, speed=speed, battery=travel_time * 4, stay=stay)
             res.append(agent)
-            print(f"A-B-A created {agent}")
+            print(f"A-B-A created {agent}: {start} --> {target}")
 
         self.agents += res
         return res

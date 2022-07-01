@@ -104,25 +104,9 @@ class Generator:
             self.simulator.tick()
 
     @staticmethod
-    def creation_ticks(duration, total, std=-1) -> List[int]:
+    def creation_ticks(duration, total) -> List[int]:
         res = []
-        if duration == 1:
-            return [0]*total
-        if duration == 2:
-            return ([0] * int(total/2)) + ([1] * int(total/2))
+        for _ in range(total):
+            res.append(random.randint(0, duration - 1))
 
-        if std == -1:
-            std = total/duration/3
-        sum = 0
-        for i in range(duration-2):
-            expected = (total - sum)/(duration - i)
-            next = max(int(round(random.gauss(expected, std))), 0)
-            res.extend(next*[i])
-            sum += next
-        next_1 = max(int((total-sum)/2), 0)
-        res.extend(next_1 * [duration - 2])
-        sum += next_1
-        next_2 = max(total - sum, 0)
-        res.extend(next_2* [duration - 1])
-        sum += next_2
         return res

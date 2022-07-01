@@ -1,5 +1,4 @@
 import math
-from random import randint
 
 from Simulator.Coordinate import Coordinate2D
 

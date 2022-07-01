@@ -38,6 +38,7 @@ class PathOwner(Owner, ABC):
             coord.y += 1
             if coord.y >= env.get_dim().y:
                 coord.y = env.min_height
+                print("BLOCKED")
                 break
 
         return coord

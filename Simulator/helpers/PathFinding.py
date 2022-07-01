@@ -35,7 +35,7 @@ def astar(
     valid_time = 0
     in_check_t = 0
     in_check_2_t = 0
-    MAX_ITER = 10000
+    MAX_ITER = 1000000
 
     while len(open_nodes) > 0 and steps < MAX_ITER:
         steps += 1

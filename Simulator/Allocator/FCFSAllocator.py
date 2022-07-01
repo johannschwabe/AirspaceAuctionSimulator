@@ -58,31 +58,6 @@ class FCFSAllocator(Allocator):
                 env.allocate_path_for_agent(agent, optimal_path_segments)
                 env.add_agent(agent)
 
-            elif isinstance(bid, StationaryBid) and isinstance(agent, SpaceAgent):
-                path = []
-                for t in range(bid.start_t, bid.end_t + 1):
-                    path_t = []
-                    occupied = False
-                    for coordinate in bid.block:
-                        time_coord = Coordinate4D(coordinate.x, coordinate.y, coordinate.z, t)
-                        if env.is_valid_for_allocation(time_coord, agent):
-                            path_t.append(time_coord)
-                        else:
-                            occupied = True
-                            break
-
-                    if not occupied:
-                        path += path_t
-                    else:
-                        if len(path) > 0:
-                            optimal_path_segments.append(path)
-                        path = []
-
-                if len(path) > 0:
-                    optimal_path_segments.append(path)
-                res.append(SpaceReallocation(agent, optimal_path_segments, Reason.FIRST_ALLOCATION))
-                env.allocate_spaces_for_agent(agent, optimal_path_segments)
-                env.add_agent(agent)
             elif isinstance(bid, ABCBid) and isinstance(agent, PathAgent):
                 a = bid.locations[0]
                 time = 0
@@ -109,5 +84,31 @@ class FCFSAllocator(Allocator):
 
                 res.append(PathReallocation(agent, optimal_path_segments, Reason.FIRST_ALLOCATION))
                 env.allocate_path_for_agent(agent, optimal_path_segments)
+                env.add_agent(agent)
+
+            elif isinstance(bid, StationaryBid) and isinstance(agent, SpaceAgent):
+                path = []
+                for t in range(bid.start_t, bid.end_t + 1):
+                    path_t = []
+                    occupied = False
+                    for coordinate in bid.block:
+                        time_coord = Coordinate4D(coordinate.x, coordinate.y, coordinate.z, t)
+                        if env.is_valid_for_allocation(time_coord, agent):
+                            path_t.append(time_coord)
+                        else:
+                            occupied = True
+                            break
+
+                    if not occupied:
+                        path += path_t
+                    else:
+                        if len(path) > 0:
+                            optimal_path_segments.append(path)
+                        path = []
+
+                if len(path) > 0:
+                    optimal_path_segments.append(path)
+                res.append(SpaceReallocation(agent, optimal_path_segments, Reason.FIRST_ALLOCATION))
+                env.allocate_spaces_for_agent(agent, optimal_path_segments)
                 env.add_agent(agent)
         return res

@@ -1,6 +1,4 @@
 import math
-from random import randint
-
 
 class Coordinate2D:
 
