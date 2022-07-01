@@ -40,12 +40,3 @@ class Coordinate2D:
 
     def clone(self):
         return Coordinate2D(self.x, self.z)
-
-    @staticmethod
-    def random(dimensions: "Coordinate2D", strict_positive: bool = False):
-        lower = 1 if strict_positive else 0
-        return Coordinate2D(
-            randint(lower, dimensions.x-1),
-            randint(lower, dimensions.z-1),
-        )
-

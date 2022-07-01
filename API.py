@@ -76,7 +76,6 @@ class SimulationConfigType(BaseModel):
 
 @app.post("/simulation")
 def read_root(config: SimulationConfigType):
-    print(config)
     dimensions = Coordinate4D(config.dimension.x, config.dimension.y, config.dimension.z, config.dimension.t)
     if config.map:
         topLeftCoordinate = config.map.topLeftCoordinate

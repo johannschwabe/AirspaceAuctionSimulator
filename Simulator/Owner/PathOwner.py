@@ -14,7 +14,7 @@ class PathOwner(Owner, ABC):
         self.stops = stops
 
     @staticmethod
-    def generate_stop_coordinate(stop: PathStop, env: Environment, t: int):
+    def generate_stop_coordinate(stop: PathStop, env: Environment, t: int, near_radius: int, speed: int):
         coord: Coordinate4D
         if stop.type == "random":
             dimensions = env.dimension
@@ -33,4 +33,11 @@ class PathOwner(Owner, ABC):
             coord = Coordinate4D(winner.x, env.min_height, winner.z, t)
         else:
             raise Exception("invalid stop type:", stop)
+
+        while env.is_blocked(coord, near_radius, speed):
+            coord.y += 1
+            if coord.y >= env.get_dim().y:
+                coord.y = env.min_height
+                break
+
         return coord

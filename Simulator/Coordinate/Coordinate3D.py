@@ -45,13 +45,3 @@ class Coordinate3D(Coordinate2D):
 
     def clone(self):
         return Coordinate3D(self.x, self.y, self.z)
-
-    @staticmethod
-    def random(dimensions: "Coordinate3D", strict_positive: bool = False):
-        lower = 1 if strict_positive else 0
-        return Coordinate3D(
-            randint(lower, dimensions.x-1),
-            randint(lower, dimensions.y-1),
-            randint(lower, dimensions.z-1),
-        )
-

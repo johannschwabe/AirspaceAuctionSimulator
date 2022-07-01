@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 
 class ABOwner(PathOwner):
     def __init__(self, name: str, color: str, stops: List[PathStop], creation_ticks: List[int]):
+        assert len(stops) == 2
+
         super().__init__(name, color, stops)
         self.creation_ticks = creation_ticks
 
@@ -19,15 +21,12 @@ class ABOwner(PathOwner):
         res = []
         for _ in range(self.creation_ticks.count(t)):
             speed = 1
-            start = self.valid_random_coordinate(env,
-                                                 t + random.randint(0, 10),
-                                                 ABAgent.default_near_radius,
-                                                 speed)
-            target = self.valid_random_coordinate(env, 0,  ABAgent.default_near_radius, speed)
+            start = self.generate_stop_coordinate(self.stops[0], env, t + random.randint(0, 100), 1, speed)
+            target = self.generate_stop_coordinate(self.stops[-1], env, t, 1, speed)
 
             distance = start.inter_temporal_distance(target)
             travel_time = distance * speed
-            target.t = start.t + travel_time + random.randint(0, 5)
+            target.t = start.t + travel_time + random.randint(0, 100)
             agent = ABAgent(start, target, speed=speed, battery=travel_time * 2)
             res.append(agent)
             print(f"A-B created {agent}")

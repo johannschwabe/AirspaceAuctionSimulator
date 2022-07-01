@@ -10,13 +10,13 @@ from ..Statistics.Statistics import Statistics
 from ..Allocator import FCFSAllocator
 from ..History import History
 from ..Simulator import Simulator
+from ..Coordinate import Coordinate4D, Coordinate2D
+from ..Owner import Owner, PathStop
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
     from ..Allocator import Allocator
-    from ..Owner import Owner, PathStop
     from ..Environment import Environment
-    from ..Coordinate import Coordinate4D, Coordinate2D
     from API import OwnerType
 
 
@@ -60,26 +60,32 @@ class Generator:
                         coordinates.append(Coordinate2D(int(x_str), int(z_str)))
                     heat_dict[float_key] = coordinates
                 stops.append(PathStop(stop.type, heatmap=heat_dict))
+        return stops
 
     def simulate(self):
         for ownerType in self.ownerTypes:
+            stops: List["PathStop"] = self.extract_owner_stops(ownerType)
             if ownerType.type == "ab":
                 self.owners.append(ABOwner(ownerType.name,
                                            ownerType.color,
+                                           stops,
                                            self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
-            if ownerType.type == "aba":
+            elif ownerType.type == "aba":
                 self.owners.append(ABAOwner(ownerType.name,
                                             ownerType.color,
+                                            stops,
                                             self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
-            if ownerType.type == "stat":
+            elif ownerType.type == "abc":
+                self.owners.append(ABCOwner(ownerType.name,
+                                            ownerType.color,
+                                            stops,
+                                            self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
+            elif ownerType.type == "stat":
                 self.owners.append(
                     StationaryOwner(ownerType.name,
                                     ownerType.color,
                                     self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
-            if ownerType.type == "abc":
-                self.owners.append(ABCOwner(ownerType.name,
-                                            ownerType.color,
-                                            self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
+
 
         self.history = History(
             self.dimensions,
