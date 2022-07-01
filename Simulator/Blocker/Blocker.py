@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List
 
 from ..Coordinate import Coordinate4D, Coordinate3D
 
@@ -6,11 +6,11 @@ from ..Coordinate import Coordinate4D, Coordinate3D
 class Blocker:
     _id: int = 1
 
-    def __init__(self, locations: List[Coordinate4D], dimension: Coordinate):
+    def __init__(self, locations: List[Coordinate4D], dimension: Coordinate3D):
         self.id = -Blocker._id
         Blocker._id += 1
         self.locations = locations
-        self.dimension: Coordinate = dimension
+        self.dimension: Coordinate3D = dimension
 
     def is_blocking(self, coord: Coordinate4D, radius:int = 0):
         return True

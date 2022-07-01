@@ -1,11 +1,10 @@
 from typing import List, TYPE_CHECKING
 
-from ..Coordinate import Coordinate3D
 if TYPE_CHECKING:
-    from ..Coordinate import Coordinate4D
+    from ..Coordinate import Coordinate4D, Coordinate3D
 
 class PathSegment:
-    def __init__(self, start: Coordinate, end: Coordinate, index: int, coords: List["Coordinate4D"]):
+    def __init__(self, start: "Coordinate3D", end: "Coordinate3D", index: int, coords: List["Coordinate4D"]):
         self.coordinates = coords
         self.start = start
         self.end = end

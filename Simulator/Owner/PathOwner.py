@@ -8,7 +8,7 @@ from Simulator.Owner import PathStop
 from Simulator.Owner.Owner import Owner
 
 
-class PathOwner(ABC, Owner):
+class PathOwner(Owner, ABC):
     def __init__(self, name: str, color: str, stops: List[PathStop]):
         super().__init__(name, color)
         self.stops = stops

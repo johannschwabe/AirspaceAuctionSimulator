@@ -63,7 +63,7 @@ class MapTile:
                         max_x = x
                     if max_z < z:
                         max_z = z
-                bounds = [Coordinate4D(min_x, 0, min_z, 0)),
+                bounds = [Coordinate4D(min_x, 0, min_z, 0),
                           Coordinate4D(max_x, building['properties']['height'], max_z, self.dimensions.t * 10000)]
                 new_blocker = BuildingBlocker(coords, bounds)
                 res.append(new_blocker)

@@ -1,12 +1,12 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod,ABCMeta
 from typing import List, TYPE_CHECKING
 
 from ..Bid import Bid
 from ..Coordinate import Coordinate4D
-from ..Path import PathSegment, SpaceSegment
 
 if TYPE_CHECKING:
     from ..Path import PathSegment, SpaceSegment
+
 
 class Agent(ABC):
     _id: int = 0

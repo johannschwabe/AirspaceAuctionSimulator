@@ -11,7 +11,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from Simulator.Coordinate import Coordinate4D
 from Simulator.IO.JSONS import build_json
-from Simulator.Time import Tick
 from Simulator.Generator import Generator
 from Simulator.Generator.MapTile import MapTile
 
@@ -78,7 +77,7 @@ class SimulationConfigType(BaseModel):
 @app.post("/simulation")
 def read_root(config: SimulationConfigType):
     print(config)
-    dimensions = Coordinate4D(config.dimension.x, config.dimension.y, config.dimension.z, Tick(config.dimension.t))
+    dimensions = Coordinate4D(config.dimension.x, config.dimension.y, config.dimension.z, config.dimension.t)
     if config.map:
         topLeftCoordinate = config.map.topLeftCoordinate
         bottomRightCoordiante = config.map.bottomRightCoordiante
