@@ -127,11 +127,12 @@ def is_valid_for_allocation(env: Environment, position: Coordinate4D, agent: Bid
     agents = env.intersect(position, agent.near_radius, agent.speed)
     res = set()
     for agent_id in agents:
+        if agent_id == agent.id:
+            continue
         colliding_agent = env.get_agent(agent_id)
         if colliding_agent.priority < agent.priority:
             res.add(colliding_agent)
         else:
-            print("blocked by agent")
             return set(), False
     return res, True
 

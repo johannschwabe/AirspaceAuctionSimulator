@@ -8,6 +8,7 @@ from ..Blocker import Blocker
 
 if TYPE_CHECKING:
     from ..Generator.MapTile import MapTile
+    from ..Path import PathReallocation, SpaceReallocation
 
 
 class Environment:
@@ -53,7 +54,8 @@ class Environment:
             if path[0].t > time_step:
                 break
             if path[-1].t > time_step:
-                new_allocated_paths.append(path[:time_step - path[0].t])
+                sub_path = path[:time_step - path[0].t + 1]
+                new_allocated_paths.append(PathSegment(path.start, path.end, path.index, sub_path))
             else:
                 new_allocated_paths.append(path)
         agent.set_allocated_segments(new_allocated_paths)
@@ -97,8 +99,10 @@ class Environment:
         agent.add_allocated_segment(space)
         self.tree.insert(agent.id, space.min.list_rep() + space.max.list_rep())
 
-    def allocate_segments_for_agents(self, agents_segments: Dict[Agent, List[PathSegment|SpaceSegment]], time_step: int):
-        for agent, segments in agents_segments.items():
+    def allocate_segments_for_agents(self, agents_segments: List["PathReallocation | SpaceReallocation"], time_step: int):
+        for reallocation in agents_segments:
+            agent = reallocation.agent
+            segments = reallocation.segments
             if agent.id in self._agents:
                 self.deallocate_agent(agent, time_step)
             else:
@@ -111,14 +115,17 @@ class Environment:
             else:
                 raise Exception("You gufed")
 
-    def original_agents(self, agents_segments: Dict[Agent, List[PathSegment|SpaceSegment]], newcomers: List[Agent]):
-        res = {}
-        for agent, segments in agents_segments.items():
+    def original_agents(self,
+                        agents_segments: List["PathReallocation | SpaceReallocation"],
+                        newcomers: List[Agent]) -> List["PathReallocation | SpaceReallocation"]:
+        res = []
+        for reallocation in agents_segments:
+            agent_id = reallocation.agent.id
             newcomer_ids = [_agent.id for _agent in newcomers]
-            if agent.id in newcomer_ids:
-                res[newcomers[newcomer_ids.index(agent.id)]] = segments
+            if agent_id in newcomer_ids:
+                res.append(reallocation.correct_agent(newcomers[newcomer_ids.index(agent_id)]))
             else:
-                res[self._agents[agent.id]] = segments
+                res.append(reallocation.correct_agent(self._agents[agent_id]))
         return res
 
     def is_blocked(self, coord: Coordinate4D, radius: int = 0, speed: int = 0) -> bool:

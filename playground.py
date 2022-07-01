@@ -5,20 +5,46 @@ from time import time_ns
 from API import SimpleCoordinateType
 from BiddingAllocator.BiddingABOwner import BiddingABOwner
 from BiddingAllocator.BiddingAllocator import BiddingAllocator
-from Simulator.Allocator import FCFSAllocator
 from Simulator.Coordinate import Coordinate4D
 from Simulator.Environment import Environment
-from Simulator import Simulator, Tick
+from Simulator import Simulator
 from Simulator.Generator.MapTile import MapTile
 from Simulator.IO.JSONS import build_json
 from Simulator.History import History
-from Simulator.Owner.ABCOwner import ABCOwner
-from Simulator.Owner.ABOwner import ABOwner
-from Simulator.Owner.TestOwner import TestOwner
 
 
-def setup():
-    dimensions = Coordinate4D(831, 30, 831, Tick(20))
+def setup_empty():
+    dimensions = Coordinate4D(50, 20, 50, 20)
+    random.seed(3)
+    environment = Environment(dimensions, [], [])
+    environment.init_blocker_tree()
+    allocator = BiddingAllocator()
+    owners = []
+
+    for i in range(3):
+        owners.append(BiddingABOwner("Schnabeltier" + str(i),
+                                     color_generator(),
+                                     [random.randint(0, 5) for _ in range(10)],
+                                     random.uniform(0,1)
+                                     ))
+
+    history = History(dimensions, allocator, environment, owners)
+    SimulaterAligator = Simulator(owners, allocator, environment, history)
+    t0 = time_ns()
+    while SimulaterAligator.time_step < dimensions.t:
+        # print(simulator.time_step)
+        SimulaterAligator.tick()
+        # SimulaterAligator.environment.visualize(SimulaterAligator.time_step)
+    print(f"Total: {(time_ns() - t0) / 1e9}")
+
+    res = build_json(SimulaterAligator, "test", "Schnabeltier")
+    f = open("test.json", "w")
+    f.write(json.dumps(res))
+    f.close()
+
+
+def setup_map():
+    dimensions = Coordinate4D(831, 30, 831, 20)
     random.seed(3)
     environment = Environment(dimensions, [], [MapTile(
         [15, 17161, 11475],
@@ -73,9 +99,9 @@ def color_generator():
 
         if r + g + b > 350:
             break
-    return f"#{hex(r)}{hex(g)}{hex(b)}"
+    return f"#{hex(r)[2:]:02}{hex(g)[2:]:02}{hex(b)[2:]:02}"
 
 
 
 if __name__ == "__main__":
-    setup()
+    setup_empty()

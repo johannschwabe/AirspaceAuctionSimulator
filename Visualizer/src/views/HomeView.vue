@@ -4,7 +4,7 @@
       <div class="center">
         <section-text
           title="Upload Simulation"
-          text="If you already have a valid Airspace-Auction-Simulation .AAS-File, drop it here to visualize it"
+          text="If you already have a valid Airspace-Auction-Simulation .JSON-File, drop it here to visualize it"
         />
         <history-uploader />
       </div>
@@ -13,7 +13,7 @@
       <div class="center">
         <section-text
           title="Simulate Scenario"
-          text="Configure a model here to create and visualize a new Airspace-Auction-Simulation (AAS)"
+          text="Configure a model here to create and visualize a new Airspace-Auction-Simulation"
         />
         <model-creator />
       </div>
@@ -64,7 +64,7 @@ const canRecover = ref(hasSimulationSingleton() || canRecoverSimulationSingleton
 
 const recoverSession = () => {
   loadingBar.start();
-  router.push({ name: 'dashboard' });
+  router.push({ name: "dashboard" });
 };
 
 const ignoreRecoverableSession = () => {

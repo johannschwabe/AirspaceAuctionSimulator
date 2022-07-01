@@ -1,6 +1,6 @@
 from typing import List, Dict, TYPE_CHECKING
 from time import time
-from .Path import PathSegment
+from .Path import PathSegment, PathReallocation, SpaceReallocation
 from .Agent import Agent
 from .Environment import Environment
 from .Allocator import Allocator
@@ -21,9 +21,9 @@ class Simulator:
         self.environment: Environment = environment
         self.history: "History" = history
         # self.agents: List[Agent] = []
-        self.time_step = 0)
+        self.time_step = 0
 
-    def self) -> bool:
+    def tick(self) -> bool:
         start_t = time() * 1000
         newcomers: List[Agent] = []
         for owner in self.owners:
@@ -35,7 +35,7 @@ class Simulator:
             history_updated_t = time() * 1000
             temp_env = self.environment.clone()
             temp_env_created_t = time() * 1000
-            cloned_agents_paths: Dict[Agent, List[PathSegment]] = self.allocator.temp_allocation(newcomers, temp_env, self.time_step)
+            cloned_agents_paths: List[PathReallocation | SpaceReallocation] = self.allocator.temp_allocation(newcomers, temp_env, self.time_step)
             temp_allocations_t = time() * 1000
             agents_paths = self.environment.original_agents(cloned_agents_paths, newcomers)
             path_translated_t = time() * 1000

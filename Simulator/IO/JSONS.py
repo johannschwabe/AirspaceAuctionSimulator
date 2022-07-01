@@ -1,12 +1,11 @@
 import statistics
 from abc import ABC
-from enum import Enum
-from multiprocessing import Pool
 from typing import Dict, List, TYPE_CHECKING
 
 from .. import Blocker, Simulator, Statistics
 from ..Agent import Agent, PathAgent, SpaceAgent
 from ..Blocker.BuildingBlocker import BuildingBlocker
+from ..Enum import Reason
 from ..History import HistoryAgent
 from ..IO import Stringify
 from ..Generator.MapTile import MapTile
@@ -36,18 +35,12 @@ class Branch(Stringify):
         self.reason: "Collision" = reason
 
 
-class Reason(Enum):
-    AGENT = 1
-    BLOCKER = 2
-    OWNER = 3
-    NOT_IMPLEMENTED = 4
-
 class JSONAgent(ABC):
     def __init__(
         self,
         agent: Agent,
         non_colliding_welfare: float,
-        bid: int,
+        bid: Dict[str, str | int | float],
         owner_id: int,
         owner_name: str,
     ):
@@ -57,7 +50,7 @@ class JSONAgent(ABC):
 
         self.non_colliding_welfare: float = non_colliding_welfare
 
-        self.bid: int = bid
+        self.bid: Dict[str, str | int | float] = bid
         self.owner_id: int = owner_id
         self.owner_name: str = owner_name
         self.name: str = f"{self.owner_name}-{self.agent_type}-{self.id}"
@@ -68,7 +61,7 @@ class JSONSpaceAgent(JSONAgent, Stringify):
         self,
         agent: SpaceAgent,
         non_colliding_welfare: float,
-        bid: int,
+        bid: Dict[str, str | int | float],
         owner_id: int,
         owner_name: str,
     ):
@@ -85,7 +78,7 @@ class JSONPathAgent(JSONAgent, Stringify):
         far_field_intersections: int,
         near_field_violations: int,
         far_field_violations: int,
-        bid: int,
+        bid: Dict[str, str | int | float],
         owner_id: int,
         owner_name: str,
     ):
@@ -107,12 +100,12 @@ class JSONPathAgent(JSONAgent, Stringify):
 
         # First reallocation isn't a reallocation but an allocation
         for key, value in list(history_agent.past_allocations.items())[1:]:
-            branch_paths = [Path(path) for path in value]
+            branch_paths = [Path(path) for path in value["path"]]
             self.branches.append(Branch(
                 key,
                 branch_paths,
                 agent.value_for_segments(value),
-                Collision(Reason.NOT_IMPLEMENTED)
+                Collision(value["reason"])
             ))
 
 
@@ -124,7 +117,7 @@ class JSONOwner(Stringify):
         self.agents: List[JSONAgent] = agents
         self.total_time_in_air: int = sum([agent.time_in_air if isinstance(agent, JSONPathAgent) else 0 for agent in self.agents])
 
-        bids = [agent.bid for agent in self.agents]
+        bids = [agent.bid["!value"] for agent in self.agents]
         self.total_bid_value: int = sum(bids)
         self.mean_bid_value: float = statistics.mean(bids)
         self.median_bid_value: float = statistics.median(bids)
@@ -220,7 +213,7 @@ def build_json(simulator: Simulator, name: str, description: str):
                     close_passings[agent.id]["total_far_field_intersection"],
                     close_passings[agent.id]["total_near_field_violations"],
                     close_passings[agent.id]["total_far_field_violations"],
-                    0,
+                    agent.generalized_bid(),
                     owner.id,
                     owner.name,
                 ))

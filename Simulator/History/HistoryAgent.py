@@ -2,15 +2,14 @@ from typing import List, Dict
 
 from ..Agent import Agent
 from ..Coordinate import Coordinate4D
+from ..Enum import Reason
 
 
 class HistoryAgent:
-    def __init__(self, agent: Agent, registered: int, speed: int):
+    def __init__(self, agent: Agent, registered: int):
         self.id = agent.id
         self.registered: int = registered
-        self.traveled_paths = []
-        self.past_allocations: Dict[int, List[List[Coordinate4D]]] = {}
-        self.speed = speed
+        self.past_allocations: Dict[int, Dict[str, List[List[Coordinate4D]] | Reason]] = {}
 
-    def reallocation(self, new_path: List[List[Coordinate4D]], time_step: int):
-        self.past_allocations[time_step] = new_path
+    def reallocation(self, new_path: List[List[Coordinate4D]], reason: Reason, time_step: int):
+        self.past_allocations[time_step] = {"path": new_path, "reason": reason}

@@ -22,8 +22,12 @@ class BiddingABAgent(ABAgent):
     def get_bid(self, t: "Tick") -> BiddingABBid:
         if len(self._allocated_segments) == 0 or self._allocated_segments[0][0].t >= t:
             return BiddingABBid(self.battery, self.a, self.b, self.priority, False)
-        start = self._allocated_segments[0][t - self._allocated_segments[0][0]]
-        return BiddingABBid(self.battery - (t - self._allocated_segments[0][0]), start, self.b, self.priority, True)
+        start = self._allocated_segments[-1][-1]
+        return BiddingABBid(self.battery - (int(t - self._allocated_segments[0][0].t)),
+                            start,
+                            self.b,
+                            self.priority,
+                            True)
 
     def clone(self):
         clone = BiddingABAgent(self.a, self.b, self.priority, self.speed, self.battery)
@@ -32,3 +36,9 @@ class BiddingABAgent(ABAgent):
         clone.is_clone = True
         Agent._id -= 1
         return clone
+
+    def generalized_bid(self):
+        return {
+            "Prio": self.priority,
+            "!value": self.priority
+        }

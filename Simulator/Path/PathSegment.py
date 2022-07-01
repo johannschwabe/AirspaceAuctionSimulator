@@ -16,10 +16,10 @@ class PathSegment:
 
     def same(self, other: "PathSegment"):
         idx = self.index == other.index
-        start_end = self.start == other.start and self.end == other.end
-        if idx and not start_end:
+        start_same = self.end == other.end
+        if idx and not start_same:
             print("You done gufed")
-        return idx and start_end
+        return idx and start_same
 
     def __str__(self):
         return f"{self.start} -> {self.end}: {self.index}"

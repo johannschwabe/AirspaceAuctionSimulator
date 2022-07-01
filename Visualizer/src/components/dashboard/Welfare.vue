@@ -7,7 +7,7 @@ import VueApexCharts from "vue3-apexcharts";
 
 import { reactive, ref } from "vue";
 import { useSimulationSingleton } from "../../scripts/simulation";
-import { onAgentsSelected, onTick } from "../../scripts/emitter";
+import { onAgentsSelected } from "../../scripts/emitter";
 
 const simulation = useSimulationSingleton();
 
@@ -77,13 +77,11 @@ const updateSeries = () => {
   series[1].data = achievedWelfare.map((y, x) => ({ x, y }));
 };
 
-
 onAgentsSelected(() => {
   updateSeries();
 });
 
 updateSeries();
-
 </script>
 
 <style scoped></style>

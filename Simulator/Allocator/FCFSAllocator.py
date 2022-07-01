@@ -1,8 +1,9 @@
-from typing import List, Dict
+from typing import List
 
-from ..Path import PathSegment, SpaceSegment
+from ..Enum import Reason
+from ..Path import PathSegment, SpaceSegment, PathReallocation, SpaceReallocation
 from ..Environment import Environment
-from ..Agent import Agent, PathAgent
+from ..Agent import Agent, PathAgent, SpaceAgent
 from ..Allocator import Allocator
 from ..Bid import ABBid, Bid, ABABid, StationaryBid, ABCBid
 from ..Coordinate import Coordinate4D
@@ -13,8 +14,11 @@ class FCFSAllocator(Allocator):
     def __init__(self):
         super().__init__()
 
-    def allocate_for_agents(self, agents: List[Agent], env: Environment, tick: int) -> Dict[Agent, List[List[Coordinate4D]]]:
-        res = {}
+    def allocate_for_agents(self,
+                            agents: List[Agent],
+                            env: Environment,
+                            tick: int) -> List[SpaceReallocation | PathReallocation]:
+        res = []
         for agent in agents:
             optimal_path_segments: List[PathSegment|SpaceSegment] = []
             bid: Bid = agent.get_bid(tick)
@@ -28,7 +32,7 @@ class FCFSAllocator(Allocator):
                     agent,
                 )
                 if len(ab_path) == 0 or ab_path[-1].t - ab_path[0].t > agent.battery:
-                    res[agent] = []
+                    res.append(PathReallocation(agent, [], Reason.ALLOCATION_FAILED))
                     continue
 
                 optimal_path_segments.append(PathSegment(bid.a.to_inter_temporal(), bid.b.to_inter_temporal(), 0, ab_path))
@@ -37,28 +41,30 @@ class FCFSAllocator(Allocator):
                 if isinstance(bid, ABABid):
                     b = ab_path[-1]
                     ba_path = astar(
-                        Coordinate4D(b.x, b.y, b.z, b.t + bid.stay)),
+                        Coordinate4D(b.x, b.y, b.z, b.t + bid.stay),
                         bid.a2,
                         env,
                         agent,
                     )
 
                     if len(ba_path) == 0 or ab_path[-1].t - ab_path[0].t + ba_path[-1].t - ba_path[0].t > agent.battery:
-                        res[agent] = []
+                        res.append(PathReallocation(agent, [], Reason.ALLOCATION_FAILED))
                         continue
 
                     optimal_path_segments.append(PathSegment(bid.b.to_inter_temporal(), bid.a.to_inter_temporal(), 1, ba_path))
-                res[agent] = optimal_path_segments
+
+                res.append(PathReallocation(agent, optimal_path_segments, Reason.FIRST_ALLOCATION))
+
                 env.allocate_path_for_agent(agent, optimal_path_segments)
                 env.add_agent(agent)
 
-            elif isinstance(bid, StationaryBid):
+            elif isinstance(bid, StationaryBid) and isinstance(agent, SpaceAgent):
                 path = []
                 for t in range(bid.start_t, bid.end_t + 1):
                     path_t = []
                     occupied = False
                     for coordinate in bid.block:
-                        time_coord = Coordinate4D(coordinate.x, coordinate.y, coordinate.z, t))
+                        time_coord = Coordinate4D(coordinate.x, coordinate.y, coordinate.z, t)
                         if env.is_valid_for_allocation(time_coord, agent):
                             path_t.append(time_coord)
                         else:
@@ -74,10 +80,10 @@ class FCFSAllocator(Allocator):
 
                 if len(path) > 0:
                     optimal_path_segments.append(path)
-                res[agent] = optimal_path_segments
+                res.append(SpaceReallocation(agent, optimal_path_segments, Reason.FIRST_ALLOCATION))
                 env.allocate_spaces_for_agent(agent, optimal_path_segments)
                 env.add_agent(agent)
-            elif isinstance(bid, ABCBid):
+            elif isinstance(bid, ABCBid) and isinstance(agent, PathAgent):
                 a = bid.locations[0]
                 time = 0
                 count = 0
@@ -99,10 +105,9 @@ class FCFSAllocator(Allocator):
 
                     optimal_path_segments.append(PathSegment(a.to_inter_temporal(), b.to_inter_temporal(), count, ab_path))
                     count += 1
-                    # optimal_path_segments.append(ab_path)
                     a = ab_path[-1].clone()
 
-                res[agent] = optimal_path_segments
+                res.append(PathReallocation(agent, optimal_path_segments, Reason.FIRST_ALLOCATION))
                 env.allocate_path_for_agent(agent, optimal_path_segments)
                 env.add_agent(agent)
         return res

@@ -1,6 +1,7 @@
 from typing import List, Dict
 
-from Simulator.Path import PathSegment
+from Simulator.Enum import Reason
+from Simulator.Path import PathSegment, PathReallocation
 from .BiddingABAgent import BiddingABAgent
 from .BiddingABBid import BiddingABBid
 from .BiddingPathFinding import bidding_astar
@@ -14,9 +15,9 @@ class BiddingAllocator(Allocator):
     def __init__(self):
         super().__init__()
 
-    def allocate_for_agents(self, agents: List[BiddingABAgent], env: Environment, tick: Tick) -> Dict[
-        Agent, List[PathSegment]]:
-        res = {}
+    def allocate_for_agents(self, agents: List[BiddingABAgent], env: Environment, tick: Tick) -> list[
+        PathReallocation]:
+        res = []
         to_add = set(agents)
         while len(to_add) > 0:
             agent = max(to_add, key=lambda _agent: _agent.get_bid(tick).priority)
@@ -25,7 +26,8 @@ class BiddingAllocator(Allocator):
             if isinstance(bid, BiddingABBid):
                 ab_path, collisions = bidding_astar(bid.a, bid.b, env, agent, bid.flying)
                 new_path_segment = PathSegment(bid.a.to_inter_temporal(), bid.b.to_inter_temporal(), 0, ab_path)
-                res[agent] = [new_path_segment]
+                reallocation_reason = Reason.FIRST_ALLOCATION if agent in agents else Reason.AGENT
+                res.append(PathReallocation(agent, [new_path_segment], reallocation_reason))
                 to_add = to_add.union(collisions)
                 for agent_to_remove in collisions:
                     print(f"reallocating: {agent_to_remove.id}")
