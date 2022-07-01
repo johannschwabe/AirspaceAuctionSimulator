@@ -30,7 +30,7 @@ export class FlightEvent {
 export class TakeOffEvent extends FlightEvent {
   /**
    * @param {int} tick
-   * @param {Coordinate} location
+   * @param {Coordinate3D} location
    */
   constructor(tick, location) {
     super("Take Off", "default", mdiAirplaneTakeoff, tick);
@@ -41,7 +41,7 @@ export class TakeOffEvent extends FlightEvent {
 export class ArrivalEvent extends FlightEvent {
   /**
    * @param {int} tick
-   * @param {Coordinate} location
+   * @param {Coordinate3D} location
    */
   constructor(tick, location) {
     super("Arrival", "success", mdiAirplaneLanding, tick);
@@ -52,7 +52,7 @@ export class ArrivalEvent extends FlightEvent {
 export class ReallocationEvent extends FlightEvent {
   /**
    * @param {int} tick
-   * @param {Coordinate} location
+   * @param {Coordinate3D} location
    * @param {ReasonEnum} reallocationReason
    */
   constructor(tick, location, reallocationReason) {
