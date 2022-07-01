@@ -1,9 +1,8 @@
-from typing import List, Dict, TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 from time import time
-from .Path import PathSegment, PathReallocation, SpaceReallocation
+from .Path import PathReallocation, SpaceReallocation
 from .Time import Tick
 from .Agent import Agent
-from .Coordinate import TimeCoordinate
 from .Environment import Environment
 from .Allocator import Allocator
 from .Owner import Owner

@@ -16,7 +16,7 @@ class BiddingABAgent(ABAgent):
         speed: Optional[int] = None,
         battery: Optional[int] = None,
     ):
-        super().__init__(a,b,speed,battery)
+        super().__init__(a, b, speed, battery)
         self.priority = priority
 
     def get_bid(self, t: "Tick") -> BiddingABBid:

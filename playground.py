@@ -5,6 +5,7 @@ from time import time_ns
 from API import SimpleCoordinateType
 from BiddingAllocator.BiddingABOwner import BiddingABOwner
 from BiddingAllocator.BiddingAllocator import BiddingAllocator
+from BiddingAllocator.BiddingStationaryOwner import BiddingStationaryOwner
 from Simulator.Allocator import FCFSAllocator
 from Simulator.Coordinate import TimeCoordinate
 from Simulator.Environment import Environment
@@ -26,11 +27,19 @@ def setup_empty():
     owners = []
 
     for i in range(3):
-        owners.append(BiddingABOwner("Schnabeltier" + str(i),
-                                     color_generator(),
-                                     [random.randint(0, 5) for _ in range(10)],
-                                     random.uniform(0,1)
-                                     ))
+        # owners.append(BiddingABOwner("Schnabeltier" + str(i),
+        #                              color_generator(),
+        #                              [random.randint(0, 5) for _ in range(10)],
+        #                              random.uniform(0,1)
+        #                              ))
+        owners.append(BiddingStationaryOwner(
+            "GhettoTier",
+            color_generator(),
+            [random.randint(0, 5) for _ in range(10)],
+            1,
+            TimeCoordinate(5, 5, 5, Tick(3)),
+            random.uniform(0, 1)
+        ))
 
     history = History(dimensions, allocator, environment, owners)
     SimulaterAligator = Simulator(owners, allocator, environment, history)

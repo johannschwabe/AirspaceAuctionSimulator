@@ -5,46 +5,41 @@ from .SpaceAgent import SpaceAgent
 from ..Path import SpaceSegment
 from ..Time import Tick
 from ..Bid import Bid, StationaryBid
-from ..Coordinate import Coordinate
 
 if TYPE_CHECKING:
     from .. import Tick
+    from ..Coordinate import TimeCoordinate
 
 class StationaryAgent(SpaceAgent):
     def __init__(
         self,
-        block: List[Coordinate],
-        start_t: Tick,
-        end_t: Tick,
+        blocks: List[List["TimeCoordinate"]],
     ):
         super().__init__()
 
-        self.block: List[Coordinate] = block
-        self.start_t: Tick = start_t
-        self.end_t: Tick = end_t
+        self.blocks: List[List["TimeCoordinate"]] = blocks
 
-    def value_for_segments(self, paths: List[SpaceSegment]) -> float:
-        if len(paths) == 0:
-            return 0.
+    def value_for_segments(self, segments: List[SpaceSegment]) -> float:
+        sum_segments = 0.0
+        for segment in segments:
+            sum_segments += (segment.max.x - segment.min.x) *\
+                   (segment.max.y - segment.min.y) *\
+                   (segment.max.z - segment.min.z) *\
+                   (segment.max.t - segment.min.t)
+        sum_blocks = 0.0
+        for block in self.blocks:
+            sum_blocks += (block[1].x - block[0].x) *\
+                          (block[1].y - block[0].y) *\
+                          (block[1].z - block[0].z) *\
+                          (block[1].t - block[0].t)
+        return sum_segments / sum_blocks
 
-        value: float = 1.
-
-        value -= (len(paths) - 1) / 100
-
-        time: int = 0
-        for path in paths:
-            if len(path) > 0:
-                time += path[-1].t - path[0].t
-
-        value -= (self.end_t - self.start_t - time) / 100
-
-        return round(value, 2)
 
     def get_bid(self, t: "Tick") -> Bid:
-        return StationaryBid(self.block, self.start_t, self.end_t)
+        return StationaryBid(self.blocks)
 
     def clone(self):
-        clone = StationaryAgent(self.block, self.start_t, self.end_t)
+        clone = StationaryAgent(self.blocks)
         clone.set_allocated_segments([segment.clone() for segment in self.get_allocated_segments()])
         clone.id = self.id
         clone.is_clone = True

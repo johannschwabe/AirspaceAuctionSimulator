@@ -21,7 +21,7 @@ class FCFSAllocator(Allocator):
                             tick: Tick) -> List[SpaceReallocation | PathReallocation]:
         res = []
         for agent in agents:
-            optimal_path_segments: List[PathSegment|SpaceSegment] = []
+            optimal_path_segments: List[PathSegment | SpaceSegment] = []
             bid: Bid = agent.get_bid(tick)
 
             # A-B
@@ -60,30 +60,16 @@ class FCFSAllocator(Allocator):
                 env.add_agent(agent)
 
             elif isinstance(bid, StationaryBid) and isinstance(agent, SpaceAgent):
-                path = []
-                for t in range(bid.start_t, bid.end_t + 1):
-                    path_t = []
-                    occupied = False
-                    for coordinate in bid.block:
-                        time_coord = TimeCoordinate(coordinate.x, coordinate.y, coordinate.z, Tick(t))
-                        if env.is_valid_for_allocation(time_coord, agent):
-                            path_t.append(time_coord)
-                        else:
-                            occupied = True
-                            break
 
-                    if not occupied:
-                        path += path_t
-                    else:
-                        if len(path) > 0:
-                            optimal_path_segments.append(path)
-                        path = []
+                for block in bid.blocks:
+                    block_valid = env.is_box_valid_for_allocation(block[0], block[1], agent)
+                    if block_valid:
+                        optimal_path_segments.append(SpaceSegment(block[0], block[1]))
 
-                if len(path) > 0:
-                    optimal_path_segments.append(path)
                 res.append(SpaceReallocation(agent, optimal_path_segments, Reason.FIRST_ALLOCATION))
                 env.allocate_spaces_for_agent(agent, optimal_path_segments)
                 env.add_agent(agent)
+
             elif isinstance(bid, ABCBid) and isinstance(agent, PathAgent):
                 a = bid.locations[0]
                 time = 0

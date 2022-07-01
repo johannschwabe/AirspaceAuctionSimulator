@@ -221,7 +221,7 @@ def build_json(simulator: Simulator, name: str, description: str):
                 agents.append(JSONSpaceAgent(
                     agent,
                     stats.non_colliding_value(agent),
-                    0,
+                    agent.generalized_bid(),
                     owner.id,
                     owner.name
                 ))

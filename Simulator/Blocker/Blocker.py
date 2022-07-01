@@ -15,6 +15,9 @@ class Blocker:
     def is_blocking(self, coord: TimeCoordinate, radius:int = 0):
         return True
 
+    def is_box_blocking(self, bottom_left: TimeCoordinate, top_right: TimeCoordinate) -> bool:
+        return True
+
     def add_to_tree(self, tree):
         if not self.locations or len(self.locations) == 0:
             return

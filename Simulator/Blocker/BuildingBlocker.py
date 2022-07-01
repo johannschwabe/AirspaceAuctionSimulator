@@ -11,8 +11,7 @@ class BuildingBlocker(Blocker):
         self.points = vertices
         self.polygon = Polygon(vertices)
 
-        super().__init__(bounds, bounds[1]-bounds[0])
-
+        super().__init__(bounds, bounds[1] - bounds[0])
 
     def is_blocking(self, coord: TimeCoordinate, radius: int = 0):
         point = Point(coord.x, coord.z)
@@ -22,8 +21,10 @@ class BuildingBlocker(Blocker):
         near_bound = point.buffer(radius)
         return self.polygon.intersects(near_bound)
 
+    def is_box_blocking(self, bottom_left: TimeCoordinate, top_right: TimeCoordinate) -> bool:
+        return True
+
     def add_to_tree(self, tree):
         bbox = self.locations[0].list_rep() + self.locations[1].list_rep()
         bbox[1] = -1
         tree.insert(self.id, bbox)
-

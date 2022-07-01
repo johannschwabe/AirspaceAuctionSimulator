@@ -1,4 +1,4 @@
-from typing import List, Dict, TYPE_CHECKING
+from typing import List, Dict, TYPE_CHECKING, Literal
 from rtree import index
 
 from ..Agent import Agent, SpaceAgent, PathAgent
@@ -9,8 +9,6 @@ from ..Blocker import Blocker
 
 if TYPE_CHECKING:
     from ..Generator.MapTile import MapTile
-    from ..Path import PathReallocation, SpaceReallocation
-
 
 class Environment:
     def __init__(self, dimension: TimeCoordinate, blocker: List[Blocker], maptiles: List["MapTile"]):
@@ -38,7 +36,7 @@ class Environment:
     def deallocate_path_agent(self, agent: PathAgent, time_step: "Tick"):
         for path_segment in agent.get_allocated_segments():
             if path_segment[-1].t > time_step:
-                for coord in path_segment[max(time_step-path_segment[0].t, 0):]:
+                for coord in path_segment[max(time_step - path_segment[0].t, 0):]:
                     intersections = self.tree.intersection(coord.tree_query_point_rep(), objects=True)
                     for intersection in intersections:
                         _index = intersection.id
@@ -99,7 +97,8 @@ class Environment:
         agent.add_allocated_segment(space)
         self.tree.insert(agent.id, space.min.list_rep() + space.max.list_rep())
 
-    def allocate_segments_for_agents(self, agents_segments: List["PathReallocation | SpaceReallocation"], time_step: Tick):
+    def allocate_segments_for_agents(self, agents_segments: List["PathReallocation | SpaceReallocation"],
+                                     time_step: Tick):
         for reallocation in agents_segments:
             agent = reallocation.agent
             segments = reallocation.segments
@@ -138,6 +137,16 @@ class Environment:
                 return True
         return False
 
+    def is_box_blocked(self, bottom_left: TimeCoordinate, top_right: TimeCoordinate) -> bool:
+        blockers = self.blocker_tree.intersection((
+            bottom_left.list_rep(),
+            top_right.list_rep()
+        ))
+        for blocker_id in blockers:
+            if self.blockers[blocker_id].is_box_blocking(bottom_left, top_right):
+                return True
+        return False
+
     def add_agent(self, agent: Agent):
         self._agents[agent.id] = agent
 
@@ -150,7 +159,8 @@ class Environment:
     def get_dim(self):
         return self._dimension
 
-    def is_valid_for_allocation(self, coords: TimeCoordinate, agent: Agent) -> bool: #Todo: Could be in the near-field of another agent
+    def is_valid_for_allocation(self, coords: TimeCoordinate,
+                                agent: Agent) -> bool:  # Todo: Could be in the near-field of another agent
         if isinstance(agent, PathAgent):
             radius: int = agent.near_radius
             agents = self.intersect(coords, radius, agent.speed)
@@ -159,8 +169,15 @@ class Environment:
             agents = self.intersect(coords, 0, 0)
             return len(list(agents)) == 0 and not self.is_blocked(coords, 0, 0)
 
-    def intersect_box(self, mini: TimeCoordinate, maxi: TimeCoordinate):
-        return self.tree.intersection(mini.list_rep() + maxi.list_rep(), objects=True)
+    def is_box_valid_for_allocation(self, bottom_left: "TimeCoordinate", top_right: "TimeCoordinate",
+                                    agent: "SpaceAgent") -> bool:
+        agents = self.intersect_box(bottom_left, top_right, "raw")
+        agent_free = len([_agent for _agent in agents if agent.id != _agent]) == 0
+        blocker_free = self.is_box_blocked(bottom_left, top_right)
+        return agent_free and blocker_free
+
+    def intersect_box(self, mini: TimeCoordinate, maxi: TimeCoordinate, _objects: bool | Literal["raw"] = True):
+        return self.tree.intersection(mini.list_rep() + maxi.list_rep(), objects=_objects)
 
     def intersect(self, coords: TimeCoordinate, radius: int = 0, speed: int = 0):
         return self.tree.intersection((
@@ -203,7 +220,7 @@ class Environment:
     def clone(self):
         cloned = Environment(self._dimension, list(self.blockers.values()), self.map_tiles)
         if len(self.tree) > 0:
-            for item in self.tree.intersection(self.tree.bounds, objects=True):     #Todo faster deepCopy of tree
+            for item in self.tree.intersection(self.tree.bounds, objects=True):  # Todo faster deepCopy of tree
                 cloned.tree.insert(item.id, item.bbox)
         cloned.blocker_tree = self.blocker_tree
         for agent in self._agents.values():
