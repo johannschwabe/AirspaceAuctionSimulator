@@ -2,6 +2,7 @@ import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
 from .EnvironmentGen import EnvironmentGen
+from ..Owner.Heatmap import Heatmap
 from ..Owner.PathOwners.ABAOwner import ABAOwner
 from ..Owner.PathOwners.ABCOwner import ABCOwner
 from ..Owner.PathOwners.ABOwner import ABOwner
@@ -59,7 +60,7 @@ class Generator:
                         x_str, z_str = coord_str.split("_")
                         coordinates.append(Coordinate2D(int(x_str), int(z_str)))
                     heat_dict[float_key] = coordinates
-                stops.append(PathStop(stop.type, heatmap=heat_dict))
+                stops.append(PathStop(stop.type, heatmap=Heatmap("inverse_sparse", inverse_sparse=heat_dict)))
         return stops
 
     def simulate(self):

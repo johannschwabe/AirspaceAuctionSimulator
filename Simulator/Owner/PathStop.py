@@ -1,9 +1,10 @@
 from typing import Optional, Dict, List
 from Simulator.Coordinate import Coordinate2D
+from Simulator.Owner.Heatmap import Heatmap
 
 
 class PathStop:
-    def __init__(self, stopType: str, position: Optional[Coordinate2D] = None, heatmap: Optional[Dict[float, List[Coordinate2D]]] = None):
-        self.type: str = stopType
-        self.position: Optional[Coordinate2D] = position
-        self.heatmap: Optional[Dict[float, List[Coordinate2D]]] = heatmap
+    def __init__(self, stop_type: str, position: Optional[Coordinate2D] = None, heatmap: Optional[Heatmap] = None):
+        self.type = stop_type
+        self.position = position
+        self.heatmap = heatmap
