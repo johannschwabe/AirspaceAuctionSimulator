@@ -2,10 +2,10 @@ import random
 from typing import List
 
 from BiddingAllocator.BiddingStationaryAgent import BiddingStationaryAgent
-from Simulator import Environment, Tick
+from Simulator import Environment
 from Simulator.Agent import Agent
-from Simulator.Coordinate import Coordinate, TimeCoordinate
-from Simulator.Owner.StationaryOwner import StationaryOwner
+from Simulator.Coordinate import Coordinate4D
+from Simulator.Owner.SpaceOwners.StationaryOwner import StationaryOwner
 
 
 class BiddingStationaryOwner(StationaryOwner):
@@ -14,7 +14,7 @@ class BiddingStationaryOwner(StationaryOwner):
                  color: str,
                  creation_ticks: List[int],
                  nr_blocks: int,
-                 size: TimeCoordinate,
+                 size: "Coordinate4D",
                  priority: float):
         super().__init__(name, color, creation_ticks, nr_blocks, size)
         self.priority = priority
@@ -25,7 +25,7 @@ class BiddingStationaryOwner(StationaryOwner):
             dimensions = env._dimension
             blocks = []
             for i in range(self.nr_blocks):
-                bottom_left = TimeCoordinate.random(dimensions)
+                bottom_left = Coordinate4D.random(dimensions)
                 top_right = bottom_left + self.size
                 blocks.append([bottom_left, top_right])
             agent = BiddingStationaryAgent(blocks, self.priority)

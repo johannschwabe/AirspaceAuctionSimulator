@@ -17,7 +17,7 @@ class BiddingAllocator(Allocator):
     def __init__(self):
         super().__init__()
 
-    def allocate_for_agents(self, agents: List[BiddingABAgent], env: Environment, tick: Tick) -> list[PathReallocation]:
+    def allocate_for_agents(self, agents: List[BiddingABAgent], env: Environment, tick: int) -> list[PathReallocation]:
         res = []
         to_add = set(agents)
         while len(to_add) > 0:

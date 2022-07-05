@@ -11,11 +11,12 @@ if TYPE_CHECKING:
 class StationaryAgent(SpaceAgent):
     def __init__(
         self,
-        blocks: List[List["TimeCoordinate"]],
+        blocks: List[List["Coordinate4D"]],
     ):
         super().__init__()
-
-        self.blocks: List[List["TimeCoordinate"]] = blocks
+        self.near_radius = 0
+        self.far_radius = 0
+        self.blocks: List[List["Coordinate4D"]] = blocks
 
     def value_for_segments(self, segments: List[SpaceSegment]) -> float:
         sum_segments = 0.0

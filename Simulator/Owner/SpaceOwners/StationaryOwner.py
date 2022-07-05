@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class StationaryOwner(SpaceOwner):
-    def __init__(self, name: str, color: str, creation_ticks: List[int], nr_blocks: int, size: TimeCoordinate):
+    def __init__(self, name: str, color: str, creation_ticks: List[int], nr_blocks: int, size: Coordinate4D):
         super().__init__(name, color)
         self.creation_ticks = creation_ticks
         self.nr_blocks: int = nr_blocks

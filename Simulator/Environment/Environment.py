@@ -10,8 +10,9 @@ if TYPE_CHECKING:
     from ..Generator.MapTile import MapTile
 
 class Environment:
-    def __init__(self, dimension: Coordinate4D, blocker: List[Blocker], maptiles: List["MapTile"], min_height: int = 0):
+    def __init__(self, dimension: Coordinate4D, blocker: List[Blocker], maptiles: List["MapTile"], min_height: int = 0, allocation_period = 50):
         Coordinate4D.dim = dimension
+        self.allocation_period = allocation_period
         self._dimension: Coordinate4D = dimension
         self._agents: Dict[int, Agent] = {}
         self.blockers: Dict[int, Blocker] = {blocky.id: blocky for blocky in blocker}
@@ -137,9 +138,9 @@ class Environment:
                 return True
         return False
 
-    def is_box_blocked(self, bottom_left: TimeCoordinate, top_right: TimeCoordinate) -> bool:
+    def is_box_blocked(self, bottom_left: Coordinate4D, top_right: Coordinate4D) -> bool:
         blockers = self.blocker_tree.intersection((
-            bottom_left.list_rep(),
+            bottom_left.list_rep() +
             top_right.list_rep()
         ))
         for blocker_id in blockers:
@@ -169,7 +170,7 @@ class Environment:
             agents = self.intersect(coords, 0, 0)
             return len(list(agents)) == 0 and not self.is_blocked(coords, 0, 0)
 
-    def is_box_valid_for_allocation(self, bottom_left: "Coordinate4D", top_right: "TimeCoordinate",
+    def is_box_valid_for_allocation(self, bottom_left: "Coordinate4D", top_right: "Coordinate4D",
                                     agent: "SpaceAgent") -> bool:
         agents = self.intersect_box(bottom_left, top_right, "raw")
         agent_free = len([_agent for _agent in agents if agent.id != _agent]) == 0

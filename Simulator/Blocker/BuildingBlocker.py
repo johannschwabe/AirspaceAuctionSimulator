@@ -20,7 +20,7 @@ class BuildingBlocker(Blocker):
         near_bound = point.buffer(radius)
         return self.polygon.intersects(near_bound)
 
-    def is_box_blocking(self, bottom_left: TimeCoordinate, top_right: TimeCoordinate) -> bool:
+    def is_box_blocking(self, bottom_left: "Coordinate4D", top_right: "Coordinate4D") -> bool:
         return True
 
     def add_to_tree(self, tree):

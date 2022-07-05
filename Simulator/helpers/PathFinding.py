@@ -20,11 +20,15 @@ def astar(
     open_nodes = {}
     closed_nodes = {}
 
-    valid_start = start
-    while not env.is_valid_for_allocation(valid_start, agent):
+    valid_start = start.clone()
+    while not env.is_valid_for_allocation(valid_start, agent) and valid_start.t < env.dimension.t:
         valid_start.t += 1
 
-    start_node = Node(start, None)
+    if valid_start.t >= env.dimension.t:
+        print("ASTAR: No valid Start found")
+        return []
+
+    start_node = Node(valid_start, None)
     end_node = Node(end, None)
     open_nodes[hash(start_node)] = start_node
     steps = 0
@@ -65,7 +69,7 @@ def astar(
         neighbors = current_node.adjacent_coordinates(env._dimension, agent.speed)
         for next_neighbor in neighbors:
             valid_start = time_ns()
-            valid = env.is_valid_for_allocation(next_neighbor, agent)
+            valid = env.is_valid_for_allocation(next_neighbor, agent) and next_neighbor.t <= env.dimension.t
             valid_time += time_ns() - valid_start
             if valid:
                 neighbor = Node(next_neighbor, current_node)
