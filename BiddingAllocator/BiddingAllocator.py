@@ -8,7 +8,7 @@ from .BiddingPathFinding import bidding_astar
 from Simulator import Environment, Tick
 from Simulator.Agent import Agent
 from Simulator.Allocator import Allocator
-from Simulator.Coordinate import TimeCoordinate
+from Simulator.Coordinate import Coordinate4D
 
 
 class BiddingAllocator(Allocator):

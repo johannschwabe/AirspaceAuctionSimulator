@@ -1,46 +1,40 @@
-from typing import List, TYPE_CHECKING
+from typing import List
 
 from .Agent import Agent
 from .SpaceAgent import SpaceAgent
+from ..Coordinate import Coordinate3D
 from ..Path import SpaceSegment
-from ..Time import Tick
 from ..Bid import Bid, StationaryBid
-from ..Coordinate import Coordinate
 
-if TYPE_CHECKING:
-    from .. import Tick
 
 class StationaryAgent(SpaceAgent):
     def __init__(
         self,
-        block: List[Coordinate],
-        start_t: Tick,
-        end_t: Tick,
+        block: List[Coordinate3D],
+        start_t: int,
+        end_t: int,
     ):
         super().__init__()
 
-        self.block: List[Coordinate] = block
-        self.start_t: Tick = start_t
-        self.end_t: Tick = end_t
+        self.block: List[Coordinate3D] = block
+        self.start_t: int = start_t
+        self.end_t: int = end_t
 
-    def value_for_segments(self, paths: List[SpaceSegment]) -> float:
-        if len(paths) == 0:
+    def value_for_segments(self, space: List[SpaceSegment]) -> float:
+        if len(space) == 0:
             return 0.
 
         value: float = 1.
 
-        value -= (len(paths) - 1) / 100
+        value -= (len(space) - 1) / 100
 
         time: int = 0
-        for path in paths:
-            if len(path) > 0:
-                time += path[-1].t - path[0].t
 
         value -= (self.end_t - self.start_t - time) / 100
 
         return round(value, 2)
 
-    def get_bid(self, t: "Tick") -> Bid:
+    def get_bid(self, t: int) -> Bid:
         return StationaryBid(self.block, self.start_t, self.end_t)
 
     def clone(self):

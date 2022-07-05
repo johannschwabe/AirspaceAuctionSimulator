@@ -1,10 +1,12 @@
 import math
-from random import randint
+
+from Simulator.Coordinate import Coordinate2D
 
 
-class Coordinate:
+class Coordinate3D(Coordinate2D):
 
     def __init__(self, x: int, y: int, z: int):
+        super().__init__(x, z)
         self.x: int = x
         self.y: int = y
         self.z: int = z
@@ -21,10 +23,10 @@ class Coordinate:
                self.z == other.z
 
     def __add__(self, other):
-        return Coordinate(self.x + other.x, self.y + other.y, self.z + other.z)
+        return Coordinate3D(self.x + other.x, self.y + other.y, self.z + other.z)
 
     def __sub__(self, other):
-        return Coordinate(self.x - other.x, self.y - other.y, self.z - other.z)
+        return Coordinate3D(self.x - other.x, self.y - other.y, self.z - other.z)
 
     @property
     def l1(self):
@@ -41,14 +43,4 @@ class Coordinate:
             return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z)
 
     def clone(self):
-        return Coordinate(self.x, self.y, self.z)
-
-    @staticmethod
-    def random(dimensions: "Coordinate", strict_positive: bool = False):
-        lower = 1 if strict_positive else 0
-        return Coordinate(
-            randint(lower, dimensions.x-1),
-            randint(lower, dimensions.y-1),
-            randint(lower, dimensions.z-1),
-        )
-
+        return Coordinate3D(self.x, self.y, self.z)

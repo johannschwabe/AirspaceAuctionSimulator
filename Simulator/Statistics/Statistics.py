@@ -1,11 +1,10 @@
-from ..Time import Tick
 from ..History import HistoryAgent
 from ..Simulator import Owner, Simulator
 from ..Agent import Agent
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..Coordinate import TimeCoordinate
+    from ..Coordinate import Coordinate4D
 
 
 class Statistics:
@@ -15,7 +14,7 @@ class Statistics:
     def non_colliding_value(self, agent: Agent):
         local_agent = agent.clone()
         local_env = self.history.env.new_clear()
-        paths = self.history.allocator.allocate_for_agents([local_agent], local_env, Tick(0))[0]
+        paths = self.history.allocator.allocate_for_agents([local_agent], local_env, 0)[0]
         return local_agent.value_for_segments(paths.segments)
 
     def non_colliding_values(self):
@@ -80,7 +79,7 @@ class Statistics:
                     res[agent.id]["total_far_field_intersection"] += res[agent.id]["far_field_intersection"][step.t]
         return res
 
-    def violations(self, position: "TimeCoordinate", agent: HistoryAgent, radi: int):
+    def violations(self, position: "Coordinate4D", agent: HistoryAgent, radi: int):
         box = [position.x - radi,
                position.y - radi,
                position.z - radi,
@@ -98,7 +97,7 @@ class Statistics:
             count += int(end) - int(start) + 1
         return count
 
-    def intersections(self, position: "TimeCoordinate", agent: HistoryAgent):
+    def intersections(self, position: "Coordinate4D", agent: HistoryAgent):
         max_radi = self.history.env.get_agents()[agent.id].max_far_field_radius
         near_radi = self.history.env.get_agents()[agent.id].near_radius
         fahrrad = self.history.env.get_agents()[agent.id].far_radius

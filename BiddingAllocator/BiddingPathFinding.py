@@ -5,12 +5,12 @@ from time import time_ns
 # Implemented based on https://www.annytab.com/a-star-search-algorithm-in-python/
 from .BiddingABAgent import BiddingABAgent
 from Simulator import Environment, Tick
-from Simulator.Coordinate import TimeCoordinate, Coordinate
+from Simulator.Coordinate import Coordinate4D, Coordinate3D
 
 
 def bidding_astar(
-    start: TimeCoordinate,
-    end: TimeCoordinate,
+    start: Coordinate4D,
+    end: Coordinate4D,
     env: Environment,
     agent: BiddingABAgent,
     flying: bool
@@ -94,10 +94,10 @@ def bidding_astar(
 
     if len(path) == 0:
         print(f"ASTAR failed for agent: {agent.id}")
-    wait_coords: List[TimeCoordinate] = []
+    wait_coords: List[Coordinate4D] = []
     for near_coord in path:
         for t in range(1, agent.speed):
-            wait_coords.append(TimeCoordinate(near_coord.x, near_coord.y, near_coord.z, near_coord.t + Tick(t)))
+            wait_coords.append(Coordinate4D(near_coord.x, near_coord.y, near_coord.z, near_coord.t + Tick(t)))
 
     complete_path = path + wait_coords
     complete_path.sort(key=lambda x: x.t)
@@ -113,15 +113,15 @@ def bidding_astar(
     return complete_path, total_collisions
 
 
-def distance(start: TimeCoordinate, end: TimeCoordinate):
+def distance(start: Coordinate4D, end: Coordinate4D):
     return abs(start.x - end.x) + abs(start.y - end.y) + abs(start.z - end.z)
 
 
-def distance2(start: TimeCoordinate, end: TimeCoordinate):
+def distance2(start: Coordinate4D, end: Coordinate4D):
     return math.pow((start.x - end.x) ** 2 + (start.y - end.y) ** 2 + (start.z - end.z) ** 2, 0.5)
 
 
-def is_valid_for_allocation(env: Environment, position: TimeCoordinate, agent: BiddingABAgent):
+def is_valid_for_allocation(env: Environment, position: Coordinate4D, agent: BiddingABAgent):
     if env.is_blocked(position, agent.near_radius, agent.speed):
         return set(), False
     agents = env.intersect(position, agent.near_radius, agent.speed)
@@ -138,7 +138,7 @@ def is_valid_for_allocation(env: Environment, position: TimeCoordinate, agent: B
 
 
 class Node:
-    def __init__(self, position: TimeCoordinate, parent, collision: set[BiddingABAgent]):
+    def __init__(self, position: Coordinate4D, parent, collision: set[BiddingABAgent]):
         self.position = position
         self.parent = parent
         self.g = 0  # Distance to start node
@@ -158,25 +158,25 @@ class Node:
     def __repr__(self):
         return f"{self.position}: {self.f}, {self.h}"
 
-    def adjacent_coordinates(self, dim: Coordinate, speed: int) -> List[TimeCoordinate]:
-        res = [TimeCoordinate(self.position.x, self.position.y, self.position.z, Tick(
+    def adjacent_coordinates(self, dim: Coordinate, speed: int) -> List[Coordinate4D]:
+        res = [Coordinate4D(self.position.x, self.position.y, self.position.z, Tick(
             self.position.t + speed))]
         if self.position.x > 0:
-            res.append(TimeCoordinate(self.position.x - 1, self.position.y, self.position.z,
+            res.append(Coordinate4D(self.position.x - 1, self.position.y, self.position.z,
                                       Tick(self.position.t + speed)))
         if self.position.y > 0:
-            res.append(TimeCoordinate(self.position.x, self.position.y - 1, self.position.z,
+            res.append(Coordinate4D(self.position.x, self.position.y - 1, self.position.z,
                                       Tick(self.position.t + speed)))
         if self.position.z > 0:
-            res.append(TimeCoordinate(self.position.x, self.position.y, self.position.z - 1,
+            res.append(Coordinate4D(self.position.x, self.position.y, self.position.z - 1,
                                       Tick(self.position.t + speed)))
         if self.position.x < dim.x - 1:
-            res.append(TimeCoordinate(self.position.x + 1, self.position.y, self.position.z,
+            res.append(Coordinate4D(self.position.x + 1, self.position.y, self.position.z,
                                       Tick(self.position.t + speed)))
         if self.position.y < dim.y - 1:
-            res.append(TimeCoordinate(self.position.x, self.position.y + 1, self.position.z,
+            res.append(Coordinate4D(self.position.x, self.position.y + 1, self.position.z,
                                       Tick(self.position.t + speed)))
         if self.position.z < dim.z - 1:
-            res.append(TimeCoordinate(self.position.x, self.position.y, self.position.z + 1,
+            res.append(Coordinate4D(self.position.x, self.position.y, self.position.z + 1,
                                       Tick(self.position.t + speed)))
         return res

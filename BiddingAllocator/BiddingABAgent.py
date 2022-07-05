@@ -2,7 +2,7 @@ from typing import Optional, TYPE_CHECKING
 
 from .BiddingABBid import BiddingABBid
 from Simulator.Agent import ABAgent, Agent
-from Simulator.Coordinate import TimeCoordinate
+from Simulator.Coordinate import Coordinate4D
 
 if TYPE_CHECKING:
     from Simulator import Tick
@@ -10,8 +10,8 @@ if TYPE_CHECKING:
 
 class BiddingABAgent(ABAgent):
     def __init__(self,
-        a: TimeCoordinate,
-        b: TimeCoordinate,
+        a: Coordinate4D,
+        b: Coordinate4D,
         priority: float,
         speed: Optional[int] = None,
         battery: Optional[int] = None,

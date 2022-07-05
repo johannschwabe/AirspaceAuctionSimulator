@@ -1,12 +1,12 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod,ABCMeta
 from typing import List, TYPE_CHECKING
 
 from ..Bid import Bid
-from ..Coordinate import TimeCoordinate
+from ..Coordinate import Coordinate4D
 
 if TYPE_CHECKING:
-    from .. import Tick
     from ..Path import PathSegment, SpaceSegment
+
 
 class Agent(ABC):
     _id: int = 0
@@ -32,14 +32,14 @@ class Agent(ABC):
         pass
 
     @abstractmethod
-    def get_bid(self, t: "Tick") -> Bid:
+    def get_bid(self, t: int) -> Bid:
         pass
 
     @abstractmethod
     def clone(self):
         pass
 
-    def get_allocated_coords(self) -> List["TimeCoordinate"]:
+    def get_allocated_coords(self) -> List["Coordinate4D"]:
         return [coord for path_segment in self._allocated_segments for coord in path_segment.coordinates]
 
     @abstractmethod

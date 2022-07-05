@@ -1,4 +1,4 @@
-export default class Coordinate {
+export default class Coordinate3D {
   /**
    * @param {int} x
    * @param {int} y

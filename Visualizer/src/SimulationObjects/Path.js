@@ -1,4 +1,4 @@
-import Coordinate from "./Coordinate";
+import Coordinate3D from "./Coordinate3D";
 import { first, last } from "lodash-es";
 
 export default class Path {
@@ -7,12 +7,12 @@ export default class Path {
    */
   constructor(rawPath) {
     /**
-     * @type {Object<int, Coordinate>}
+     * @type {Object<int, Coordinate3D>}
      */
     this.ticks = {};
     Object.entries(rawPath.t).forEach(([t, loc]) => {
       const [x, y, z] = loc;
-      this.ticks[t] = new Coordinate(x, y, z);
+      this.ticks[t] = new Coordinate3D(x, y, z);
     });
   }
 

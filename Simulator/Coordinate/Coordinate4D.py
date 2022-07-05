@@ -1,15 +1,14 @@
-from random import random, randint
+from random import random
 
-from .Coordinate import Coordinate
-from ..Time import Tick
+from .Coordinate3D import Coordinate3D
 
 
-class TimeCoordinate(Coordinate):
+class Coordinate4D(Coordinate3D):
     dim = None
 
-    def __init__(self, x: int, y: int, z: int, t: Tick):
+    def __init__(self, x: int, y: int, z: int, t: int):
         super().__init__(x, y, z)
-        self.t: Tick = t
+        self.t: int = t
 
     def get_key(self):
         return f"{self.x}_{self.y}_{self.z}_{self.t}"
@@ -37,47 +36,38 @@ class TimeCoordinate(Coordinate):
         return [self.x, self.y, self.z, self.t]
 
     def to_inter_temporal(self):
-        return Coordinate(self.x, self.y, self.z)
+        return Coordinate3D(self.x, self.y, self.z)
 
     def __add__(self, other):
         t_other = 0
-        if type(other).__name__ == "TimeCoordinate":
+        if type(other).__name__ == "Coordinate4D":
             t_other = other.t
-        return TimeCoordinate(self.x + other.x, self.y + other.y, self.z + other.z, self.t + t_other)
+        return Coordinate4D(self.x + other.x, self.y + other.y, self.z + other.z, self.t + t_other)
 
     def __sub__(self, other):
         t_other = 0
-        if type(other).__name__ == "TimeCoordinate":
+        if type(other).__name__ == "Coordinate4D":
             t_other = other.t
-        return TimeCoordinate(self.x - other.x, self.y - other.y, self.z - other.z, self.t - t_other)
+        return Coordinate4D(self.x - other.x, self.y - other.y, self.z - other.z, self.t - t_other)
 
     def distance(self, other, l2: bool = False):
         temp = 0
-        if isinstance(other, TimeCoordinate):
+        if isinstance(other, Coordinate4D):
             temp = abs(self.t - other.t)
         return super().distance(other, l2), temp
 
-    def inter_temporal_distance(self, other: Coordinate, l2: bool = False) -> float:
+    def inter_temporal_distance(self, other: Coordinate3D, l2: bool = False) -> float:
         return super().distance(other, l2)
 
     def clone(self):
-        return TimeCoordinate(self.x, self.y, self.z, self.t)
+        return Coordinate4D(self.x, self.y, self.z, self.t)
 
     def random_neighbor(self, delta_t=0, chance_x=1 / 3, chance_y=1 / 3, chance_forward=0.5):
         r = random()
         move = 1 if random() > chance_forward else -1
         if r <= chance_x:
-            return TimeCoordinate(self.x + move, self.y, self.z, self.t + Tick(delta_t))
+            return Coordinate4D(self.x + move, self.y, self.z, self.t + delta_t)
         elif chance_x < r <= chance_y:
-            return TimeCoordinate(self.x, self.y + move, self.z, self.t + Tick(delta_t))
+            return Coordinate4D(self.x, self.y + move, self.z, self.t + delta_t)
         else:
-            return TimeCoordinate(self.x, self.y, self.z + move, self.t + Tick(delta_t))
-
-    @staticmethod
-    def random(dimensions: "TimeCoordinate"):
-        return TimeCoordinate(
-            randint(0, dimensions.x - 1),
-            randint(0, dimensions.y - 1),
-            randint(0, dimensions.z - 1),
-            Tick(randint(0, dimensions.t - 1))
-        )
+            return Coordinate4D(self.x, self.y, self.z + move, self.t + delta_t)

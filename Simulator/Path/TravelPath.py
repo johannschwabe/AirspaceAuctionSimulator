@@ -1,12 +1,12 @@
 from typing import List
 
-from ..Coordinate import TimeCoordinate
+from ..Coordinate import Coordinate4D
 
 
 class TravelPath:
 
-    def __init__(self, locations: List[TimeCoordinate]):
-        self.locations: List[TimeCoordinate] = locations
+    def __init__(self, locations: List[Coordinate4D]):
+        self.locations: List[Coordinate4D] = locations
         self.__i = 0
 
     def __getitem__(self, n):

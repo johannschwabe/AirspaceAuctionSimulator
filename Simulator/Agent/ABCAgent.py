@@ -3,24 +3,21 @@ from typing import List, Optional, TYPE_CHECKING
 from . import Agent
 from .PathAgent import PathAgent
 from ..Bid import Bid, ABCBid
-from ..Coordinate import TimeCoordinate
+from ..Coordinate import Coordinate4D
 from ..Path import PathSegment
-
-if TYPE_CHECKING:
-    from .. import Tick
 
 
 class ABCAgent(PathAgent):
     def __init__(
         self,
-        locations: List[TimeCoordinate],
+        locations: List[Coordinate4D],
         stays: List[int],
         speed: Optional[int] = None,
         battery: Optional[int] = None,
     ):
         super().__init__(speed, battery)
 
-        self._locations: List[TimeCoordinate] = locations
+        self._locations: List[Coordinate4D] = locations
         self.stays: List[int] = stays
 
     def value_for_segments(self, paths: List[PathSegment]) -> float:
@@ -47,7 +44,7 @@ class ABCAgent(PathAgent):
 
         return round(max(0., value), 2)
 
-    def get_bid(self, t: "Tick") -> Bid:
+    def get_bid(self, t: int) -> Bid:
         return ABCBid(self.battery, self._locations, self.stays)
 
     def clone(self):

@@ -2,17 +2,14 @@ from typing import List, Optional, TYPE_CHECKING
 
 from . import Agent, ABAgent
 from ..Bid import Bid, ABABid
-from ..Coordinate import TimeCoordinate
+from ..Coordinate import Coordinate4D
 from ..Path import PathSegment
-
-if TYPE_CHECKING:
-    from .. import Tick
 
 class ABAAgent(ABAgent):
     def __init__(
         self,
-        a: TimeCoordinate,
-        b: TimeCoordinate,
+        a: Coordinate4D,
+        b: Coordinate4D,
         stay: int = 5,
         speed: Optional[int] = None,
         battery: Optional[int] = None,
@@ -41,7 +38,7 @@ class ABAAgent(ABAgent):
 
         return 1.
 
-    def get_bid(self, t: "Tick") -> Bid:
+    def get_bid(self, t: int) -> Bid:
         return ABABid(self.battery, self.a, self.b, self.stay)
 
     def clone(self):
