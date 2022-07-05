@@ -59,14 +59,16 @@ const zoom = computed(() => {
 const positionValue = { ...props.stop?.position };
 const heatmapValue = { ...props.stop?.heatmap };
 
+const tileLayer = new TileLayer({
+  // tiles are served by OpenStreetMap
+  source: new OSM(),
+  zIndex: 0,
+});
+
 const layers = computed(() => {
   const val = [
     // adding a background tiled layer
-    new TileLayer({
-      // tiles are served by OpenStreetMap
-      source: new OSM(),
-      zIndex: 0,
-    }),
+    tileLayer,
   ];
   switch (selectionType.value) {
     case "heatmap":

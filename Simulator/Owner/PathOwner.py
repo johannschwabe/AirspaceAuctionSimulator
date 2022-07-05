@@ -25,11 +25,7 @@ class PathOwner(Owner, ABC):
         elif stop.type == "position":
             coord = Coordinate4D(stop.position.x, env.min_height, stop.position.z, t)
         elif stop.type == "heatmap":
-            tombola: List[Coordinate2D] = []
-            for key in stop.heatmap:
-                for i in range(0, int(key * 10)):
-                    tombola.extend(stop.heatmap[key])
-            winner = random.choice(tombola)
+            winner = stop.heatmap.generate_coordinate()
             coord = Coordinate4D(winner.x, env.min_height, winner.z, t)
         else:
             raise Exception("invalid stop type:", stop)
