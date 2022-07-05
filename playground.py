@@ -37,7 +37,7 @@ def simulate(env: Environment, t):
         ABOwner("Schnabeltier",
                 color_generator(),
                 [PathStop("random"), PathStop("random")],
-                [random.randint(0, 5) for _ in range(10)])
+                [random.randint(0, 5) for _ in range(100)])
     ]
     simulator = Simulator(owners, allocator, env)
     while simulator.time_step < t:
