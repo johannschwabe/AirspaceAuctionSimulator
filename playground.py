@@ -16,7 +16,7 @@ random.seed(3)
 
 def setup_empty(t):
     dimensions = Coordinate4D(50, 20, 50, t)
-    blocker = Blocker([Coordinate4D(25, 0, 25, t) for t in range(1000)], Coordinate3D(40, 15, 40))
+    blocker = Blocker([Coordinate4D(5, 0, 5, t) for t in range(1000)], Coordinate3D(40, 15, 40))
     return Environment(dimensions, blocker=[blocker])
 
 

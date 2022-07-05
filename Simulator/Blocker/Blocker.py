@@ -16,8 +16,6 @@ class Blocker:
         return True
 
     def add_to_tree(self, tree):
-        if not self.locations or len(self.locations) == 0:
-            return
         idx = 0
         start = self.locations[idx]
         while idx < len(self.locations):
