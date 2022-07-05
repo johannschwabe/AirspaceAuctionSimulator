@@ -207,7 +207,6 @@ export function useBlockers({ scene, blockerCache, shadows, x, z, blockerMateria
 
       blockerCache[blocker.id] = [blockerCube];
     }
-    console.log("XZ:", x, z);
     // Update blocker position
     const storedBlockerCube = blockerCache[blocker.id][0];
     storedBlockerCube.position.x = blocker.positionAtTick(simulation.tick).x + blocker.dimension.x / 2 - x / 2;
