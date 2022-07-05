@@ -5,10 +5,10 @@ from Simulator.Path import PathSegment, PathReallocation, SpaceSegment, SpaceRea
 from .BiddingABAgent import BiddingABAgent
 from .BiddingABBid import BiddingABBid
 from .BiddingPathFinding import bidding_astar
-from Simulator import Environment, Tick
+from Simulator import Environment
 from Simulator.Agent import Agent
 from Simulator.Allocator import Allocator
-from Simulator.Coordinate import TimeCoordinate
+from Simulator.Coordinate import Coordinate4D
 from .BiddingStationaryAgent import BiddingStationaryAgent
 from .BiddingStationaryBid import BiddingStationaryBid
 

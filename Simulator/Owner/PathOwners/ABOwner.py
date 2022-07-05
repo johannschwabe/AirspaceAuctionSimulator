@@ -1,19 +1,21 @@
 import random
 from typing import List, TYPE_CHECKING
 
-from BiddingAllocator.BiddingABAgent import BiddingABAgent
 from Simulator.Owner import PathStop
-from Simulator.Owner.PathOwners.ABOwner import ABOwner
+from Simulator.Owner.PathOwner import PathOwner
+from Simulator.Agent import ABAgent
 
 if TYPE_CHECKING:
     from Simulator import Environment
     from Simulator.Agent import Agent
 
 
-class BiddingABOwner(ABOwner):
-    def __init__(self, name: str, color: str, stops: List[PathStop], creation_ticks: List[int], priority: float):
-        super().__init__(name, color, stops, creation_ticks)
-        self.priority = priority
+class ABOwner(PathOwner):
+    def __init__(self, name: str, color: str, stops: List[PathStop], creation_ticks: List[int]):
+        assert len(stops) == 2
+
+        super().__init__(name, color, stops)
+        self.creation_ticks = creation_ticks
 
     def generate_agents(self, t: int, env: "Environment") -> List["Agent"]:
         res = []
@@ -25,7 +27,7 @@ class BiddingABOwner(ABOwner):
             distance = start.inter_temporal_distance(target)
             travel_time = distance * speed
             target.t = start.t + travel_time + random.randint(0, 100)
-            agent = BiddingABAgent(start, target, priority=random.randint(0, 100), speed=speed, battery=travel_time * 2)
+            agent = ABAgent(start, target, speed=speed, battery=travel_time * 2)
             res.append(agent)
             print(f"A-B created {agent}")
 

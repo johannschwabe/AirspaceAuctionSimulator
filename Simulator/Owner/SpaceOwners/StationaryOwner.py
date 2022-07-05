@@ -1,22 +1,21 @@
 import random
 from typing import List, TYPE_CHECKING
 
-from .Owner import Owner
-from ..Coordinate import Coordinate, TimeCoordinate
-from ..Time import Tick
-from ..Agent import StationaryAgent
+from Simulator.Coordinate import Coordinate3D, Coordinate4D
+from Simulator.Owner.SpaceOwner import SpaceOwner
+from Simulator.Agent import StationaryAgent
 
 if TYPE_CHECKING:
     from Simulator import Environment
     from Simulator.Agent import Agent
 
 
-class StationaryOwner(Owner):
+class StationaryOwner(SpaceOwner):
     def __init__(self, name: str, color: str, creation_ticks: List[int], nr_blocks: int, size: TimeCoordinate):
         super().__init__(name, color)
         self.creation_ticks = creation_ticks
         self.nr_blocks: int = nr_blocks
-        self.size: TimeCoordinate = size
+        self.size: "Coordinate4D" = size
 
     def generate_agents(self, t: int, env: "Environment") -> List["Agent"]:
         res = []
@@ -24,7 +23,7 @@ class StationaryOwner(Owner):
             dimensions = env._dimension
             blocks = []
             for i in range(self.nr_blocks):
-                bottom_left = TimeCoordinate.random(dimensions)
+                bottom_left = Coordinate4D.random(dimensions)
                 top_right = bottom_left + self.size
                 blocks.append([bottom_left, top_right])
             agent = StationaryAgent(blocks)

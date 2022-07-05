@@ -1,7 +1,6 @@
 from typing import List, TYPE_CHECKING
 from time import time
 from .Path import PathReallocation, SpaceReallocation
-from .Time import Tick
 from .Agent import Agent
 from .Environment import Environment
 from .Allocator import Allocator
@@ -22,7 +21,7 @@ class Simulator:
         self.environment: Environment = environment
         self.history: "History" = history
         # self.agents: List[Agent] = []
-        self.time_step = Tick(0)
+        self.time_step = 0
 
     def tick(self) -> bool:
         start_t = time() * 1000

@@ -45,7 +45,7 @@
     </n-grid-item>
 
     <n-grid-item span="3">
-      <map-viewer :tiles="tileUrls" />
+      <map-viewer :map-info="mapInfo" :dimension="dimension" />
     </n-grid-item>
   </n-grid>
 </template>
@@ -112,6 +112,7 @@ const mapInfo = computed(() => {
     tiles,
     topLeftCoordinate,
     bottomRightCoordiante,
+    coordinates,
   };
 });
 watch(mapInfo, () => {
@@ -120,11 +121,6 @@ watch(mapInfo, () => {
 emit("mapChange", mapInfo.value);
 onUnmounted(() => {
   emit("mapChange", null);
-});
-
-const tileUrls = computed(() => {
-  const tileUrlFunction = source.getTileUrlFunction();
-  return mapInfo.value.tiles.map((coord) => tileUrlFunction(coord, 1, get("EPSG:3857")));
 });
 
 const resolveAddress = async () => {

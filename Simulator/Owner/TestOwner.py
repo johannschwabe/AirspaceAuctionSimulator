@@ -1,7 +1,7 @@
 import random
 from typing import List, TYPE_CHECKING
 
-from ..Coordinate import TimeCoordinate
+from ..Coordinate import Coordinate4D
 from .Owner import Owner
 from ..Agent import ABAgent, ABCAgent
 

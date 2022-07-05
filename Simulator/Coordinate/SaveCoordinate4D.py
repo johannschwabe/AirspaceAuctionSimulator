@@ -1,11 +1,10 @@
-from .TimeCoordinate import TimeCoordinate
-from ..Time import Tick
+from .Coordinate4D import Coordinate4D
 
 
-class SaveTimeCoordinate(TimeCoordinate):
+class SaveCoordinate4D(Coordinate4D):
 
-    def __init__(self, x: int, y: int, z: int, t: Tick, dimensions: TimeCoordinate):
-        self.__dimensions: TimeCoordinate = dimensions
+    def __init__(self, x: int, y: int, z: int, t: int, dimensions: Coordinate4D):
+        self.__dimensions: Coordinate4D = dimensions
         super().__init__(self.save_x(x), self.save_y(y), self.save_z(z), self.save_t(t))
 
     def save_coord(self, attr, dim):
@@ -41,11 +40,11 @@ class SaveTimeCoordinate(TimeCoordinate):
 
     def random_neighbor(self, delta_t=0, chance_x=1/3, chance_y=1/3, chance_forward=0.5):
         time_coordinate = super().random_neighbor(delta_t=delta_t, chance_x=chance_x, chance_y=chance_y, chance_forward=chance_forward)
-        return SaveTimeCoordinate.from_time_coordinate(time_coordinate, self.__dimensions)
+        return SaveCoordinate4D.from_time_coordinate(time_coordinate, self.__dimensions)
 
     @staticmethod
-    def from_time_coordinate(time_coordinate: TimeCoordinate, dimensions: TimeCoordinate):
-        return SaveTimeCoordinate(
+    def from_time_coordinate(time_coordinate: Coordinate4D, dimensions: Coordinate4D):
+        return SaveCoordinate4D(
             time_coordinate.x, time_coordinate.y, time_coordinate.z, time_coordinate.t,
             dimensions=dimensions,
         )

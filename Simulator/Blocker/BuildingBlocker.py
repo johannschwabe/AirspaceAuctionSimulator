@@ -2,18 +2,17 @@ from typing import List
 
 from shapely.geometry import Polygon, Point
 from . import Blocker
-from .. import Tick
-from ..Coordinate import TimeCoordinate, Coordinate
+from ..Coordinate import Coordinate4D, Coordinate3D
 
 
 class BuildingBlocker(Blocker):
-    def __init__(self, vertices: List[List[int]], bounds: List[TimeCoordinate]):
+    def __init__(self, vertices: List[List[int]], bounds: List[Coordinate4D]):
         self.points = vertices
         self.polygon = Polygon(vertices)
 
         super().__init__(bounds, bounds[1] - bounds[0])
 
-    def is_blocking(self, coord: TimeCoordinate, radius: int = 0):
+    def is_blocking(self, coord: Coordinate4D, radius: int = 0):
         point = Point(coord.x, coord.z)
 
         if radius == 0:

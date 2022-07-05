@@ -3,12 +3,10 @@ from typing import List, TYPE_CHECKING
 from .Agent import Agent
 from .SpaceAgent import SpaceAgent
 from ..Path import SpaceSegment
-from ..Time import Tick
 from ..Bid import Bid, StationaryBid
 
 if TYPE_CHECKING:
-    from .. import Tick
-    from ..Coordinate import TimeCoordinate
+    from ..Coordinate import Coordinate4D, Coordinate3D
 
 class StationaryAgent(SpaceAgent):
     def __init__(
@@ -35,7 +33,7 @@ class StationaryAgent(SpaceAgent):
         return sum_segments / sum_blocks
 
 
-    def get_bid(self, t: "Tick") -> Bid:
+    def get_bid(self, t: int) -> Bid:
         return StationaryBid(self.blocks)
 
     def clone(self):

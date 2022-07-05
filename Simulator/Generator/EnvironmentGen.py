@@ -2,7 +2,7 @@ from typing import List, TYPE_CHECKING
 
 from .BlockerGen import Blocker, BlockerGen
 from ..Environment import Environment
-from ..Coordinate import TimeCoordinate, Coordinate
+from ..Coordinate import Coordinate4D, Coordinate3D
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
@@ -10,8 +10,8 @@ if TYPE_CHECKING:
 
 class EnvironmentGen:
 
-    def __init__(self, dimensions: TimeCoordinate, maptiles: List["MapTile"]):
-        self.dimensions: TimeCoordinate = dimensions
+    def __init__(self, dimensions: Coordinate4D, maptiles: List["MapTile"]):
+        self.dimensions: Coordinate4D = dimensions
         self.maptiles: List["MapTile"] = maptiles
 
     def generate(self, n_blockers: int) -> Environment:

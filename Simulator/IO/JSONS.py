@@ -10,10 +10,10 @@ from ..History import HistoryAgent
 from ..IO import Stringify
 from ..Generator.MapTile import MapTile
 if TYPE_CHECKING:
-    from ..Coordinate import TimeCoordinate
+    from ..Coordinate import Coordinate4D
 
 class Path(Stringify):
-    def __init__(self, path: List["TimeCoordinate"]):
+    def __init__(self, path: List["Coordinate4D"]):
         self.t: Dict[str, List[int, int, int]] = {}
 
         for coord in path:
@@ -167,8 +167,8 @@ class JSONMaptile(Stringify):
 
 
 class JSONEnvironment(Stringify):
-    def __init__(self, dimensions: "TimeCoordinate", blockers: List[Blocker], maptiles: List[MapTile]):
-        self.dimensions: "TimeCoordinate" = dimensions
+    def __init__(self, dimensions: "Coordinate4D", blockers: List[Blocker], maptiles: List[MapTile]):
+        self.dimensions: "Coordinate4D" = dimensions
         self.blockers: List[JSONBlocker] = [JSONBlocker(blocker) for blocker in blockers if not isinstance(blocker, BuildingBlocker)]
         self.maptiles: List[JSONMaptile] = [JSONMaptile(maptile) for maptile in maptiles]
 

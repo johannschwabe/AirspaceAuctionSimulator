@@ -7,36 +7,13 @@
       <n-input v-model:value="model.description" type="textarea" placeholder="Model description (Metadata)" />
     </n-form-item>
 
-    <n-tabs type="line" animated>
-      <n-tab-pane name="coordinates" tab="Coordinates">
-        <n-grid cols="3" x-gap="12">
-          <n-grid-item span="1">
-            <n-form-item path="dimension.x" label="Dimension X">
-              <n-input-number v-model:value="model.dimension.x" :min="10" :max="10000" :step="10" />
-            </n-form-item>
-          </n-grid-item>
-          <n-grid-item span="1">
-            <n-form-item path="dimension.y" label="Dimension Y">
-              <n-input-number v-model:value="model.dimension.y" :min="10" :max="1000" :step="10" />
-            </n-form-item>
-          </n-grid-item>
-          <n-grid-item span="1">
-            <n-form-item path="dimension.z" label="Dimension Z">
-              <n-input-number v-model:value="model.dimension.z" :min="10" :max="10000" :step="10" />
-            </n-form-item>
-          </n-grid-item>
-        </n-grid>
-      </n-tab-pane>
-      <n-tab-pane name="map" tab="Map">
-        <map-selector @dimensionChange="setDimension" @map-change="(map) => (model.map = map)" />
-      </n-tab-pane>
-    </n-tabs>
+    <map-selector @dimensionChange="setDimension" @map-change="(map) => (model.map = map)" />
 
     <n-form-item path="dimension.t" label="Timesteps">
       <n-slider show-tooltip v-model:value="model.dimension.t" :min="10" :max="1000" :step="10" />
     </n-form-item>
     <n-form-item path="owners" label="Owners">
-      <owner ref="ownerRef" />
+      <owner ref="ownerRef" :dimension="model.dimension" :map-info="model.map" />
     </n-form-item>
   </n-form>
 
@@ -164,7 +141,7 @@ const stopLoading = () => {
 
 const simulate = () => {
   errorText.value = null;
-  owners.value = ownerRef.value.owners;
+  owners.value = ownerRef.value.getData();
   formRef.value?.validate((errors) => {
     if (!errors) {
       startLoading();

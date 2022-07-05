@@ -1,6 +1,6 @@
 from abc import ABC
 
-from . import Agent
+from .Agent import Agent
 from ..Path import SpaceSegment
 
 
