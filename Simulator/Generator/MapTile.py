@@ -69,9 +69,8 @@ class MapTile:
                         max_x = x
                     if max_z < z:
                         max_z = z
-                for hole in building['geometry']['holes'][0]:
-                    translated_hole = self.translate_coord(hole)
-                    holes.append(translated_hole)
+                for hole in building['geometry']['coordinates'][1:]:
+                    holes.append([self.translate_coord(hole_coord) for hole_coord in hole])
 
                 bounds = [Coordinate4D(min_x, 0, min_z, 0),
                           Coordinate4D(max_x, building['properties']['height'], max_z, self.dimensions.t + 1000)]

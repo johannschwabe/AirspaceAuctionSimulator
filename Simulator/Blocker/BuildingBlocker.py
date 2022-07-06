@@ -6,7 +6,7 @@ from ..Coordinate import Coordinate4D, Coordinate3D
 
 
 class BuildingBlocker(Blocker):
-    def __init__(self, vertices: List[List[float]], bounds: List[Coordinate4D], holes: List[List[float]]):
+    def __init__(self, vertices: List[List[float]], bounds: List[Coordinate4D], holes: List[List[List[float]]]):
         self.points = vertices
         self.polygon = Polygon(vertices, holes)
 
