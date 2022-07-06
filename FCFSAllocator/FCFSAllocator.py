@@ -96,33 +96,4 @@ class FCFSAllocator(Allocator):
                 res.append(SpaceReallocation(agent, optimal_path_segments, Reason.FIRST_ALLOCATION))
                 env.allocate_spaces_for_agent(agent, optimal_path_segments)
                 env.add_agent(agent)
-
-            elif isinstance(bid, ABCBid) and isinstance(agent, PathAgent):
-                a = bid.locations[0]
-                time = 0
-                count = 0
-                for b, stay in zip(bid.locations[1:], bid.stays):
-                    ab_path = astar(
-                        a,
-                        b,
-                        env,
-                        agent,
-                    )
-
-                    if len(ab_path) == 0:
-                        optimal_path_segments = []
-                        break
-
-                    time += ab_path[-1].t - ab_path[0].t
-                    if time > agent.battery:
-                        break
-
-                    optimal_path_segments.append(PathSegment(a.to_inter_temporal(), b.to_inter_temporal(), count, ab_path))
-                    count += 1
-                    # optimal_path_segments.append(ab_path)
-                    a = ab_path[-1].clone()
-
-                res.append(PathReallocation(agent, optimal_path_segments, Reason.FIRST_ALLOCATION))
-                env.allocate_path_for_agent(agent, optimal_path_segments)
-                env.add_agent(agent)
         return res
