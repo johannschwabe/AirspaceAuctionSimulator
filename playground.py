@@ -10,6 +10,8 @@ from Simulator.Generator.MapTile import MapTile
 from Simulator.IO.JSONS import build_json
 from Simulator.Owner import PathStop, StopType
 from Simulator.Owner.PathOwners.ABOwner import ABOwner
+from Simulator.Owner.SpaceOwners.StationaryOwner import StationaryOwner
+
 
 random.seed(3)
 
@@ -37,7 +39,12 @@ def simulate(env: Environment, t):
         ABOwner("Schnabeltier",
                 color_generator(),
                 [PathStop(StopType.RANDOM), PathStop(StopType.RANDOM)],
-                [random.randint(0, 5) for _ in range(100)])
+                [random.randint(0, 5) for _ in range(100)]),
+        StationaryOwner("GhettoTier",
+                        color_generator(),
+                        [random.randint(0, 5) for _ in range(10)],
+                        1,
+                        Coordinate4D(5, 5, 5, 3)),
     ]
     simulator = Simulator(owners, allocator, env)
     while simulator.time_step < t:

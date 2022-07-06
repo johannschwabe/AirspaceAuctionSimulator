@@ -4,7 +4,7 @@ from time import time_ns
 
 # Implemented based on https://www.annytab.com/a-star-search-algorithm-in-python/
 from .BiddingABAgent import BiddingABAgent
-from Simulator import Environment, Tick
+from Simulator import Environment
 from Simulator.Coordinate import Coordinate4D, Coordinate3D
 
 
@@ -97,7 +97,7 @@ def bidding_astar(
     wait_coords: List[Coordinate4D] = []
     for near_coord in path:
         for t in range(1, agent.speed):
-            wait_coords.append(Coordinate4D(near_coord.x, near_coord.y, near_coord.z, near_coord.t + Tick(t)))
+            wait_coords.append(Coordinate4D(near_coord.x, near_coord.y, near_coord.z, near_coord.t + t))
 
     complete_path = path + wait_coords
     complete_path.sort(key=lambda x: x.t)
@@ -158,25 +158,25 @@ class Node:
     def __repr__(self):
         return f"{self.position}: {self.f}, {self.h}"
 
-    def adjacent_coordinates(self, dim: Coordinate, speed: int) -> List[Coordinate4D]:
-        res = [Coordinate4D(self.position.x, self.position.y, self.position.z, Tick(
-            self.position.t + speed))]
+    def adjacent_coordinates(self, dim: Coordinate3D, speed: int) -> List[Coordinate4D]:
+        res = [Coordinate4D(self.position.x, self.position.y, self.position.z,
+                            self.position.t + speed)]
         if self.position.x > 0:
             res.append(Coordinate4D(self.position.x - 1, self.position.y, self.position.z,
-                                      Tick(self.position.t + speed)))
+                                    self.position.t + speed))
         if self.position.y > 0:
             res.append(Coordinate4D(self.position.x, self.position.y - 1, self.position.z,
-                                      Tick(self.position.t + speed)))
+                                    self.position.t + speed))
         if self.position.z > 0:
             res.append(Coordinate4D(self.position.x, self.position.y, self.position.z - 1,
-                                      Tick(self.position.t + speed)))
+                                    self.position.t + speed))
         if self.position.x < dim.x - 1:
             res.append(Coordinate4D(self.position.x + 1, self.position.y, self.position.z,
-                                      Tick(self.position.t + speed)))
+                                    self.position.t + speed))
         if self.position.y < dim.y - 1:
             res.append(Coordinate4D(self.position.x, self.position.y + 1, self.position.z,
-                                      Tick(self.position.t + speed)))
+                                    self.position.t + speed))
         if self.position.z < dim.z - 1:
             res.append(Coordinate4D(self.position.x, self.position.y, self.position.z + 1,
-                                      Tick(self.position.t + speed)))
+                                    self.position.t + speed))
         return res

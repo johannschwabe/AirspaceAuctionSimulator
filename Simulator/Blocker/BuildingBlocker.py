@@ -1,8 +1,8 @@
 from typing import List
 
-from shapely.geometry import Polygon, Point
 from .StaticBlocker import StaticBlocker
-from ..Coordinate import Coordinate4D
+from shapely.geometry import Polygon, Point, box
+from ..Coordinate import Coordinate4D, Coordinate3D
 
 
 class BuildingBlocker(StaticBlocker):
@@ -19,3 +19,6 @@ class BuildingBlocker(StaticBlocker):
             return self.polygon.intersects(point)
         near_bound = point.buffer(radius)
         return self.polygon.intersects(near_bound)
+
+    def is_box_blocking(self, bottom_left: "Coordinate4D", top_right: "Coordinate4D") -> bool:
+        return self.polygon.intersects(box(bottom_left.x, bottom_left.z, top_right.x, top_right.z))

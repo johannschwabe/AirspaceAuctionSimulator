@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import List
 
 from rtree import Index
 
@@ -17,6 +16,9 @@ class Blocker(ABC):
         self.type: BlockerType = blocker_type
 
     def is_blocking(self, coord: Coordinate4D, radius: int = 0):
+        return True
+
+    def is_box_blocking(self, bottom_left: Coordinate4D, top_right: Coordinate4D) -> bool:
         return True
 
     @abstractmethod

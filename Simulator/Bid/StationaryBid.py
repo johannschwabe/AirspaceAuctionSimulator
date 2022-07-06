@@ -1,11 +1,12 @@
-from typing import List
+from typing import List, TYPE_CHECKING
+
 from ..Bid import Bid
-from ..Coordinate import Coordinate3D
+if TYPE_CHECKING:
+    from ..Coordinate import Coordinate4D
 
 
 class StationaryBid(Bid):
-    def __init__(self, block: List[Coordinate3D], start_t: int, end_t: int):
+    def __init__(self, blocks: List[List["Coordinate4D"]]):
         super().__init__(-1)
-        self.block: List[Coordinate3D] = block
-        self.start_t: int = start_t
-        self.end_t: int = end_t
+        self.blocks: List[List["Coordinate4D"]] = blocks
+

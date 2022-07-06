@@ -72,22 +72,24 @@ class Generator:
                 self.owners.append(ABOwner(ownerType.name,
                                            ownerType.color,
                                            stops,
-                                           self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
+                                           self.creation_ticks(self.environment.allocation_period, ownerType.agents)))
             elif ownerType.type == OwnerType.ABA.value:
                 self.owners.append(ABAOwner(ownerType.name,
                                             ownerType.color,
                                             stops,
-                                            self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
+                                            self.creation_ticks(self.environment.allocation_period, ownerType.agents)))
             elif ownerType.type == OwnerType.ABC.value:
                 self.owners.append(ABCOwner(ownerType.name,
                                             ownerType.color,
                                             stops,
-                                            self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
+                                            self.creation_ticks(self.environment.allocation_period, ownerType.agents)))
             elif ownerType.type == OwnerType.STATIONARY.value:
                 self.owners.append(
                     StationaryOwner(ownerType.name,
                                     ownerType.color,
-                                    self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
+                                    self.creation_ticks(self.environment.allocation_period, ownerType.agents),
+                                    1,  # ToDo Frontend connection
+                                    Coordinate4D(5, 5, 5, 5)))  # ToDo Frontend connection
 
         self.simulator = Simulator(
             self.owners,
