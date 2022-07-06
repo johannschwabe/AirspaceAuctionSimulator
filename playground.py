@@ -74,19 +74,19 @@ def setup_map():
     # ]))
     # for i in range(4):
     #     owners.append(ABCOwner("Schnabeltier"+ str(i), "#00C362", [random.randint(0,5) for _ in range(10)]))
-    for i in range(30):
+    for i in range(2):
         owners.append(ABOwner("Schnabeltier" + str(i),
                               color_generator(),
                               [PathStop("random"), PathStop("random")],
                               [random.randint(0, 5) for _ in range(10)],
                               ))
-        owners.append(StationaryOwner(
-            "GhettoTier",
-            color_generator(),
-            [random.randint(0, 5) for _ in range(10)],
-            1,
-            Coordinate4D(5, 5, 5, 3),
-        ))
+        # owners.append(StationaryOwner(
+        #     "GhettoTier",
+        #     color_generator(),
+        #     [random.randint(0, 5) for _ in range(10)],
+        #     1,
+        #     Coordinate4D(5, 5, 5, 3),
+        # ))
     # owners = [BiddingABOwner("Schnabeltier", "#00C362", [1, 1, 1, 2], 0.5),
     #           BiddingABOwner("Schnabeltier", "#DE4242", [1, 1, 3, 3, 3], 0.7)]
 
@@ -99,10 +99,10 @@ def setup_map():
         # SimulaterAligator.environment.visualize(SimulaterAligator.time_step)
     print(f"Total: {(time_ns() - t0) / 1e9}")
 
-    res = build_json(SimulaterAligator, "test", "Schnabeltier")
-    f = open("test.json", "w")
-    f.write(json.dumps(res))
-    f.close()
+    # res = build_json(SimulaterAligator, "test", "Schnabeltier")
+    # f = open("test.json", "w")
+    # f.write(json.dumps(res))
+    # f.close()
     # print(res)
     # print("agents: ", res['statistics']['total_number_of_agents'])
     # print("cols: ", res['statistics']['total_number_of_collisions'])
