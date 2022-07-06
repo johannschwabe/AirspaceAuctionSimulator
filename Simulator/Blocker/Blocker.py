@@ -9,7 +9,7 @@ from ..Coordinate import Coordinate4D, Coordinate3D
 class Blocker(ABC):
     _id: int = 1
 
-    def __init__(self, dimension: Coordinate3D, blocker_type: BlockerType = BlockerType.STATIC):
+    def __init__(self, dimension: Coordinate3D, blocker_type: BlockerType):
         self.id = -Blocker._id
         Blocker._id += 1
         self.dimension: Coordinate3D = dimension
