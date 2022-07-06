@@ -5,6 +5,8 @@ from typing import Dict, List, TYPE_CHECKING
 from .. import Blocker, Simulator, Statistics
 from ..Agent import Agent, PathAgent, SpaceAgent
 from ..Blocker.BuildingBlocker import BuildingBlocker
+from ..Blocker.DynamicBlocker import DynamicBlocker
+from ..Blocker.StaticBlocker import StaticBlocker
 from ..Enum import Reason
 from ..History import HistoryAgent
 from ..IO import Stringify
@@ -152,7 +154,10 @@ class JSONOwner(Stringify):
 class JSONBlocker(Stringify):
     def __init__(self, blocker: Blocker):
         self.id: int = blocker.id
-        self.path: Path = Path(blocker.locations)
+        if isinstance(blocker, DynamicBlocker):
+            self.path: Path = Path(blocker.locations)
+        elif isinstance(blocker, StaticBlocker):
+            self.location = blocker.location
         self.dimension = blocker.dimension
 
 
