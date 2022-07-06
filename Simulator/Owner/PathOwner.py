@@ -3,9 +3,9 @@ import random
 from typing import List
 
 from Simulator import Environment
-from Simulator.Coordinate import Coordinate4D, Coordinate2D
-from Simulator.Owner import PathStop, StopType
-from Simulator.Owner.Owner import Owner
+from Simulator.Coordinate import Coordinate4D
+from Simulator.Owner import Owner, PathStop
+from Simulator.Owner.StopType import StopType
 
 
 class PathOwner(Owner, ABC):

@@ -20,7 +20,7 @@ random.seed(3)
 def setup_empty(t):
     dimensions = Coordinate4D(50, 20, 50, t)
     blocker = StaticBlocker(Coordinate3D(5, 0, 5), Coordinate3D(40, 15, 40))
-    return Environment.init(dimensions, blocker=[blocker])
+    return Environment.init(dimensions, blocker=[blocker], allocation_period=20)
 
 
 def setup_map(t):
@@ -31,7 +31,7 @@ def setup_map(t):
         APISimpleCoordinate(lat=47.376034633497596, long=8.536376953124991),
         APISimpleCoordinate(lat=47.3685943521338, long=8.547363281249993)
     )
-    return Environment.init(dimensions, maptiles=[map_tile])
+    return Environment.init(dimensions, maptiles=[map_tile], allocation_period=20)
 
 
 def simulate(env: Environment, t):
@@ -66,8 +66,8 @@ def color_generator():
 
 
 if __name__ == "__main__":
-    max_t = 2000
-    environment = setup_map(max_t)
+    max_t = 1000
+    environment = setup_empty(max_t)
     simulatorAligator = simulate(environment, max_t)
 
     res = build_json(simulatorAligator, "test", "Schnabeltier")

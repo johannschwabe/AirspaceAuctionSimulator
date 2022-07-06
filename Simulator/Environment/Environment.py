@@ -42,8 +42,9 @@ class Environment:
     def init(dimension: Coordinate4D,
              blocker: Optional[List["Blocker"]] = None,
              maptiles: Optional[List["MapTile"]] = None,
-             min_height: int = 0):
-        env = Environment(dimension, blocker, maptiles, min_height)
+             min_height: int = 0,
+             allocation_period: int = 50):
+        env = Environment(dimension, blocker, maptiles, min_height, allocation_period)
         env.init_blocker_tree()
         return env
 
