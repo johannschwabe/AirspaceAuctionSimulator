@@ -84,9 +84,7 @@ def astar(
 
                 neighbor.g = current_node.g + 0.4
                 neighbor.h = distance2(neighbor.position, end_node.position) - neighbor.position.y / env.get_dim().y * 0.05 * neighbor.h
-                # neighbor.h = distance(neighbor.position, end_node.position)
                 neighbor.f = neighbor.g + neighbor.h
-                neighbor.i = distance2(neighbor.position, end_node.position)
 
                 if hash(neighbor) in open_nodes:
                     if open_nodes[hash(neighbor)].f > neighbor.f:
@@ -144,7 +142,6 @@ class Node:
         self.g = 0  # Distance to start node
         self.h = 0  # Distance to goal node
         self.f = 0  # Total cost
-        self.i = 0  # test
 
     def __eq__(self, other):
         return self.position.x == other.position.y and \
@@ -153,8 +150,6 @@ class Node:
             self.position.t == other.position.t
 
     def __lt__(self, other):
-        if self.f == other.f:
-            return self.i < other.i
         return self.f < other.f
 
     def __hash__(self):
