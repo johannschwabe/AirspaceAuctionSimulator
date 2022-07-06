@@ -1,8 +1,9 @@
 from typing import List
 
-from Simulator.Agent import SpaceAgent, Agent
-from Simulator.Enum import Reason
-from Simulator.Path import SpaceSegment
+from ..Agent.SpaceAgent import SpaceAgent
+from ..Agent.Agent import Agent
+from ..Enum import Reason
+from . import SpaceSegment
 
 
 class SpaceReallocation:

@@ -1,6 +1,7 @@
 import math
 from typing import List
 from time import time_ns
+import heapq
 
 from ..Agent import Agent, PathAgent
 from ..Environment import Environment
@@ -19,29 +20,33 @@ def astar(
     start_time = time_ns()
     open_nodes = {}
     closed_nodes = {}
-
-    valid_start = start
-    while not env.is_valid_for_allocation(valid_start, agent):
+    heap = []
+    valid_start = start.clone()
+    while not env.is_valid_for_allocation(valid_start, agent) and valid_start.t < env.dimension.t:
         valid_start.t += 1
 
-    start_node = Node(start, None)
+    if valid_start.t >= env.dimension.t:
+        print("ASTAR: No valid Start found")
+        return []
+
+    start_node = Node(valid_start, None)
     end_node = Node(end, None)
     open_nodes[hash(start_node)] = start_node
+    heapq.heappush(heap, start_node)
     steps = 0
-
     path = []
     sort_time = 0
     neighbors_time = 0
     valid_time = 0
     in_check_t = 0
     in_check_2_t = 0
-    MAX_ITER = 1000000
+    MAX_ITER = 20000
 
     while len(open_nodes) > 0 and steps < MAX_ITER:
         steps += 1
 
         start_sort = time_ns()
-        current_node = min(list(open_nodes.values()))
+        current_node = heapq.heappop(heap)
         sort_time += time_ns() - start_sort
 
         del open_nodes[hash(current_node)]
@@ -65,7 +70,7 @@ def astar(
         neighbors = current_node.adjacent_coordinates(env._dimension, agent.speed)
         for next_neighbor in neighbors:
             valid_start = time_ns()
-            valid = env.is_valid_for_allocation(next_neighbor, agent)
+            valid = env.is_valid_for_allocation(next_neighbor, agent) and next_neighbor.t <= env.dimension.t
             valid_time += time_ns() - valid_start
             if valid:
                 neighbor = Node(next_neighbor, current_node)
@@ -76,22 +81,21 @@ def astar(
                     continue
                 in_check_t += time_ns() - in_check_start
 
-                neighbor.g = current_node.g + 0.5
-                neighbor.h = distance2(neighbor.position, end_node.position)
-                neighbor.f = neighbor.g + neighbor.h - neighbor.position.y / env.get_dim().y * 0.05 * neighbor.h
+                neighbor.g = current_node.g + 0.4
+                neighbor.h = distance2(neighbor.position, end_node.position) - neighbor.position.y / env.get_dim().y * 0.05 * neighbor.h
+                neighbor.f = neighbor.g + neighbor.h
 
                 if hash(neighbor) in open_nodes:
                     if open_nodes[hash(neighbor)].f > neighbor.f:
                         open_nodes[hash(neighbor)] = neighbor
                 else:
                     open_nodes[hash(neighbor)] = neighbor
+                    heapq.heappush(heap, neighbor)
         neighbors_time += time_ns() - start_neighbors
 
     if len(path) == 0:
         print("ASTAR failed")
 
-    print(str(start))
-    print(str(end))
     wait_coords: List[Coordinate4D] = []
     for near_coord in path:
         for t in range(1, agent.speed):
@@ -124,6 +128,9 @@ def distance2(start: Coordinate4D, end: Coordinate4D):
 
 def distance3(start: Coordinate4D, end: Coordinate4D):
     return math.pow((start.x - end.x) ** 4 + (start.y - end.y) ** 4 + (start.z - end.z) ** 4, 1/4)
+
+def distance12(start: Coordinate4D, end: Coordinate4D):
+    return (distance(start, end) + distance2(start, end))/2
 
 class Node:
     def __init__(self, position: Coordinate4D, parent):

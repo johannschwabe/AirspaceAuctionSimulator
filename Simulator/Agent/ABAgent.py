@@ -6,6 +6,7 @@ from ..Bid import ABBid, Bid
 from ..Coordinate import Coordinate4D
 from ..Path import PathSegment
 
+
 class ABAgent(PathAgent):
     def __init__(
         self,

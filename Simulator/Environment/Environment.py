@@ -1,4 +1,4 @@
-from typing import List, Dict, TYPE_CHECKING, Optional
+from typing import List, Dict, TYPE_CHECKING, Optional, Literal
 from rtree import index
 
 from ..Agent import Agent, SpaceAgent, PathAgent
@@ -15,12 +15,14 @@ class Environment:
                  dimension: Coordinate4D,
                  blocker: Optional[List["Blocker"]] = None,
                  maptiles: Optional[List["MapTile"]] = None,
-                 min_height: int = 0):
+                 min_height: int = 0,
+                 allocation_period: int = 50):
         if maptiles is None:
             maptiles = []
         if blocker is None:
             blocker = []
         Coordinate4D.dim = dimension
+        self.allocation_period = allocation_period
         self._dimension: Coordinate4D = dimension
         self._agents: Dict[int, Agent] = {}
         self.blockers: Dict[int, "Blocker"] = {blocky.id: blocky for blocky in blocker}
@@ -33,6 +35,7 @@ class Environment:
         self.tree = index.Rtree(properties=props)
         self.blocker_tree = None
         self.min_height = min_height
+        self.max_near_field_radius = 0
 
     @staticmethod
     def init(dimension: Coordinate4D,
@@ -155,8 +158,42 @@ class Environment:
                 return True
         return False
 
+    def is_blocked_by_agent(self, coord: Coordinate4D, agent: PathAgent) -> bool:
+        intersections_large = self.intersect(coord, self.max_near_field_radius, agent.speed)
+        intersections_small = self.intersect(coord, agent.near_radius, agent.speed)
+        for intersection_id in intersections_large:
+            if intersection_id == agent.id:
+                continue
+            colliding_agent = self.get_agent(intersection_id)
+            if isinstance(colliding_agent, PathAgent):
+                allocated_segments = colliding_agent.get_allocated_segments()
+                count = 0
+                while allocated_segments[count].coordinates[-1].t < coord.t:
+                    count += 1
+                colliding_segment = allocated_segments[count].coordinates
+                collision = colliding_segment[coord.t - colliding_segment[0].t]
+                distance = coord.distance(collision)
+                if distance <= agent.near_radius or colliding_agent.near_radius <= distance:
+                    return False
+            else:
+                if intersection_id in intersections_small:
+                    return False
+
+
+    def is_box_blocked(self, bottom_left: Coordinate4D, top_right: Coordinate4D) -> bool:
+        blockers = self.blocker_tree.intersection((
+            bottom_left.list_rep() +
+            top_right.list_rep()
+        ))
+        for blocker_id in blockers:
+            if self.blockers[blocker_id].is_box_blocking(bottom_left, top_right):
+                return True
+        return False
+
     def add_agent(self, agent: Agent):
         self._agents[agent.id] = agent
+        if isinstance(agent, PathAgent):
+            self.max_near_field_radius = max(self.max_near_field_radius, agent.near_radius)
 
     def get_agents(self):
         return self._agents
@@ -177,8 +214,15 @@ class Environment:
             agents = self.intersect(coords, 0, 0)
             return len(list(agents)) == 0 and not self.is_blocked(coords, 0, 0)
 
-    def intersect_box(self, mini: Coordinate4D, maxi: Coordinate4D):
-        return self.tree.intersection(mini.list_rep() + maxi.list_rep(), objects=True)
+    def is_box_valid_for_allocation(self, bottom_left: "Coordinate4D", top_right: "Coordinate4D",
+                                    agent: "SpaceAgent") -> bool:
+        agents = self.intersect_box(bottom_left, top_right, "raw")
+        agent_free = len([_agent for _agent in agents if agent.id != _agent]) == 0
+        blocker_free = self.is_box_blocked(bottom_left, top_right)
+        return agent_free and blocker_free
+
+    def intersect_box(self, mini: Coordinate4D, maxi: Coordinate4D, _objects: bool | Literal["raw"] = True):
+        return self.tree.intersection(mini.list_rep() + maxi.list_rep(), objects=_objects)
 
     def intersect(self, coords: Coordinate4D, radius: int = 0, speed: int = 0):
         return self.tree.intersection((

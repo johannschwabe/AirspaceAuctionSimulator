@@ -15,6 +15,9 @@ class Blocker:
     def is_blocking(self, coord: Coordinate4D, radius: int = 0):
         return True
 
+    def is_box_blocking(self, bottom_left: Coordinate4D, top_right: Coordinate4D) -> bool:
+        return True
+
     def add_to_tree(self, tree):
         idx = 0
         start = self.locations[idx]

@@ -1,4 +1,4 @@
-from random import random
+from random import random, randint
 
 from .Coordinate3D import Coordinate3D
 
@@ -71,3 +71,12 @@ class Coordinate4D(Coordinate3D):
             return Coordinate4D(self.x, self.y + move, self.z, self.t + delta_t)
         else:
             return Coordinate4D(self.x, self.y, self.z + move, self.t + delta_t)
+
+    @staticmethod
+    def random(dimensions: "Coordinate4D"):
+        return Coordinate4D(
+            randint(0, dimensions.x - 1),
+            randint(0, dimensions.y - 1),
+            randint(0, dimensions.z - 1),
+            randint(0, dimensions.t - 1)
+        )

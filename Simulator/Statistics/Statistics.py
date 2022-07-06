@@ -1,4 +1,5 @@
 from ..History import HistoryAgent
+from ..Path import PathSegment
 from ..Simulator import Owner, Simulator
 from ..Agent import Agent
 from typing import TYPE_CHECKING
@@ -67,16 +68,17 @@ class Statistics:
                 "total_far_field_intersection": 0,
             }
             for segment in agent.get_allocated_segments():
-                for step in segment[::agent.speed]:
-                    res[agent.id]["near_field_violations"][step.t] = self.violations(step, agent, agent.near_radius)
-                    res[agent.id]["far_field_violations"][step.t] = self.violations(step, agent, agent.far_radius)
-                    near_intersections, far_intersections = self.intersections(step, agent)
-                    res[agent.id]["near_field_intersection"][step.t] = near_intersections
-                    res[agent.id]["far_field_intersection"][step.t] = far_intersections
-                    res[agent.id]["total_near_field_violations"] += res[agent.id]["near_field_violations"][step.t]
-                    res[agent.id]["total_far_field_violations"] += res[agent.id]["far_field_violations"][step.t]
-                    res[agent.id]["total_near_field_intersection"] += res[agent.id]["near_field_intersection"][step.t]
-                    res[agent.id]["total_far_field_intersection"] += res[agent.id]["far_field_intersection"][step.t]
+                if isinstance(segment, PathSegment):
+                    for step in segment[::agent.speed]:
+                        res[agent.id]["near_field_violations"][step.t] = self.violations(step, agent, agent.near_radius)
+                        res[agent.id]["far_field_violations"][step.t] = self.violations(step, agent, agent.far_radius)
+                        near_intersections, far_intersections = self.intersections(step, agent)
+                        res[agent.id]["near_field_intersection"][step.t] = near_intersections
+                        res[agent.id]["far_field_intersection"][step.t] = far_intersections
+                        res[agent.id]["total_near_field_violations"] += res[agent.id]["near_field_violations"][step.t]
+                        res[agent.id]["total_far_field_violations"] += res[agent.id]["far_field_violations"][step.t]
+                        res[agent.id]["total_near_field_intersection"] += res[agent.id]["near_field_intersection"][step.t]
+                        res[agent.id]["total_far_field_intersection"] += res[agent.id]["far_field_intersection"][step.t]
         return res
 
     def violations(self, position: "Coordinate4D", agent: HistoryAgent, radi: int):
