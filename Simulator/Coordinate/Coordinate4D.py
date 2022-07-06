@@ -10,6 +10,10 @@ class Coordinate4D(Coordinate3D):
         super().__init__(x, y, z)
         self.t: int = t
 
+    @staticmethod
+    def from_3d(coord_3d: Coordinate3D, t: int):
+        return Coordinate4D(coord_3d.x, coord_3d.y, coord_3d.z, t)
+
     def get_key(self):
         return f"{self.x}_{self.y}_{self.z}_{self.t}"
 

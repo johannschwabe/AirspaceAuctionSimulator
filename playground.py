@@ -3,9 +3,10 @@ import random
 
 from API import APISimpleCoordinate
 from FCFSAllocator.FCFSAllocator import FCFSAllocator
+from Simulator.Blocker.StaticBlocker import StaticBlocker
 from Simulator.Coordinate import Coordinate4D, Coordinate3D
 from Simulator.Environment import Environment
-from Simulator import Simulator, Blocker
+from Simulator import Simulator
 from Simulator.Generator.MapTile import MapTile
 from Simulator.IO.JSONS import build_json
 from Simulator.Owner import PathStop, StopType
@@ -18,7 +19,7 @@ random.seed(3)
 
 def setup_empty(t):
     dimensions = Coordinate4D(50, 20, 50, t)
-    blocker = Blocker([Coordinate4D(5, 0, 5, t) for t in range(1000)], Coordinate3D(40, 15, 40))
+    blocker = StaticBlocker(Coordinate3D(5, 0, 5), Coordinate3D(40, 15, 40))
     return Environment.init(dimensions, blocker=[blocker])
 
 
