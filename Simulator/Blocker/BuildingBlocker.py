@@ -6,9 +6,8 @@ from ..Coordinate import Coordinate4D
 
 
 class BuildingBlocker(StaticBlocker):
-    def __init__(self, vertices: List[List[float]], bounds: List[Coordinate4D], holes: List[List[float]]):
+    def __init__(self, vertices: List[List[float]], bounds: List[Coordinate4D], holes: List[List[List[float]]]):
         super().__init__(bounds[0], bounds[1] - bounds[0])
-
         self.points = vertices
         self.polygon = Polygon(vertices, holes)
 

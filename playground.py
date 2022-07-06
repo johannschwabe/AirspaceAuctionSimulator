@@ -66,8 +66,8 @@ def color_generator():
 
 
 if __name__ == "__main__":
-    max_t = 20
-    environment = setup_empty(max_t)
+    max_t = 2000
+    environment = setup_map(max_t)
     simulatorAligator = simulate(environment, max_t)
 
     res = build_json(simulatorAligator, "test", "Schnabeltier")
