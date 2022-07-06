@@ -3,6 +3,7 @@ Run server using >>> uvicorn API:app --reload
 App runs on 'https://localhost:8000/'
 """
 import random
+import time
 from typing import Optional, List, Dict
 
 from fastapi import FastAPI
@@ -89,7 +90,10 @@ def read_root(config: SimulationConfigType):
     random.seed(2)
     g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions,
                   maptiles=maptiles)
+    start_time = time.time_ns()
     g.simulate()
+    end_time = time.time_ns()
+    duration = int((end_time - start_time) / 1e9)
     print("--Simulation Completed--")
-    json = build_json(g.simulator, g.name, g.description)
+    json = build_json(g.simulator, g.name, g.description, duration)
     return json

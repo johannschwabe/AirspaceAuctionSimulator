@@ -15,8 +15,6 @@ class StationaryAgent(SpaceAgent):
         blocks: List[List["Coordinate4D"]],
     ):
         super().__init__()
-        self.near_radius = 0
-        self.far_radius = 0
         self.blocks: List[List["Coordinate4D"]] = blocks
 
     def value_for_segments(self, segments: List[SpaceSegment]) -> float:
