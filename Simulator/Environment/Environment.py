@@ -217,7 +217,6 @@ class Environment:
         return self._dimension
 
     def is_valid_for_allocation(self, coords: Coordinate4D, agent: Agent) -> bool:
-        # Todo: Could be in the near-field of another agent
         if isinstance(agent, PathAgent):
             radius: int = agent.near_radius
             agents = self.intersect(coords, radius, agent.speed)
