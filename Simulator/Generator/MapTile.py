@@ -5,7 +5,7 @@ from Simulator.Blocker.BuildingBlocker import BuildingBlocker
 from Simulator.Coordinate import Coordinate4D
 
 if TYPE_CHECKING:
-    from API import SimpleCoordinateType
+    from API import APISimpleCoordinate
 
 
 class MapTile:
@@ -14,8 +14,8 @@ class MapTile:
         self,
         tile_ids: List[int],
         dimensions: Coordinate4D,
-        top_left_coordinate: "SimpleCoordinateType",
-        bottom_right_coordinate: "SimpleCoordinateType",
+        top_left_coordinate: "APISimpleCoordinate",
+        bottom_right_coordinate: "APISimpleCoordinate",
     ):
         self.z = tile_ids[0]
         self.x = tile_ids[1]
@@ -63,7 +63,7 @@ class MapTile:
                         max_x = x
                     if max_z < z:
                         max_z = z
-                bounds = [Coordinate4D(min_x, 0, min_z, 0),
+                bounds = [Coordinate4D(min_x, -1, min_z, 0),
                           Coordinate4D(max_x, building['properties']['height'], max_z, self.dimensions.t * 10000)]
                 new_blocker = BuildingBlocker(coords, bounds)
                 res.append(new_blocker)

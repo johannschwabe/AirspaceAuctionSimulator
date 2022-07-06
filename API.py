@@ -34,53 +34,53 @@ app.add_middleware(
 )
 
 
-class StopType(BaseModel):
+class APIStop(BaseModel):
     type: str
     position: Optional[str]
     heatmap: Optional[Dict[str, List[str]]]
 
 
-class OwnerType(BaseModel):
+class APIOwner(BaseModel):
     name: str
     color: str
     agents: int
     type: str
-    stops: List[StopType]
+    stops: List[APIStop]
 
 
-class DimensionType(BaseModel):
+class APIDimension(BaseModel):
     x: int
     y: int
     z: int
     t: int
 
 
-class SimpleCoordinateType(BaseModel):
+class APISimpleCoordinate(BaseModel):
     long: float
     lat: float
 
 
-class MapType(BaseModel):
+class APIMap(BaseModel):
     tiles: List[List[int]]
-    topLeftCoordinate: SimpleCoordinateType
-    bottomRightCoordiante: SimpleCoordinateType
+    topLeftCoordinate: APISimpleCoordinate
+    bottomRightCoordinate: APISimpleCoordinate
 
 
-class SimulationConfigType(BaseModel):
+class APISimulationConfig(BaseModel):
     name: str
     description: Optional[str] = ""
-    map: Optional[MapType] = None
-    owners: List[OwnerType]
-    dimension: DimensionType
+    map: Optional[APIMap] = None
+    owners: List[APIOwner]
+    dimension: APIDimension
 
 
 @app.post("/simulation")
-def read_root(config: SimulationConfigType):
+def read_root(config: APISimulationConfig):
     dimensions = Coordinate4D(config.dimension.x, config.dimension.y, config.dimension.z, config.dimension.t)
     if config.map:
-        topLeftCoordinate = config.map.topLeftCoordinate
-        bottomRightCoordiante = config.map.bottomRightCoordiante
-        maptiles = [MapTile(tile, dimensions, topLeftCoordinate, bottomRightCoordiante) for tile in config.map.tiles]
+        top_left_coordinate = config.map.topLeftCoordinate
+        bottom_right_coordinate = config.map.bottomRightCoordinate
+        maptiles = [MapTile(tile, dimensions, top_left_coordinate, bottom_right_coordinate) for tile in config.map.tiles]
     else:
         maptiles = []
 

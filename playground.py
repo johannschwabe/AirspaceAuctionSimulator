@@ -1,14 +1,14 @@
 import json
 import random
 
-from API import SimpleCoordinateType
+from API import APISimpleCoordinate
 from FCFSAllocator.FCFSAllocator import FCFSAllocator
 from Simulator.Coordinate import Coordinate4D, Coordinate3D
 from Simulator.Environment import Environment
 from Simulator import Simulator, Blocker
 from Simulator.Generator.MapTile import MapTile
 from Simulator.IO.JSONS import build_json
-from Simulator.Owner import PathStop
+from Simulator.Owner import PathStop, StopType
 from Simulator.Owner.PathOwners.ABOwner import ABOwner
 
 random.seed(3)
@@ -25,8 +25,8 @@ def setup_map(t):
     map_tile = MapTile(
         [15, 17161, 11475],
         dimensions,
-        SimpleCoordinateType(lat=47.376034633497596, long=8.536376953124991),
-        SimpleCoordinateType(lat=47.3685943521338, long=8.547363281249993)
+        APISimpleCoordinate(lat=47.376034633497596, long=8.536376953124991),
+        APISimpleCoordinate(lat=47.3685943521338, long=8.547363281249993)
     )
     return Environment(dimensions, maptiles=[map_tile])
 
@@ -36,7 +36,7 @@ def simulate(env: Environment, t):
     owners = [
         ABOwner("Schnabeltier",
                 color_generator(),
-                [PathStop("random"), PathStop("random")],
+                [PathStop(StopType.RANDOM), PathStop(StopType.RANDOM)],
                 [random.randint(0, 5) for _ in range(100)])
     ]
     simulator = Simulator(owners, allocator, env)

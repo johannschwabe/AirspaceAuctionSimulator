@@ -90,7 +90,7 @@ const mapInfo = computed(() => {
   const tiles = [];
   const projectedCoordinate = fromLonLat([coordinates.long, coordinates.lat], "EPSG:3857");
   const tileCoord = grid.getTileCoordForCoordAndZ(projectedCoordinate, 15);
-  let topLeftCoordinate, bottomRightCoordiante;
+  let topLeftCoordinate, bottomRightCoordinate;
   const n = surroundingTiles.value;
   for (let i = -n; i <= n; i++) {
     for (let j = -n; j <= n; j++) {
@@ -104,14 +104,14 @@ const mapInfo = computed(() => {
       if (i === n && j === n) {
         const projectedExtent = grid.getTileCoordExtent(updatedTileCord);
         const extent = transformExtent(projectedExtent, get("EPSG:3857"), get("EPSG:4326"));
-        bottomRightCoordiante = { lat: extent[1], long: extent[2] };
+        bottomRightCoordinate = { lat: extent[1], long: extent[2] };
       }
     }
   }
   return {
     tiles,
     topLeftCoordinate,
-    bottomRightCoordiante,
+    bottomRightCoordinate,
     coordinates,
   };
 });

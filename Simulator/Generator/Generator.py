@@ -4,6 +4,8 @@ from typing import List, Optional, TYPE_CHECKING, Dict
 from FCFSAllocator.FCFSAllocator import FCFSAllocator
 from .EnvironmentGen import EnvironmentGen
 from ..Owner.Heatmap import Heatmap
+from ..Owner.HeatmapType import HeatmapType
+from ..Owner.OwnerType import OwnerType
 from ..Owner.PathOwners.ABAOwner import ABAOwner
 from ..Owner.PathOwners.ABCOwner import ABCOwner
 from ..Owner.PathOwners.ABOwner import ABOwner
@@ -12,13 +14,13 @@ from ..Statistics.Statistics import Statistics
 from ..History import History
 from ..Simulator import Simulator
 from ..Coordinate import Coordinate4D, Coordinate2D
-from ..Owner import Owner, PathStop
+from ..Owner import Owner, PathStop, StopType
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
     from ..Allocator import Allocator
     from ..Environment import Environment
-    from API import OwnerType
+    from API import APIOwner
 
 
 class Generator:
@@ -26,32 +28,32 @@ class Generator:
         self,
         name: str,
         description: str,
-        owners: List["OwnerType"],
+        owners: List["APIOwner"],
         dimensions: "Coordinate4D",
         maptiles: List["MapTile"]
     ):
         self.name: str = name
         self.description: str = description
-        self.ownerTypes: List[OwnerType] = owners
+        self.ownerTypes: List[APIOwner] = owners
         self.dimensions: "Coordinate4D" = dimensions
         self.owners: List["Owner"] = []
         self.allocator: "Allocator" = FCFSAllocator()
-        self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles).generate(10)
+        self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles).generate()
         self.simulator: Optional["Simulator"] = None
         self.history: Optional["History"] = None
         self.statistics: Optional[Statistics] = None
         self.simulator: Optional[Simulator] = None
 
     @staticmethod
-    def extract_owner_stops(owner: "OwnerType"):
+    def extract_owner_stops(owner: "APIOwner"):
         stops: List[PathStop] = []
         for stop in owner.stops:
-            if stop.type == "random":
-                stops.append(PathStop(stop.type))
-            elif stop.type == "position":
+            if stop.type == StopType.RANDOM.value:
+                stops.append(PathStop(StopType.RANDOM))
+            elif stop.type == StopType.POSITION.value:
                 x_str, z_str = stop.position.split("_")
-                stops.append(PathStop(stop.type, position=Coordinate2D(int(x_str), int(z_str))))
-            elif stop.type == "heatmap":
+                stops.append(PathStop(StopType.POSITION, position=Coordinate2D(int(x_str), int(z_str))))
+            elif stop.type == StopType.HEATMAP.value:
                 heat_dict: Dict[float, List[Coordinate2D]] = {}
                 for key in stop.heatmap:
                     float_key: float = float(key.replace("_", "."))
@@ -60,28 +62,28 @@ class Generator:
                         x_str, z_str = coord_str.split("_")
                         coordinates.append(Coordinate2D(int(x_str), int(z_str)))
                     heat_dict[float_key] = coordinates
-                stops.append(PathStop(stop.type, heatmap=Heatmap("inverse_sparse", inverse_sparse=heat_dict)))
+                stops.append(PathStop(StopType.HEATMAP, heatmap=Heatmap(HeatmapType.INVERSE_SPARSE, inverse_sparse=heat_dict)))
         return stops
 
     def simulate(self):
         for ownerType in self.ownerTypes:
             stops: List["PathStop"] = self.extract_owner_stops(ownerType)
-            if ownerType.type == "ab":
+            if ownerType.type == OwnerType.AB.value:
                 self.owners.append(ABOwner(ownerType.name,
                                            ownerType.color,
                                            stops,
                                            self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
-            elif ownerType.type == "aba":
+            elif ownerType.type == OwnerType.ABA.value:
                 self.owners.append(ABAOwner(ownerType.name,
                                             ownerType.color,
                                             stops,
                                             self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
-            elif ownerType.type == "abc":
+            elif ownerType.type == OwnerType.ABC.value:
                 self.owners.append(ABCOwner(ownerType.name,
                                             ownerType.color,
                                             stops,
                                             self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
-            elif ownerType.type == "stat":
+            elif ownerType.type == OwnerType.STATIONARY.value:
                 self.owners.append(
                     StationaryOwner(ownerType.name,
                                     ownerType.color,

@@ -1,9 +1,8 @@
 import random
 from abc import ABC, abstractmethod
-from typing import List, TYPE_CHECKING
+from typing import List
 
 from ..Agent import Agent
-from ..Coordinate import Coordinate4D
 from ..Environment import Environment
 
 

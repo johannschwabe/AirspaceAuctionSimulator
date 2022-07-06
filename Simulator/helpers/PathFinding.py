@@ -2,7 +2,7 @@ import math
 from typing import List
 from time import time_ns
 
-from ..Agent import Agent, PathAgent
+from ..Agent import PathAgent
 from ..Environment import Environment
 from ..Coordinate import Coordinate4D, Coordinate3D
 
@@ -21,6 +21,10 @@ def astar(
     closed_nodes = {}
 
     valid_start = start
+    if not env.can_be_valid_for_allocation(valid_start, agent):
+        print("STATIC BLOCKER AT START")
+        return []
+
     while not env.is_valid_for_allocation(valid_start, agent):
         valid_start.t += 1
 
