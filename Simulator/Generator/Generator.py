@@ -1,13 +1,14 @@
 import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
+from FCFSAllocator.FCFSAllocator import FCFSAllocator
 from .EnvironmentGen import EnvironmentGen
+from ..Owner.Heatmap import Heatmap
 from ..Owner.PathOwners.ABAOwner import ABAOwner
 from ..Owner.PathOwners.ABCOwner import ABCOwner
 from ..Owner.PathOwners.ABOwner import ABOwner
 from ..Owner.SpaceOwners.StationaryOwner import StationaryOwner
 from ..Statistics.Statistics import Statistics
-from ..Allocator import FCFSAllocator
 from ..History import History
 from ..Simulator import Simulator
 from ..Coordinate import Coordinate4D, Coordinate2D
@@ -59,7 +60,7 @@ class Generator:
                         x_str, z_str = coord_str.split("_")
                         coordinates.append(Coordinate2D(int(x_str), int(z_str)))
                     heat_dict[float_key] = coordinates
-                stops.append(PathStop(stop.type, heatmap=heat_dict))
+                stops.append(PathStop(stop.type, heatmap=Heatmap("inverse_sparse", inverse_sparse=heat_dict)))
         return stops
 
     def simulate(self):
@@ -86,18 +87,10 @@ class Generator:
                                     ownerType.color,
                                     self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
 
-
-        self.history = History(
-            self.dimensions,
-            self.allocator,
-            self.environment,
-            self.owners,
-        )
         self.simulator = Simulator(
             self.owners,
             self.allocator,
             self.environment,
-            self.history,
         )
         while self.simulator.time_step <= self.dimensions.t:
             print(f"STEP: {self.simulator.time_step}")

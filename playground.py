@@ -1,113 +1,56 @@
 import json
 import random
-from time import time_ns
 
 from API import SimpleCoordinateType
-from BiddingAllocator.BiddingABOwner import BiddingABOwner
-from BiddingAllocator.BiddingAllocator import BiddingAllocator
-from BiddingAllocator.BiddingStationaryOwner import BiddingStationaryOwner
-from Simulator.Allocator import FCFSAllocator
-from Simulator.Coordinate import Coordinate4D
+from FCFSAllocator.FCFSAllocator import FCFSAllocator
+from Simulator.Coordinate import Coordinate4D, Coordinate3D
 from Simulator.Environment import Environment
-from Simulator import Simulator
+from Simulator import Simulator, Blocker
 from Simulator.Generator.MapTile import MapTile
 from Simulator.IO.JSONS import build_json
-from Simulator.History import History
 from Simulator.Owner import PathStop
 from Simulator.Owner.PathOwners.ABOwner import ABOwner
 from Simulator.Owner.SpaceOwners.StationaryOwner import StationaryOwner
 
 
-def setup_empty():
-    dimensions = Coordinate4D(50, 20, 50, 20)
-    random.seed(3)
-    environment = Environment(dimensions, [], [])
-    environment.init_blocker_tree()
-    allocator = FCFSAllocator()
-    owners = []
-
-    for i in range(10):
-        owners.append(ABOwner("Schnabeltier" + str(i),
-                              color_generator(),
-                              [PathStop("random"), PathStop("random")],
-                              [random.randint(0, 5) for _ in range(10)],
-                              ))
-        owners.append(StationaryOwner(
-            "GhettoTier",
-            color_generator(),
-            [random.randint(0, 5) for _ in range(10)],
-            1,
-            Coordinate4D(5, 5, 5, 3),
-        ))
-
-    history = History(dimensions, allocator, environment, owners)
-    SimulaterAligator = Simulator(owners, allocator, environment, history)
-    t0 = time_ns()
-    while SimulaterAligator.time_step < dimensions.t:
-        # print(simulator.time_step)
-        SimulaterAligator.tick()
-        # SimulaterAligator.environment.visualize(SimulaterAligator.time_step)
-    print(f"Total: {(time_ns() - t0) / 1e9}")
-
-    res = build_json(SimulaterAligator, "test", "Schnabeltier")
-    f = open("test.json", "w")
-    f.write(json.dumps(res))
-    f.close()
+random.seed(3)
 
 
-def setup_map():
-    dimensions = Coordinate4D(831, 30, 831, 20000)
-    random.seed(3)
-    environment = Environment(dimensions, [], [MapTile(
+def setup_empty(t):
+    dimensions = Coordinate4D(50, 20, 50, t)
+    blocker = Blocker([Coordinate4D(5, 0, 5, t) for t in range(1000)], Coordinate3D(40, 15, 40))
+    return Environment.init(dimensions, blocker=[blocker])
+
+
+def setup_map(t):
+    dimensions = Coordinate4D(831, 30, 831, t)
+    map_tile = MapTile(
         [15, 17161, 11475],
         dimensions,
         SimpleCoordinateType(lat=47.376034633497596, long=8.536376953124991),
         SimpleCoordinateType(lat=47.3685943521338, long=8.547363281249993)
-    )])
-    environment.init_blocker_tree()
-    # allocator = BiddingAllocator()
+    )
+    return Environment.init(dimensions, maptiles=[map_tile])
+
+
+def simulate(env: Environment, t):
     allocator = FCFSAllocator()
-    owners = []
-    # owners.append(TestOwner("test", "#6EFF40", [
-    #     Coordinate4D(457, 0, 493, Tick(1)),
-    #     Coordinate4D(431, 21, 519, Tick(21))
-    # ]))
-    # for i in range(4):
-    #     owners.append(ABCOwner("Schnabeltier"+ str(i), "#00C362", [random.randint(0,5) for _ in range(10)]))
-    for i in range(30):
-        owners.append(ABOwner("Schnabeltier" + str(i),
-                              color_generator(),
-                              [PathStop("random"), PathStop("random")],
-                              [random.randint(0, 5) for _ in range(10)],
-                              ))
-        owners.append(StationaryOwner(
-            "GhettoTier",
-            color_generator(),
-            [random.randint(0, 5) for _ in range(10)],
-            1,
-            Coordinate4D(5, 5, 5, 3),
-        ))
-    # owners = [BiddingABOwner("Schnabeltier", "#00C362", [1, 1, 1, 2], 0.5),
-    #           BiddingABOwner("Schnabeltier", "#DE4242", [1, 1, 3, 3, 3], 0.7)]
+    owners = [
+        ABOwner("Schnabeltier",
+                color_generator(),
+                [PathStop("random"), PathStop("random")],
+                [random.randint(0, 5) for _ in range(100)]),
+        StationaryOwner("GhettoTier",
+                        color_generator(),
+                        [random.randint(0, 5) for _ in range(10)],
+                        1,
+                        Coordinate4D(5, 5, 5, 3)),
+    ]
+    simulator = Simulator(owners, allocator, env)
+    while simulator.time_step < t:
+        simulator.tick()
 
-    history = History(dimensions, allocator, environment, owners)
-    SimulaterAligator = Simulator(owners, allocator, environment, history)
-    t0 = time_ns()
-    while SimulaterAligator.time_step < environment.allocation_period:
-        # print(simulator.time_step)
-        SimulaterAligator.tick()
-        # SimulaterAligator.environment.visualize(SimulaterAligator.time_step)
-    print(f"Total: {(time_ns() - t0) / 1e9}")
-
-    res = build_json(SimulaterAligator, "test", "Schnabeltier")
-    f = open("test.json", "w")
-    f.write(json.dumps(res))
-    f.close()
-    # print(res)
-    # print("agents: ", res['statistics']['total_number_of_agents'])
-    # print("cols: ", res['statistics']['total_number_of_collisions'])
-    # print("wf: ", res['statistics']['total_achieved_welfare'])
-    print("done")
+    return simulator
 
 
 def color_generator():
@@ -122,4 +65,11 @@ def color_generator():
 
 
 if __name__ == "__main__":
-    setup_map()
+    max_t = 20
+    environment = setup_empty(max_t)
+    simulatorAligator = simulate(environment, max_t)
+
+    res = build_json(simulatorAligator, "test", "Schnabeltier")
+    f = open("test.json", "w")
+    f.write(json.dumps(res))
+    f.close()
