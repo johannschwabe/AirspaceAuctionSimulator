@@ -66,6 +66,7 @@ class JSONSpaceAgent(JSONAgent, Stringify):
         owner_name: str,
     ):
         super().__init__(agent, non_colliding_welfare, bid, owner_id, owner_name)
+        self.space_segments = agent.get_allocated_segments()
 
 
 class JSONPathAgent(JSONAgent, Stringify):
@@ -183,16 +184,21 @@ class JSONStatistics(Stringify):
 
 
 class JSONSimulation(Stringify):
-    def __init__(self, name: str, description: str, environment: JSONEnvironment, statistics: JSONStatistics,
-                 owners: List[JSONOwner]):
+    def __init__(self, name: str,
+                 description: str,
+                 environment: JSONEnvironment,
+                 statistics: JSONStatistics,
+                 owners: List[JSONOwner],
+                 compute_time: int):
         self.name: str = name
         self.description: str = description
         self.environment: JSONEnvironment = environment
         self.statistics: JSONStatistics = statistics
         self.owners: List[JSONOwner] = owners
+        self.compute_time = compute_time
 
 
-def build_json(simulator: Simulator, name: str, description: str):
+def build_json(simulator: Simulator, name: str, description: str, compute_time: int):
     env = simulator.environment
     history = simulator.history
     stats = Statistics(simulator)
@@ -223,12 +229,12 @@ def build_json(simulator: Simulator, name: str, description: str):
                     stats.non_colliding_value(agent),
                     agent.generalized_bid(),
                     owner.id,
-                    owner.name
+                    owner.name,
                 ))
             nr_collisions += close_passings[agent.id]["total_near_field_violations"]  # todo different collision metric
         owners.append(JSONOwner(owner.name, owner.id, owner.color, agents))
     json_stats = JSONStatistics(len(simulator.owners), len(env._agents), stats.total_agents_welfare(), nr_collisions, 0)
-    json_simulation = JSONSimulation(name, description, json_env, json_stats, owners)
+    json_simulation = JSONSimulation(name, description, json_env, json_stats, owners, compute_time)
     return json_simulation.as_dict()
 
 
