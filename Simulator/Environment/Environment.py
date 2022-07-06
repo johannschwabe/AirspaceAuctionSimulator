@@ -34,7 +34,15 @@ class Environment:
         self.tree = index.Rtree(properties=props)
         self.blocker_tree = None
         self.min_height = min_height
-        self.init_blocker_tree()
+
+    @staticmethod
+    def init(dimension: Coordinate4D,
+             blocker: Optional[List["Blocker"]] = None,
+             maptiles: Optional[List["MapTile"]] = None,
+             min_height: int = 0):
+        env = Environment(dimension, blocker, maptiles, min_height)
+        env.init_blocker_tree()
+        return env
 
     def deallocate_agent(self, agent: Agent, time_step: int):
         if isinstance(agent, PathAgent):

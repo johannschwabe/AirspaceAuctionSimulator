@@ -17,7 +17,7 @@ random.seed(3)
 def setup_empty(t):
     dimensions = Coordinate4D(50, 20, 50, t)
     blocker = Blocker([Coordinate4D(5, 0, 5, t) for t in range(1000)], Coordinate3D(40, 15, 40))
-    return Environment(dimensions, blocker=[blocker])
+    return Environment.init(dimensions, blocker=[blocker])
 
 
 def setup_map(t):
@@ -28,7 +28,7 @@ def setup_map(t):
         APISimpleCoordinate(lat=47.376034633497596, long=8.536376953124991),
         APISimpleCoordinate(lat=47.3685943521338, long=8.547363281249993)
     )
-    return Environment(dimensions, maptiles=[map_tile])
+    return Environment.init(dimensions, maptiles=[map_tile])
 
 
 def simulate(env: Environment, t):
