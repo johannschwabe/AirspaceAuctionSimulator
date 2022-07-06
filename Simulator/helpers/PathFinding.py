@@ -83,7 +83,6 @@ def astar(
 
                 neighbor.g = current_node.g + 0.4
                 neighbor.h = distance2(neighbor.position, end_node.position) - neighbor.position.y / env.get_dim().y * 0.05 * neighbor.h
-                # neighbor.h = distance(neighbor.position, end_node.position)
                 neighbor.f = neighbor.g + neighbor.h
                 neighbor.i = distance2(neighbor.position, end_node.position)
 
