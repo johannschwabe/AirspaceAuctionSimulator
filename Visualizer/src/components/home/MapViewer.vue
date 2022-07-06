@@ -42,7 +42,7 @@ const selectionType = computed(() => props.stop?.type);
 const map_root = ref(null);
 const topLeft = computed(() => fromLonLat([props.mapInfo.topLeftCoordinate.long, props.mapInfo.topLeftCoordinate.lat]));
 const bottomRight = computed(() =>
-  fromLonLat([props.mapInfo.bottomRightCoordiante.long, props.mapInfo.bottomRightCoordiante.lat])
+  fromLonLat([props.mapInfo.bottomRightCoordinate.long, props.mapInfo.bottomRightCoordinate.lat])
 );
 const extent = computed(() => boundingExtent([topLeft.value, bottomRight.value]));
 const min = computed(() => extent.value.slice(0, 2));

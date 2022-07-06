@@ -3,7 +3,7 @@ from typing import List
 from time import time_ns
 import heapq
 
-from ..Agent import Agent, PathAgent
+from ..Agent import PathAgent
 from ..Environment import Environment
 from ..Coordinate import Coordinate4D, Coordinate3D
 
@@ -22,6 +22,11 @@ def astar(
     closed_nodes = {}
     heap = []
     valid_start = start.clone()
+
+    if not env.can_be_valid_for_allocation(valid_start, agent):
+        print("STATIC BLOCKER AT START")
+        return []
+
     while not env.is_valid_for_allocation(valid_start, agent) and valid_start.t < env.dimension.t:
         valid_start.t += 1
 

@@ -96,7 +96,9 @@
 /**
  * @typedef {Object} RawBlocker
  * @property {int} id
- * @property {RawPath} path
+ * @property {string} type
+ * @property {RawPath | undefined} [path]
+ * @property {RawCoordiante | undefined} [location]
  * @property {RawCoordiante} dimension
  */
 

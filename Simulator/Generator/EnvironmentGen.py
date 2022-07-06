@@ -14,7 +14,7 @@ class EnvironmentGen:
         self.dimensions: Coordinate4D = dimensions
         self.maptiles: List["MapTile"] = maptiles
 
-    def generate(self, n_blockers: int) -> Environment:
+    def generate(self) -> Environment:
         blockers: List[Blocker] = BlockerGen(self.dimensions, self.maptiles).generate_maptile_blockers()
         env = Environment.init(self.dimensions, blockers, self.maptiles)
         return env

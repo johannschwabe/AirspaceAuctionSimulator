@@ -5,12 +5,16 @@ from typing import Dict, List, TYPE_CHECKING
 from .. import Blocker, Simulator, Statistics
 from ..Agent import Agent, PathAgent, SpaceAgent
 from ..Blocker.BuildingBlocker import BuildingBlocker
+from ..Blocker.DynamicBlocker import DynamicBlocker
+from ..Blocker.StaticBlocker import StaticBlocker
 from ..Enum import Reason
 from ..History import HistoryAgent
 from ..IO import Stringify
 from ..Generator.MapTile import MapTile
+
 if TYPE_CHECKING:
     from ..Coordinate import Coordinate4D
+
 
 class Path(Stringify):
     def __init__(self, path: List["Coordinate4D"]):
@@ -116,7 +120,8 @@ class JSONOwner(Stringify):
         self.id: int = id
         self.color: str = color
         self.agents: List[JSONAgent] = agents
-        self.total_time_in_air: int = sum([agent.time_in_air if isinstance(agent, JSONPathAgent) else 0 for agent in self.agents])
+        self.total_time_in_air: int = sum(
+            [agent.time_in_air if isinstance(agent, JSONPathAgent) else 0 for agent in self.agents])
 
         bids = [agent.bid["!value"] for agent in self.agents]
         self.total_bid_value: int = sum(bids)
@@ -153,7 +158,10 @@ class JSONOwner(Stringify):
 class JSONBlocker(Stringify):
     def __init__(self, blocker: Blocker):
         self.id: int = blocker.id
-        self.path: Path = Path(blocker.locations)
+        if isinstance(blocker, DynamicBlocker):
+            self.path: Path = Path(blocker.locations)
+        elif isinstance(blocker, StaticBlocker):
+            self.location = blocker.location
         self.dimension = blocker.dimension
 
 
@@ -170,7 +178,8 @@ class JSONMaptile(Stringify):
 class JSONEnvironment(Stringify):
     def __init__(self, dimensions: "Coordinate4D", blockers: List[Blocker], maptiles: List[MapTile]):
         self.dimensions: "Coordinate4D" = dimensions
-        self.blockers: List[JSONBlocker] = [JSONBlocker(blocker) for blocker in blockers if not isinstance(blocker, BuildingBlocker)]
+        self.blockers: List[JSONBlocker] = [JSONBlocker(blocker) for blocker in blockers if
+                                            not isinstance(blocker, BuildingBlocker)]
         self.maptiles: List[JSONMaptile] = [JSONMaptile(maptile) for maptile in maptiles]
 
 
