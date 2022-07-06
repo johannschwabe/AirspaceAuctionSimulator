@@ -29,7 +29,7 @@ class ABOwner(PathOwner):
             target.t = start.t + travel_time + random.randint(0, 100)
             agent = ABAgent(start, target, speed=speed, battery=travel_time * 2)
             res.append(agent)
-            print(f"A-B created {str(agent.id)}")
+            print(f"A-B created {str(agent)}")
 
         self.agents += res
         return res

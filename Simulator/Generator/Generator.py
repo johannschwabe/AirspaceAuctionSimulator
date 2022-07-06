@@ -85,7 +85,7 @@ class Generator:
                 self.owners.append(
                     StationaryOwner(ownerType.name,
                                     ownerType.color,
-                                    self.creation_ticks(self.environment.get_dim().t, ownerType.agents),
+                                    self.creation_ticks(self.environment.allocation_period, ownerType.agents),
                                     1, # ToDo Frontend connection
                                     Coordinate4D(5, 5, 5, 5))) # ToDo Frontend connection
 
