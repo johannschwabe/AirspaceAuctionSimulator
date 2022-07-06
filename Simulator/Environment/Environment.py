@@ -1,21 +1,31 @@
-from typing import List, Dict, TYPE_CHECKING, Literal
+from typing import List, Dict, TYPE_CHECKING, Optional, Literal
 from rtree import index
 
 from ..Agent import Agent, SpaceAgent, PathAgent
 from ..Coordinate import Coordinate4D
 from ..Path import PathSegment, SpaceSegment
-from ..Blocker import Blocker
 
 if TYPE_CHECKING:
     from ..Generator.MapTile import MapTile
+    from ..Blocker import Blocker
+
 
 class Environment:
-    def __init__(self, dimension: Coordinate4D, blocker: List[Blocker], maptiles: List["MapTile"], min_height: int = 0, allocation_period = 50):
+    def __init__(self,
+                 dimension: Coordinate4D,
+                 blocker: Optional[List["Blocker"]] = None,
+                 maptiles: Optional[List["MapTile"]] = None,
+                 min_height: int = 0,
+                 allocation_period: int = 50):
+        if maptiles is None:
+            maptiles = []
+        if blocker is None:
+            blocker = []
         Coordinate4D.dim = dimension
         self.allocation_period = allocation_period
         self._dimension: Coordinate4D = dimension
         self._agents: Dict[int, Agent] = {}
-        self.blockers: Dict[int, Blocker] = {blocky.id: blocky for blocky in blocker}
+        self.blockers: Dict[int, "Blocker"] = {blocky.id: blocky for blocky in blocker}
         self.map_tiles: List["MapTile"] = maptiles
         for tile in self.map_tiles:
             for block in tile.resolve_buildings():
@@ -26,6 +36,15 @@ class Environment:
         self.blocker_tree = None
         self.min_height = min_height
         self.max_near_field_radius = 0
+
+    @staticmethod
+    def init(dimension: Coordinate4D,
+             blocker: Optional[List["Blocker"]] = None,
+             maptiles: Optional[List["MapTile"]] = None,
+             min_height: int = 0):
+        env = Environment(dimension, blocker, maptiles, min_height)
+        env.init_blocker_tree()
+        return env
 
     def deallocate_agent(self, agent: Agent, time_step: int):
         if isinstance(agent, PathAgent):
@@ -246,7 +265,8 @@ class Environment:
     def clone(self):
         cloned = Environment(self._dimension, list(self.blockers.values()), self.map_tiles)
         if len(self.tree) > 0:
-            for item in self.tree.intersection(self.tree.bounds, objects=True):  # Todo faster deepCopy of tree
+            for item in self.tree.intersection(self.tree.bounds, objects=True):
+                # Todo faster deepCopy of tree
                 cloned.tree.insert(item.id, item.bbox)
         cloned.blocker_tree = self.blocker_tree
         for agent in self._agents.values():

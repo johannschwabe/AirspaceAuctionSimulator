@@ -1,6 +1,7 @@
 import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
+from FCFSAllocator.FCFSAllocator import FCFSAllocator
 from .EnvironmentGen import EnvironmentGen
 from ..Owner.Heatmap import Heatmap
 from ..Owner.PathOwners.ABAOwner import ABAOwner
@@ -8,7 +9,6 @@ from ..Owner.PathOwners.ABCOwner import ABCOwner
 from ..Owner.PathOwners.ABOwner import ABOwner
 from ..Owner.SpaceOwners.StationaryOwner import StationaryOwner
 from ..Statistics.Statistics import Statistics
-from ..Allocator import FCFSAllocator
 from ..History import History
 from ..Simulator import Simulator
 from ..Coordinate import Coordinate4D, Coordinate2D, Coordinate3D
@@ -89,18 +89,10 @@ class Generator:
                                     1, # ToDo Frontend connection
                                     Coordinate4D(5, 5, 5, 5))) # ToDo Frontend connection
 
-
-        self.history = History(
-            self.dimensions,
-            self.allocator,
-            self.environment,
-            self.owners,
-        )
         self.simulator = Simulator(
             self.owners,
             self.allocator,
             self.environment,
-            self.history,
         )
         while self.simulator.time_step <= self.dimensions.t:
             print(f"STEP: {self.simulator.time_step}")

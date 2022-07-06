@@ -97,7 +97,7 @@ def bidding_astar(
     wait_coords: List[Coordinate4D] = []
     for near_coord in path:
         for t in range(1, agent.speed):
-            wait_coords.append(Coordinate4D(near_coord.x, near_coord.y, near_coord.z, near_coord.t + Tick(t)))
+            wait_coords.append(Coordinate4D(near_coord.x, near_coord.y, near_coord.z, near_coord.t + t))
 
     complete_path = path + wait_coords
     complete_path.sort(key=lambda x: x.t)

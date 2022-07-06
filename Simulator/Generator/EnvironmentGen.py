@@ -16,6 +16,5 @@ class EnvironmentGen:
 
     def generate(self, n_blockers: int) -> Environment:
         blockers: List[Blocker] = BlockerGen(self.dimensions, self.maptiles).generate_maptile_blockers()
-        env = Environment(self.dimensions, blockers, self.maptiles)
-        env.init_blocker_tree()
+        env = Environment.init(self.dimensions, blockers, self.maptiles)
         return env

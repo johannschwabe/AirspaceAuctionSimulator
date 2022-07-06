@@ -1,13 +1,13 @@
 from typing import List
 
-from ..Enum import Reason
-from ..Path import PathSegment, SpaceSegment, PathReallocation, SpaceReallocation
-from ..Environment import Environment
-from ..Agent import Agent, PathAgent, SpaceAgent
-from ..Allocator import Allocator
-from ..Bid import ABBid, Bid, ABABid, StationaryBid, ABCBid
-from ..Coordinate import Coordinate4D
-from ..helpers.PathFinding import astar
+from Simulator.Enum import Reason
+from Simulator.Path import PathSegment, SpaceSegment, PathReallocation, SpaceReallocation
+from Simulator.Environment import Environment
+from Simulator.Agent import Agent, PathAgent, SpaceAgent
+from Simulator.Allocator import Allocator
+from Simulator.Bid import ABBid, Bid, ABABid, StationaryBid, ABCBid
+from Simulator.Coordinate import Coordinate4D
+from Simulator.helpers.PathFinding import astar
 
 
 class FCFSAllocator(Allocator):
@@ -95,34 +95,5 @@ class FCFSAllocator(Allocator):
 
                 res.append(SpaceReallocation(agent, optimal_path_segments, Reason.FIRST_ALLOCATION))
                 env.allocate_spaces_for_agent(agent, optimal_path_segments)
-                env.add_agent(agent)
-
-            elif isinstance(bid, ABCBid) and isinstance(agent, PathAgent):
-                a = bid.locations[0]
-                time = 0
-                count = 0
-                for b, stay in zip(bid.locations[1:], bid.stays):
-                    ab_path = astar(
-                        a,
-                        b,
-                        env,
-                        agent,
-                    )
-
-                    if len(ab_path) == 0:
-                        optimal_path_segments = []
-                        break
-
-                    time += ab_path[-1].t - ab_path[0].t
-                    if time > agent.battery:
-                        break
-
-                    optimal_path_segments.append(PathSegment(a.to_inter_temporal(), b.to_inter_temporal(), count, ab_path))
-                    count += 1
-                    # optimal_path_segments.append(ab_path)
-                    a = ab_path[-1].clone()
-
-                res.append(PathReallocation(agent, optimal_path_segments, Reason.FIRST_ALLOCATION))
-                env.allocate_path_for_agent(agent, optimal_path_segments)
                 env.add_agent(agent)
         return res
