@@ -1,7 +1,7 @@
 from ..History import HistoryAgent
 from ..Path import PathSegment
 from ..Simulator import Owner, Simulator
-from ..Agent import Agent
+from ..Agent import Agent, PathAgent
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -100,8 +100,8 @@ class Statistics:
         return count
 
     def intersections(self, position: "Coordinate4D", agent: HistoryAgent):
-        max_radi = self.history.env.get_agents()[agent.id].max_far_field_radius
-        near_radi = self.history.env.get_agents()[agent.id].near_radius
+        max_radi = max([_agent.far_radius for _agent in self.history.env.get_agents().values() if isinstance(_agent, PathAgent)])
+        near_radi = max([_agent.near_radius for _agent in self.history.env.get_agents().values() if isinstance(_agent, PathAgent)])
         fahrrad = self.history.env.get_agents()[agent.id].far_radius
         box = [position.x - max_radi * 2,
                position.y - max_radi * 2,

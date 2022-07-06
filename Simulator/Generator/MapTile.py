@@ -28,6 +28,17 @@ class MapTile:
     def url(self):
         return f"https://a.data.osmbuildings.org/0.2/anonymous/tile/{self.z}/{self.x}/{self.y}.json"
 
+    def translate_coord(self, coord: List[int]):
+        z = (
+                (coord[0] - self.top_left_coordinate.long) /
+                (self.bottom_right_coordinate.long - self.top_left_coordinate.long)
+            ) * self.dimensions.x
+        x = (
+                (coord[1] - self.top_left_coordinate.lat) /
+                (self.bottom_right_coordinate.lat - self.top_left_coordinate.lat)
+            ) * self.dimensions.z
+        return [x, z]
+
     def resolve_buildings(self):
         data = cloudscraper.create_scraper().get(self.url).json()
         res = []
@@ -40,21 +51,16 @@ class MapTile:
             )
             if is_feature and has_height and is_polygon and has_coordinates:
                 coords = []
+                holes = []
                 min_x = 100000
                 max_x = -100000
                 min_z = 100000
                 max_z = -100000
                 for coord in building['geometry']['coordinates'][0]:
-                    z = (
-                            (coord[0] - self.top_left_coordinate.long) /
-                            (self.bottom_right_coordinate.long - self.top_left_coordinate.long)
-                        ) * self.dimensions.x
-                    x = (
-                            (coord[1] - self.top_left_coordinate.lat) /
-                            (self.bottom_right_coordinate.lat - self.top_left_coordinate.lat)
-                        ) * self.dimensions.z
-                    coords.append([x, z])
-
+                    translated_coords = self.translate_coord(coord)
+                    coords.append(translated_coords)
+                    x = translated_coords[0]
+                    z = translated_coords[1]
                     if min_x > x:
                         min_x = x
                     if min_z > z:
@@ -63,9 +69,13 @@ class MapTile:
                         max_x = x
                     if max_z < z:
                         max_z = z
-                bounds = [Coordinate4D(min_x, -1, min_z, 0),
-                          Coordinate4D(max_x, building['properties']['height'], max_z, self.dimensions.t * 10000)]
-                new_blocker = BuildingBlocker(coords, bounds)
+                for hole in building['geometry']['holes'][0]:
+                    translated_hole = self.translate_coord(hole)
+                    holes.append(translated_hole)
+
+                bounds = [Coordinate4D(min_x, 0, min_z, 0),
+                          Coordinate4D(max_x, building['properties']['height'], max_z, self.dimensions.t + 1000)]
+                new_blocker = BuildingBlocker(coords, bounds, holes)
                 res.append(new_blocker)
 
         return res
