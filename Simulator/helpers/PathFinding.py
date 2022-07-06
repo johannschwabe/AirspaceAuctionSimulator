@@ -42,8 +42,7 @@ def astar(
     in_check_2_t = 0
     MAX_ITER = 20000
 
-    # while len(open_nodes) > 0 and steps < MAX_ITER:
-    while len(open_nodes) > 0:
+    while len(open_nodes) > 0 and steps < MAX_ITER:
         steps += 1
 
         start_sort = time_ns()
