@@ -96,8 +96,6 @@ def astar(
     if len(path) == 0:
         print("ASTAR failed")
 
-    # print(str(start))
-    # print(str(end))
     wait_coords: List[Coordinate4D] = []
     for near_coord in path:
         for t in range(1, agent.speed):
