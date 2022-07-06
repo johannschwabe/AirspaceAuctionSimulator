@@ -158,6 +158,7 @@ class JSONOwner(Stringify):
 class JSONBlocker(Stringify):
     def __init__(self, blocker: Blocker):
         self.id: int = blocker.id
+        self.type = blocker.type.value
         if isinstance(blocker, DynamicBlocker):
             self.path: Path = Path(blocker.locations)
         elif isinstance(blocker, StaticBlocker):
