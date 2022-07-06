@@ -1,13 +1,13 @@
 from typing import List
 
-from ..Enum import Reason
-from ..Path import PathSegment, SpaceSegment, PathReallocation, SpaceReallocation
-from ..Environment import Environment
-from ..Agent import Agent, PathAgent, SpaceAgent
-from ..Allocator import Allocator
-from ..Bid import ABBid, Bid, ABABid, StationaryBid, ABCBid
-from ..Coordinate import Coordinate4D
-from ..helpers.PathFinding import astar
+from Simulator.Enum import Reason
+from Simulator.Path import PathSegment, SpaceSegment, PathReallocation, SpaceReallocation
+from Simulator.Environment import Environment
+from Simulator.Agent import Agent, PathAgent, SpaceAgent
+from Simulator.Allocator import Allocator
+from Simulator.Bid import ABBid, Bid, ABABid, StationaryBid, ABCBid
+from Simulator.Coordinate import Coordinate4D
+from Simulator.helpers.PathFinding import astar
 
 
 class FCFSAllocator(Allocator):

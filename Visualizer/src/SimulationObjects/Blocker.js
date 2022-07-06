@@ -8,7 +8,7 @@ export default class Blocker {
    */
   constructor(rawBlocker) {
     this.id = rawBlocker.id;
-    this.dimension = new Coordinate3D(...Object.values(rawBlocker.dimension));
+    this.dimension = new Coordinate3D(rawBlocker.dimension.x, rawBlocker.dimension.y, rawBlocker.dimension.z);
     this.path = new Path(rawBlocker.path);
   }
 

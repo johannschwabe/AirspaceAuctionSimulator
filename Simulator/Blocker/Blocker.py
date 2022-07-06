@@ -12,12 +12,10 @@ class Blocker:
         self.locations = locations
         self.dimension: Coordinate3D = dimension
 
-    def is_blocking(self, coord: Coordinate4D, radius:int = 0):
+    def is_blocking(self, coord: Coordinate4D, radius: int = 0):
         return True
 
     def add_to_tree(self, tree):
-        if not self.locations or len(self.locations) == 0:
-            return
         idx = 0
         start = self.locations[idx]
         while idx < len(self.locations):

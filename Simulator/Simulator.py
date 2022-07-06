@@ -1,25 +1,23 @@
-from typing import List, Dict, TYPE_CHECKING
+from typing import List
 from time import time
-from .Path import PathSegment, PathReallocation, SpaceReallocation
+from .Path import PathReallocation, SpaceReallocation
 from .Agent import Agent
 from .Environment import Environment
 from .Allocator import Allocator
 from .Owner import Owner
-
-if TYPE_CHECKING:
-    from .History import History
+from .History.History import History
 
 
 class Simulator:
     def __init__(self,
                  owners: List[Owner],
                  allocator: Allocator,
-                 environment: Environment,
-                 history: "History"):
+                 environment: Environment):
         self.owners: List[Owner] = owners
         self.allocator: Allocator = allocator
         self.environment: Environment = environment
-        self.history: "History" = history
+        self.history: History = History(allocator, environment, owners)
+
         # self.agents: List[Agent] = []
         self.time_step = 0
 
