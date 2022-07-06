@@ -1,6 +1,6 @@
 from typing import List
 
-from shapely.geometry import Polygon, Point
+from shapely.geometry import Polygon, Point, box
 from . import Blocker
 from ..Coordinate import Coordinate4D, Coordinate3D
 
@@ -21,7 +21,7 @@ class BuildingBlocker(Blocker):
         return self.polygon.intersects(near_bound)
 
     def is_box_blocking(self, bottom_left: "Coordinate4D", top_right: "Coordinate4D") -> bool:
-        return True
+        return self.polygon.intersects(box(bottom_left.x, bottom_left.z, top_right.x, top_right.z))
 
     def add_to_tree(self, tree):
         bbox = self.locations[0].list_rep() + self.locations[1].list_rep()

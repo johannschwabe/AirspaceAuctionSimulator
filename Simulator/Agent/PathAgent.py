@@ -8,8 +8,6 @@ if TYPE_CHECKING:
 
 
 class PathAgent(Agent, ABC):
-    max_near_field_radius = 2
-    max_far_field_radius = 4
     default_near_radius = 1
     default_far_radius = 2
     default_speed = 1
@@ -25,7 +23,6 @@ class PathAgent(Agent, ABC):
 
         self.speed: int = speed if speed is not None else PathAgent.default_speed
         self.battery: int = battery if battery is not None else PathAgent.default_battery
-
 
         self.near_radius = near_radius if near_radius is not None else PathAgent.default_near_radius
         self.far_radius = PathAgent.default_far_radius

@@ -11,7 +11,7 @@ from ..Owner.SpaceOwners.StationaryOwner import StationaryOwner
 from ..Statistics.Statistics import Statistics
 from ..History import History
 from ..Simulator import Simulator
-from ..Coordinate import Coordinate4D, Coordinate2D
+from ..Coordinate import Coordinate4D, Coordinate2D, Coordinate3D
 from ..Owner import Owner, PathStop
 
 if TYPE_CHECKING:
@@ -70,22 +70,24 @@ class Generator:
                 self.owners.append(ABOwner(ownerType.name,
                                            ownerType.color,
                                            stops,
-                                           self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
+                                           self.creation_ticks(self.environment.allocation_period, ownerType.agents)))
             elif ownerType.type == "aba":
                 self.owners.append(ABAOwner(ownerType.name,
                                             ownerType.color,
                                             stops,
-                                            self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
+                                            self.creation_ticks(self.environment.allocation_period, ownerType.agents)))
             elif ownerType.type == "abc":
                 self.owners.append(ABCOwner(ownerType.name,
                                             ownerType.color,
                                             stops,
-                                            self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
+                                            self.creation_ticks(self.environment.allocation_period, ownerType.agents)))
             elif ownerType.type == "stat":
                 self.owners.append(
                     StationaryOwner(ownerType.name,
                                     ownerType.color,
-                                    self.creation_ticks(self.environment.get_dim().t, ownerType.agents)))
+                                    self.creation_ticks(self.environment.allocation_period, ownerType.agents),
+                                    1, # ToDo Frontend connection
+                                    Coordinate4D(5, 5, 5, 5))) # ToDo Frontend connection
 
         self.simulator = Simulator(
             self.owners,
