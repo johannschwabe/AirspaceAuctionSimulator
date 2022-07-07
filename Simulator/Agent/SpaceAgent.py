@@ -6,7 +6,6 @@ from ..Path import SpaceSegment
 
 
 class SpaceAgent(Agent, ABC):
-
     allocation_type: str = AllocationType.SPACE.value
 
     def __init__(self):
