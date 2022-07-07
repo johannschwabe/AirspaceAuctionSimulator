@@ -48,7 +48,8 @@ class JSONAgent(ABC):
         owner_id: int,
         owner_name: str,
     ):
-        self.agent_type: str = agent.__class__.__name__
+        self.agent_type: str = agent.agent_type
+        self.allocation_type = agent.allocation_type
         self.id: int = agent.id
         self.welfare: float = agent.get_allocated_value()
 
