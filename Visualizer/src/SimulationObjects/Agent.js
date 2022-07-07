@@ -23,11 +23,10 @@ export default class Agent {
    * @returns {FlightEvent[]}
    */
   get events() {
-    /* abstract class */
     return [];
   }
 
   focus() {
-    /* abstract class */
+    /* abstract method */
   }
 }
