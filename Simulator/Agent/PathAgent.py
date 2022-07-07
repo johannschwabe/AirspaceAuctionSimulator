@@ -2,6 +2,7 @@ from abc import ABC
 from typing import Optional, TYPE_CHECKING
 
 from . import Agent
+from .AllocationType import AllocationType
 
 if TYPE_CHECKING:
     from ..Path import PathSegment
@@ -15,11 +16,12 @@ class PathAgent(Agent, ABC):
 
     def __init__(
         self,
+        agent_type: str,
         speed: Optional[int] = None,
         battery: Optional[int] = None,
-        near_radius: Optional[int|float] = None
+        near_radius: Optional[int|float] = None,
     ):
-        super().__init__()
+        super().__init__(agent_type, AllocationType.PATH.value)
 
         self.speed: int = speed if speed is not None else PathAgent.default_speed
         self.battery: int = battery if battery is not None else PathAgent.default_battery

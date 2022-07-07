@@ -39,7 +39,7 @@ def simulate(env: Environment, t):
     owners = [
         ABOwner("Schnabeltier",
                 color_generator(),
-                [PathStop(StopType.RANDOM), PathStop(StopType.RANDOM)],
+                [PathStop(StopType.RANDOM.value), PathStop(StopType.RANDOM.value)],
                 [random.randint(0, 5) for _ in range(100)]),
         StationaryOwner("GhettoTier",
                         color_generator(),
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     environment = setup_empty(max_t)
     simulatorAligator = simulate(environment, max_t)
 
-    res = build_json(simulatorAligator, "test", "Schnabeltier")
+    res = build_json(simulatorAligator, "test", "Schnabeltier", 0)
     f = open("test.json", "w")
     f.write(json.dumps(res))
     f.close()

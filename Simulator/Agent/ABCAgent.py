@@ -1,6 +1,7 @@
 from typing import List, Optional, TYPE_CHECKING
 
 from . import Agent
+from .AgentType import AgentType
 from .PathAgent import PathAgent
 from ..Bid import Bid, ABCBid
 from ..Coordinate import Coordinate4D
@@ -14,8 +15,12 @@ class ABCAgent(PathAgent):
         stays: List[int],
         speed: Optional[int] = None,
         battery: Optional[int] = None,
+        agent_type: Optional[str] = None,
     ):
-        super().__init__(speed, battery)
+        if agent_type is None:
+            agent_type = AgentType.ABC.value
+
+        super().__init__(agent_type, speed, battery)
 
         self._locations: List[Coordinate4D] = locations
         self.stays: List[int] = stays

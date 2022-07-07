@@ -7,7 +7,7 @@ from ..Coordinate import Coordinate4D, Coordinate3D
 
 class StaticBlocker(Blocker):
     def __init__(self, location: Coordinate3D, dimension: Coordinate3D):
-        super().__init__(dimension, blocker_type=BlockerType.STATIC)
+        super().__init__(dimension, blocker_type=BlockerType.STATIC.value)
         self.location = location
 
     def add_to_tree(self, tree: Index, dimension: Coordinate4D):

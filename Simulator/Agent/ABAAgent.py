@@ -1,6 +1,7 @@
 from typing import List, Optional, TYPE_CHECKING
 
 from . import Agent, ABAgent
+from .AgentType import AgentType
 from ..Bid import Bid, ABABid
 from ..Coordinate import Coordinate4D
 from ..Path import PathSegment
@@ -14,9 +15,13 @@ class ABAAgent(ABAgent):
         stay: int = 5,
         speed: Optional[int] = None,
         battery: Optional[int] = None,
-        near_radius: Optional[int | float] = None
+        near_radius: Optional[int | float] = None,
+        agent_type: Optional[str] = None,
     ):
-        super().__init__(a, b, speed=speed, battery=battery, near_radius=near_radius)
+        if agent_type is None:
+            agent_type = AgentType.ABA.value
+
+        super().__init__(a, b, speed=speed, battery=battery, near_radius=near_radius, agent_type=agent_type)
         self.stay: int = stay
 
     def value_for_segments(self, path_segments: List[PathSegment]) -> float:

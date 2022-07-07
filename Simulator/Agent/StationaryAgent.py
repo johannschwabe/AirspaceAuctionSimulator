@@ -1,20 +1,25 @@
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Optional
 
 from .Agent import Agent
+from .AgentType import AgentType
 from .SpaceAgent import SpaceAgent
 from ..Path import SpaceSegment
 from ..Bid import Bid, StationaryBid
 
 if TYPE_CHECKING:
-    from ..Coordinate import Coordinate4D, Coordinate3D
+    from ..Coordinate import Coordinate4D
 
 
 class StationaryAgent(SpaceAgent):
     def __init__(
         self,
         blocks: List[List["Coordinate4D"]],
+        agent_type: Optional[str] = None,
     ):
-        super().__init__()
+        if agent_type is None:
+            agent_type = AgentType.STATIONARY.value
+
+        super().__init__(agent_type)
         self.blocks: List[List["Coordinate4D"]] = blocks
 
     def value_for_segments(self, segments: List[SpaceSegment]) -> float:

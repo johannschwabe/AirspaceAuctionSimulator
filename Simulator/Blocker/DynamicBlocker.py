@@ -11,7 +11,7 @@ class DynamicBlocker(Blocker):
     _id: int = 1
 
     def __init__(self, locations: List[Coordinate4D], dimension: Coordinate3D):
-        super().__init__(dimension, blocker_type=BlockerType.DYNAMIC)
+        super().__init__(dimension, blocker_type=BlockerType.DYNAMIC.value)
         self.locations = locations
 
     def add_to_tree(self, tree: Index, dimension: Coordinate4D):

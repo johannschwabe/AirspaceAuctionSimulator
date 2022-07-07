@@ -13,10 +13,15 @@ class Agent(ABC):
 
     def __init__(
         self,
+        agent_type: str,
+        allocation_type: str,
     ):
         self.id = Agent._id
         Agent._id += 1
         self.is_clone = False
+
+        self.agent_type = agent_type
+        self.allocation_type = allocation_type
 
         self._allocated_segments: List["PathSegment | SpaceSegment"] = []
 
