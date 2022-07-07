@@ -1,4 +1,5 @@
 import Agent from "./Agent";
+import Coordinate4D from "./Coordinate4D";
 
 export default class SpaceAgent extends Agent {
   /**
@@ -9,5 +10,6 @@ export default class SpaceAgent extends Agent {
    */
   constructor(rawAgent, owner, simulation) {
     super(rawAgent, owner, simulation);
+    this.spaces = rawAgent.spaces.map((space) => Coordinate4D(space.x, space.y, space.z, space.t));
   }
 }
