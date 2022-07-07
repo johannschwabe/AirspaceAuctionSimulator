@@ -71,7 +71,7 @@ class JSONSpaceAgent(JSONAgent, Stringify):
         owner_name: str,
     ):
         super().__init__(agent, non_colliding_welfare, bid, owner_id, owner_name)
-        self.space_segments = agent.get_allocated_segments()
+        self.spaces = agent.get_allocated_segments()
 
 
 class JSONPathAgent(JSONAgent, Stringify):
