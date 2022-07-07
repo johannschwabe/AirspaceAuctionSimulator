@@ -1,3 +1,4 @@
+from time import time_ns
 from typing import List
 
 from Simulator.Enum import Reason
@@ -20,6 +21,7 @@ class FCFSAllocator(Allocator):
                             tick: int) -> List[SpaceReallocation | PathReallocation]:
         res = []
         for agent in agents:
+            start_time = time_ns()
             optimal_path_segments: List[PathSegment | SpaceSegment] = []
             bid: Bid = agent.get_bid(tick)
 
@@ -53,10 +55,13 @@ class FCFSAllocator(Allocator):
 
                     optimal_path_segments.append(PathSegment(bid.b.to_inter_temporal(), bid.a.to_inter_temporal(), 1, ba_path))
 
-                res.append(PathReallocation(agent, optimal_path_segments, Reason.FIRST_ALLOCATION))
-
                 env.allocate_path_for_agent(agent, optimal_path_segments)
                 env.add_agent(agent)
+                res.append(PathReallocation(agent,
+                                            optimal_path_segments,
+                                            Reason.FIRST_ALLOCATION,
+                                            (time_ns() - start_time)/1e6)
+                           )
 
             elif isinstance(bid, ABCBid) and isinstance(agent, PathAgent):
                 a = bid.locations[0]
@@ -82,9 +87,13 @@ class FCFSAllocator(Allocator):
                     count += 1
                     a = ab_path[-1].clone()
 
-                res.append(PathReallocation(agent, optimal_path_segments, Reason.FIRST_ALLOCATION))
                 env.allocate_path_for_agent(agent, optimal_path_segments)
                 env.add_agent(agent)
+                res.append(PathReallocation(agent,
+                                            optimal_path_segments,
+                                            Reason.FIRST_ALLOCATION,
+                                            (time_ns() - start_time)/1e6)
+                           )
 
             elif isinstance(bid, StationaryBid) and isinstance(agent, SpaceAgent):
 
@@ -93,7 +102,11 @@ class FCFSAllocator(Allocator):
                     if block_valid:
                         optimal_path_segments.append(SpaceSegment(block[0], block[1]))
 
-                res.append(SpaceReallocation(agent, optimal_path_segments, Reason.FIRST_ALLOCATION))
                 env.allocate_spaces_for_agent(agent, optimal_path_segments)
                 env.add_agent(agent)
+                res.append(SpaceReallocation(agent,
+                                             optimal_path_segments,
+                                             Reason.FIRST_ALLOCATION,
+                                             (time_ns() - start_time)/1e6)
+                           )
         return res

@@ -15,6 +15,7 @@ class History:
         self.owners: List["Owner"] = owners
         self.allocator: "Allocator" = allocator
         self.env: "Environment" = env
+        self.compute_times: Dict[int, float] = {}
 
     def set_owners(self, owners: List["Owner"]):
         self.owners = owners
@@ -23,7 +24,11 @@ class History:
         for agent in agents:
             self.agents[agent] = HistoryAgent(agent, time_step)
 
-    def update_allocations(self, new_allocations: List["PathReallocation | SpaceReallocation"], time_step):
+    def update_allocations(self,
+                           new_allocations: List["PathReallocation | SpaceReallocation"],
+                           time_step,
+                           compute_time: float):
+        self.compute_times[time_step] = compute_time
         for reallocation in new_allocations:
             history_agent = self.agents[reallocation.agent]
-            history_agent.reallocation(reallocation.segments, reallocation.reason, time_step)
+            history_agent.reallocation(reallocation.segments, reallocation.reason, time_step, reallocation.compute_time)

@@ -32,12 +32,12 @@ class Collision(Stringify):
 
 
 class Branch(Stringify):
-    def __init__(self, tick: int, paths: List["Path"], value: float, reason: "Collision"):
+    def __init__(self, tick: int, paths: List["Path"], value: float, reason: "Collision", compute_time: float):
         self.tick: int = tick
         self.paths: List["Path"] = paths
         self.value: float = value
         self.reason: "Collision" = reason
-
+        self.compute_time = compute_time
 
 class JSONAgent(ABC):
     def __init__(
@@ -86,6 +86,7 @@ class JSONPathAgent(JSONAgent, Stringify):
         bid: Dict[str, str | int | float],
         owner_id: int,
         owner_name: str,
+        path_stats: Dict[str, float | int]
     ):
         super().__init__(agent, non_colliding_welfare, bid, owner_id, owner_name)
         self.speed: int = agent.speed
@@ -103,14 +104,21 @@ class JSONPathAgent(JSONAgent, Stringify):
 
         self.branches: List[Branch] = []
 
-        # First reallocation isn't a reallocation but an allocation
-        for key, value in list(history_agent.past_allocations.items())[1:]:
+        self.average_height = path_stats["avg_height"]
+        self.median_height = path_stats["med_height"]
+        self.ascend = path_stats["asc"]
+        self.descend = path_stats["desc"]
+        self.distance = path_stats["dist"]
+        self.nr_reallocations = len(self.branches)
+
+        for key, value in list(history_agent.past_allocations.items()):
             branch_paths = [Path(path) for path in value["path"]]
             self.branches.append(Branch(
                 key,
                 branch_paths,
                 agent.value_for_segments(value),
-                Collision(value["reason"])
+                Collision(value["reason"]),
+                value["time"]
             ))
 
 
@@ -199,16 +207,18 @@ class JSONSimulation(Stringify):
                  environment: JSONEnvironment,
                  statistics: JSONStatistics,
                  owners: List[JSONOwner],
-                 compute_time: int):
+                 total_compute_time: float,
+                 step_compute_time: Dict[int, float]):
         self.name: str = name
         self.description: str = description
         self.environment: JSONEnvironment = environment
         self.statistics: JSONStatistics = statistics
         self.owners: List[JSONOwner] = owners
-        self.compute_time = compute_time
+        self.compute_time = total_compute_time
+        self.step_compute_time = step_compute_time
 
 
-def build_json(simulator: Simulator, name: str, description: str, compute_time: int):
+def build_json(simulator: Simulator, name: str, description: str, total_compute_time: float):
     env = simulator.environment
     history = simulator.history
     stats = Statistics(simulator)
@@ -221,6 +231,7 @@ def build_json(simulator: Simulator, name: str, description: str, compute_time: 
         non_colliding_values = calculate_non_colliding_values(owner.agents, stats)
         for agent in owner.agents:
             if isinstance(agent, PathAgent):
+                path_stats = stats.path_statistics(agent.get_allocated_coords())
                 agents.append(JSONPathAgent(
                     history.agents[agent],
                     agent,
@@ -232,6 +243,7 @@ def build_json(simulator: Simulator, name: str, description: str, compute_time: 
                     agent.generalized_bid(),
                     owner.id,
                     owner.name,
+                    path_stats,
                 ))
             elif isinstance(agent, SpaceAgent):
                 agents.append(JSONSpaceAgent(
@@ -244,7 +256,7 @@ def build_json(simulator: Simulator, name: str, description: str, compute_time: 
             nr_collisions += close_passings[agent.id]["total_near_field_violations"]  # todo different collision metric
         owners.append(JSONOwner(owner.name, owner.id, owner.color, agents))
     json_stats = JSONStatistics(len(simulator.owners), len(env._agents), stats.total_agents_welfare(), nr_collisions, 0)
-    json_simulation = JSONSimulation(name, description, json_env, json_stats, owners, compute_time)
+    json_simulation = JSONSimulation(name, description, json_env, json_stats, owners, total_compute_time, history.compute_times)
     return json_simulation.as_dict()
 
 

@@ -1,8 +1,10 @@
+import statistics
+
 from ..History import HistoryAgent
 from ..Path import PathSegment
 from ..Simulator import Owner, Simulator
 from ..Agent import Agent, PathAgent
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from ..Coordinate import Coordinate4D
@@ -53,6 +55,37 @@ class Statistics:
             for path in agent.allocated_paths:
                 length += len(path)
         return length
+
+    @staticmethod
+    def path_statistics(path: List["Coordinate4D"]):
+        ascended = 0
+        descended = 0
+        distance = 0
+        heights = []
+        median_height = -1
+        average_height = -1
+        if len(path) > 0:
+            last = path[0]
+            for coord in path:
+                if not coord.inter_temporal_equal(last):
+                    distance += abs(coord.x - last.x) + abs(coord.z - last.z)
+                    delta = coord.y - last.y
+                    if delta > 0:
+                        ascended += delta
+                    else:
+                        descended += delta
+                heights.append(coord.y)
+                last = coord
+
+            median_height = statistics.median(heights)
+            average_height = statistics.mean(heights)
+        return {
+            "asc": ascended,
+            "desc": descended,
+            "dist": distance,
+            "med_height": median_height,
+            "avg_height": average_height
+        }
 
     def close_passings(self):
         res = {}

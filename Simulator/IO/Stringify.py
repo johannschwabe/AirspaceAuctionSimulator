@@ -50,7 +50,7 @@ class Stringify:
         :return:
         """
         recall = lambda o: Stringify.to_dict(o, ignore_keys=ignore_keys, date_format=date_format)
-        valid_entry = lambda k, v: not callable(v) and not k.startswith('_') and k not in ignore_keys
+        valid_entry = lambda k, v: not callable(v) and (isinstance(k, int) or not k.startswith('_')) and k not in ignore_keys
         # Call .json() for Stringifys
         if not stop_recursion and isinstance(obj, Stringify):
             return obj.as_dict(ignore_keys=ignore_keys, date_format=date_format)

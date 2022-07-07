@@ -1,5 +1,6 @@
 import json
 import random
+from time import time_ns
 
 from API import APISimpleCoordinate
 from FCFSAllocator.FCFSAllocator import FCFSAllocator
@@ -40,12 +41,12 @@ def simulate(env: Environment, t):
         ABOwner("Schnabeltier",
                 color_generator(),
                 [PathStop(StopType.RANDOM), PathStop(StopType.RANDOM)],
-                [random.randint(0, 5) for _ in range(100)]),
-        StationaryOwner("GhettoTier",
-                        color_generator(),
-                        [random.randint(0, 5) for _ in range(10)],
-                        1,
-                        Coordinate4D(5, 5, 5, 3)),
+                [random.randint(0, 5) for _ in range(5)]),
+        # StationaryOwner("GhettoTier",
+        #                 color_generator(),
+        #                 [random.randint(0, 5) for _ in range(10)],
+        #                 1,
+        #                 Coordinate4D(5, 5, 5, 3)),
     ]
     simulator = Simulator(owners, allocator, env)
     while simulator.time_step < t:
@@ -67,10 +68,11 @@ def color_generator():
 
 if __name__ == "__main__":
     max_t = 1000
-    environment = setup_empty(max_t)
+    environment = setup_map(max_t)
+    start_time = time_ns()
     simulatorAligator = simulate(environment, max_t)
 
-    res = build_json(simulatorAligator, "test", "Schnabeltier")
+    res = build_json(simulatorAligator, "test", "Schnabeltier", (time_ns() - start_time)/1e6)
     f = open("test.json", "w")
     f.write(json.dumps(res))
     f.close()
