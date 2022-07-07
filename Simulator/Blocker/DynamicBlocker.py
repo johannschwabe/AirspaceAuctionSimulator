@@ -8,8 +8,6 @@ from ..Coordinate import Coordinate4D, Coordinate3D
 
 
 class DynamicBlocker(Blocker):
-    _id: int = 1
-
     blocker_type: str = BlockerType.DYNAMIC.value
 
     def __init__(self, locations: List[Coordinate4D], dimension: Coordinate3D):
