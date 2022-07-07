@@ -66,7 +66,6 @@ const updateSeries = () => {
           x: agent.name,
           y: [start, end],
           fillColor: agent.color,
-          // fillColor: "#259721",
         });
       });
     }
