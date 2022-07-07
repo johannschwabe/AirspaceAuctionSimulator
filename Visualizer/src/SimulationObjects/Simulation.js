@@ -212,6 +212,15 @@ export default class Simulation {
           }
           activeBlockerIndex[tick].push(blocker);
         });
+      } else if (blocker instanceof StaticBlocker) {
+        for (let tick = 0; tick < this.dimensions.t; tick++) {
+          if (!(tick in activeBlockerIndex)) {
+            activeBlockerIndex[tick] = [];
+          }
+          activeBlockerIndex[tick].push(blocker);
+        }
+      } else {
+        throw new Error("Invalid blocker type!");
       }
     });
     return activeBlockerIndex;
