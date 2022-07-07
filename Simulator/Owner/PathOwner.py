@@ -16,15 +16,15 @@ class PathOwner(Owner, ABC):
     @staticmethod
     def generate_stop_coordinate(stop: PathStop, env: Environment, t: int, near_radius: int, speed: int):
         coord: Coordinate4D
-        if stop.type == StopType.RANDOM:
+        if stop.stop_type == StopType.RANDOM.value:
             dimensions = env.dimension
             coord = Coordinate4D(random.randint(0, dimensions.x - 1),
                                  env.min_height,
                                  random.randint(0, dimensions.z - 1),
                                  t)
-        elif stop.type == StopType.POSITION:
+        elif stop.stop_type == StopType.POSITION.value:
             coord = Coordinate4D(stop.position.x, env.min_height, stop.position.z, t)
-        elif stop.type == StopType.HEATMAP:
+        elif stop.stop_type == StopType.HEATMAP.value:
             winner = stop.heatmap.generate_coordinate()
             coord = Coordinate4D(winner.x, env.min_height, winner.z, t)
         else:

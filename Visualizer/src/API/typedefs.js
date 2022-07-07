@@ -1,17 +1,17 @@
 /**
- * @typedef {{x: int, y: int, z: int}} RawCoordiante
+ * @typedef {{x: int, y: int, z: int}} RawCoordinate
  */
 
 /**
- * @typedef {{x: int, y: int, z: int, t: int}} RawTimeCoordiante
+ * @typedef {{x: int, y: int, z: int, t: int}} RawTimeCoordinate
  */
 
 /**
- * @typedef {Array<x: int, y: int, z: int>} RawArrayCoordiante
+ * @typedef {Array<x: int, y: int, z: int>} RawArrayCoordinate
  */
 
 /**
- * @typedef {{t: RawArrayCoordiante}} RawTimeArrayCoordinate
+ * @typedef {{t: RawArrayCoordinate}} RawTimeArrayCoordinate
  */
 
 /**
@@ -45,6 +45,7 @@
 /**
  * @typedef {Object} RawAgent
  * @property {string} agent_type
+ * @property {string} allocation_type
  * @property {int} id
  * @property {string} name
  * @property {int} speed
@@ -63,6 +64,7 @@
  * @property {string} owner_name
  * @property {RawPath[]} paths
  * @property {RawBranch[]} branches
+ * @property {{min: RawTimeCoordinate, max: RawTimeCoordinate}[]} spaces
  */
 
 /**
@@ -96,10 +98,10 @@
 /**
  * @typedef {Object} RawBlocker
  * @property {int} id
- * @property {string} type
+ * @property {string} blocker_type
  * @property {RawPath | undefined} [path]
- * @property {RawCoordiante | undefined} [location]
- * @property {RawCoordiante} dimension
+ * @property {RawCoordinate | undefined} [location]
+ * @property {RawCoordinate} dimension
  */
 
 /**
@@ -109,12 +111,12 @@
  * @property {int} z
  * @property {{long: number, lat: number}} top_left_coordinate
  * @property {{long: number, lat: number}} bottom_right_coordinate
- * @property {RawTimeCoordiante} dimensions
+ * @property {RawTimeCoordinate} dimensions
  */
 
 /**
  * @typedef {Object} RawEnvironment
- * @property {RawTimeCoordiante} dimensions
+ * @property {RawTimeCoordinate} dimensions
  * @property {RawBlocker[]} blockers
  * @property {RawMapTile[]} maptiles
  */

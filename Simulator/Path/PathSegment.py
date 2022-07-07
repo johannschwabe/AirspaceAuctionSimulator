@@ -3,12 +3,13 @@ from typing import List, TYPE_CHECKING
 if TYPE_CHECKING:
     from ..Coordinate import Coordinate4D, Coordinate3D
 
+
 class PathSegment:
     def __init__(self, start: "Coordinate3D", end: "Coordinate3D", index: int, coords: List["Coordinate4D"]):
-        self.coordinates = coords
-        self.start = start
-        self.end = end
-        self.index = index
+        self.coordinates: List["Coordinate4D"] = coords
+        self.start: "Coordinate3D" = start
+        self.end: "Coordinate3D" = end
+        self.index: int = index
 
     def join(self, other: "PathSegment"):
         self.coordinates.extend(other.coordinates)

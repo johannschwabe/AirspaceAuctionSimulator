@@ -48,7 +48,8 @@ class JSONAgent(ABC):
         owner_id: int,
         owner_name: str,
     ):
-        self.agent_type: str = agent.__class__.__name__
+        self.agent_type: str = agent.agent_type
+        self.allocation_type = agent.allocation_type
         self.id: int = agent.id
         self.welfare: float = agent.get_allocated_value()
 
@@ -70,7 +71,7 @@ class JSONSpaceAgent(JSONAgent, Stringify):
         owner_name: str,
     ):
         super().__init__(agent, non_colliding_welfare, bid, owner_id, owner_name)
-        self.space_segments = agent.get_allocated_segments()
+        self.spaces = agent.get_allocated_segments()
 
 
 class JSONPathAgent(JSONAgent, Stringify):
@@ -158,7 +159,7 @@ class JSONOwner(Stringify):
 class JSONBlocker(Stringify):
     def __init__(self, blocker: Blocker):
         self.id: int = blocker.id
-        self.type = blocker.type.value
+        self.blocker_type = blocker.blocker_type
         if isinstance(blocker, DynamicBlocker):
             self.path: Path = Path(blocker.locations)
         elif isinstance(blocker, StaticBlocker):

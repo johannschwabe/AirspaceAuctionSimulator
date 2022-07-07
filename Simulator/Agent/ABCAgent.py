@@ -1,6 +1,7 @@
 from typing import List, Optional, TYPE_CHECKING
 
 from . import Agent
+from .AgentType import AgentType
 from .PathAgent import PathAgent
 from ..Bid import Bid, ABCBid
 from ..Coordinate import Coordinate4D
@@ -8,6 +9,8 @@ from ..Path import PathSegment
 
 
 class ABCAgent(PathAgent):
+    agent_type: str = AgentType.ABC.value
+
     def __init__(
         self,
         locations: List[Coordinate4D],

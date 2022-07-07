@@ -10,6 +10,8 @@ if TYPE_CHECKING:
 
 class Agent(ABC):
     _id: int = 0
+    agent_type: str
+    allocation_type: str
 
     def __init__(
         self,

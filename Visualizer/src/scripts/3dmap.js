@@ -291,7 +291,6 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
     // Highlight own agents branches
     if (!update) {
       focusCache.pathLines.forEach((line) => {
-        console.log("Dispose", line);
         line.dispose();
       });
       const drawPath = ({ path, color, alpha }) => {
@@ -353,7 +352,6 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
 
     // Disable highlighted paths
     focusCache.pathLines.forEach((line) => {
-      console.log("Dispose", line);
       line.dispose();
     });
     focusCache.pathLines = [];

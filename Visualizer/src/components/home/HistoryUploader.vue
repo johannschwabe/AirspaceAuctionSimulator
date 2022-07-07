@@ -39,10 +39,10 @@ const onUpload = async (upload) => {
     setSimulationSingleton(simulation);
     await router.push({ name: "dashboard" });
   };
-  fileReader.onerror = (error) => {
+  fileReader.onerror = () => {
     loadingBar.error();
-    message.error("Failed import failed!");
-    console.error(error);
+    message.error("Import failed!");
+    throw new Error("Import failed!");
   };
   fileReader.readAsText(upload.file.file);
 };
