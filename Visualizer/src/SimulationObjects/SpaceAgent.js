@@ -10,6 +10,9 @@ export default class SpaceAgent extends Agent {
    */
   constructor(rawAgent, owner, simulation) {
     super(rawAgent, owner, simulation);
-    this.spaces = rawAgent.spaces.map((space) => new Coordinate4D(space.x, space.y, space.z, space.t));
+    this.spaces = rawAgent.spaces.map((space) => ({
+      min: new Coordinate4D(space.min.x, space.min.y, space.min.z, space.min.t),
+      max: new Coordinate4D(space.max.x, space.max.y, space.max.z, space.max.t),
+    }));
   }
 }
