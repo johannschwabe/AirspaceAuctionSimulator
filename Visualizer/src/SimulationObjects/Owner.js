@@ -1,4 +1,6 @@
-import Agent from "./Agent";
+import PathAgent from "./PathAgent";
+import SpaceAgent from "./SpaceAgent";
+import { AgentType } from "../API/enums";
 
 export default class Owner {
   /**
@@ -32,9 +34,20 @@ export default class Owner {
 
     /**
      * All agents belonging to this owner
-     * @type {Agent[]}
+     * @type {PathAgent|SpaceAgent[]}
      */
-    this.agents = rawOwner.agents.map((agent) => new Agent(agent, this, simulation));
+    this.agents = rawOwner.agents.map((agent) => {
+      switch (agent.agent_type) {
+        case AgentType.STATIONARY:
+          return new SpaceAgent(agent, this, simulation);
+        case AgentType.AB:
+        case AgentType.ABA:
+        case AgentType.ABC:
+          return new PathAgent(agent, this, simulation);
+        default:
+          throw new Error("Invalid agent type!");
+      }
+    });
 
     this._simulation = simulation;
   }

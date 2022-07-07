@@ -23,7 +23,7 @@ import { isEmpty, xor } from "lodash-es";
 import { ref, computed } from "vue";
 import { useSimulationStore } from "../../stores/simulation";
 import { useSimulationSingleton } from "../../scripts/simulation";
-import PathAgent from "../../SimulationObjects/Agent";
+import PathAgent from "../../SimulationObjects/PathAgent";
 
 const simulationStore = useSimulationStore();
 const simulation = useSimulationSingleton();
@@ -38,7 +38,6 @@ const changeMade = computed(() => {
 
 const updateCheckedKeys = (v) => {
   selectedAgentIDs.value = v;
-  console.log("setSelectedAgentIDs", v);
 };
 
 const apply = () => {
@@ -48,10 +47,8 @@ const apply = () => {
 const nodeProps = ({ option }) => ({
   onClick() {
     if (option instanceof PathAgent) {
-      console.log("FOCUS ON ", option);
       simulation.focusOnAgent(option);
     }
-    console.log("onClick OPTION", option instanceof PathAgent);
   },
 });
 </script>

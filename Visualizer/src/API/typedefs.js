@@ -45,6 +45,7 @@
 /**
  * @typedef {Object} RawAgent
  * @property {string} agent_type
+ * @property {string} allocation_type
  * @property {int} id
  * @property {string} name
  * @property {int} speed
@@ -96,7 +97,7 @@
 /**
  * @typedef {Object} RawBlocker
  * @property {int} id
- * @property {string} type
+ * @property {string} blocker_type
  * @property {RawPath | undefined} [path]
  * @property {RawCoordiante | undefined} [location]
  * @property {RawCoordiante} dimension

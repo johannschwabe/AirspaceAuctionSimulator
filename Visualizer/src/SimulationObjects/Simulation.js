@@ -5,11 +5,14 @@ import { first } from "lodash-es";
 import { useSimulationStore } from "../stores/simulation.js";
 
 import Coordinate4D from "./Coordinate4D";
-import Blocker from "./Blocker";
 import Statistics from "./Statistics";
 import Owner from "./Owner";
 import MapTile from "./MapTile";
 import { emitFocusOffAgent, emitFocusOnAgent, onAgentsSelected, onTick } from "../scripts/emitter";
+import { BlockerType } from "../API/enums";
+import StaticBlocker from "./StaticBlocker";
+import DynamicBlocker from "./DynamicBlocker";
+import PathAgent from "./PathAgent";
 
 export default class Simulation {
   /**
@@ -43,7 +46,16 @@ export default class Simulation {
      * Blockers living in the simulated environment
      * @type {Blocker[]}
      */
-    this.blockers = rawSimulation.environment.blockers.map((blocker) => new Blocker(blocker));
+    this.blockers = rawSimulation.environment.blockers.map((blocker) => {
+      switch (blocker.blocker_type) {
+        case BlockerType.DYNAMIC:
+          return new DynamicBlocker(blocker);
+        case BlockerType.STATIC:
+          return new StaticBlocker(blocker);
+        default:
+          throw new Error("Invalid blocker type!");
+      }
+    });
 
     /**
      * All owners that were simulated
@@ -58,7 +70,15 @@ export default class Simulation {
     this.agents = this.owners
       .map((owner) => owner.agents)
       .flat()
-      .sort((a, b) => (first(Object.keys(a.combinedPath.ticks)) < first(Object.keys(b.combinedPath.ticks)) ? -1 : 1));
+      .sort((a, b) => {
+        if (!a.combinedPath) {
+          return -1;
+        }
+        if (!b.combinedPath) {
+          return 1;
+        }
+        return first(Object.keys(a.combinedPath.ticks)) < first(Object.keys(b.combinedPath.ticks)) ? -1 : 1;
+      });
 
     /**
      * List of agents that are selected in the User Interface
@@ -81,7 +101,7 @@ export default class Simulation {
 
     /**
      * Agent that is selected through the UI and is now in focus
-     * @type {Agent|null}
+     * @type {PathAgent|null}
      */
     this.agentInFocus = null;
 
@@ -124,21 +144,17 @@ export default class Simulation {
     this.updateActiveAgents();
     this.updateActiveBlockers();
     this.updateTimeline();
-
-    console.log({ CreatedStore: this });
   }
 
   registerCallbacks() {
     onTick(() => {
       this.updateActiveAgents();
       this.updateActiveBlockers();
-      console.log({ UpdatedSimulation: this });
     });
     onAgentsSelected(() => {
       this.updateSelectedAgents();
       this.updateActiveAgents();
       this.updateTimeline();
-      console.log({ UpdatedSimulation: this });
     });
   }
 
@@ -171,12 +187,14 @@ export default class Simulation {
   buildFlyingAgentsPerTickIndex() {
     const flyingAgentsPerTick = {};
     this.agents.forEach((agent) => {
-      Object.keys(agent.combinedPath.ticks).forEach((t) => {
-        if (!(t in flyingAgentsPerTick)) {
-          flyingAgentsPerTick[t] = [];
-        }
-        flyingAgentsPerTick[t].push(agent);
-      });
+      if (agent instanceof PathAgent) {
+        Object.keys(agent.combinedPath.ticks).forEach((t) => {
+          if (!(t in flyingAgentsPerTick)) {
+            flyingAgentsPerTick[t] = [];
+          }
+          flyingAgentsPerTick[t].push(agent);
+        });
+      }
     });
     return flyingAgentsPerTick;
   }
@@ -187,12 +205,14 @@ export default class Simulation {
   buildActiveBlockersPerTickIndex() {
     const activeBlockerIndex = {};
     this.blockers.forEach((blocker) => {
-      blocker.path.ticksInAir.forEach((tick) => {
-        if (!(tick in activeBlockerIndex)) {
-          activeBlockerIndex[tick] = [];
-        }
-        activeBlockerIndex[tick].push(blocker);
-      });
+      if (blocker instanceof DynamicBlocker) {
+        blocker.path.ticksInAir.forEach((tick) => {
+          if (!(tick in activeBlockerIndex)) {
+            activeBlockerIndex[tick] = [];
+          }
+          activeBlockerIndex[tick].push(blocker);
+        });
+      }
     });
     return activeBlockerIndex;
   }
@@ -216,15 +236,17 @@ export default class Simulation {
     const agentsPerTick = {};
     let maxTick = 0;
     this.selectedAgents.forEach((agent) => {
-      agent.combinedPath.ticksInAir.forEach((tick) => {
-        if (!(tick in agentsPerTick)) {
-          agentsPerTick[tick] = 0;
-        }
-        agentsPerTick[tick] += 1;
-        if (parseInt(tick, 10) > maxTick) {
-          maxTick = parseInt(tick, 10);
-        }
-      });
+      if (agent instanceof PathAgent) {
+        agent.combinedPath.ticksInAir.forEach((tick) => {
+          if (!(tick in agentsPerTick)) {
+            agentsPerTick[tick] = 0;
+          }
+          agentsPerTick[tick] += 1;
+          if (parseInt(tick, 10) > maxTick) {
+            maxTick = parseInt(tick, 10);
+          }
+        });
+      }
     });
     const timeline = Array(maxTick).fill(0);
     Object.entries(agentsPerTick).forEach(([tick, numberOfAgents]) => {
@@ -236,7 +258,7 @@ export default class Simulation {
 
   /**
    * Puts a new agent into focus
-   * @param {Agent} agent
+   * @param {PathAgent} agent
    */
   focusOnAgent(agent) {
     if (this.agentInFocus === agent || !agent.combinedPath.isActiveAtTick(this.tick)) {

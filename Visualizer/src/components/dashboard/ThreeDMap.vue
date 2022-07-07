@@ -61,7 +61,6 @@ const doFocusUpdate = () => {
 };
 
 onTick(() => {
-  console.log("3D TICK!");
   doBlockerUpdate();
   doDroneUpdate();
   doFocusUpdate();

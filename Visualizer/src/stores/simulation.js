@@ -14,7 +14,6 @@ export const useSimulationStore = defineStore({
   actions: {
     updateTick(tick) {
       this.tick = tick;
-      console.log("UPDATE TICK");
       emitTickEvent(tick);
     },
     setSelectedAgentIDs(selectedIds) {
