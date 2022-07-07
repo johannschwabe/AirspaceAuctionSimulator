@@ -9,6 +9,8 @@ from ..Path import PathSegment
 
 
 class ABAgent(PathAgent):
+    agent_type: str = AgentType.AB.value
+
     def __init__(
         self,
         a: Coordinate4D,
@@ -16,12 +18,8 @@ class ABAgent(PathAgent):
         speed: Optional[int] = None,
         battery: Optional[int] = None,
         near_radius: Optional[int] = None,
-        agent_type: Optional[str] = None,
     ):
-        if agent_type is None:
-            agent_type = AgentType.AB.value
-
-        super().__init__(agent_type, speed, battery, near_radius)
+        super().__init__(speed, battery, near_radius)
 
         self.a: Coordinate4D = a
         self.b: Coordinate4D = b

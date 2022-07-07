@@ -14,14 +14,15 @@ class PathAgent(Agent, ABC):
     default_speed = 1
     default_battery = 100000
 
+    allocation_type: str = AllocationType.PATH.value
+
     def __init__(
         self,
-        agent_type: str,
         speed: Optional[int] = None,
         battery: Optional[int] = None,
-        near_radius: Optional[int|float] = None,
+        near_radius: Optional[int | float] = None,
     ):
-        super().__init__(agent_type, AllocationType.PATH.value)
+        super().__init__()
 
         self.speed: int = speed if speed is not None else PathAgent.default_speed
         self.battery: int = battery if battery is not None else PathAgent.default_battery

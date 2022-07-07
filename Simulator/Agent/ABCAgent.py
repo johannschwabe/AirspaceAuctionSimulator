@@ -9,18 +9,16 @@ from ..Path import PathSegment
 
 
 class ABCAgent(PathAgent):
+    agent_type: str = AgentType.ABC.value
+
     def __init__(
         self,
         locations: List[Coordinate4D],
         stays: List[int],
         speed: Optional[int] = None,
         battery: Optional[int] = None,
-        agent_type: Optional[str] = None,
     ):
-        if agent_type is None:
-            agent_type = AgentType.ABC.value
-
-        super().__init__(agent_type, speed, battery)
+        super().__init__(speed, battery)
 
         self._locations: List[Coordinate4D] = locations
         self.stays: List[int] = stays

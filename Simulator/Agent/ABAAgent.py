@@ -8,6 +8,8 @@ from ..Path import PathSegment
 
 
 class ABAAgent(ABAgent):
+    agent_type: str = AgentType.ABA.value
+
     def __init__(
         self,
         a: Coordinate4D,
@@ -16,12 +18,9 @@ class ABAAgent(ABAgent):
         speed: Optional[int] = None,
         battery: Optional[int] = None,
         near_radius: Optional[int | float] = None,
-        agent_type: Optional[str] = None,
     ):
-        if agent_type is None:
-            agent_type = AgentType.ABA.value
+        super().__init__(a, b, speed=speed, battery=battery, near_radius=near_radius)
 
-        super().__init__(a, b, speed=speed, battery=battery, near_radius=near_radius, agent_type=agent_type)
         self.stay: int = stay
 
     def value_for_segments(self, path_segments: List[PathSegment]) -> float:

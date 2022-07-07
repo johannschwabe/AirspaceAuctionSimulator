@@ -11,15 +11,14 @@ if TYPE_CHECKING:
 
 
 class StationaryAgent(SpaceAgent):
+    agent_type: str = AgentType.STATIONARY.value
+
     def __init__(
         self,
         blocks: List[List["Coordinate4D"]],
-        agent_type: Optional[str] = None,
     ):
-        if agent_type is None:
-            agent_type = AgentType.STATIONARY.value
+        super().__init__()
 
-        super().__init__(agent_type)
         self.blocks: List[List["Coordinate4D"]] = blocks
 
     def value_for_segments(self, segments: List[SpaceSegment]) -> float:
