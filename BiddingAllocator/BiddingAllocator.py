@@ -1,7 +1,6 @@
 from time import time_ns
 from typing import List, Dict
 
-from Simulator.Enum import Reason
 from Simulator.Path import PathSegment, PathReallocation, SpaceSegment, SpaceReallocation
 from BiddingABAgent import BiddingABAgent
 from BiddingABBid import BiddingABBid
@@ -11,6 +10,7 @@ from Simulator.Allocator import Allocator
 from Simulator.Coordinate import Coordinate4D
 from BiddingStationaryAgent import BiddingStationaryAgent
 from BiddingStationaryBid import BiddingStationaryBid
+from Simulator.Path.Reason import Reason, Reasons, AgentReason
 
 
 class BiddingAllocator(Allocator):
@@ -28,7 +28,9 @@ class BiddingAllocator(Allocator):
             if isinstance(bid, BiddingABBid):
                 ab_path, collisions = bidding_astar(bid.a, bid.b, env, agent, bid.flying)
                 new_path_segment = PathSegment(bid.a.to_inter_temporal(), bid.b.to_inter_temporal(), 0, ab_path)
-                reallocation_reason = Reason.FIRST_ALLOCATION if agent in agents else Reason.AGENT
+                reallocation_reason = Reason(Reasons.FIRST_ALLOCATION.value) if agent in agents else AgentReason(
+                    Reasons.AGENT.value,
+                    [collision.id for collision in collisions])
                 to_add = to_add.union(collisions)
                 for agent_to_remove in collisions:
                     print(f"reallocating: {agent_to_remove.id}")
@@ -39,7 +41,7 @@ class BiddingAllocator(Allocator):
                 res.append(PathReallocation(agent,
                                             [new_path_segment],
                                             reallocation_reason,
-                                            (time_ns() - start_time)/1e6)
+                                            (time_ns() - start_time) / 1e6)
                            )
 
             if isinstance(bid, BiddingStationaryBid) and isinstance(agent, BiddingStationaryAgent):
@@ -64,13 +66,15 @@ class BiddingAllocator(Allocator):
                             print(f"reallocating: {agent_to_remove.id}")
                             env.deallocate_agent(agent_to_remove, tick)
 
-                reallocation_reason = Reason.FIRST_ALLOCATION if agent in agents else Reason.AGENT
-                env.allocate_spaces_for_agent(agent, space_segments)
-                if agent.id not in env.get_agents():
-                    env.add_agent(agent)
-                res.append(SpaceReallocation(agent,
+                        reallocation_reason = Reason(Reasons.FIRST_ALLOCATION.value) if agent in agents else AgentReason(
+                            Reasons.AGENT.value,
+                            [collision.id for collision in blocking_agents])
+                        env.allocate_spaces_for_agent(agent, space_segments)
+                        if agent.id not in env.get_agents():
+                            env.add_agent(agent)
+                        res.append(SpaceReallocation(agent,
                                              space_segments,
                                              reallocation_reason,
-                                             (time_ns() - start_time)/1e6)
+                                             (time_ns() - start_time) / 1e6)
                            )
         return res

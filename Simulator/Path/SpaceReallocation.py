@@ -1,8 +1,8 @@
 from typing import List
 
+from .Reason import Reason
 from ..Agent.SpaceAgent import SpaceAgent
 from ..Agent.Agent import Agent
-from ..Enum import Reason
 from . import SpaceSegment
 
 
