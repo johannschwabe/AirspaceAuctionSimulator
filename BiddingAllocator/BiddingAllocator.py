@@ -35,6 +35,8 @@ class BiddingAllocator(Allocator):
                 for agent_to_remove in collisions:
                     print(f"reallocating: {agent_to_remove.id}")
                     env.deallocate_agent(agent_to_remove, tick)
+                    res = [reallocation for reallocation in res if
+                           reallocation.agent != agent_to_remove]
                 env.allocate_path_segment_for_agent(agent, new_path_segment)
                 if agent.id not in env.get_agents():
                     env.add_agent(agent)
@@ -65,16 +67,19 @@ class BiddingAllocator(Allocator):
                         for agent_to_remove in blocking_agents:
                             print(f"reallocating: {agent_to_remove.id}")
                             env.deallocate_agent(agent_to_remove, tick)
+                            res = [reallocation for reallocation in res if
+                                   reallocation.agent != agent_to_remove]
 
-                        reallocation_reason = Reason(Reasons.FIRST_ALLOCATION.value) if agent in agents else AgentReason(
+                        reallocation_reason = Reason(
+                            Reasons.FIRST_ALLOCATION.value) if agent in agents else AgentReason(
                             Reasons.AGENT.value,
                             [collision.id for collision in blocking_agents])
                         env.allocate_spaces_for_agent(agent, space_segments)
                         if agent.id not in env.get_agents():
                             env.add_agent(agent)
                         res.append(SpaceReallocation(agent,
-                                             space_segments,
-                                             reallocation_reason,
-                                             (time_ns() - start_time) / 1e6)
-                           )
+                                                     space_segments,
+                                                     reallocation_reason,
+                                                     (time_ns() - start_time) / 1e6)
+                                   )
         return res
