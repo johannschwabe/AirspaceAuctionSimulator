@@ -3,7 +3,7 @@
     <n-dynamic-input v-model:value="owners" :on-create="onCreate">
       <template #default="{ value, index }">
         <div style="display: flex; column-gap: 10px; width: 100%">
-          <owner-form v-model="value.owner" />
+          <owner-form v-model="value.owner" :options="availableOwners" />
           <n-button tertiary circle @click="onOptions(index)">
             <template #icon>
               <n-icon><Options /></n-icon>
@@ -19,6 +19,7 @@
           @update:modelValue="updateOwner(optionsIndex, $event)"
           :map-info="mapInfo"
           :dimension="dimension"
+          :options="availableOwners"
         />
       </n-drawer-content>
     </n-drawer>
@@ -26,13 +27,13 @@
 </template>
 
 <script setup>
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref, watch, watchEffect } from "vue";
 import { Options } from "@vicons/ionicons5";
 import OwnerOptions from "./OwnerOptions.vue";
 import OwnerForm from "./OwnerForm.vue";
 import { createDefaultStop } from "../../scripts/stops";
 
-defineProps({
+const props = defineProps({
   dimension: {
     type: Object,
     required: true,
@@ -42,7 +43,23 @@ defineProps({
     required: false,
     default: null,
   },
+  availableOwners: {
+    type: Object,
+    required: true,
+  },
 });
+
+const defaultOwner = {
+  owner: {
+    color: "#00559d",
+    name: "Digitec",
+    agents: 20,
+    type: "",
+    start: createDefaultStop(),
+    target: createDefaultStop(),
+    stops: [],
+  },
+};
 
 function updateOwner(ownerIndex, updatedOwner) {
   if (ownerIndex !== null) {
@@ -55,6 +72,14 @@ function updateOwner(ownerIndex, updatedOwner) {
     }
   }
 }
+watch(
+  () => props.availableOwners,
+  () => {
+    defaultOwner.owner.color = "#" + ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0");
+    defaultOwner.owner.type = Object.keys(props.availableOwners)[0];
+    owners.value = [defaultOwner];
+  }
+);
 
 const optionsIndex = ref(null);
 const showOptions = ref(false);
@@ -75,20 +100,6 @@ watchEffect(() => {
     optionsIndex.value = null;
   }
 });
-
-const owners = ref([
-  {
-    owner: {
-      color: "#00559d",
-      name: "Digitec",
-      agents: 20,
-      type: "aba",
-      start: createDefaultStop(),
-      target: createDefaultStop(),
-      stops: [],
-    },
-  },
-]);
 
 function getData() {
   return owners.value.map((owner) => {
@@ -129,18 +140,11 @@ function getData() {
 }
 
 const onCreate = () => {
-  return {
-    owner: {
-      color: "#63e2b7",
-      name: null,
-      agents: null,
-      type: "ab",
-      start: createDefaultStop(),
-      target: createDefaultStop(),
-      stops: [],
-    },
-  };
+  defaultOwner.owner.type = Object.keys(props.availableOwners)[0];
+  defaultOwner.owner.color = "#" + ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0");
+  return { owner: { ...defaultOwner.owner } };
 };
+const owners = ref([onCreate()]);
 
 defineExpose({
   getData,

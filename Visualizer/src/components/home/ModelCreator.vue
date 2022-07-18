@@ -6,6 +6,14 @@
     <n-form-item path="description" label="Model Description">
       <n-input v-model:value="model.description" type="textarea" placeholder="Model description (Metadata)" />
     </n-form-item>
+    <n-form-item path="allocator" label="Allocator">
+      <n-select
+        v-model:value="selected_allocator"
+        :options="allocators"
+        placeholder="Select Allocator"
+        :on-update-value="getCompatibleOwners"
+      />
+    </n-form-item>
 
     <map-selector @dimensionChange="setDimension" @map-change="(map) => (model.map = map)" />
 
@@ -13,7 +21,13 @@
       <n-slider show-tooltip v-model:value="model.dimension.t" :min="10" :max="1000" :step="10" />
     </n-form-item>
     <n-form-item path="owners" label="Owners">
-      <owner ref="ownerRef" :dimension="model.dimension" :map-info="model.map" />
+      <owner
+        v-if="Object.keys(availableOwners).length > 0"
+        ref="ownerRef"
+        :dimension="model.dimension"
+        :map-info="model.map"
+        :availableOwners="availableOwners"
+      />
     </n-form-item>
   </n-form>
 
@@ -71,7 +85,7 @@ import { CloudDownloadOutline, ArrowForwardOutline } from "@vicons/ionicons5";
 import Owner from "./Owner.vue";
 import MapSelector from "./MapSelector.vue";
 import Simulation from "../../SimulationObjects/Simulation.js";
-import api from "../../API/api.js";
+import api, { getOwners } from "../../API/api.js";
 import {
   canRecoverSimulationSingleton,
   hasSimulationSingleton,
@@ -104,7 +118,17 @@ const model = reactive({
   },
 });
 
+const allocators = ref([]);
+const selected_allocator = ref("FCFSAllocator");
+
+api.getAllocators().then((_allocators) => {
+  allocators.value = _allocators.map((_allocator) => {
+    return { label: _allocator, value: _allocator };
+  });
+});
+
 const owners = ref([]);
+let availableOwners = ref({});
 
 const rules = {
   name: [
@@ -114,6 +138,15 @@ const rules = {
     },
   ],
 };
+const getCompatibleOwners = (selection) => {
+  getOwners(selection).then((_owners) => {
+    availableOwners.value = {};
+    _owners.forEach((_owner) => {
+      availableOwners.value[_owner.classname] = _owner;
+    });
+  });
+};
+getCompatibleOwners(selected_allocator.value);
 
 const setDimension = (dimension) => {
   model.dimension.x = dimension.x;

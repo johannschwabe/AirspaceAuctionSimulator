@@ -1,19 +1,25 @@
 from time import time_ns
 from typing import List, Dict
 
+from .BiddingABOwner import BiddingABOwner
+from .BiddingStationaryOwner import BiddingStationaryOwner
 from Simulator.Path import PathSegment, PathReallocation, SpaceSegment, SpaceReallocation
-from BiddingABAgent import BiddingABAgent
-from BiddingABBid import BiddingABBid
-from BiddingPathFinding import bidding_astar
+from .BiddingABAgent import BiddingABAgent
+from .BiddingABBid import BiddingABBid
+from .BiddingPathFinding import bidding_astar
 from Simulator import Environment
 from Simulator.Allocator import Allocator
 from Simulator.Coordinate import Coordinate4D
-from BiddingStationaryAgent import BiddingStationaryAgent
-from BiddingStationaryBid import BiddingStationaryBid
+from .BiddingStationaryAgent import BiddingStationaryAgent
+from .BiddingStationaryBid import BiddingStationaryBid
 from Simulator.Path.Reason import Reason, Reasons, AgentReason
 
 
 class BiddingAllocator(Allocator):
+    @staticmethod
+    def compatible_owner():
+        return [BiddingABOwner, BiddingStationaryOwner]
+
     def __init__(self):
         super().__init__()
 

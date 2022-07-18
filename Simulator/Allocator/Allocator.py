@@ -25,4 +25,7 @@ class Allocator(ABC):
         cloned_agents = [agent.clone() for agent in agents]
         return self.allocate_for_agents(cloned_agents, env, tick)
 
+    @staticmethod
+    def compatible_owner():
+        pass
 

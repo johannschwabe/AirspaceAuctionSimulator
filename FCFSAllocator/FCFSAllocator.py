@@ -1,6 +1,10 @@
 from time import time_ns
 from typing import List
 
+from Simulator.Owner.PathOwners.ABAOwner import ABAOwner
+from Simulator.Owner.PathOwners.ABCOwner import ABCOwner
+from Simulator.Owner.PathOwners.ABOwner import ABOwner
+from Simulator.Owner.SpaceOwners.StationaryOwner import StationaryOwner
 from Simulator.Path import PathSegment, SpaceSegment, PathReallocation, SpaceReallocation
 from Simulator.Environment import Environment
 from Simulator.Agent import Agent, PathAgent, SpaceAgent
@@ -12,6 +16,10 @@ from Simulator.helpers.PathFinding import astar
 
 
 class FCFSAllocator(Allocator):
+    @staticmethod
+    def compatible_owner():
+        return [ABOwner, ABAOwner, ABCOwner, StationaryOwner]
+
     def __init__(self):
         super().__init__()
 

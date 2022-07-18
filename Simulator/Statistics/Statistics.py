@@ -90,14 +90,15 @@ class Statistics:
     def close_passings(self):
         res = {}
 
-        max_far_radi = max(
-            [_agent.far_radius for _agent in self.history.env.get_agents().values() if
-             isinstance(_agent, PathAgent)]
-        )
-        max_near_radi = max(
-            [_agent.near_radius for _agent in self.history.env.get_agents().values() if
-             isinstance(_agent, PathAgent)]
-        )
+        far_radi = [_agent.far_radius for _agent in self.history.env.get_agents().values() if
+                    issubclass(_agent, PathAgent)]
+        far_radi.append(0)
+        max_far_radi = max(far_radi)
+
+        near_radi = [_agent.near_radius for _agent in self.history.env.get_agents().values() if
+             issubclass(_agent, PathAgent)]
+        near_radi.append(0)
+        max_near_radi = max(near_radi)
 
         for agent in self.history.env.get_agents().values():
             res[agent.id] = {
@@ -121,7 +122,8 @@ class Statistics:
                         res[agent.id]["far_field_intersection"][step.t] = far_intersections
                         res[agent.id]["total_near_field_violations"] += res[agent.id]["near_field_violations"][step.t]
                         res[agent.id]["total_far_field_violations"] += res[agent.id]["far_field_violations"][step.t]
-                        res[agent.id]["total_near_field_intersection"] += res[agent.id]["near_field_intersection"][step.t]
+                        res[agent.id]["total_near_field_intersection"] += res[agent.id]["near_field_intersection"][
+                            step.t]
                         res[agent.id]["total_far_field_intersection"] += res[agent.id]["far_field_intersection"][step.t]
         return res
 
@@ -176,15 +178,13 @@ class Statistics:
                     max_far_distance += colliding_agent.far_radius
 
                 if distance_x <= max_near_distance and \
-                   distance_y <= max_near_distance and \
-                   distance_z <= max_near_distance:
-
+                    distance_y <= max_near_distance and \
+                    distance_z <= max_near_distance:
                     near_intersections += col_time
 
                 if distance_x <= max_far_distance and \
-                   distance_y <= max_far_distance and \
-                   distance_z <= max_far_distance:
-
+                    distance_y <= max_far_distance and \
+                    distance_z <= max_far_distance:
                     far_intersections += col_time
 
         return near_intersections, far_intersections

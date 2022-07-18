@@ -11,6 +11,9 @@ if TYPE_CHECKING:
 
 
 class StationaryOwner(SpaceOwner):
+    label = "Stationary Owner"
+    description = "An owner interested in a set of stationary cubes"
+    positions = ">0"
     def __init__(self, name: str, color: str, creation_ticks: List[int], nr_blocks: int, size: Coordinate4D):
         super().__init__(name, color)
         self.creation_ticks = creation_ticks

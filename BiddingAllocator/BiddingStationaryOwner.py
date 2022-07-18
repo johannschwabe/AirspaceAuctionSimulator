@@ -9,6 +9,8 @@ from Simulator.Owner.SpaceOwners.StationaryOwner import StationaryOwner
 
 
 class BiddingStationaryOwner(StationaryOwner):
+    label = "Bidding Stationary"
+    description = "A bidding owner interested in a set of cubes"
     def __init__(self,
                  name: str,
                  color: str,
