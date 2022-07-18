@@ -48,38 +48,41 @@ class BiddingAllocator(Allocator):
 
             if isinstance(bid, BiddingStationaryBid) and isinstance(agent, BiddingStationaryAgent):
                 space_segments = []
+                blocking_agents = set()
                 for block in bid.blocks:
                     intersecting_agents = env.intersect_box(block[0], block[1], False)
-                    blocking_agents = set()
+                    blocking_agents_block = set()
                     allocateable = True
                     for agent_id in intersecting_agents:
                         if agent_id == agent.id:
                             continue
                         colliding_agent = env.get_agent(agent_id)
                         if colliding_agent.priority < agent.priority:
-                            blocking_agents.add(colliding_agent)
+                            blocking_agents_block.add(colliding_agent)
                         else:
                             allocateable = False
                             break
                     if allocateable:
+                        blocking_agents = blocking_agents.union(blocking_agents_block)
                         space_segments.append(SpaceSegment(block[0], block[1]))
-                        to_add = to_add.union(blocking_agents)
-                        for agent_to_remove in blocking_agents:
+                        to_add = to_add.union(blocking_agents_block)
+                        for agent_to_remove in blocking_agents_block:
                             print(f"reallocating: {agent_to_remove.id}")
                             env.deallocate_agent(agent_to_remove, tick)
                             res = [reallocation for reallocation in res if
                                    reallocation.agent != agent_to_remove]
 
-                        reallocation_reason = Reason(
-                            Reasons.FIRST_ALLOCATION.value) if agent in agents else AgentReason(
-                            Reasons.AGENT.value,
-                            [collision.id for collision in blocking_agents])
-                        env.allocate_spaces_for_agent(agent, space_segments)
-                        if agent.id not in env.get_agents():
-                            env.add_agent(agent)
-                        res.append(SpaceReallocation(agent,
-                                                     space_segments,
-                                                     reallocation_reason,
-                                                     (time_ns() - start_time) / 1e6)
-                                   )
+                    reallocation_reason = Reason(
+                        Reasons.FIRST_ALLOCATION.value) if agent in agents else AgentReason(
+                        Reasons.AGENT.value,
+                        [collision.id for collision in blocking_agents])
+                    env.allocate_spaces_for_agent(agent, space_segments)
+                    if agent.id not in env.get_agents():
+                        env.add_agent(agent)
+                    res.append(SpaceReallocation(agent,
+                                                 space_segments,
+                                                 reallocation_reason,
+                                                 (time_ns() - start_time) / 1e6)
+                               )
+
         return res
