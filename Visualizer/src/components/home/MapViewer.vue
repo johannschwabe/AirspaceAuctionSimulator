@@ -162,7 +162,7 @@ function onClickOrDrag(event) {
         break;
     }
   } else {
-    console.error(`Invalid coordinates selected: ${coords} map to ${gridCoords}`);
+    throw new Error(`Invalid coordinates selected: ${coords} map to ${gridCoords}`);
   }
 }
 

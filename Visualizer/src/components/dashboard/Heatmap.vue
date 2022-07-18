@@ -92,7 +92,6 @@ const resetState = () => {
 };
 
 const updateState = () => {
-  console.log("Heatmap: Update state");
   simulation.activeAgents.forEach((agent) => {
     const loc_dimx = agent.combinedPath.at(simulation.tick)[props.dimX];
     const loc_dimy = agent.combinedPath.at(simulation.tick)[props.dimY];
@@ -100,7 +99,6 @@ const updateState = () => {
     const dim2 = Math.floor(loc_dimy / dimYlength);
     series[dim2].data[dim1] += 1;
   });
-  console.log("Heatmap: Done");
 };
 
 updateState();

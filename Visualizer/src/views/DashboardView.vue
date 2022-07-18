@@ -56,9 +56,6 @@
       <!-- Bottom Part -->
       <n-grid cols="1">
         <n-grid-item>
-          <!--        <data-table />-->
-        </n-grid-item>
-        <n-grid-item>
           <gantt />
         </n-grid-item>
       </n-grid>
@@ -147,9 +144,9 @@ if (!hasSimulationSingleton()) {
       simulation.value = simulationSingleton;
     })
     .catch((e) => {
-      console.error(e);
       message.error(e.message);
       router.push("/");
+      throw new Error(e);
     })
     .finally(() => {
       nextTick(() => {
@@ -169,7 +166,6 @@ if (!hasSimulationSingleton()) {
       allAgentIds.push(agent.id);
     });
   });
-  console.log(allAgentIds);
   simulationStore.setSelectedAgentIDs(allAgentIds);
 }
 

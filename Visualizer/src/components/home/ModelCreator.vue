@@ -161,10 +161,10 @@ const simulate = () => {
           finished.value = true;
         })
         .catch((e) => {
-          console.error(e);
           loadingBar.error();
           message.error(e.message);
           errorText.value = e.message;
+          throw new Error(e);
         })
         .finally(() => {
           stopLoading();

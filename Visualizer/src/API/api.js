@@ -62,10 +62,8 @@ export async function postSimulation(simulationConfig) {
   try {
     const { data } = await apiServer.post("/simulation", simulationConfig);
     persistSimulation(data);
-    console.log("API Fetch successfull", data);
     return data;
   } catch (e) {
-    console.error(e);
     const details = apiPostErrorToString(e);
     throw new Error(details);
   }
@@ -78,7 +76,7 @@ export function persistSimulation(data) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch (e) {
-    console.error(e);
+    throw new Error(e);
   }
 }
 

@@ -166,7 +166,7 @@ class Environment:
     def is_blocked_forever(self, coord: Coordinate4D, radius: int = 0, speed: int = 0) -> bool:
         for blocker_id in self.get_blockers(coord, radius, speed):
             blocker = self.blockers[blocker_id]
-            if blocker.type == BlockerType.STATIC and blocker.is_blocking(coord, radius):
+            if blocker.blocker_type == BlockerType.STATIC.value and blocker.is_blocking(coord, radius):
                 return True
         return False
 

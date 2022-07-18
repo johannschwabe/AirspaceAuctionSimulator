@@ -8,6 +8,7 @@ import VueApexCharts from "vue3-apexcharts";
 import { reactive, ref } from "vue";
 import { useSimulationSingleton } from "../../scripts/simulation";
 import { onAgentsSelected } from "../../scripts/emitter";
+import PathAgent from "../../SimulationObjects/PathAgent";
 
 const simulation = useSimulationSingleton();
 
@@ -58,14 +59,15 @@ const series = reactive([
 ]);
 
 const updateSeries = () => {
-  console.log("Welfare: Update");
   const optimalWelfare = Array(simulation.maxTick + 1).fill(0);
   const achievedWelfare = Array(simulation.maxTick + 1).fill(0);
 
   simulation.selectedAgents.forEach((agent) => {
-    const arrivalTick = agent.combinedPath.lastTick;
-    optimalWelfare[arrivalTick] += agent.nonCollidingWelfare;
-    achievedWelfare[arrivalTick] += agent.welfare;
+    if (agent instanceof PathAgent) {
+      const arrivalTick = agent.combinedPath.lastTick;
+      optimalWelfare[arrivalTick] += agent.nonCollidingWelfare;
+      achievedWelfare[arrivalTick] += agent.welfare;
+    }
   });
 
   for (let i = 1; i <= simulation.maxTick; i++) {
