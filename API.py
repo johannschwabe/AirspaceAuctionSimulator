@@ -4,6 +4,7 @@ App runs on 'https://localhost:8000/'
 """
 import random
 import time
+from fastapi import FastAPI, HTTPException
 from typing import Optional, List, Dict
 
 from fastapi import FastAPI
@@ -111,9 +112,14 @@ def read_root(config: APISimulationConfig):
 
     Coordinate4D.dim = dimensions
 
+    allocators = list(filter(lambda x: (x.__name__ == config.allocator), available_allocators))
+    if len(allocators) != 1:
+        raise HTTPException(status_code=404, detail="allocator not found")
+    allocator = allocators[0]
+
     random.seed(2)
     g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions,
-                  maptiles=maptiles)
+                  maptiles=maptiles, allocator=allocator)
     start_time = time.time_ns()
     g.simulate()
     end_time = time.time_ns()

@@ -182,6 +182,7 @@ const simulate = () => {
         .postSimulation({
           ...model,
           owners: owners.value,
+          allocator: selected_allocator.value,
         })
         .then((data) => {
           const simulation = new Simulation(data);

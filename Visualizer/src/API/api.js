@@ -31,6 +31,7 @@ import { saveAs } from "file-saver";
  * @property {?MapObject} map
  * @property {ApiOwnerType} owners
  * @property {ApiDimensionType} dimension
+ * @property {string} allocator
  */
 
 /**

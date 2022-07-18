@@ -30,14 +30,15 @@ class Generator:
         description: str,
         owners: List["APIOwner"],
         dimensions: "Coordinate4D",
-        maptiles: List["MapTile"]
+        maptiles: List["MapTile"],
+        allocator: "Allocator"
     ):
         self.name: str = name
         self.description: str = description
         self.ownerTypes: List[APIOwner] = owners
         self.dimensions: "Coordinate4D" = dimensions
         self.owners: List["Owner"] = []
-        self.allocator: "Allocator" = FCFSAllocator()
+        self.allocator: "Allocator" = allocator
         self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles).generate()
         self.simulator: Optional["Simulator"] = None
         self.history: Optional["History"] = None
@@ -68,6 +69,12 @@ class Generator:
     def simulate(self):
         for ownerType in self.ownerTypes:
             stops: List["PathStop"] = self.extract_owner_stops(ownerType)
+            owners = [_owner for _owner in self.allocator.compatible_owner() if _owner.__name__ == ownerType.type]
+            if len(owners) != 1:
+                print(f"Owner Type {ownerType} not registered with allocator {self.allocator.__name__}")
+                continue
+            ownerClass = owners[0]
+            print(ownerType)
             if ownerType.type == OwnerType.AB.value:
                 self.owners.append(ABOwner(ownerType.name,
                                            ownerType.color,
