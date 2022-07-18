@@ -7,7 +7,6 @@ from ..Agent import Agent, PathAgent, SpaceAgent
 from ..Blocker.BuildingBlocker import BuildingBlocker
 from ..Blocker.DynamicBlocker import DynamicBlocker
 from ..Blocker.StaticBlocker import StaticBlocker
-from ..Enum import Reason
 from ..History import HistoryAgent
 from ..IO import Stringify
 from ..Generator.MapTile import MapTile
