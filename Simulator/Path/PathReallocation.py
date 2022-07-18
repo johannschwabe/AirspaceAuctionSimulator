@@ -1,8 +1,8 @@
 from typing import List, TYPE_CHECKING
 
+from .Reason import Reason
 from ..Agent.Agent import Agent
 from ..Agent.PathAgent import PathAgent
-from ..Enum import Reason
 
 if TYPE_CHECKING:
     from ..Path import PathSegment

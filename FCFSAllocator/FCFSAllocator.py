@@ -1,13 +1,13 @@
 from time import time_ns
 from typing import List
 
-from Simulator.Enum import Reason
 from Simulator.Path import PathSegment, SpaceSegment, PathReallocation, SpaceReallocation
 from Simulator.Environment import Environment
 from Simulator.Agent import Agent, PathAgent, SpaceAgent
 from Simulator.Allocator import Allocator
 from Simulator.Bid import ABBid, Bid, ABABid, StationaryBid, ABCBid
 from Simulator.Coordinate import Coordinate4D
+from Simulator.Path.Reason import Reason, Reasons
 from Simulator.helpers.PathFinding import astar
 
 
@@ -34,7 +34,7 @@ class FCFSAllocator(Allocator):
                     agent,
                 )
                 if len(ab_path) == 0 or ab_path[-1].t - ab_path[0].t > agent.battery:
-                    res.append(PathReallocation(agent, [], Reason.ALLOCATION_FAILED))
+                    res.append(PathReallocation(agent, [], Reason(Reasons.ALLOCATION_FAILED.value)))
                     continue
 
                 optimal_path_segments.append(PathSegment(bid.a.to_inter_temporal(), bid.b.to_inter_temporal(), 0, ab_path))
@@ -50,7 +50,7 @@ class FCFSAllocator(Allocator):
                     )
 
                     if len(ba_path) == 0 or ab_path[-1].t - ab_path[0].t + ba_path[-1].t - ba_path[0].t > agent.battery:
-                        res.append(PathReallocation(agent, [], Reason.ALLOCATION_FAILED))
+                        res.append(PathReallocation(agent, [], Reason(Reasons.ALLOCATION_FAILED.value)))
                         continue
 
                     optimal_path_segments.append(PathSegment(bid.b.to_inter_temporal(), bid.a.to_inter_temporal(), 1, ba_path))
@@ -59,7 +59,7 @@ class FCFSAllocator(Allocator):
                 env.add_agent(agent)
                 res.append(PathReallocation(agent,
                                             optimal_path_segments,
-                                            Reason.FIRST_ALLOCATION,
+                                            Reason(Reasons.FIRST_ALLOCATION.value),
                                             (time_ns() - start_time)/1e6)
                            )
 
@@ -91,7 +91,7 @@ class FCFSAllocator(Allocator):
                 env.add_agent(agent)
                 res.append(PathReallocation(agent,
                                             optimal_path_segments,
-                                            Reason.FIRST_ALLOCATION,
+                                            Reason(Reasons.FIRST_ALLOCATION.value),
                                             (time_ns() - start_time)/1e6)
                            )
 
@@ -106,7 +106,7 @@ class FCFSAllocator(Allocator):
                 env.add_agent(agent)
                 res.append(SpaceReallocation(agent,
                                              optimal_path_segments,
-                                             Reason.FIRST_ALLOCATION,
+                                             Reason(Reasons.FIRST_ALLOCATION.value),
                                              (time_ns() - start_time)/1e6)
                            )
         return res

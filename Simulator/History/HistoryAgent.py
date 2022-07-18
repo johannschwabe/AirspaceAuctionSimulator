@@ -2,6 +2,7 @@ from typing import List, Dict
 
 from ..Agent import Agent
 from ..Coordinate import Coordinate4D
+from ..Path.Reason import Reason
 
 
 class HistoryAgent:
