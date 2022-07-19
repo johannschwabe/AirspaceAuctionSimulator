@@ -40,7 +40,7 @@ class ABCOwner(PathOwner):
 
             agent = ABCAgent(locations, stays, speed=speed)
             res.append(agent)
-            print(f"A-B-C created {agent}")
+            print(f"A-B-C created {agent}, {','.join([str(loc) for loc in locations])}")
 
         self.agents += res
         return res

@@ -115,7 +115,7 @@ def read_root(config: APISimulationConfig):
     allocators = list(filter(lambda x: (x.__name__ == config.allocator), available_allocators))
     if len(allocators) != 1:
         raise HTTPException(status_code=404, detail="allocator not found")
-    allocator = allocators[0]
+    allocator = allocators[0]()
 
     random.seed(2)
     g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions,

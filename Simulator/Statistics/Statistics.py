@@ -89,14 +89,13 @@ class Statistics:
 
     def close_passings(self):
         res = {}
-
         far_radi = [_agent.far_radius for _agent in self.history.env.get_agents().values() if
-                    issubclass(_agent, PathAgent)]
+                    isinstance(_agent, PathAgent)]
         far_radi.append(0)
         max_far_radi = max(far_radi)
 
         near_radi = [_agent.near_radius for _agent in self.history.env.get_agents().values() if
-             issubclass(_agent, PathAgent)]
+             isinstance(_agent, PathAgent)]
         near_radi.append(0)
         max_near_radi = max(near_radi)
 

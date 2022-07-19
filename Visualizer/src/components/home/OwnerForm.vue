@@ -9,11 +9,13 @@
     value-field="classname"
     placeholder="Type"
     filterable
+    @update:value="defaultStops"
   />
 </template>
 
 <script setup>
 import { ref, watchEffect } from "vue";
+import { createDefaultStop, validStops } from "../../scripts/stops";
 
 const props = defineProps({
   modelValue: {
@@ -33,7 +35,25 @@ watchEffect(() => {
 });
 const emit = defineEmits(["update:modelValue"]);
 function updateValue(updatedValue) {
+  console.log(updatedValue);
+
   emit("update:modelValue", updatedValue);
+}
+function defaultStops(ownertype) {
+  console.log(ownertype);
+  const option = props.options[ownertype];
+  const nr_stops = validStops(option.positions, option.ownertype);
+  if (nr_stops.start) {
+    config.value.start = createDefaultStop();
+    config.value.target = createDefaultStop();
+  } else {
+    config.value.start = null;
+    config.value.target = null;
+  }
+  config.value.stops = [];
+  for (let i = 0; i < nr_stops.min; i++) {
+    config.value.stops.push(createDefaultStop());
+  }
 }
 </script>
 

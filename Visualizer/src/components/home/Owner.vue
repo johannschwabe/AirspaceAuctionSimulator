@@ -32,6 +32,7 @@ import { Options } from "@vicons/ionicons5";
 import OwnerOptions from "./OwnerOptions.vue";
 import OwnerForm from "./OwnerForm.vue";
 import { createDefaultStop } from "../../scripts/stops";
+import * as _ from "lodash-es";
 
 const props = defineProps({
   dimension: {
@@ -142,7 +143,8 @@ function getData() {
 const onCreate = () => {
   defaultOwner.owner.type = Object.keys(props.availableOwners)[0];
   defaultOwner.owner.color = "#" + ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0");
-  return { owner: { ...defaultOwner.owner } };
+  const _owner = _.cloneDeep(defaultOwner.owner);
+  return { owner: _owner };
 };
 const owners = ref([onCreate()]);
 

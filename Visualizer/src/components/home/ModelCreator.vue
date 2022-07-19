@@ -18,7 +18,7 @@
     <map-selector @dimensionChange="setDimension" @map-change="(map) => (model.map = map)" />
 
     <n-form-item path="dimension.t" label="Timesteps">
-      <n-slider show-tooltip v-model:value="model.dimension.t" :min="10" :max="1000" :step="10" />
+      <n-slider show-tooltip v-model:value="model.dimension.t" :min="300" :max="2000" :step="10" />
     </n-form-item>
     <n-form-item path="owners" label="Owners">
       <owner

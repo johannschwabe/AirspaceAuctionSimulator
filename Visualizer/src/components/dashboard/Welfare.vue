@@ -65,8 +65,8 @@ const updateSeries = () => {
   simulation.selectedAgents.forEach((agent) => {
     if (agent instanceof PathAgent) {
       const arrivalTick = agent.combinedPath.lastTick;
-      optimalWelfare[arrivalTick] += agent.nonCollidingWelfare;
-      achievedWelfare[arrivalTick] += agent.welfare;
+      optimalWelfare[arrivalTick] += agent.nonCollidingUtility;
+      achievedWelfare[arrivalTick] += agent.utility;
     }
   });
 

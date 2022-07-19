@@ -45,7 +45,7 @@ def astar(
     valid_time = 0
     in_check_t = 0
     in_check_2_t = 0
-    MAX_ITER = 20000
+    MAX_ITER = 200000
 
     while len(open_nodes) > 0 and steps < MAX_ITER:
         steps += 1
@@ -86,7 +86,7 @@ def astar(
                     continue
                 in_check_t += time_ns() - in_check_start
 
-                neighbor.g = current_node.g + 0.4
+                neighbor.g = current_node.g + 0.2
                 neighbor.h = distance2(neighbor.position, end_node.position) - neighbor.position.y / env.get_dim().y * 0.05 * neighbor.h
                 neighbor.f = neighbor.g + neighbor.h
 
@@ -99,7 +99,7 @@ def astar(
         neighbors_time += time_ns() - start_neighbors
 
     if len(path) == 0:
-        print("ASTAR failed")
+        print(f"ASTAR failed: {'MaxIter' if steps == MAX_ITER else 'No valid Path'}")
 
     wait_coords: List[Coordinate4D] = []
     for near_coord in path:

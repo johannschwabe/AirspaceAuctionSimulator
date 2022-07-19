@@ -13,9 +13,9 @@ if TYPE_CHECKING:
 class BiddingABOwner(ABOwner):
     label = "Bidding A to B"
     description = "A bidding owner with a priority going from A to B"
-    def __init__(self, name: str, color: str, stops: List[PathStop], creation_ticks: List[int], priority: float):
+    def __init__(self, name: str, color: str, stops: List[PathStop], creation_ticks: List[int], priority: float = None):
         super().__init__(name, color, stops, creation_ticks)
-        self.priority = priority
+        self.priority = priority if priority else random.random() * 10
 
     def generate_agents(self, t: int, env: "Environment") -> List["Agent"]:
         res = []

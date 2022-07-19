@@ -28,7 +28,7 @@ class ABCAgent(PathAgent):
             return 0.
 
         if len(paths) != len(self._locations) - 1:
-            print("Invalid allocation!")
+            print("Invalid allocation!!")
             return 0.
 
         value = 1.

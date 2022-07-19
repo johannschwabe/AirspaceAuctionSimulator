@@ -10,12 +10,12 @@ if TYPE_CHECKING:
 
 class BiddingABAgent(ABAgent):
     def __init__(self,
-        a: Coordinate4D,
-        b: Coordinate4D,
-        priority: float,
-        speed: Optional[int] = None,
-        battery: Optional[int] = None,
-    ):
+                 a: Coordinate4D,
+                 b: Coordinate4D,
+                 priority: float,
+                 speed: Optional[int] = None,
+                 battery: Optional[int] = None,
+                 ):
         super().__init__(a, b, speed, battery)
         self.priority = priority
 

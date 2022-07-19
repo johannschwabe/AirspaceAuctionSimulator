@@ -10,8 +10,8 @@ export default class Agent {
     this.allocationType = rawAgent.allocation_type;
     this.id = rawAgent.id;
     this.name = rawAgent.name;
-    this.welfare = rawAgent.welfare;
-    this.nonCollidingWelfare = rawAgent.non_colliding_welfare;
+    this.utility = rawAgent.utility;
+    this.nonCollidingUtility = rawAgent.non_colliding_utility;
     this.bid = rawAgent.bid;
     this.owner = owner;
     this.color = owner.color;
