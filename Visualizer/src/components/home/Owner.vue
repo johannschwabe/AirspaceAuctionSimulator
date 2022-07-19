@@ -101,7 +101,11 @@ watchEffect(() => {
     optionsIndex.value = null;
   }
 });
-
+function setData(_owners) {
+  owners.value = _owners.map((_owner) => {
+    return { owner: _owner };
+  });
+}
 function getData() {
   return owners.value.map((owner) => {
     const stops = [owner.owner.start, ...owner.owner.stops, owner.owner.target];
@@ -150,5 +154,6 @@ const owners = ref([onCreate()]);
 
 defineExpose({
   getData,
+  setData,
 });
 </script>
