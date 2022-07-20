@@ -123,6 +123,14 @@ onUnmounted(() => {
   emit("mapChange", null);
 });
 
+const setData = (_mapInfo) => {
+  coordinates.long = _mapInfo.map.coordinates.long;
+  coordinates.lat = _mapInfo.map.coordinates.lat;
+  height.value = _mapInfo.dimension.y;
+  addressQuery.value = "-";
+  surroundingTiles.value = Math.round(Math.pow(_mapInfo.map.tiles.length, 0.5));
+};
+
 const resolveAddress = async () => {
   const query = `https://nominatim.openstreetmap.org/search?q=${addressQuery.value}&format=json&addressdetails=1`;
   const { data } = await axios.get(query);
@@ -133,6 +141,10 @@ const resolveAddress = async () => {
   coordinates.lat = parseFloat(data[0].lat);
   coordinates.long = parseFloat(data[0].lon);
 };
+
+defineExpose({
+  setData,
+});
 </script>
 
 <style scoped></style>

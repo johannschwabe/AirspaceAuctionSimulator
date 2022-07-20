@@ -7,7 +7,7 @@
       <n-input v-model:value="model.description" type="textarea" placeholder="Model description (Metadata)" />
     </n-form-item>
 
-    <map-selector @dimensionChange="setDimension" @map-change="(map) => (model.map = map)" />
+    <map-selector @dimensionChange="setDimension" @map-change="(map) => (model.map = map)" ref="mapRef" />
 
     <n-form-item path="dimension.t" label="Timesteps">
       <n-slider show-tooltip v-model:value="model.dimension.t" :min="300" :max="2000" :step="10" />
@@ -114,6 +114,7 @@ const router = useRouter();
 
 const formRef = ref(null);
 const ownerRef = ref(null);
+const mapRef = ref(null);
 const errorText = ref(null);
 
 const loading = ref(false);
@@ -210,6 +211,8 @@ const uploadConfiguration = (upload) => {
     model.map = data["env"].map; //Todo does not update the map correctly
 
     selected_allocator.value = data["mechanism"];
+
+    mapRef.value.setData(data["env"]);
   };
   fileReader.onerror = () => {
     loadingBar.error();
