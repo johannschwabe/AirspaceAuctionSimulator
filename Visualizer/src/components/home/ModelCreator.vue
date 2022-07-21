@@ -10,7 +10,7 @@
     <map-selector @dimensionChange="setDimension" @map-change="(map) => (model.map = map)" ref="mapRef" />
 
     <n-form-item path="dimension.t" label="Timesteps">
-      <n-slider show-tooltip v-model:value="model.dimension.t" :min="300" :max="2000" :step="10" />
+      <n-slider show-tooltip v-model:value="model.dimension.t" :min="300" :max="4000" :step="10" />
     </n-form-item>
 
     <n-form-item path="owners" label="Owners">
@@ -131,7 +131,7 @@ const model = reactive({
     x: 100,
     y: 20,
     z: 100,
-    t: 250,
+    t: 1500,
   },
 });
 
@@ -225,6 +225,7 @@ const uploadConfiguration = (upload) => {
 const simulate = () => {
   errorText.value = null;
   owners.value = ownerRef.value.getData();
+  console.log(JSON.stringify(owners.value));
   formRef.value?.validate((errors) => {
     if (!errors) {
       startLoading();

@@ -103,6 +103,17 @@ watchEffect(() => {
 });
 function setData(_owners) {
   owners.value = _owners.map((_owner) => {
+    console.log(JSON.stringify(_owner));
+    if (props.availableOwners[_owner.type].ownertype === "PathOwner" && _owner.stops.length > 1) {
+      _owner.start = { stop: _owner.stops[0] };
+      _owner.target = { stop: _owner.stops[_owner.stops.length - 1] };
+      _owner.stops = _owner.stops.slice(1, -1).map((_stop) => {
+        return {
+          stop: _stop,
+        };
+      });
+      console.log(JSON.stringify(_owner));
+    }
     return { owner: _owner };
   });
 }
@@ -110,6 +121,7 @@ function getData() {
   return owners.value.map((owner) => {
     const stops = [owner.owner.start, ...owner.owner.stops, owner.owner.target];
     const cleanedStops = stops.map((stop) => {
+      console.log(JSON.stringify(stop));
       const cleanStop = { type: stop.stop.type };
       const heatmap = {};
 

@@ -17,6 +17,7 @@ class MapTile:
         top_left_coordinate: "APISimpleCoordinate",
         bottom_right_coordinate: "APISimpleCoordinate",
     ):
+        self.blockers = []
         self.z = tile_ids[0]
         self.x = tile_ids[1]
         self.y = tile_ids[2]
@@ -40,7 +41,13 @@ class MapTile:
         return [x, z]
 
     def resolve_buildings(self):
-        data = cloudscraper.create_scraper().get(self.url).json()
+        if len(self.blockers) > 0:
+            return self.blockers
+        raw_data = cloudscraper.create_scraper().get(self.url)
+        if raw_data.status_code != 200:
+            print(raw_data.status_code)
+            return []
+        data = raw_data.json()
         res = []
         for building in data["features"]:
             is_feature = building["type"] == 'Feature'
@@ -77,6 +84,7 @@ class MapTile:
                 new_blocker = BuildingBlocker(coords, bounds, holes)
                 res.append(new_blocker)
 
+        self.blockers = res
         return res
 
     def __str__(self):
