@@ -225,7 +225,6 @@ const uploadConfiguration = (upload) => {
 const simulate = () => {
   errorText.value = null;
   owners.value = ownerRef.value.getData();
-  console.log(JSON.stringify(owners.value));
   formRef.value?.validate((errors) => {
     if (!errors) {
       startLoading();
