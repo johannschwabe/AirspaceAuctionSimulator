@@ -35,8 +35,6 @@ watchEffect(() => {
 });
 const emit = defineEmits(["update:modelValue"]);
 function updateValue(updatedValue) {
-  console.log(updatedValue);
-
   emit("update:modelValue", updatedValue);
 }
 function defaultStops(ownertype) {
