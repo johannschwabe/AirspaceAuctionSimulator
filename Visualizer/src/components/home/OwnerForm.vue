@@ -38,7 +38,6 @@ function updateValue(updatedValue) {
   emit("update:modelValue", updatedValue);
 }
 function defaultStops(ownertype) {
-  console.log(ownertype);
   const option = props.options[ownertype];
   const nr_stops = validStops(option.positions, option.ownertype);
   if (nr_stops.start) {
