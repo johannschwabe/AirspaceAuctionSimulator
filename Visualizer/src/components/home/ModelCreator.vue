@@ -191,9 +191,9 @@ const stopLoading = () => {
 
 const downloadConfiguration = () => {
   const res = {};
-  res["owners"] = ownerRef.value.getData();
-  res["env"] = model;
-  res["mechanism"] = selected_allocator.value;
+  res.owners = ownerRef.value.getData();
+  res.env = model;
+  res.mechanism = selected_allocator.value;
   const fileToSave = new Blob([JSON.stringify(res, undefined, 2)], {
     type: "application/json",
   });
@@ -204,15 +204,15 @@ const uploadConfiguration = (upload) => {
   const fileReader = new FileReader();
   fileReader.onload = async (event) => {
     const data = JSON.parse(event.target.result);
-    ownerRef.value.setData(data["owners"]);
-    model.name = data["env"].name;
-    model.description = data["env"].description;
-    model.dimension = data["env"].dimension;
-    model.map = data["env"].map; //Todo does not update the map correctly
+    ownerRef.value.setData(data.owners);
+    model.name = data.env.name;
+    model.description = data.env.description;
+    model.dimension = data.env.dimension;
+    model.map = data.env.map; //Todo does not update the map correctly
 
-    selected_allocator.value = data["mechanism"];
+    selected_allocator.value = data.mechanism;
 
-    mapRef.value.setData(data["env"]);
+    mapRef.value.setData(data.env);
   };
   fileReader.onerror = () => {
     loadingBar.error();
