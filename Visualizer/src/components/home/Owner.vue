@@ -117,8 +117,10 @@ function setData(_owners) {
 }
 function getData() {
   return owners.value.map((owner) => {
+    // TODO This does not work for stationary agents
     const stops = [owner.owner.start, ...owner.owner.stops, owner.owner.target];
-    const cleanedStops = stops.map((stop) => {
+    const cleanedStops = stops.filter(Boolean).map((stop) => {
+      console.log({ stops, stop });
       const cleanStop = { type: stop.stop.type };
       const heatmap = {};
 

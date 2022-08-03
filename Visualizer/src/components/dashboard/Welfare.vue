@@ -63,11 +63,9 @@ const updateSeries = () => {
   const achievedWelfare = Array(simulation.maxTick + 1).fill(0);
 
   simulation.selectedAgents.forEach((agent) => {
-    if (agent instanceof PathAgent) {
-      const arrivalTick = agent.combinedPath.lastTick;
-      optimalWelfare[arrivalTick] += agent.nonCollidingUtility;
-      achievedWelfare[arrivalTick] += agent.utility;
-    }
+    const arrivalTick = agent.veryLastTick;
+    optimalWelfare[arrivalTick] += agent.nonCollidingUtility;
+    achievedWelfare[arrivalTick] += agent.utility;
   });
 
   for (let i = 1; i <= simulation.maxTick; i++) {

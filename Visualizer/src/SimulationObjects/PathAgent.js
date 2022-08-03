@@ -56,4 +56,20 @@ export default class PathAgent extends Agent {
   focus() {
     this._simulation.focusOnAgent(this);
   }
+
+  get flyingTicks() {
+    return this.combinedPath.ticks;
+  }
+
+  get segmentsStartEnd() {
+    return this.path.map((path) => [path.firstTick, path.lastTick]);
+  }
+
+  get veryFirstTick() {
+    return this.combinedPath.firstTick;
+  }
+
+  get veryLastTick() {
+    return this.combinedPath.lastTick;
+  }
 }

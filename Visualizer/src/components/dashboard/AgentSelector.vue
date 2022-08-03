@@ -46,9 +46,7 @@ const apply = () => {
 
 const nodeProps = ({ option }) => ({
   onClick() {
-    if (option instanceof PathAgent) {
-      simulation.focusOnAgent(option);
-    }
+    simulation.focusOnAgent(option);
   },
 });
 </script>

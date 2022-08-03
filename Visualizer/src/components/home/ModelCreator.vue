@@ -33,6 +33,35 @@
     </n-form-item>
   </n-form>
 
+  <n-grid cols="2" x-gap="10">
+    <n-grid-item>
+      <n-upload
+        :custom-request="uploadConfiguration"
+        accept="application/json"
+        :on-preview="uploadConfiguration"
+      >
+        <n-button block tertiary :type="!modelFilledOut ? 'primary' : 'tertiary'">
+          Upload Simulation Configuration
+          <template #icon>
+            <n-icon>
+              <cloud-upload-outline />
+            </n-icon>
+          </template>
+        </n-button>
+      </n-upload>
+    </n-grid-item>
+    <n-grid-item>
+      <n-button block tertiary :type="modelFilledOut ? 'primary' : 'tertiary'" @click.stop="downloadConfiguration">
+        Download Simulation Configuration
+        <template #icon>
+          <n-icon>
+            <cloud-download-outline />
+          </n-icon>
+        </template>
+      </n-button>
+    </n-grid-item>
+  </n-grid>
+
   <n-popconfirm
     v-if="canRecover"
     negative-text="Download Cached"
@@ -41,13 +70,13 @@
     @negative-click="() => api.downloadSimulation()"
   >
     <template #trigger>
-      <n-button ghost type="primary" :loading="loading">
+      <n-button type="primary" :loading="loading">
         {{ loading ? `Running Simulation... (${loadingForSeconds}s)` : "Simulate" }}
       </n-button>
     </template>
     You do have an old session in your browser cache. It will be overwritten!
   </n-popconfirm>
-  <n-button ghost type="primary" @click.stop="simulate" v-else :loading="loading">
+  <n-button type="primary" @click.stop="simulate" v-else :loading="loading">
     {{ loading ? `Running Simulation... (${loadingForSeconds}s)` : "Simulate" }}
   </n-button>
 
@@ -73,18 +102,6 @@
       </n-button>
     </n-grid-item>
   </n-grid>
-  <n-grid cols="2" x-gap="10">
-    <n-grid-item>
-      <n-button ghost block type="primary" @click.stop="downloadConfiguration">
-        Download Simulation Configuration
-      </n-button>
-    </n-grid-item>
-    <n-grid-item>
-      <n-upload block :custom-request="uploadConfiguration">
-        <n-button ghost block type="primary"> Upload Simulation Configuration </n-button>
-      </n-upload>
-    </n-grid-item>
-  </n-grid>
 
   <n-alert v-if="errorText" title="Invalid Data" type="error">
     {{ errorText }}
@@ -92,10 +109,14 @@
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
 import { useMessage, useLoadingBar } from "naive-ui";
 import { useRouter } from "vue-router";
-import { CloudDownloadOutline, ArrowForwardOutline } from "@vicons/ionicons5";
+import {
+  CloudDownloadOutline,
+  ArrowForwardOutline,
+  CloudUploadOutline,
+} from "@vicons/ionicons5";
 import { saveAs } from "file-saver";
 
 import Owner from "./Owner.vue";
@@ -137,6 +158,7 @@ const model = reactive({
 
 const allocators = ref([]);
 const selected_allocator = ref("FCFSAllocator");
+const modelFilledOut = computed(() => !!model.name);
 
 api.getAllocators().then((_allocators) => {
   allocators.value = _allocators.map((_allocator) => {

@@ -14,4 +14,9 @@ export default class Blocker {
   positionAtTick() {
     /* abstract method */
   }
+
+  get ticksInAir() {
+    /* abstract method */
+    return [];
+  }
 }

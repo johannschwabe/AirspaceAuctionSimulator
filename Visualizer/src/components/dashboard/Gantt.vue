@@ -55,20 +55,16 @@ const series = reactive([
 const updateSeries = () => {
   const gantt = [];
   simulation.selectedAgents.forEach((agent) => {
-    if (agent instanceof PathAgent) {
-      agent.paths.forEach((path) => {
-        const start = path.firstTick;
-        const end = path.lastTick;
-        if (start === null || end === null) {
-          throw new Error("Invalid start or end of path!");
-        }
-        gantt.push({
-          x: agent.name,
-          y: [start, end],
-          fillColor: agent.color,
-        });
+    agent.segmentsStartEnd.forEach(([start, end]) => {
+      if (start === null || end === null) {
+        throw new Error("Invalid start or end of path!");
+      }
+      gantt.push({
+        x: agent.name,
+        y: [start, end],
+        fillColor: agent.color,
       });
-    }
+    });
   });
   series[0].data = gantt;
 };

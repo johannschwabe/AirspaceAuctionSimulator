@@ -14,4 +14,8 @@ export default class DynamicBlocker extends Blocker {
   positionAtTick(tick) {
     return this.path.ticks[tick];
   }
+
+  get ticksInAir() {
+    return this.path.ticksInAir;
+  }
 }

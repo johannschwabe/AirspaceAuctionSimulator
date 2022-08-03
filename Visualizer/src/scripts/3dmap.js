@@ -370,7 +370,7 @@ export function useDrones({ scene, droneCache, x, z, focusOn }) {
   const simulation = useSimulationSingleton();
 
   // Push new meshes
-  simulation.activeAgents.forEach((agent) => {
+  simulation.activePathAgents.forEach((agent) => {
     const path = agent.paths.find((p) => p.isActiveAtTick(simulation.tick));
     const pathIdx = agent.paths.indexOf(path);
     const { x: agent_x, y: agent_y, z: agent_z } = agent.combinedPath.at(simulation.tick);

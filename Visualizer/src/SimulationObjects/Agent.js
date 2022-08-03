@@ -29,4 +29,24 @@ export default class Agent {
   focus() {
     /* abstract method */
   }
+
+  get flyingTicks() {
+    /* abstract method */
+    return [];
+  }
+
+  get segmentsStartEnd() {
+    /* abstract method */
+    return [];
+  }
+
+  get veryFirstTick() {
+    /* abstract method */
+    return -1;
+  }
+
+  get veryLastTick() {
+    /* abstract method */
+    return -1;
+  }
 }

@@ -88,6 +88,7 @@ emit("dimensionChange", dimension.value);
 
 const mapInfo = computed(() => {
   const locationName = addressQuery.value;
+  const neightbouringTiles = surroundingTiles.value;
   const tiles = [];
   const projectedCoordinate = fromLonLat([coordinates.long, coordinates.lat], "EPSG:3857");
   const tileCoord = grid.getTileCoordForCoordAndZ(projectedCoordinate, 15);
@@ -111,6 +112,7 @@ const mapInfo = computed(() => {
   }
   return {
     locationName,
+    neightbouringTiles,
     tiles,
     topLeftCoordinate,
     bottomRightCoordinate,
@@ -130,7 +132,7 @@ const setData = (env) => {
   coordinates.lat = env.map.coordinates.lat;
   height.value = env.dimension.y;
   addressQuery.value = env.map.locationName;
-  surroundingTiles.value = Math.round(Math.pow(env.map.tiles.length, 0.5));
+  surroundingTiles.value = env.map.neightbouringTiles;
 };
 
 const resolveAddress = async () => {
