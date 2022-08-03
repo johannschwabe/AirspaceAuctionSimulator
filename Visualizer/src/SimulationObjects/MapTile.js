@@ -36,7 +36,6 @@ export default class MapTile {
 
   async load() {
     const { data } = await axios.get(this.url);
-    console.log(data);
     if (!data) {
       this.buildings = [];
       return;
