@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { ref, watchEffect } from "vue";
+import { computed } from "vue";
 import { createDefaultStop, validStops } from "../../scripts/stops";
 
 const props = defineProps({
@@ -27,16 +27,13 @@ const props = defineProps({
     required: true,
   },
 });
-// todo: This is beyond ugly. pls refactor @Thomas
-const config = ref({ ...props.modelValue });
-watchEffect(() => (config.value = props.modelValue));
-watchEffect(() => {
-  updateValue(config.value);
+
+const config = computed({
+  get: () => props.modelValue,
+  set: (updatedValue) => emit("update:modelValue", updatedValue),
 });
 const emit = defineEmits(["update:modelValue"]);
-function updateValue(updatedValue) {
-  emit("update:modelValue", updatedValue);
-}
+
 function defaultStops(ownertype) {
   const option = props.options[ownertype];
   const nr_stops = validStops(option.positions, option.ownertype);
