@@ -11,7 +11,7 @@
 
 <script setup>
 import MapViewer from "./MapViewer.vue";
-import { ref, watchEffect } from "vue";
+import { computed } from "vue";
 
 const props = defineProps({
   modelValue: {
@@ -28,12 +28,11 @@ const props = defineProps({
   },
 });
 
-const value = ref({ ...props.modelValue });
-watchEffect(() => (value.value = props.modelValue));
-watchEffect(() => updateValue(value.value));
-function updateValue(updatedValue) {
-  emit("update:modelValue", updatedValue);
-}
+const value = computed({
+  get: () => props.modelValue,
+  set: (updatedValue) => emit("update:modelValue", updatedValue),
+});
+
 const emit = defineEmits(["update:modelValue"]);
 
 function updatePosition(position) {
