@@ -119,7 +119,6 @@ function getData() {
   return owners.value.map((owner) => {
     const stops = [owner.owner.start, ...owner.owner.stops, owner.owner.target];
     const cleanedStops = stops.map((stop) => {
-      console.log(JSON.stringify(stop));
       const cleanStop = { type: stop.stop.type };
       const heatmap = {};
 
