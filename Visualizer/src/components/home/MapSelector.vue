@@ -87,6 +87,7 @@ watch(dimension, () => {
 emit("dimensionChange", dimension.value);
 
 const mapInfo = computed(() => {
+  const locationName = addressQuery.value;
   const tiles = [];
   const projectedCoordinate = fromLonLat([coordinates.long, coordinates.lat], "EPSG:3857");
   const tileCoord = grid.getTileCoordForCoordAndZ(projectedCoordinate, 15);
@@ -109,6 +110,7 @@ const mapInfo = computed(() => {
     }
   }
   return {
+    locationName,
     tiles,
     topLeftCoordinate,
     bottomRightCoordinate,
@@ -123,6 +125,14 @@ onUnmounted(() => {
   emit("mapChange", null);
 });
 
+const setData = (env) => {
+  coordinates.long = env.map.coordinates.long;
+  coordinates.lat = env.map.coordinates.lat;
+  height.value = env.dimension.y;
+  addressQuery.value = env.map.locationName;
+  surroundingTiles.value = Math.round(Math.pow(env.map.tiles.length, 0.5));
+};
+
 const resolveAddress = async () => {
   const query = `https://nominatim.openstreetmap.org/search?q=${addressQuery.value}&format=json&addressdetails=1`;
   const { data } = await axios.get(query);
@@ -133,6 +143,10 @@ const resolveAddress = async () => {
   coordinates.lat = parseFloat(data[0].lat);
   coordinates.long = parseFloat(data[0].lon);
 };
+
+defineExpose({
+  setData,
+});
 </script>
 
 <style scoped></style>

@@ -42,7 +42,7 @@ class JSONAgent(ABC):
     def __init__(
         self,
         agent: Agent,
-        non_colliding_welfare: float,
+        non_colliding_utility: float,
         bid: Dict[str, str | int | float],
         owner_id: int,
         owner_name: str,
@@ -50,9 +50,9 @@ class JSONAgent(ABC):
         self.agent_type: str = agent.agent_type
         self.allocation_type = agent.allocation_type
         self.id: int = agent.id
-        self.welfare: float = agent.get_allocated_value()
+        self.utility: float = agent.get_allocated_value()
 
-        self.non_colliding_welfare: float = non_colliding_welfare
+        self.non_colliding_utility: float = non_colliding_utility
 
         self.bid: Dict[str, str | int | float] = bid
         self.owner_id: int = owner_id
@@ -64,12 +64,12 @@ class JSONSpaceAgent(JSONAgent, Stringify):
     def __init__(
         self,
         agent: SpaceAgent,
-        non_colliding_welfare: float,
+        non_colliding_utility: float,
         bid: Dict[str, str | int | float],
         owner_id: int,
         owner_name: str,
     ):
-        super().__init__(agent, non_colliding_welfare, bid, owner_id, owner_name)
+        super().__init__(agent, non_colliding_utility, bid, owner_id, owner_name)
         self.spaces = agent.get_allocated_segments()
 
 
@@ -78,7 +78,7 @@ class JSONPathAgent(JSONAgent, Stringify):
         self,
         history_agent: HistoryAgent,
         agent: PathAgent,
-        non_colliding_welfare: float,
+        non_colliding_utility: float,
         near_field_intersections: int,
         far_field_intersections: int,
         near_field_violations: int,
@@ -88,7 +88,7 @@ class JSONPathAgent(JSONAgent, Stringify):
         owner_name: str,
         path_stats: Dict[str, float | int]
     ):
-        super().__init__(agent, non_colliding_welfare, bid, owner_id, owner_name)
+        super().__init__(agent, non_colliding_utility, bid, owner_id, owner_name)
         self.speed: int = agent.speed
         self.near_radius: int = agent.near_radius
         self.far_radius: int = agent.far_radius
@@ -116,7 +116,7 @@ class JSONPathAgent(JSONAgent, Stringify):
             self.branches.append(Branch(
                 key,
                 branch_paths,
-                agent.value_for_segments(value),
+                agent.value_for_segments(value["path"]),
                 Collision(value["reason"]),
                 value["time"]
             ))
@@ -144,18 +144,18 @@ class JSONOwner(Stringify):
         self.bid_outliers: List[float] = [bid for bid in bids if
                                           bid < self.bid_quantiles[0] or bid > self.bid_quantiles[-1]]
 
-        welfare = [agent.welfare for agent in self.agents]
-        self.total_welfare: int = sum(welfare)
-        self.mean_welfare: float = statistics.mean(welfare)
-        self.median_welfare: float = statistics.median(welfare)
-        self.max_welfare: float = max(welfare)
-        self.min_welfare: float = min(welfare)
-        if len(welfare) < 2:
-            self.welfare_quantiles = [0] * 4
+        utility = [agent.utility for agent in self.agents]
+        self.total_utility: int = sum(utility)
+        self.mean_utility: float = statistics.mean(utility)
+        self.median_utility: float = statistics.median(utility)
+        self.max_utility: float = max(utility)
+        self.min_utility: float = min(utility)
+        if len(utility) < 2:
+            self.utility_quantiles = [0] * 4
         else:
-            self.welfare_quantiles: List[float] = statistics.quantiles(welfare)
-        self.welfare_outliers: List[float] = [w for w in welfare if
-                                              w < self.welfare_quantiles[0] or w > self.welfare_quantiles[-1]]
+            self.utility_quantiles: List[float] = statistics.quantiles(utility)
+        self.utility_outliers: List[float] = [w for w in utility if
+                                              w < self.utility_quantiles[0] or w > self.utility_quantiles[-1]]
 
         self.number_of_agents: int = len(self.agents)
         self.number_per_type = {}

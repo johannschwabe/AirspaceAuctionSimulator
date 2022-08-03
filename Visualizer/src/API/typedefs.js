@@ -51,10 +51,10 @@
  * @property {int} speed
  * @property {int} near_radius
  * @property {int} far_radius
- * @property {float} welfare
+ * @property {float} utility
  * @property {int} battery
  * @property {int} time_in_air
- * @property {float} non_colliding_welfare
+ * @property {float} non_colliding_utility
  * @property {int} near_field_intersections
  * @property {int} far_field_intersections
  * @property {int} near_field_violations
@@ -81,13 +81,13 @@
  * @property {float} min_bid_value
  * @property {float[]} bid_quantiles
  * @property {float[]} bid_outliers
- * @property {int} total_welfare
- * @property {float} mean_welfare
- * @property {float} median_welfare
- * @property {float} max_welfare
- * @property {float} min_welfare
- * @property {float[]} welfare_quantiles
- * @property {float[]} welfare_outliers
+ * @property {int} total_utility
+ * @property {float} mean_utility
+ * @property {float} median_utility
+ * @property {float} max_utility
+ * @property {float} min_utility
+ * @property {float[]} utility_quantiles
+ * @property {float[]} utility_outliers
  * @property {int} number_of_agents
  * @property {int} number_of_ab_agents
  * @property {int} number_of_aba_agents

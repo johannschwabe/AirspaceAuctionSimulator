@@ -8,7 +8,9 @@ from ..Environment import Environment
 
 class Owner(ABC):
     _id: int = 10000
-
+    label = "Abstract Owner"
+    description = "An Abstract Owner: Override this class variable"
+    positions = "0"
     def __init__(self, name: str, color: str):
         self.name: str = name
         self.color: str = color

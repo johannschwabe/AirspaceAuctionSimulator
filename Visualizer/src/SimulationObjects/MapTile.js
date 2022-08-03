@@ -36,6 +36,10 @@ export default class MapTile {
 
   async load() {
     const { data } = await axios.get(this.url);
+    if (!data) {
+      this.buildings = [];
+      return;
+    }
     this.buildings = data.features
       .filter((feature) => {
         const isFeature = feature?.type === "Feature";

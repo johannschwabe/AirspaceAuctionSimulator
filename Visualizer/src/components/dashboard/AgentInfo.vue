@@ -64,7 +64,7 @@ const datapoints = computed(() => [
       };
     }),
   { label: "Speed", value: simulation.agentInFocus.speed, icon: Speedometer },
-  { label: "Welfare", value: simulation.agentInFocus.welfare, icon: Happy },
+  { label: "Utility", value: simulation.agentInFocus.utility, icon: Happy },
   { label: "Time in Air", value: simulation.agentInFocus.timeInAir, icon: Timer },
   {
     label: "Near Field Radius",

@@ -7,13 +7,29 @@
       <n-input v-model:value="model.description" type="textarea" placeholder="Model description (Metadata)" />
     </n-form-item>
 
-    <map-selector @dimensionChange="setDimension" @map-change="(map) => (model.map = map)" />
+    <map-selector @dimensionChange="setDimension" @map-change="(map) => (model.map = map)" ref="mapRef" />
 
     <n-form-item path="dimension.t" label="Timesteps">
-      <n-slider show-tooltip v-model:value="model.dimension.t" :min="10" :max="1000" :step="10" />
+      <n-slider show-tooltip v-model:value="model.dimension.t" :min="300" :max="4000" :step="10" />
     </n-form-item>
+
     <n-form-item path="owners" label="Owners">
-      <owner ref="ownerRef" :dimension="model.dimension" :map-info="model.map" />
+      <owner
+        v-if="Object.keys(availableOwners).length > 0"
+        ref="ownerRef"
+        :dimension="model.dimension"
+        :map-info="model.map"
+        :availableOwners="availableOwners"
+      />
+    </n-form-item>
+
+    <n-form-item path="allocator" label="Mechanism">
+      <n-select
+        v-model:value="selected_allocator"
+        :options="allocators"
+        placeholder="Select Allocator"
+        :on-update-value="getCompatibleOwners"
+      />
     </n-form-item>
   </n-form>
 
@@ -57,6 +73,19 @@
       </n-button>
     </n-grid-item>
   </n-grid>
+  <n-grid cols="2" x-gap="10">
+    <n-grid-item>
+      <n-button ghost block type="primary" @click.stop="downloadConfiguration">
+        Download Simulation Configuration
+      </n-button>
+    </n-grid-item>
+    <n-grid-item>
+      <n-upload block :custom-request="uploadConfiguration">
+        <n-button ghost block type="primary"> Upload Simulation Configuration </n-button>
+      </n-upload>
+    </n-grid-item>
+  </n-grid>
+
   <n-alert v-if="errorText" title="Invalid Data" type="error">
     {{ errorText }}
   </n-alert>
@@ -67,11 +96,12 @@ import { ref, reactive } from "vue";
 import { useMessage, useLoadingBar } from "naive-ui";
 import { useRouter } from "vue-router";
 import { CloudDownloadOutline, ArrowForwardOutline } from "@vicons/ionicons5";
+import { saveAs } from "file-saver";
 
 import Owner from "./Owner.vue";
 import MapSelector from "./MapSelector.vue";
 import Simulation from "../../SimulationObjects/Simulation.js";
-import api from "../../API/api.js";
+import api, { getOwners } from "../../API/api.js";
 import {
   canRecoverSimulationSingleton,
   hasSimulationSingleton,
@@ -84,6 +114,7 @@ const router = useRouter();
 
 const formRef = ref(null);
 const ownerRef = ref(null);
+const mapRef = ref(null);
 const errorText = ref(null);
 
 const loading = ref(false);
@@ -100,11 +131,21 @@ const model = reactive({
     x: 100,
     y: 20,
     z: 100,
-    t: 250,
+    t: 1500,
   },
 });
 
+const allocators = ref([]);
+const selected_allocator = ref("FCFSAllocator");
+
+api.getAllocators().then((_allocators) => {
+  allocators.value = _allocators.map((_allocator) => {
+    return { label: _allocator, value: _allocator };
+  });
+});
+
 const owners = ref([]);
+let availableOwners = ref({});
 
 const rules = {
   name: [
@@ -114,6 +155,15 @@ const rules = {
     },
   ],
 };
+const getCompatibleOwners = (selection) => {
+  getOwners(selection).then((_owners) => {
+    availableOwners.value = {};
+    _owners.forEach((_owner) => {
+      availableOwners.value[_owner.classname] = _owner;
+    });
+  });
+};
+getCompatibleOwners(selected_allocator.value);
 
 const setDimension = (dimension) => {
   model.dimension.x = dimension.x;
@@ -139,6 +189,39 @@ const stopLoading = () => {
   clearInterval(loadingInterval.value);
 };
 
+const downloadConfiguration = () => {
+  const res = {};
+  res.owners = ownerRef.value.getData();
+  res.env = model;
+  res.mechanism = selected_allocator.value;
+  const fileToSave = new Blob([JSON.stringify(res, undefined, 2)], {
+    type: "application/json",
+  });
+  saveAs(fileToSave, `${res.env.name}-config.json`);
+};
+
+const uploadConfiguration = (upload) => {
+  const fileReader = new FileReader();
+  fileReader.onload = async (event) => {
+    const data = JSON.parse(event.target.result);
+    ownerRef.value.setData(data.owners);
+    model.name = data.env.name;
+    model.description = data.env.description;
+    model.dimension = data.env.dimension;
+    model.map = data.env.map; //Todo does not update the map correctly
+
+    selected_allocator.value = data.mechanism;
+
+    mapRef.value.setData(data.env);
+  };
+  fileReader.onerror = () => {
+    loadingBar.error();
+    message.error("Import failed!");
+    throw new Error("Import failed!");
+  };
+  fileReader.readAsText(upload.file.file);
+};
+
 const simulate = () => {
   errorText.value = null;
   owners.value = ownerRef.value.getData();
@@ -149,6 +232,7 @@ const simulate = () => {
         .postSimulation({
           ...model,
           owners: owners.value,
+          allocator: selected_allocator.value,
         })
         .then((data) => {
           const simulation = new Simulation(data);

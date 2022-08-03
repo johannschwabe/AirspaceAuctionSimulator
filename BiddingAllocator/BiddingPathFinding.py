@@ -1,6 +1,8 @@
 import math
 from typing import List
 from time import time_ns
+import heapq
+
 
 # Implemented based on https://www.annytab.com/a-star-search-algorithm-in-python/
 from .BiddingABAgent import BiddingABAgent
@@ -18,8 +20,10 @@ def bidding_astar(
     # print(f"{start} -> {end}")
     # print(f"---->", end="")
     start_time = time_ns()
+
     open_nodes = {}
     closed_nodes = {}
+    heap = []
 
     valid_start = start.clone()
     while True:
@@ -35,6 +39,8 @@ def bidding_astar(
     start_node = Node(valid_start, None, start_conflicts)
     end_node = Node(end, None, set())
     open_nodes[hash(start_node)] = start_node
+    heapq.heappush(heap, start_node)
+
     steps = 0
 
     path = []
@@ -42,12 +48,12 @@ def bidding_astar(
     sort_time = 0
     neighbors_time = 0
     valid_time = 0
-    MAX_ITER = 10000
+    MAX_ITER = 200000
     while len(open_nodes) > 0 and steps < MAX_ITER:
         steps += 1
 
         start_sort = time_ns()
-        current_node = min(list(open_nodes.values()))
+        current_node = heapq.heappop(heap)
         sort_time += time_ns() - start_sort
 
         del open_nodes[hash(current_node)]
@@ -91,6 +97,7 @@ def bidding_astar(
                         open_nodes[hash(neighbor)] = neighbor
                 else:
                     open_nodes[hash(neighbor)] = neighbor
+                    heapq.heappush(heap, neighbor)
 
     if len(path) == 0:
         print(f"ASTAR failed for agent: {agent.id}")
@@ -101,15 +108,15 @@ def bidding_astar(
 
     complete_path = path + wait_coords
     complete_path.sort(key=lambda x: x.t)
-    # stop_time = time_ns()
-    # seconds = (stop_time - start_time) / 1e9
-    # print(f"PathLen: {len(path)}, "
-    #       f"steps: {steps}, "
-    #       f"time: {seconds:.2f}, "
-    #       f"t/p: {seconds / (len(path) + 1) * 1000:.2f}, "
-    #       f"sort: {sort_time/1e9:.2f}, "
-    #       f"neighbours: {neighbors_time/1e9:.2f}, "
-    #       f"valid: {valid_time/1e9:.2f}, ")
+    stop_time = time_ns()
+    seconds = (stop_time - start_time) / 1e9
+    print(f"PathLen: {len(path)}, "
+          f"steps: {steps}, "
+          f"time: {seconds:.2f}, "
+          f"t/p: {seconds / (len(path) + 1) * 1000:.2f}, "
+          f"sort: {sort_time/1e9:.2f}, "
+          f"neighbours: {neighbors_time/1e9:.2f}, "
+          f"valid: {valid_time/1e9:.2f}, ")
     return complete_path, total_collisions
 
 

@@ -11,6 +11,9 @@ if TYPE_CHECKING:
 
 
 class ABOwner(PathOwner):
+    label = "A to B"
+    description = "Owner with agents going from A to B"
+    positions = "2"
     def __init__(self, name: str, color: str, stops: List[PathStop], creation_ticks: List[int]):
         assert len(stops) == 2
 

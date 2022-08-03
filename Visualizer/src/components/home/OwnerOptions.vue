@@ -1,30 +1,33 @@
 <template>
-  <owner-form v-model="value" />
-  <h3>Start:</h3>
-  <div style="margin-left: 5px">
-    <owner-stop v-model="value.start.stop" :dimension="dimension" :map-info="mapInfo" />
-  </div>
-  <template v-if="value.type === 'abc'">
+  <owner-form v-model="config" :options="options" />
+  <span v-if="nr_stops.start">
+    <h3>Start:</h3>
+    <div style="margin-left: 5px">
+      <owner-stop v-model="config.start.stop" :dimension="dimension" :map-info="mapInfo" /></div
+  ></span>
+  <span v-if="nr_stops.max > 0 || nr_stops.max === undefined">
     <h3>Stops:</h3>
     <div style="margin-left: 5px">
-      <n-dynamic-input v-model:value="value.stops" :on-create="onCreate">
+      <n-dynamic-input v-model:value="config.stops" :on-create="onCreate" :max="nr_stops.max">
         <template #default="{ value }">
           <owner-stop v-model="value.stop" :dimension="dimension" :map-info="mapInfo" />
         </template>
       </n-dynamic-input>
     </div>
-  </template>
-  <h3>Target:</h3>
-  <div style="margin-left: 5px">
-    <owner-stop v-model="value.target.stop" :dimension="dimension" :map-info="mapInfo" />
-  </div>
+  </span>
+  <span v-if="nr_stops.start">
+    <h3>Target:</h3>
+    <div style="margin-left: 5px">
+      <owner-stop v-model="config.target.stop" :dimension="dimension" :map-info="mapInfo" />
+    </div>
+  </span>
 </template>
 
 <script setup>
-import { ref, watchEffect } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import OwnerForm from "./OwnerForm.vue";
 import OwnerStop from "./OwnerStop.vue";
-import { createDefaultStop } from "../../scripts/stops";
+import { createDefaultStop, validStops } from "../../scripts/stops";
 
 const props = defineProps({
   modelValue: {
@@ -40,16 +43,24 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  options: {
+    type: Object,
+    required: true,
+  },
 });
 
 const onCreate = () => {
   return createDefaultStop();
 };
 
-const value = ref({ ...props.modelValue });
-watchEffect(() => (value.value = props.modelValue));
-watchEffect(() => updateValue(value.value));
+const config = ref({ ...props.modelValue });
+watchEffect(() => (config.value = props.modelValue));
+watchEffect(() => updateValue(config.value));
 const emit = defineEmits(["update:modelValue"]);
+const nr_stops = computed(() => {
+  const option = props.options[config.value.type];
+  return validStops(option.positions, option.ownertype);
+});
 function updateValue(updatedValue) {
   emit("update:modelValue", updatedValue);
 }

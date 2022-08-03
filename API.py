@@ -4,6 +4,7 @@ App runs on 'https://localhost:8000/'
 """
 import random
 import time
+from fastapi import FastAPI, HTTPException
 from typing import Optional, List, Dict
 
 from fastapi import FastAPI
@@ -14,6 +15,8 @@ from Simulator.Coordinate import Coordinate4D
 from Simulator.IO.JSONS import build_json
 from Simulator.Generator import Generator
 from Simulator.Generator.MapTile import MapTile
+from Simulator.Owner import PathOwner
+from config import available_allocators
 
 app = FastAPI()
 
@@ -73,6 +76,27 @@ class APISimulationConfig(BaseModel):
     map: Optional[APIMap] = None
     owners: List[APIOwner]
     dimension: APIDimension
+    allocator: str = "FCFSAllocator"
+
+
+@app.get("/allocators")
+def get_allocators():
+    return [_allocator.__name__ for _allocator in available_allocators]
+
+
+@app.get("/owners/{allocator_name}")
+def get_owners_for_allocator(allocator_name):
+    print(allocator_name)
+    allocators = list(filter(lambda x: (x.__name__ == allocator_name), available_allocators))
+    if len(allocators) != 1:
+        return []
+    allocator = allocators[0]
+    return [{"classname": owner.__name__,
+             "_label": owner.label,
+             "description": owner.description,
+             "ownertype": "PathOwner" if issubclass(owner, PathOwner) else "SpaceOwner",
+             "positions": owner.positions
+             } for owner in allocator.compatible_owner()]
 
 
 @app.post("/simulation")
@@ -81,15 +105,21 @@ def read_root(config: APISimulationConfig):
     if config.map:
         top_left_coordinate = config.map.topLeftCoordinate
         bottom_right_coordinate = config.map.bottomRightCoordinate
-        maptiles = [MapTile(tile, dimensions, top_left_coordinate, bottom_right_coordinate) for tile in config.map.tiles]
+        maptiles = [MapTile(tile, dimensions, top_left_coordinate, bottom_right_coordinate) for tile in
+                    config.map.tiles]
     else:
         maptiles = []
 
     Coordinate4D.dim = dimensions
 
+    allocators = list(filter(lambda x: (x.__name__ == config.allocator), available_allocators))
+    if len(allocators) != 1:
+        raise HTTPException(status_code=404, detail="allocator not found")
+    allocator = allocators[0]()
+
     random.seed(2)
     g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions,
-                  maptiles=maptiles)
+                  maptiles=maptiles, allocator=allocator)
     start_time = time.time_ns()
     g.simulate()
     end_time = time.time_ns()

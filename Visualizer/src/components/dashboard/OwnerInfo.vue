@@ -1,12 +1,12 @@
 <template>
   <div>
     <boxplot
-      title="Welfare"
+      title="Utility"
       :color="simulation.ownerInFocus.color"
-      :quantiles="simulation.ownerInFocus.welfareQuantiles"
-      :outliers="simulation.ownerInFocus.welfareOutliers"
-      :min="simulation.ownerInFocus.minWelfare"
-      :max="simulation.ownerInFocus.maxWelfare"
+      :quantiles="simulation.ownerInFocus.utilityQuantiles"
+      :outliers="simulation.ownerInFocus.utilityOutliers"
+      :min="simulation.ownerInFocus.minUtility"
+      :max="simulation.ownerInFocus.maxUtility"
     />
     <n-divider style="margin-top: 6px; margin-bottom: 6px" />
     <boxplot

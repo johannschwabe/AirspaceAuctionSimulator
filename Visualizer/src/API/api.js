@@ -31,6 +31,7 @@ import { saveAs } from "file-saver";
  * @property {?MapObject} map
  * @property {ApiOwnerType} owners
  * @property {ApiDimensionType} dimension
+ * @property {string} allocator
  */
 
 /**
@@ -62,6 +63,34 @@ export async function postSimulation(simulationConfig) {
   try {
     const { data } = await apiServer.post("/simulation", simulationConfig);
     persistSimulation(data);
+    return data;
+  } catch (e) {
+    const details = apiPostErrorToString(e);
+    throw new Error(details);
+  }
+}
+
+/**
+ * Get all registered allocators from the backend
+ * @returns {Promise<string[]>} - Names of allocators
+ */
+export async function getAllocators() {
+  try {
+    const { data } = await apiServer.get("/allocators");
+    return data;
+  } catch (e) {
+    const details = apiPostErrorToString(e);
+    throw new Error(details);
+  }
+}
+
+/**
+ * Get owners compatible with selected allocator
+ * @returns {Promise<string[]>} - Names of owners
+ */
+export async function getOwners(allocator) {
+  try {
+    const { data } = await apiServer.get(`/owners/${allocator}`);
     return data;
   } catch (e) {
     const details = apiPostErrorToString(e);
@@ -107,4 +136,6 @@ export default {
   postSimulation,
   downloadSimulation,
   loadSimulation,
+  getAllocators,
+  getOwners,
 };
