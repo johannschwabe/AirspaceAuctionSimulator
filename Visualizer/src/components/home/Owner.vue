@@ -103,7 +103,6 @@ watchEffect(() => {
 });
 function setData(_owners) {
   owners.value = _owners.map((_owner) => {
-    console.log(JSON.stringify(_owner));
     if (props.availableOwners[_owner.type].ownertype === "PathOwner" && _owner.stops.length > 1) {
       _owner.start = { stop: _owner.stops[0] };
       _owner.target = { stop: _owner.stops[_owner.stops.length - 1] };
