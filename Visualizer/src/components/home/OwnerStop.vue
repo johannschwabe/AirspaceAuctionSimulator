@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import { ref, watchEffect } from "vue";
+import { computed } from "vue";
 import OwnerHeatmap from "./OwnerStopMap.vue";
 
 const props = defineProps({
@@ -28,12 +28,11 @@ const props = defineProps({
   },
 });
 
-const value = ref({ ...props.modelValue });
-watchEffect(() => (value.value = props.modelValue));
-watchEffect(() => updateValue(value.value));
-function updateValue(updatedValue) {
-  emit("update:modelValue", updatedValue);
-}
+const value = computed({
+  get: () => props.modelValue,
+  set: (updatedValue) => emit("update:modelValue", updatedValue),
+});
+
 const emit = defineEmits(["update:modelValue"]);
 
 const options = [
