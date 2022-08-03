@@ -111,7 +111,6 @@ function setData(_owners) {
           stop: _stop,
         };
       });
-      console.log(JSON.stringify(_owner));
     }
     return { owner: _owner };
   });
