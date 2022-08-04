@@ -79,8 +79,10 @@ class Generator:
             self.environment,
         )
         while self.simulator.time_step <= self.dimensions.t:
-            print(f"STEP: {self.simulator.time_step}")
             self.simulator.tick()
+
+        print(f"DONE!")
+        print(f"STEP: {self.simulator.time_step}")
 
     @staticmethod
     def creation_ticks(duration, total) -> List[int]:

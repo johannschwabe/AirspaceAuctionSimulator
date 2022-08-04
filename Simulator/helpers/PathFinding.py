@@ -1,6 +1,5 @@
 import math
 from typing import List
-from time import time_ns
 import heapq
 
 from ..Agent import PathAgent
@@ -40,7 +39,7 @@ def astar(
     steps = 0
 
     path = []
-    MAX_ITER = 20000
+    MAX_ITER = 200000
 
     while len(open_nodes) > 0 and steps < MAX_ITER:
         steps += 1

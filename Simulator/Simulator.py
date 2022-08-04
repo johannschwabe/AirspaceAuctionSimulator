@@ -26,6 +26,7 @@ class Simulator:
             newcomers += owner.generate_agents(self.time_step, self.environment)
 
         if len(newcomers) > 0:
+            print(f"STEP: {self.time_step}")
             start_time = time_ns()
             self.history.add_new_agents(newcomers, self.time_step)
             temp_env = self.environment.clone()

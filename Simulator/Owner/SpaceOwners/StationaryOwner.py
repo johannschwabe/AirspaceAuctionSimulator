@@ -17,7 +17,7 @@ class StationaryOwner(SpaceOwner):
     positions = ">0"
 
     def __init__(self, name: str, color: str, stops: List["PathStop"], creation_ticks: List[int],
-                 size: Coordinate4D = Coordinate4D(5, 5, 5, 5)):
+                 size: "Coordinate4D" = Coordinate4D(5, 5, 5, 5)):
         super().__init__(name, color, stops)
         self.creation_ticks = creation_ticks
         self.size: "Coordinate4D" = size

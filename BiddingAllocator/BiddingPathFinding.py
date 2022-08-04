@@ -1,15 +1,13 @@
 import math
 from typing import List
-from time import time_ns
 import heapq
 
-
-# Implemented based on https://www.annytab.com/a-star-search-algorithm-in-python/
-from .BiddingABAgent import BiddingABAgent
+from BiddingAllocator.BiddingABAgent import BiddingABAgent
 from Simulator import Environment
 from Simulator.Coordinate import Coordinate4D, Coordinate3D
 
 
+# Implemented based on https://www.annytab.com/a-star-search-algorithm-in-python/
 def bidding_astar(
     start: Coordinate4D,
     end: Coordinate4D,
