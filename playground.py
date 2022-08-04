@@ -2,6 +2,9 @@ import json
 import random
 
 from API import APISimpleCoordinate
+from Bidding.BiddingABOwner import BiddingABOwner
+from Bidding.BiddingAllocator import BiddingAllocator
+from Bidding.BiddingStationaryOwner import BiddingStationaryOwner
 from FCFS.FCFSAllocator import FCFSAllocator
 from Simulator.Blocker.StaticBlocker import StaticBlocker
 from Simulator.Coordinate import Coordinate4D, Coordinate3D
@@ -12,7 +15,6 @@ from Simulator.IO.JSONS import build_json
 from Simulator.Owner import PathStop, StopType
 from Simulator.Owner.PathOwners.ABOwner import ABOwner
 from Simulator.Owner.SpaceOwners.StationaryOwner import StationaryOwner
-
 
 random.seed(3)
 
@@ -35,17 +37,16 @@ def setup_map(t):
 
 
 def simulate(env: Environment, t):
-    allocator = FCFSAllocator()
+    allocator = BiddingAllocator()
     owners = [
-        ABOwner("Schnabeltier",
-                color_generator(),
-                [PathStop(str(StopType.RANDOM.value)), PathStop(str(StopType.RANDOM.value))],
-                [random.randint(0, 5) for _ in range(100)]),
-        StationaryOwner("GhettoTier",
-                        color_generator(),
-                        [random.randint(0, 5) for _ in range(10)],
-                        [PathStop(str(StopType.RANDOM.value)), PathStop(str(StopType.RANDOM.value))],
-                        Coordinate4D(5, 5, 5, 3)),
+        BiddingABOwner("Schnabeltier",
+                       color_generator(),
+                       [PathStop(str(StopType.RANDOM.value)), PathStop(str(StopType.RANDOM.value))],
+                       [random.randint(0, 5) for _ in range(100)]),
+        BiddingStationaryOwner("Ghettotier",
+                               color_generator(),
+                               [PathStop(str(StopType.RANDOM.value)), PathStop(str(StopType.RANDOM.value))],
+                               [random.randint(0, 5) for _ in range(10)])
     ]
     simulator = Simulator(owners, allocator, env)
     while simulator.time_step < t:

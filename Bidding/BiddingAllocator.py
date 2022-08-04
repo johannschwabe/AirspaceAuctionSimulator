@@ -28,7 +28,7 @@ class BiddingAllocator(Allocator):
     def allocate_for_agents(self, agents: List["BiddingABAgent"], env: "Environment", tick: int) -> list["PathReallocation"]:
         res = []
         to_add = set(agents)
-        while len(to_add) > 0:
+        while len(list(to_add)) > 0:
             start_time = time_ns()
             agent = max(to_add, key=lambda _agent: _agent.get_bid(tick).priority)
             to_add.remove(agent)
