@@ -25,7 +25,6 @@ class StationaryOwner(SpaceOwner):
     def generate_agents(self, t: int, env: "Environment") -> List["Agent"]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
-            dimensions = env._dimension
             blocks = []
             for stop in self.stops:
                 bottom_left = self.generate_stop_coordinates(stop, env, t, self.size)

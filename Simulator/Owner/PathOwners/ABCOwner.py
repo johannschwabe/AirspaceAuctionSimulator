@@ -14,6 +14,7 @@ class ABCOwner(PathOwner):
     label = "A to B to C"
     description = "A owner with agents going from A to a number of stops"
     positions = ">1; <8"
+
     def __init__(self, name: str, color: str, stops: List[PathStop], creation_ticks: List[int]):
         assert len(stops) > 1
 

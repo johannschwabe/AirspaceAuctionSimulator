@@ -1,15 +1,9 @@
 import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
-from FCFSAllocator.FCFSAllocator import FCFSAllocator
 from .EnvironmentGen import EnvironmentGen
 from ..Owner.Heatmap import Heatmap
 from ..Owner.HeatmapType import HeatmapType
-from ..Owner.OwnerType import OwnerType
-from ..Owner.PathOwners.ABAOwner import ABAOwner
-from ..Owner.PathOwners.ABCOwner import ABCOwner
-from ..Owner.PathOwners.ABOwner import ABOwner
-from ..Owner.SpaceOwners.StationaryOwner import StationaryOwner
 from ..Statistics.Statistics import Statistics
 from ..History import History
 from ..Simulator import Simulator
@@ -50,10 +44,10 @@ class Generator:
         stops: List[PathStop] = []
         for stop in owner.stops:
             if stop.type == StopType.RANDOM.value:
-                stops.append(PathStop(StopType.RANDOM.value))
+                stops.append(PathStop(str(StopType.RANDOM.value)))
             elif stop.type == StopType.POSITION.value:
                 x_str, z_str = stop.position.split("_")
-                stops.append(PathStop(StopType.POSITION.value, position=Coordinate2D(int(x_str), int(z_str))))
+                stops.append(PathStop(str(StopType.POSITION.value), position=Coordinate2D(int(x_str), int(z_str))))
             elif stop.type == StopType.HEATMAP.value:
                 heat_dict: Dict[float, List[Coordinate2D]] = {}
                 for key in stop.heatmap:
@@ -63,7 +57,7 @@ class Generator:
                         x_str, z_str = coord_str.split("_")
                         coordinates.append(Coordinate2D(int(x_str), int(z_str)))
                     heat_dict[float_key] = coordinates
-                stops.append(PathStop(StopType.HEATMAP.value, heatmap=Heatmap(HeatmapType.INVERSE_SPARSE.value, inverse_sparse=heat_dict)))
+                stops.append(PathStop(str(StopType.HEATMAP.value), heatmap=Heatmap(str(HeatmapType.INVERSE_SPARSE.value), inverse_sparse=heat_dict)))
         return stops
 
     def simulate(self):
@@ -74,8 +68,6 @@ class Generator:
                 print(f"Owner Type {ownerType} not registered with allocator {self.allocator.__name__}")
                 continue
             ownerClass = owners[0]
-            print(ownerClass.__name__)
-            print(stops)
             self.owners.append(ownerClass(ownerType.name,
                                           ownerType.color,
                                           stops,

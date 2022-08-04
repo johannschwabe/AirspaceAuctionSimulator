@@ -14,6 +14,7 @@ class ABOwner(PathOwner):
     label = "A to B"
     description = "Owner with agents going from A to B"
     positions = "2"
+
     def __init__(self, name: str, color: str, stops: List[PathStop], creation_ticks: List[int]):
         assert len(stops) == 2
 
@@ -32,7 +33,7 @@ class ABOwner(PathOwner):
             target.t = start.t + travel_time + random.randint(0, 100)
             agent = ABAgent(start, target, speed=speed, battery=travel_time * 2)
             res.append(agent)
-            print(f"A-B created {str(agent)}")
+            print(f"A-B created {str(agent)}: {start} -> {target}")
 
         self.agents += res
         return res
