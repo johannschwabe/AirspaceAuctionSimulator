@@ -29,7 +29,7 @@ class Generator:
     ):
         self.name: str = name
         self.description: str = description
-        self.ownerTypes: List[APIOwner] = owners
+        self.apiOwners: List[APIOwner] = owners
         self.dimensions: "Coordinate4D" = dimensions
         self.owners: List["Owner"] = []
         self.allocator: "Allocator" = allocator
@@ -61,17 +61,17 @@ class Generator:
         return stops
 
     def simulate(self):
-        for ownerType in self.ownerTypes:
-            stops: List["PathStop"] = self.extract_owner_stops(ownerType)
-            owners = [_owner for _owner in self.allocator.compatible_owner() if _owner.__name__ == ownerType.type]
+        for apiOwner in self.apiOwners:
+            stops: List["PathStop"] = self.extract_owner_stops(apiOwner)
+            owners = [_owner for _owner in self.allocator.compatible_owner() if _owner.__name__ == apiOwner.type]
             if len(owners) != 1:
-                print(f"Owner Type {ownerType} not registered with allocator {self.allocator.__name__}")
+                print(f"Owner Type {apiOwner} not registered with allocator {self.allocator.__name__}")
                 continue
             ownerClass = owners[0]
-            self.owners.append(ownerClass(ownerType.name,
-                                          ownerType.color,
+            self.owners.append(ownerClass(apiOwner.name,
+                                          apiOwner.color,
                                           stops,
-                                          self.creation_ticks(self.environment.allocation_period, ownerType.agents)))
+                                          self.creation_ticks(self.environment.allocation_period, apiOwner.agents)))
 
         self.simulator = Simulator(
             self.owners,

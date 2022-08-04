@@ -1,6 +1,7 @@
 from abc import ABC
 from typing import List, TYPE_CHECKING
 
+from Simulator.Agent.AllocationType import AllocationType
 from Simulator.Owner import Owner
 
 if TYPE_CHECKING:
@@ -9,6 +10,8 @@ if TYPE_CHECKING:
 
 
 class PathOwner(Owner, ABC):
+    allocation_type: str = AllocationType.PATH.value
+
     def __init__(self, name: str, color: str, stops: List["PathStop"]):
         super().__init__(name, color)
         self.stops = stops

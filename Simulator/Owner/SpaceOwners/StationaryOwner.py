@@ -16,7 +16,7 @@ class StationaryOwner(SpaceOwner):
     description = "An owner interested in a set of stationary cubes"
     positions = ">0"
 
-    def __init__(self, name: str, color: str, creation_ticks: List[int], stops: List["PathStop"],
+    def __init__(self, name: str, color: str, stops: List["PathStop"], creation_ticks: List[int],
                  size: Coordinate4D = Coordinate4D(5, 5, 5, 5)):
         super().__init__(name, color, stops)
         self.creation_ticks = creation_ticks
