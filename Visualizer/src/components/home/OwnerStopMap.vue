@@ -14,6 +14,11 @@ import MapViewer from "./MapViewer.vue";
 import { computed } from "vue";
 
 const props = defineProps({
+  /**
+   * @property {string} type
+   * @property {?string} position
+   * @property {?string} heatmap
+   */
   modelValue: {
     type: Object,
     required: true,

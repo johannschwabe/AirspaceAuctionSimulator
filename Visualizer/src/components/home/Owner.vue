@@ -1,6 +1,6 @@
 <template>
   <div>
-    <n-dynamic-input v-model:value="owners" :on-create="onCreate">
+    <n-dynamic-input v-model:value="config.owners" :on-create="onCreate">
       <template #default="{ value, index }">
         <div style="display: flex; column-gap: 10px; width: 100%">
           <owner-form v-model="value.owner" :options="availableOwners" />
@@ -33,12 +33,18 @@ import OwnerOptions from "./OwnerOptions.vue";
 import OwnerForm from "./OwnerForm.vue";
 import { createDefaultStop } from "../../scripts/stops";
 import * as _ from "lodash-es";
+import { useConfigStore } from "../../stores/config";
 
 const props = defineProps({
   dimension: {
     type: Object,
     required: true,
   },
+  /**
+   * @property {string} locationName
+   * @property {number} neighbouringTiles
+   * @property {number[]} tiles
+   */
   mapInfo: {
     type: Object,
     required: false,
@@ -49,6 +55,8 @@ const props = defineProps({
     required: true,
   },
 });
+
+const config = useConfigStore();
 
 const defaultOwner = {
   owner: {

@@ -88,7 +88,7 @@ export async function getAllocators() {
  * Get owners compatible with selected allocator
  * @returns {Promise<string[]>} - Names of owners
  */
-export async function getOwners(allocator) {
+export async function getOwnersSupportedByMechanism(allocator) {
   try {
     const { data } = await apiServer.get(`/owners/${allocator}`);
     return data;
@@ -137,5 +137,5 @@ export default {
   downloadSimulation,
   loadSimulation,
   getAllocators,
-  getOwners,
+  getOwners: getOwnersSupportedByMechanism,
 };

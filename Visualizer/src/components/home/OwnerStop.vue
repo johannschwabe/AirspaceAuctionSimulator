@@ -14,6 +14,11 @@ import { computed } from "vue";
 import OwnerHeatmap from "./OwnerStopMap.vue";
 
 const props = defineProps({
+  /**
+   * @property {string} type
+   * @property {?string} position
+   * @property {?string} heatmap
+   */
   modelValue: {
     type: Object,
     required: true,

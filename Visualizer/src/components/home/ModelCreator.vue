@@ -1,45 +1,36 @@
 <template>
-  <n-form ref="formRef" :model="model" :rules="rules">
+  <n-form ref="formRef" :model="config" :rules="rules">
     <n-form-item path="name" label="Model Name">
-      <n-input v-model:value="model.name" type="text" placeholder="Unique Model Name" />
+      <n-input v-model:value="config.name" type="text" placeholder="Unique Model Name" />
     </n-form-item>
     <n-form-item path="description" label="Model Description">
-      <n-input v-model:value="model.description" type="textarea" placeholder="Model description (Metadata)" />
+      <n-input v-model:value="config.description" type="textarea" placeholder="Model description (Metadata)" />
     </n-form-item>
 
-    <map-selector @dimensionChange="setDimension" @map-change="(map) => (model.map = map)" ref="mapRef" />
+    <map-selector @dimensionChange="setDimension" @map-change="config.setMap" ref="mapRef" />
 
     <n-form-item path="dimension.t" label="Timesteps">
-      <n-slider show-tooltip v-model:value="model.dimension.t" :min="300" :max="4000" :step="10" />
+      <n-slider show-tooltip v-model:value="config.dimension.t" :min="300" :max="4000" :step="10" />
+    </n-form-item>
+
+    <n-form-item path="allocator" label="Mechanism">
+      <n-select v-model:value="config.mechanism" :options="config.availableMechanisms" placeholder="Select Allocator" />
     </n-form-item>
 
     <n-form-item path="owners" label="Owners">
       <owner
         v-if="Object.keys(availableOwners).length > 0"
         ref="ownerRef"
-        :dimension="model.dimension"
+        :dimension="config.dimension"
         :map-info="model.map"
         :availableOwners="availableOwners"
-      />
-    </n-form-item>
-
-    <n-form-item path="allocator" label="Mechanism">
-      <n-select
-        v-model:value="selected_allocator"
-        :options="allocators"
-        placeholder="Select Allocator"
-        :on-update-value="getCompatibleOwners"
       />
     </n-form-item>
   </n-form>
 
   <n-grid cols="2" x-gap="10">
     <n-grid-item>
-      <n-upload
-        :custom-request="uploadConfiguration"
-        accept="application/json"
-        :on-preview="uploadConfiguration"
-      >
+      <n-upload :custom-request="uploadConfiguration" accept="application/json" :on-preview="uploadConfiguration">
         <n-button block tertiary :type="!modelFilledOut ? 'primary' : 'tertiary'">
           Upload Simulation Configuration
           <template #icon>
@@ -109,25 +100,24 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from "vue";
+import { ref, computed, watchEffect } from "vue";
 import { useMessage, useLoadingBar } from "naive-ui";
 import { useRouter } from "vue-router";
-import {
-  CloudDownloadOutline,
-  ArrowForwardOutline,
-  CloudUploadOutline,
-} from "@vicons/ionicons5";
+import { CloudDownloadOutline, ArrowForwardOutline, CloudUploadOutline } from "@vicons/ionicons5";
 import { saveAs } from "file-saver";
 
 import Owner from "./Owner.vue";
 import MapSelector from "./MapSelector.vue";
 import Simulation from "../../SimulationObjects/Simulation.js";
-import api, { getOwners } from "../../API/api.js";
+import api, { getOwnersSupportedByMechanism } from "../../API/api.js";
 import {
   canRecoverSimulationSingleton,
   hasSimulationSingleton,
   setSimulationSingleton,
 } from "../../scripts/simulation.js";
+import { useConfigStore } from "../../stores/config";
+
+const config = useConfigStore();
 
 const message = useMessage();
 const loadingBar = useLoadingBar();
@@ -144,30 +134,11 @@ const loadingInterval = ref(undefined);
 const finished = ref(false);
 const canRecover = ref(hasSimulationSingleton() || canRecoverSimulationSingleton());
 
-const model = reactive({
-  name: null,
-  description: null,
-  map: null,
-  dimension: {
-    x: 100,
-    y: 20,
-    z: 100,
-    t: 1500,
-  },
+const modelFilledOut = computed(() => !!config.name);
+
+api.getAllocators().then((allocators) => {
+  config.availableMechanisms = allocators.map((_allocator) => ({ label: _allocator, value: _allocator }));
 });
-
-const allocators = ref([]);
-const selected_allocator = ref("FCFSAllocator");
-const modelFilledOut = computed(() => !!model.name);
-
-api.getAllocators().then((_allocators) => {
-  allocators.value = _allocators.map((_allocator) => {
-    return { label: _allocator, value: _allocator };
-  });
-});
-
-const owners = ref([]);
-let availableOwners = ref({});
 
 const rules = {
   name: [
@@ -177,21 +148,15 @@ const rules = {
     },
   ],
 };
-const getCompatibleOwners = (selection) => {
-  getOwners(selection).then((_owners) => {
-    availableOwners.value = {};
-    _owners.forEach((_owner) => {
-      availableOwners.value[_owner.classname] = _owner;
-    });
-  });
-};
-getCompatibleOwners(selected_allocator.value);
 
-const setDimension = (dimension) => {
-  model.dimension.x = dimension.x;
-  model.dimension.y = dimension.y;
-  model.dimension.z = dimension.z;
-};
+watchEffect(async () => {
+  const mechanismName = config.mechanism;
+  const ownersSupportedByMechanism = await getOwnersSupportedByMechanism(mechanismName);
+  config.availableOwners = {};
+  ownersSupportedByMechanism.forEach((owner) => {
+    config.availableOwners[owner.classname] = owner;
+  });
+});
 
 const goToSimulation = () => {
   router.push({ name: "dashboard" });
@@ -212,29 +177,17 @@ const stopLoading = () => {
 };
 
 const downloadConfiguration = () => {
-  const res = {};
-  res.owners = ownerRef.value.getData();
-  res.env = model;
-  res.mechanism = selected_allocator.value;
-  const fileToSave = new Blob([JSON.stringify(res, undefined, 2)], {
+  const fileToSave = new Blob([JSON.stringify(config.toJSON, undefined, 2)], {
     type: "application/json",
   });
-  saveAs(fileToSave, `${res.env.name}-config.json`);
+  saveAs(fileToSave, `${config.name}-config.json`);
 };
 
 const uploadConfiguration = (upload) => {
   const fileReader = new FileReader();
   fileReader.onload = async (event) => {
     const data = JSON.parse(event.target.result);
-    ownerRef.value.setData(data.owners);
-    model.name = data.env.name;
-    model.description = data.env.description;
-    model.dimension = data.env.dimension;
-    model.map = data.env.map; //Todo does not update the map correctly
-
-    selected_allocator.value = data.mechanism;
-
-    mapRef.value.setData(data.env);
+    config.overwrite(data);
   };
   fileReader.onerror = () => {
     loadingBar.error();
@@ -246,16 +199,11 @@ const uploadConfiguration = (upload) => {
 
 const simulate = () => {
   errorText.value = null;
-  owners.value = ownerRef.value.getData();
   formRef.value?.validate((errors) => {
     if (!errors) {
       startLoading();
       api
-        .postSimulation({
-          ...model,
-          owners: owners.value,
-          allocator: selected_allocator.value,
-        })
+        .postSimulation(config.asJson)
         .then((data) => {
           const simulation = new Simulation(data);
           return simulation.load();
