@@ -39,12 +39,12 @@ def simulate(env: Environment, t):
     owners = [
         ABOwner("Schnabeltier",
                 color_generator(),
-                [PathStop(StopType.RANDOM.value), PathStop(StopType.RANDOM.value)],
+                [PathStop(str(StopType.RANDOM.value)), PathStop(str(StopType.RANDOM.value))],
                 [random.randint(0, 5) for _ in range(100)]),
         StationaryOwner("GhettoTier",
                         color_generator(),
                         [random.randint(0, 5) for _ in range(10)],
-                        1,
+                        [PathStop(str(StopType.RANDOM.value)), PathStop(str(StopType.RANDOM.value))],
                         Coordinate4D(5, 5, 5, 3)),
     ]
     simulator = Simulator(owners, allocator, env)
