@@ -13,6 +13,7 @@ from ..Generator.MapTile import MapTile
 
 if TYPE_CHECKING:
     from ..Coordinate import Coordinate4D
+    from ..Path.AllocationReason import AllocationReason
 
 
 class Path(Stringify):
@@ -24,8 +25,8 @@ class Path(Stringify):
 
 
 class Collision(Stringify):
-    def __init__(self, reason: "Reason", agent_id: int = -1, blocker_id: int = -1):
-        self.reason: "Reason" = reason
+    def __init__(self, reason: "AllocationReason", agent_id: int = -1, blocker_id: int = -1):
+        self.reason: "AllocationReason" = reason
         self.agent_id: int = agent_id
         self.blocker_id: int = blocker_id
 
@@ -37,6 +38,7 @@ class Branch(Stringify):
         self.value: float = value
         self.reason: "Collision" = reason
         self.compute_time = compute_time
+
 
 class JSONAgent(ABC):
     def __init__(
@@ -222,9 +224,9 @@ def build_json(simulator: Simulator, name: str, description: str, total_compute_
     env = simulator.environment
     history = simulator.history
     stats = Statistics(simulator)
-    close_passings = stats.close_passings()
+    close_encounters = stats.close_encounters()
     nr_collisions = 0
-    json_env = JSONEnvironment(env._dimension, list(env.blockers.values()), env.map_tiles)
+    json_env = JSONEnvironment(env.get_dim(), list(env.blockers.values()), env.map_tiles)
     owners: List[JSONOwner] = []
     for owner in history.owners:
         agents: List[JSONAgent] = []
@@ -236,10 +238,10 @@ def build_json(simulator: Simulator, name: str, description: str, total_compute_
                     history.agents[agent],
                     agent,
                     non_colliding_values[agent],
-                    close_passings[agent.id]["total_near_field_intersection"],
-                    close_passings[agent.id]["total_far_field_intersection"],
-                    close_passings[agent.id]["total_near_field_violations"],
-                    close_passings[agent.id]["total_far_field_violations"],
+                    close_encounters[agent.id]["total_near_field_intersection"],
+                    close_encounters[agent.id]["total_far_field_intersection"],
+                    close_encounters[agent.id]["total_near_field_violations"],
+                    close_encounters[agent.id]["total_far_field_violations"],
                     agent.generalized_bid(),
                     owner.id,
                     owner.name,
@@ -253,10 +255,11 @@ def build_json(simulator: Simulator, name: str, description: str, total_compute_
                     owner.id,
                     owner.name,
                 ))
-            nr_collisions += close_passings[agent.id]["total_near_field_violations"]  # todo different collision metric
+            nr_collisions += close_encounters[agent.id]["total_near_field_violations"]  # todo different collision metric
         owners.append(JSONOwner(owner.name, owner.id, owner.color, agents))
     json_stats = JSONStatistics(len(simulator.owners), len(env._agents), stats.total_agents_welfare(), nr_collisions, 0)
-    json_simulation = JSONSimulation(name, description, json_env, json_stats, owners, total_compute_time, history.compute_times)
+    json_simulation = JSONSimulation(name, description, json_env, json_stats, owners, total_compute_time,
+                                     history.compute_times)
     return json_simulation.as_dict()
 
 

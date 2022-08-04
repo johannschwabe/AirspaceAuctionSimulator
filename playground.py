@@ -2,7 +2,7 @@ import json
 import random
 
 from API import APISimpleCoordinate
-from FCFSAllocator.FCFSAllocator import FCFSAllocator
+from FCFS.FCFSAllocator import FCFSAllocator
 from Simulator.Blocker.StaticBlocker import StaticBlocker
 from Simulator.Coordinate import Coordinate4D, Coordinate3D
 from Simulator.Environment import Environment

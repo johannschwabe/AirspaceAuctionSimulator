@@ -2,7 +2,7 @@ import math
 from typing import List
 import heapq
 
-from BiddingAllocator.BiddingABAgent import BiddingABAgent
+from Bidding.BiddingABAgent import BiddingABAgent
 from Simulator import Environment
 from Simulator.Coordinate import Coordinate4D, Coordinate3D
 
