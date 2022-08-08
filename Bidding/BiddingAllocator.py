@@ -4,7 +4,7 @@ from typing import List, TYPE_CHECKING
 from .BiddingABAgent import BiddingABAgent
 from .BiddingABBid import BiddingABBid
 from .BiddingABOwner import BiddingABOwner
-from .BiddingPathFinding import bidding_astar
+from .BiddingAStar import BiddingAStar
 from .BiddingStationaryAgent import BiddingStationaryAgent
 from .BiddingStationaryBid import BiddingStationaryBid
 from .BiddingStationaryOwner import BiddingStationaryOwner
@@ -25,7 +25,11 @@ class BiddingAllocator(Allocator):
     def __init__(self):
         super().__init__()
 
-    def allocate_for_agents(self, agents: List["BiddingABAgent"], env: "Environment", tick: int) -> list["PathReallocation"]:
+    def allocate_for_agents(self,
+                            agents: List["BiddingABAgent"],
+                            env: "Environment",
+                            tick: int) -> List["PathReallocation"]:
+        astar = BiddingAStar(env)
         res = []
         to_add = set(agents)
         while len(list(to_add)) > 0:
@@ -34,7 +38,7 @@ class BiddingAllocator(Allocator):
             to_add.remove(agent)
             bid = agent.get_bid(tick)
             if isinstance(bid, BiddingABBid):
-                ab_path, collisions = bidding_astar(bid.a, bid.b, env, agent, bid.flying)
+                ab_path, collisions = astar.astar(bid.a, bid.b, agent, bid.flying)
                 new_path_segment = PathSegment(bid.a.to_inter_temporal(), bid.b.to_inter_temporal(), 0, ab_path)
                 reallocation_reason = AllocationReason(
                     str(Reason.FIRST_ALLOCATION.value)) if agent in agents else AllocationReason(

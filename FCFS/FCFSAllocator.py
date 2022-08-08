@@ -13,7 +13,7 @@ from Simulator.Bid import ABBid, Bid, ABABid, StationaryBid, ABCBid
 from Simulator.Coordinate import Coordinate4D
 from Simulator.Path.AllocationReason import AllocationReason
 from Simulator.Path.Reason import Reason
-from Simulator.helpers.PathFinding import astar
+from Simulator.AStar.AStar import AStar
 
 
 class FCFSAllocator(Allocator):
@@ -28,6 +28,7 @@ class FCFSAllocator(Allocator):
                             agents: List[Agent],
                             env: Environment,
                             tick: int) -> List[SpaceReallocation | PathReallocation]:
+        astar = AStar(env)
         res = []
         for agent in agents:
             start_time = time_ns()
@@ -36,10 +37,9 @@ class FCFSAllocator(Allocator):
 
             # A-B
             if isinstance(bid, ABBid) and isinstance(agent, PathAgent):
-                ab_path = astar(
+                ab_path, _ = astar.astar(
                     bid.a,
                     bid.b,
-                    env,
                     agent,
                 )
                 if len(ab_path) == 0 or ab_path[-1].t - ab_path[0].t > agent.battery:
@@ -51,10 +51,9 @@ class FCFSAllocator(Allocator):
                 # A-B-A
                 if isinstance(bid, ABABid):
                     b = ab_path[-1]
-                    ba_path = astar(
+                    ba_path, _ = astar.astar(
                         Coordinate4D(b.x, b.y, b.z, b.t + bid.stay),
                         bid.a2,
-                        env,
                         agent,
                     )
 
@@ -77,10 +76,9 @@ class FCFSAllocator(Allocator):
                 time = 0
                 count = 0
                 for b, stay in zip(bid.locations[1:], bid.stays):
-                    ab_path = astar(
+                    ab_path, _ = astar.astar(
                         a,
                         b,
-                        env,
                         agent,
                     )
 

@@ -2,12 +2,12 @@ import random
 from time import time_ns
 
 from API import SimpleCoordinateType
-from Simulator import Environment, Owner
+from Simulator import Environment
 from Simulator.Agent import ABAgent
 from Simulator.Coordinate import Coordinate4D
 from Simulator.Generator.MapTile import MapTile
 from Simulator.Owner import PathOwner, PathStop
-from Simulator.helpers.PathFinding import astar
+from Simulator.AStar.AStar import astar
 
 dimensions = Coordinate4D(831, 30, 831, 20000)
 
