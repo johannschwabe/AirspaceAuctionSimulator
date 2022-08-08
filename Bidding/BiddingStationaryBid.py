@@ -1,6 +1,7 @@
 from typing import List, TYPE_CHECKING
 
 from Simulator.Bid import StationaryBid
+
 if TYPE_CHECKING:
     from Simulator.Coordinate import Coordinate4D
 

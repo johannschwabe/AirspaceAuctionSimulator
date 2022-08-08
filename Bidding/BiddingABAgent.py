@@ -1,11 +1,8 @@
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 
 from .BiddingABBid import BiddingABBid
 from Simulator.Agent import ABAgent, Agent
 from Simulator.Coordinate import Coordinate4D
-
-if TYPE_CHECKING:
-    from Simulator import Tick
 
 
 class BiddingABAgent(ABAgent):
@@ -19,7 +16,7 @@ class BiddingABAgent(ABAgent):
         super().__init__(a, b, speed, battery)
         self.priority = priority
 
-    def get_bid(self, t: "Tick") -> BiddingABBid:
+    def get_bid(self, t: int) -> BiddingABBid:
         if len(self._allocated_segments) == 0 or self._allocated_segments[0][0].t >= t:
             return BiddingABBid(self.battery, self.a, self.b, self.priority, False)
         start = self._allocated_segments[-1][-1]

@@ -1,6 +1,6 @@
 from typing import List, TYPE_CHECKING
 
-from .Reason import Reason
+from .AllocationReason import AllocationReason
 from ..Agent.Agent import Agent
 from ..Agent.PathAgent import PathAgent
 
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class PathReallocation:
-    def __init__(self, agent: PathAgent, segments: List["PathSegment"], reason: Reason, compute_time: float = 0):
+    def __init__(self, agent: PathAgent, segments: List["PathSegment"], reason: AllocationReason, compute_time: float = 0):
         self.agent = agent
         self.segments = segments
         self.reason = reason

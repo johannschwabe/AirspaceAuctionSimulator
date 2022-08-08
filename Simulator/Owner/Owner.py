@@ -11,6 +11,8 @@ class Owner(ABC):
     label = "Abstract Owner"
     description = "An Abstract Owner: Override this class variable"
     positions = "0"
+    allocation_type: str
+
     def __init__(self, name: str, color: str):
         self.name: str = name
         self.color: str = color

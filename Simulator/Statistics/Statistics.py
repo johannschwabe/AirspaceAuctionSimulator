@@ -87,7 +87,7 @@ class Statistics:
             "avg_height": average_height
         }
 
-    def close_passings(self):
+    def close_encounters(self):
         res = {}
         far_radi = [_agent.far_radius for _agent in self.history.env.get_agents().values() if
                     isinstance(_agent, PathAgent)]

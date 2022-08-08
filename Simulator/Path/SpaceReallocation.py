@@ -1,13 +1,13 @@
 from typing import List
 
-from .Reason import Reason
+from .AllocationReason import AllocationReason
 from ..Agent.SpaceAgent import SpaceAgent
 from ..Agent.Agent import Agent
 from . import SpaceSegment
 
 
 class SpaceReallocation:
-    def __init__(self, agent: SpaceAgent, segments: List[SpaceSegment], reason: Reason,  compute_time: float = 0):
+    def __init__(self, agent: SpaceAgent, segments: List[SpaceSegment], reason: AllocationReason,  compute_time: float = 0):
         self.agent = agent
         self.segments = segments
         self.reason = reason
