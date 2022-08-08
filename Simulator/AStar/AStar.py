@@ -1,5 +1,5 @@
 import math
-from typing import List, TYPE_CHECKING, Set, Optional
+from typing import List, TYPE_CHECKING, Set
 import heapq
 
 from Simulator.AStar.Node import Node
@@ -14,13 +14,13 @@ class AStar:
     def __init__(self,
                  environment: "Environment",
                  max_iter: int = 100_000,
-                 g_sum: float = 0.5,
-                 height_adjust: Optional[str] = None):
+                 g_sum: float = 0.2,
+                 height_adjust: bool = True):
         self.node_class = Node
         self.environment: "Environment" = environment
         self.max_iter: int = max_iter
         self.g_sum: float = g_sum
-        self.height_adjust: str = height_adjust
+        self.height_adjust: bool = height_adjust
 
     def valid_start(self, start: "Coordinate4D", agent: "PathAgent", in_air: bool):
         valid_start = start.clone()
@@ -101,10 +101,7 @@ class AStar:
                     neighbor.h = self.distance2(neighbor.position, end_node.position)
                     neighbor.f = neighbor.g + neighbor.h
 
-                    if self.height_adjust == "h":
-                        neighbor.h -= neighbor.position.y / self.environment.get_dim().y * 0.05 * neighbor.h
-
-                    if self.height_adjust == "f":
+                    if self.height_adjust:
                         neighbor.f -= neighbor.position.y / self.environment.get_dim().y * 0.05 * neighbor.h
 
                     if hash(neighbor) in open_nodes:

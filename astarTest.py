@@ -56,7 +56,7 @@ def writeCoords(env: Environment, filename: str):
 
 
 def test(env: Environment, g_sum, height_adjust):
-    astar = AStar(env, max_iter=200_000, g_sum=g_sum, height_adjust=height_adjust)
+    astar = AStar(env, max_iter=1_000_000, g_sum=g_sum, height_adjust=height_adjust)
     agent = ABAgent(Coordinate4D.random(dimensions), Coordinate4D.random(dimensions))
     nr_tests = 20
     nr_success = 0
@@ -80,17 +80,14 @@ def test(env: Environment, g_sum, height_adjust):
 
 if __name__ == "__main__":
     envi = setup()
-    print("g sum: 0.5")
-    test(envi, 0.5, None)
+    print("g sum: 0.1")
+    test(envi, 0.1, False)
     print()
-    print("g sum: 0.4")
-    test(envi, 0.4, None)
+    print("g sum: 0.2")
+    test(envi, 0.2, False)
     print()
-    print("g sum: 0.6")
-    test(envi, 0.6, None)
+    print("g sum: 0.3")
+    test(envi, 0.3, False)
     print()
-    print("height adjust: h")
-    test(envi, 0.5, "h")
-    print()
-    print("height adjust: f")
-    test(envi, 0.5, "f")
+    print("height adjust")
+    test(envi, 0.2, True)
