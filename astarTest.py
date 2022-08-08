@@ -55,8 +55,8 @@ def writeCoords(env: Environment, filename: str):
     f.close()
 
 
-def test(env: Environment):
-    astar = AStar(env)
+def test(env: Environment, g_sum, height_adjust):
+    astar = AStar(env, max_iter=200_000, g_sum=g_sum, height_adjust=height_adjust)
     agent = ABAgent(Coordinate4D.random(dimensions), Coordinate4D.random(dimensions))
     nr_tests = 20
     nr_success = 0
@@ -72,9 +72,6 @@ def test(env: Environment):
             sum_achieved_len += len(res)
             sum_optimal_len += segment["optimal"]
 
-            if len(res) != segment["optimal"]:
-                print(f"Suboptimal Path found {len(res)} vs {segment['optimal']}")
-
     duration = (time_ns() - start_t) / 1e9
     print(
         f"Nr_tests: {nr_tests}, Duration: {duration:3f}s, Success: {nr_success}, {sum_achieved_len / sum_optimal_len}"
@@ -83,4 +80,17 @@ def test(env: Environment):
 
 if __name__ == "__main__":
     envi = setup()
-    test(envi)
+    print("g sum: 0.5")
+    test(envi, 0.5, None)
+    print()
+    print("g sum: 0.4")
+    test(envi, 0.4, None)
+    print()
+    print("g sum: 0.6")
+    test(envi, 0.6, None)
+    print()
+    print("height adjust: h")
+    test(envi, 0.5, "h")
+    print()
+    print("height adjust: f")
+    test(envi, 0.5, "f")
