@@ -1,15 +1,13 @@
 import math
 from typing import List
-from time import time_ns
 import heapq
 
-
-# Implemented based on https://www.annytab.com/a-star-search-algorithm-in-python/
-from .BiddingABAgent import BiddingABAgent
+from Bidding.BiddingABAgent import BiddingABAgent
 from Simulator import Environment
 from Simulator.Coordinate import Coordinate4D, Coordinate3D
 
 
+# Implemented based on https://www.annytab.com/a-star-search-algorithm-in-python/
 def bidding_astar(
     start: Coordinate4D,
     end: Coordinate4D,
@@ -17,15 +15,12 @@ def bidding_astar(
     agent: BiddingABAgent,
     flying: bool
 ):
-    # print(f"{start} -> {end}")
-    # print(f"---->", end="")
-    start_time = time_ns()
-
     open_nodes = {}
     closed_nodes = {}
     heap = []
 
     valid_start = start.clone()
+
     while True:
         start_conflicts, valid = is_valid_for_allocation(env, valid_start, agent)
         if not valid:
@@ -44,23 +39,18 @@ def bidding_astar(
     steps = 0
 
     path = []
-    total_collisions = set()
-    sort_time = 0
-    neighbors_time = 0
-    valid_time = 0
     MAX_ITER = 200000
+
+    total_collisions = set()
+
     while len(open_nodes) > 0 and steps < MAX_ITER:
         steps += 1
 
-        start_sort = time_ns()
         current_node = heapq.heappop(heap)
-        sort_time += time_ns() - start_sort
 
         del open_nodes[hash(current_node)]
         closed_nodes[hash(current_node)] = current_node
 
-        # if steps % 50 == 0:
-        #     print(current_node)
         # Target reached
         if current_node.position.inter_temporal_equal(end_node.position):
             reverse_path = []
@@ -74,13 +64,10 @@ def bidding_astar(
             path = reverse_path[::-1]
             break
 
-        start_neighbors = time_ns()
         # Find non-occupied neighbor
-        neighbors = current_node.adjacent_coordinates(env._dimension, agent.speed)
+        neighbors = current_node.adjacent_coordinates(env.get_dim(), agent.speed)
         for next_neighbor in neighbors:
-            valid_start = time_ns()
             collisions, valid = is_valid_for_allocation(env, next_neighbor, agent)
-            valid_time += time_ns() - valid_start
 
             if valid:
                 neighbor = Node(next_neighbor, current_node, collisions)
@@ -100,7 +87,8 @@ def bidding_astar(
                     heapq.heappush(heap, neighbor)
 
     if len(path) == 0:
-        print(f"ASTAR failed for agent: {agent.id}")
+        print(f"ASTAR failed: {'MaxIter' if steps == MAX_ITER else 'No valid Path'}")
+
     wait_coords: List[Coordinate4D] = []
     for near_coord in path:
         for t in range(1, agent.speed):
@@ -108,15 +96,7 @@ def bidding_astar(
 
     complete_path = path + wait_coords
     complete_path.sort(key=lambda x: x.t)
-    stop_time = time_ns()
-    seconds = (stop_time - start_time) / 1e9
-    print(f"PathLen: {len(path)}, "
-          f"steps: {steps}, "
-          f"time: {seconds:.2f}, "
-          f"t/p: {seconds / (len(path) + 1) * 1000:.2f}, "
-          f"sort: {sort_time/1e9:.2f}, "
-          f"neighbours: {neighbors_time/1e9:.2f}, "
-          f"valid: {valid_time/1e9:.2f}, ")
+    print(f"PathLen: {len(path)}, steps: {steps}")
     return complete_path, total_collisions
 
 

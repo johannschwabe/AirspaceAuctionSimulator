@@ -14,6 +14,7 @@ class ABCOwner(PathOwner):
     label = "A to B to C"
     description = "A owner with agents going from A to a number of stops"
     positions = ">1; <8"
+
     def __init__(self, name: str, color: str, stops: List[PathStop], creation_ticks: List[int]):
         assert len(stops) > 1
 
@@ -24,7 +25,7 @@ class ABCOwner(PathOwner):
         res = []
         for _ in range(self.creation_ticks.count(t)):
             speed = 1
-            start = self.generate_stop_coordinate(self.stops[0], env, t + random.randint(0, 100), 1, speed)
+            start = self.generate_stop_coordinate(self.stops[0], env, t, 1, speed)
 
             stays = []
             locations = [start]
@@ -35,7 +36,7 @@ class ABCOwner(PathOwner):
                 stays.append(stay)
                 distance = locations[-1].inter_temporal_distance(next_location)
                 travel_time = distance * speed
-                next_location.t = locations[-1].t + travel_time + stay + random.randint(0, 100)
+                next_location.t = min(locations[-1].t + travel_time + stay + random.randint(0, 100), env.get_dim().t)
                 locations.append(next_location)
 
             agent = ABCAgent(locations, stays, speed=speed)

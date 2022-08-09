@@ -16,8 +16,8 @@ class StationaryOwner(SpaceOwner):
     description = "An owner interested in a set of stationary cubes"
     positions = ">0"
 
-    def __init__(self, name: str, color: str, creation_ticks: List[int], stops: List["PathStop"],
-                 size: Coordinate4D = Coordinate4D(5, 5, 5, 5)):
+    def __init__(self, name: str, color: str, stops: List["PathStop"], creation_ticks: List[int],
+                 size: "Coordinate4D" = Coordinate4D(5, 5, 5, 5)):
         super().__init__(name, color, stops)
         self.creation_ticks = creation_ticks
         self.size: "Coordinate4D" = size
@@ -25,7 +25,6 @@ class StationaryOwner(SpaceOwner):
     def generate_agents(self, t: int, env: "Environment") -> List["Agent"]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
-            dimensions = env._dimension
             blocks = []
             for stop in self.stops:
                 bottom_left = self.generate_stop_coordinates(stop, env, t, self.size)

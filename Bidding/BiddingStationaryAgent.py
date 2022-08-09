@@ -1,25 +1,23 @@
 from typing import List, TYPE_CHECKING
 
-from BiddingAllocator.BiddingStationaryBid import BiddingStationaryBid
+from Bidding.BiddingStationaryBid import BiddingStationaryBid
 from Simulator.Agent import StationaryAgent, Agent
 from Simulator.Bid import Bid
-from Simulator.Path import SpaceSegment
 
 if TYPE_CHECKING:
-    from Simulator.Time import Tick
-    from Simulator.Coordinate import TimeCoordinate
+    from Simulator.Coordinate import Coordinate4D
 
 
 class BiddingStationaryAgent(StationaryAgent):
     def __init__(
         self,
-        blocks: List[List["TimeCoordinate"]],
+        blocks: List[List["Coordinate4D"]],
         priority: float,
     ):
         super().__init__(blocks)
         self.priority = priority
 
-    def get_bid(self, t: "Tick") -> Bid:
+    def get_bid(self, t: int) -> Bid:
         return BiddingStationaryBid(self.blocks, self.priority)
 
     def clone(self):

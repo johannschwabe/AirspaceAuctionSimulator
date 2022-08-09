@@ -1,18 +1,20 @@
 from time import time_ns
-from typing import List, Dict
+from typing import List, TYPE_CHECKING
 
-from .BiddingABOwner import BiddingABOwner
-from .BiddingStationaryOwner import BiddingStationaryOwner
-from Simulator.Path import PathSegment, PathReallocation, SpaceSegment, SpaceReallocation
 from .BiddingABAgent import BiddingABAgent
 from .BiddingABBid import BiddingABBid
+from .BiddingABOwner import BiddingABOwner
 from .BiddingPathFinding import bidding_astar
-from Simulator import Environment
-from Simulator.Allocator import Allocator
-from Simulator.Coordinate import Coordinate4D
 from .BiddingStationaryAgent import BiddingStationaryAgent
 from .BiddingStationaryBid import BiddingStationaryBid
-from Simulator.Path.Reason import Reason, Reasons, AgentReason
+from .BiddingStationaryOwner import BiddingStationaryOwner
+from Simulator.Allocator import Allocator
+from Simulator.Path import PathReallocation, PathSegment, SpaceSegment, SpaceReallocation
+from Simulator.Path.AllocationReason import AllocationReason
+from Simulator.Path.Reason import Reason
+
+if TYPE_CHECKING:
+    from Simulator import Environment
 
 
 class BiddingAllocator(Allocator):
@@ -23,10 +25,10 @@ class BiddingAllocator(Allocator):
     def __init__(self):
         super().__init__()
 
-    def allocate_for_agents(self, agents: List[BiddingABAgent], env: Environment, tick: int) -> list[PathReallocation]:
+    def allocate_for_agents(self, agents: List["BiddingABAgent"], env: "Environment", tick: int) -> list["PathReallocation"]:
         res = []
         to_add = set(agents)
-        while len(to_add) > 0:
+        while len(list(to_add)) > 0:
             start_time = time_ns()
             agent = max(to_add, key=lambda _agent: _agent.get_bid(tick).priority)
             to_add.remove(agent)
@@ -34,8 +36,9 @@ class BiddingAllocator(Allocator):
             if isinstance(bid, BiddingABBid):
                 ab_path, collisions = bidding_astar(bid.a, bid.b, env, agent, bid.flying)
                 new_path_segment = PathSegment(bid.a.to_inter_temporal(), bid.b.to_inter_temporal(), 0, ab_path)
-                reallocation_reason = Reason(Reasons.FIRST_ALLOCATION.value) if agent in agents else AgentReason(
-                    Reasons.AGENT.value,
+                reallocation_reason = AllocationReason(
+                    str(Reason.FIRST_ALLOCATION.value)) if agent in agents else AllocationReason(
+                    str(Reason.AGENT.value),
                     [collision.id for collision in collisions])
                 to_add = to_add.union(collisions)
                 for agent_to_remove in collisions:
@@ -78,9 +81,9 @@ class BiddingAllocator(Allocator):
                             res = [reallocation for reallocation in res if
                                    reallocation.agent != agent_to_remove]
 
-                    reallocation_reason = Reason(
-                        Reasons.FIRST_ALLOCATION.value) if agent in agents else AgentReason(
-                        Reasons.AGENT.value,
+                    reallocation_reason = AllocationReason(
+                        str(Reason.FIRST_ALLOCATION.value)) if agent in agents else AllocationReason(
+                        str(Reason.AGENT.value),
                         [collision.id for collision in blocking_agents])
                     env.allocate_spaces_for_agent(agent, space_segments)
                     if agent.id not in env.get_agents():

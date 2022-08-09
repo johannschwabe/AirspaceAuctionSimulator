@@ -86,7 +86,6 @@ def get_allocators():
 
 @app.get("/owners/{allocator_name}")
 def get_owners_for_allocator(allocator_name):
-    print(allocator_name)
     allocators = list(filter(lambda x: (x.__name__ == allocator_name), available_allocators))
     if len(allocators) != 1:
         return []
