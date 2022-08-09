@@ -1,10 +1,10 @@
 <template>
-  <n-color-picker :modes="['hex']" :show-alpha="false" v-model:value="config.color" />
-  <n-input v-model:value="config.name" type="text" placeholder="Owner Name" />
-  <n-input-number v-model:value="config.agents" :min="1" :max="100" style="min-width: 130px" placeholder="Nr. Agents" />
+  <n-color-picker :modes="['hex']" :show-alpha="false" v-model:value="owner.color" />
+  <n-input v-model:value="owner.name" type="text" placeholder="Owner Name" />
+  <n-input-number v-model:value="owner.agents" :min="1" :max="100" style="min-width: 130px" placeholder="Nr. Agents" />
   <n-select
-    v-model:value="config.type"
-    :options="Object.values(options)"
+    v-model:value="owner.type"
+    :options="Object.values(config.availableOwnersForMechanism)"
     label-field="_label"
     value-field="classname"
     placeholder="Type"
@@ -16,37 +16,36 @@
 <script setup>
 import { computed } from "vue";
 import { createDefaultStop, validStops } from "../../scripts/stops";
+import { useSimulationConfigStore } from "../../stores/simulationConfig";
 
 const props = defineProps({
-  modelValue: {
-    type: Object,
-    required: true,
-  },
-  options: {
+  owner: {
     type: Object,
     required: true,
   },
 });
 
-const config = computed({
+const config = useSimulationConfigStore();
+
+const owner = computed({
   get: () => props.modelValue,
-  set: (updatedValue) => emit("update:modelValue", updatedValue),
+  set: (updatedValue) => emit("update:owner", updatedValue),
 });
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:owner"]);
 
 function defaultStops(ownertype) {
-  const option = props.options[ownertype];
+  const option = config.availableOwnersForMechanism[ownertype];
   const nr_stops = validStops(option.positions, option.ownertype);
   if (nr_stops.start) {
-    config.value.start = createDefaultStop();
-    config.value.target = createDefaultStop();
+    owner.value.start = createDefaultStop();
+    owner.value.target = createDefaultStop();
   } else {
-    config.value.start = null;
-    config.value.target = null;
+    owner.value.start = null;
+    owner.value.target = null;
   }
-  config.value.stops = [];
+  owner.value.stops = [];
   for (let i = 0; i < nr_stops.min; i++) {
-    config.value.stops.push(createDefaultStop());
+    owner.value.stops.push(createDefaultStop());
   }
 }
 </script>

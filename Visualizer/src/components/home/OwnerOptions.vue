@@ -1,5 +1,5 @@
 <template>
-  <owner-form v-model="config" :options="options" />
+  <owner-form v-model:owner="config" />
   <div v-if="nr_stops.start">
     <h3>Start:</h3>
     <div style="margin-left: 5px">
@@ -35,31 +35,11 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  mapInfo: {
-    type: Object,
-    required: false,
-    default: null,
-  },
-  dimension: {
-    type: Object,
-    required: true,
-  },
-  options: {
-    type: Object,
-    required: true,
-  },
 });
 
 const onCreate = () => {
   return createDefaultStop();
 };
-
-const config = computed({
-  get: () => props.modelValue,
-  set: (updatedValue) => emit("update:modelValue", updatedValue),
-});
-
-const emit = defineEmits(["update:modelValue"]);
 
 const nr_stops = computed(() => {
   const option = props.options[config.value.type];

@@ -3,7 +3,7 @@
     <n-dynamic-input v-model:value="config.owners" :on-create="onCreate">
       <template #default="{ value, index }">
         <div style="display: flex; column-gap: 10px; width: 100%">
-          <owner-form v-model="value.owner" :options="availableOwners" />
+          <owner-form v-model:owner="value.owner" :options="config.availableOwnersForMechanism" />
           <n-button tertiary circle @click="onOptions(index)">
             <template #icon>
               <n-icon><Options /></n-icon>
@@ -17,9 +17,6 @@
         <owner-options
           :model-value="option"
           @update:modelValue="updateOwner(optionsIndex, $event)"
-          :map-info="mapInfo"
-          :dimension="dimension"
-          :options="availableOwners"
         />
       </n-drawer-content>
     </n-drawer>
@@ -33,30 +30,9 @@ import OwnerOptions from "./OwnerOptions.vue";
 import OwnerForm from "./OwnerForm.vue";
 import { createDefaultStop } from "../../scripts/stops";
 import * as _ from "lodash-es";
-import { useConfigStore } from "../../stores/config";
+import { useSimulationConfigStore } from "../../stores/simulationConfig";
 
-const props = defineProps({
-  dimension: {
-    type: Object,
-    required: true,
-  },
-  /**
-   * @property {string} locationName
-   * @property {number} neighbouringTiles
-   * @property {number[]} tiles
-   */
-  mapInfo: {
-    type: Object,
-    required: false,
-    default: null,
-  },
-  availableOwners: {
-    type: Object,
-    required: true,
-  },
-});
-
-const config = useConfigStore();
+const config = useSimulationConfigStore();
 
 const defaultOwner = {
   owner: {
@@ -82,10 +58,10 @@ function updateOwner(ownerIndex, updatedOwner) {
   }
 }
 watch(
-  () => props.availableOwners,
+  () => config.availableOwners,
   () => {
     defaultOwner.owner.color = "#" + ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0");
-    defaultOwner.owner.type = Object.keys(props.availableOwners)[0];
+    defaultOwner.owner.type = Object.keys(config.availableOwners)[0];
     owners.value = [defaultOwner];
   }
 );
@@ -109,72 +85,12 @@ watchEffect(() => {
     optionsIndex.value = null;
   }
 });
-function setData(_owners) {
-  owners.value = _owners.map((_owner) => {
-    if (_owner.stops.length > 1) {
-      _owner.start = { stop: _owner.stops[0] };
-      _owner.target = { stop: _owner.stops[_owner.stops.length - 1] };
-      _owner.stops = _owner.stops.slice(1, -1).map((_stop) => {
-        return {
-          stop: _stop,
-        };
-      });
-    }
-    return { owner: _owner };
-  });
-}
-function getData() {
-  return owners.value.map((owner) => {
-    const stops = [];
-    if (owner.owner.start !== null && owner.owner.target !== null) {
-      stops.push(owner.owner.start, owner.owner.target);
-    }
-    stops.push(...owner.owner.stops);
-    const cleanedStops = stops.map((stop) => {
-      const cleanStop = { type: stop.stop.type };
-      const heatmap = {};
-
-      switch (stop.stop.type) {
-        case "heatmap":
-          Object.entries(stop.stop.heatmap.keys).forEach(([key, value]) => {
-            const stringValue = `${value}`.replace(".", "_");
-            if (heatmap[stringValue] === undefined) {
-              heatmap[stringValue] = [key];
-            } else {
-              heatmap[stringValue].push(key);
-            }
-          });
-          cleanStop.heatmap = heatmap;
-          break;
-        case "position":
-          cleanStop.position = stop.stop.position.key;
-          break;
-        case "random":
-        default:
-          break;
-      }
-      return cleanStop;
-    });
-    return {
-      color: owner.owner.color,
-      name: owner.owner.name,
-      agents: owner.owner.agents,
-      type: owner.owner.type,
-      stops: cleanedStops,
-    };
-  });
-}
 
 const onCreate = () => {
-  defaultOwner.owner.type = Object.keys(props.availableOwners)[0];
+  defaultOwner.owner.type = Object.keys(config.availableOwners)[0];
   defaultOwner.owner.color = "#" + ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0");
   const _owner = _.cloneDeep(defaultOwner.owner);
   return { owner: _owner };
 };
 const owners = ref([onCreate()]);
-
-defineExpose({
-  getData,
-  setData,
-});
 </script>

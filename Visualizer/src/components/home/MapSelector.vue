@@ -23,17 +23,17 @@
         </n-grid-item>
         <n-grid-item span="1">
           <n-form-item label="Dimension Lon (m)">
-            <n-input-number v-model:value="dimension.x" disabled />
+            <n-input-number :value="dimension.x" disabled />
           </n-form-item>
         </n-grid-item>
         <n-grid-item span="1">
           <n-form-item label="Height (m)">
-            <n-input-number v-model:value="height" :min="20" :max="1000" :step="10" />
+            <n-input-number v-model:value="config.dimension.y" :min="20" :max="1000" :step="10" />
           </n-form-item>
         </n-grid-item>
         <n-grid-item span="1">
           <n-form-item label="Dimension Lat (m)">
-            <n-input-number v-model:value="dimension.z" disabled />
+            <n-input-number :value="dimension.z" disabled />
           </n-form-item>
         </n-grid-item>
         <n-grid-item span="1">
@@ -45,7 +45,7 @@
     </n-grid-item>
 
     <n-grid-item span="3">
-      <map-viewer :map-info="mapInfo" :dimension="dimension" />
+      <map-viewer />
     </n-grid-item>
   </n-grid>
 </template>
@@ -53,44 +53,36 @@
 <script setup>
 import OSM from "ol/source/OSM";
 import axios from "axios";
-import { ref, reactive, computed, watch, onUnmounted } from "vue";
+import { ref, computed, watchEffect } from "vue";
 import { fromLonLat, get, transformExtent } from "ol/proj";
 import { NavigateCircleOutline } from "@vicons/ionicons5";
 import { useMessage } from "naive-ui";
 
 import MapViewer from "./MapViewer.vue";
-
-const emit = defineEmits(["dimensionChange", "mapChange"]);
+import { useSimulationConfigStore } from "../../stores/simulationConfig";
 
 const source = new OSM();
 const grid = source.getTileGrid();
 const SINGLE_TILE_SIDE_LENGTH = 830.8261666462096;
 
 const message = useMessage();
+const config = useSimulationConfigStore();
 
 const surroundingTiles = ref(0);
 const addressQuery = ref("Zurich, Switzerland");
 const height = ref(100);
-const coordinates = reactive({
-  long: 8.5410422,
-  lat: 47.3744489,
-});
 
 const dimension = computed(() => ({
   x: Math.ceil((surroundingTiles.value * 2 + 1) * SINGLE_TILE_SIDE_LENGTH),
   y: height.value,
   z: Math.ceil((surroundingTiles.value * 2 + 1) * SINGLE_TILE_SIDE_LENGTH),
 }));
-watch(dimension, () => {
-  emit("dimensionChange", dimension.value);
-});
-emit("dimensionChange", dimension.value);
 
-const mapInfo = computed(() => {
-  const locationName = addressQuery.value;
-  const neightbouringTiles = surroundingTiles.value;
+watchEffect(() => {
+  config.map.locationName = addressQuery.value;
+  config.map.neightbouringTiles = surroundingTiles.value;
   const tiles = [];
-  const projectedCoordinate = fromLonLat([coordinates.long, coordinates.lat], "EPSG:3857");
+  const projectedCoordinate = fromLonLat([config.map.coordinates.long, config.map.coordinates.lat], "EPSG:3857");
   const tileCoord = grid.getTileCoordForCoordAndZ(projectedCoordinate, 15);
   let topLeftCoordinate, bottomRightCoordinate;
   const n = surroundingTiles.value;
@@ -110,30 +102,10 @@ const mapInfo = computed(() => {
       }
     }
   }
-  return {
-    locationName,
-    neightbouringTiles,
-    tiles,
-    topLeftCoordinate,
-    bottomRightCoordinate,
-    coordinates,
-  };
+  config.map.tiles = tiles;
+  config.map.topLeftCoordinate = topLeftCoordinate;
+  config.map.bottomRightCoordinate = bottomRightCoordinate;
 });
-watch(mapInfo, () => {
-  emit("mapChange", mapInfo.value);
-});
-emit("mapChange", mapInfo.value);
-onUnmounted(() => {
-  emit("mapChange", null);
-});
-
-const setData = (env) => {
-  coordinates.long = env.map.coordinates.long;
-  coordinates.lat = env.map.coordinates.lat;
-  height.value = env.dimension.y;
-  addressQuery.value = env.map.locationName;
-  surroundingTiles.value = env.map.neightbouringTiles;
-};
 
 const resolveAddress = async () => {
   const query = `https://nominatim.openstreetmap.org/search?q=${addressQuery.value}&format=json&addressdetails=1`;
@@ -142,13 +114,9 @@ const resolveAddress = async () => {
     message.error("No address found for input query");
   }
   addressQuery.value = data[0].display_name;
-  coordinates.lat = parseFloat(data[0].lat);
-  coordinates.long = parseFloat(data[0].lon);
+  config.map.coordinates.lat = parseFloat(data[0].lat);
+  config.map.coordinates.long = parseFloat(data[0].lon);
 };
-
-defineExpose({
-  setData,
-});
 </script>
 
 <style scoped></style>

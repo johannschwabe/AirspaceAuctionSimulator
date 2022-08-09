@@ -16,12 +16,9 @@ import { Heatmap } from "ol/layer";
 import VectorSource from "ol/source/Vector";
 import { Point } from "ol/geom";
 import VectorLayer from "ol/layer/Vector";
+import { useSimulationConfigStore } from "../../stores/simulationConfig";
 
 const props = defineProps({
-  mapInfo: {
-    type: Object,
-    required: true,
-  },
   stop: {
     type: Object,
     required: false,
@@ -32,29 +29,27 @@ const props = defineProps({
     required: false,
     default: 256,
   },
-  dimension: {
-    type: Object,
-    required: true,
-  },
 });
+
+const config = useSimulationConfigStore();
 
 const selectionType = computed(() => props.stop?.type);
 const map_root = ref(null);
-const topLeft = computed(() => fromLonLat([props.mapInfo.topLeftCoordinate.long, props.mapInfo.topLeftCoordinate.lat]));
+const topLeft = computed(() => fromLonLat([config.map.topLeftCoordinate.long, config.map.topLeftCoordinate.lat]));
 const bottomRight = computed(() =>
-  fromLonLat([props.mapInfo.bottomRightCoordinate.long, props.mapInfo.bottomRightCoordinate.lat])
+  fromLonLat([config.map.bottomRightCoordinate.long, config.map.bottomRightCoordinate.lat])
 );
 const extent = computed(() => boundingExtent([topLeft.value, bottomRight.value]));
 const min = computed(() => extent.value.slice(0, 2));
 const max = computed(() => extent.value.slice(2, 4));
 const dimensions = computed(() => [max.value[0] - min.value[0], max.value[1] - min.value[1]]);
-const meterCoordsRatio = computed(() => dimensions.value[0] / props.dimension.x);
+const meterCoordsRatio = computed(() => dimensions.value[0] / config.dimension.x);
 const center = computed(() => [
   (topLeft.value[0] + bottomRight.value[0]) / 2,
   (topLeft.value[1] + bottomRight.value[1]) / 2,
 ]);
 const zoom = computed(() => {
-  return Math.floor(15 / Math.sqrt(props.mapInfo.tiles.length));
+  return Math.floor(15 / Math.sqrt(config.map.tiles.length));
 });
 const positionValue = { ...props.stop?.position };
 const heatmapValue = { ...props.stop?.heatmap };
@@ -134,11 +129,11 @@ function onClickOrDrag(event) {
   if (
     gridCoords[0] >= 0 &&
     gridCoords[1] >= 0 &&
-    gridCoords[1] < props.dimension.x &&
-    gridCoords[0] < props.dimension.z
+    gridCoords[1] < config.dimension.x &&
+    gridCoords[0] < config.dimension.z
   ) {
     // Inverted x coordinate
-    const key = `${props.dimension.x - gridCoords[1]}_${gridCoords[0]}`;
+    const key = `${config.dimension.x - gridCoords[1]}_${gridCoords[0]}`;
     switch (selectionType.value) {
       case "heatmap":
         if (heatmapValue.keys[key] !== undefined) {

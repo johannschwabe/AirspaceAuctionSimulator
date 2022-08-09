@@ -74,7 +74,7 @@ export async function postSimulation(simulationConfig) {
  * Get all registered allocators from the backend
  * @returns {Promise<string[]>} - Names of allocators
  */
-export async function getAllocators() {
+export async function getSupportedAllocators() {
   try {
     const { data } = await apiServer.get("/allocators");
     return data;
@@ -88,7 +88,7 @@ export async function getAllocators() {
  * Get owners compatible with selected allocator
  * @returns {Promise<string[]>} - Names of owners
  */
-export async function getOwnersSupportedByMechanism(allocator) {
+export async function getOwnersSupportedByAllocator(allocator) {
   try {
     const { data } = await apiServer.get(`/owners/${allocator}`);
     return data;
@@ -136,6 +136,6 @@ export default {
   postSimulation,
   downloadSimulation,
   loadSimulation,
-  getAllocators,
-  getOwners: getOwnersSupportedByMechanism,
+  getSupportedAllocators,
+  getOwnersSupportedByAllocator,
 };

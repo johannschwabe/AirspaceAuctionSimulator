@@ -1,37 +1,37 @@
 <template>
-  <n-form ref="formRef" :model="config" :rules="rules">
+  <n-form ref="formRef" :model="simulationConfig" :rules="rules">
     <n-form-item path="name" label="Model Name">
-      <n-input v-model:value="config.name" type="text" placeholder="Unique Model Name" />
+      <n-input v-model:value="simulationConfig.name" type="text" placeholder="Unique Model Name" />
     </n-form-item>
     <n-form-item path="description" label="Model Description">
-      <n-input v-model:value="config.description" type="textarea" placeholder="Model description (Metadata)" />
+      <n-input v-model:value="simulationConfig.description" type="textarea" placeholder="Model description (Metadata)" />
     </n-form-item>
 
-    <map-selector @dimensionChange="setDimension" @map-change="config.setMap" ref="mapRef" />
+    <map-selector ref="mapRef" />
 
-    <n-form-item path="dimension.t" label="Timesteps">
-      <n-slider show-tooltip v-model:value="config.dimension.t" :min="300" :max="4000" :step="10" />
-    </n-form-item>
+<!--    <n-form-item path="dimension.t" label="Timesteps">-->
+<!--      <n-slider show-tooltip v-model:value="config.dimension.t" :min="300" :max="4000" :step="10" />-->
+<!--    </n-form-item>-->
 
-    <n-form-item path="allocator" label="Mechanism">
-      <n-select v-model:value="config.mechanism" :options="config.availableMechanisms" placeholder="Select Allocator" />
-    </n-form-item>
+<!--    <n-form-item path="allocator" label="Mechanism">-->
+<!--      <n-select v-model:value="config.mechanism" placeholder="Select Allocator" />-->
+<!--    </n-form-item>-->
 
-    <n-form-item path="owners" label="Owners">
-      <owner
-        v-if="Object.keys(availableOwners).length > 0"
-        ref="ownerRef"
-        :dimension="config.dimension"
-        :map-info="model.map"
-        :availableOwners="availableOwners"
-      />
-    </n-form-item>
+<!--    <n-form-item path="owners" label="Owners">-->
+<!--      <owner-->
+<!--        v-if="Object.keys(config.availableOwnersForMechanism).length > 0"-->
+<!--        ref="ownerRef"-->
+<!--        :dimension="config.dimension"-->
+<!--        :map-info="model.map"-->
+<!--        :availableOwners="availableOwners"-->
+<!--      />-->
+<!--    </n-form-item>-->
   </n-form>
 
   <n-grid cols="2" x-gap="10">
     <n-grid-item>
       <n-upload :custom-request="uploadConfiguration" accept="application/json" :on-preview="uploadConfiguration">
-        <n-button block tertiary :type="!modelFilledOut ? 'primary' : 'tertiary'">
+        <n-button block tertiary :type="simulationConfig.isEmpty ? 'primary' : 'tertiary'">
           Upload Simulation Configuration
           <template #icon>
             <n-icon>
@@ -42,7 +42,7 @@
       </n-upload>
     </n-grid-item>
     <n-grid-item>
-      <n-button block tertiary :type="modelFilledOut ? 'primary' : 'tertiary'" @click.stop="downloadConfiguration">
+      <n-button block tertiary :type="!simulationConfig.isEmpty ? 'primary' : 'tertiary'" @click.stop="downloadConfiguration">
         Download Simulation Configuration
         <template #icon>
           <n-icon>
@@ -100,7 +100,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watchEffect } from "vue";
+import { ref, computed } from "vue";
 import { useMessage, useLoadingBar } from "naive-ui";
 import { useRouter } from "vue-router";
 import { CloudDownloadOutline, ArrowForwardOutline, CloudUploadOutline } from "@vicons/ionicons5";
@@ -109,15 +109,15 @@ import { saveAs } from "file-saver";
 import Owner from "./Owner.vue";
 import MapSelector from "./MapSelector.vue";
 import Simulation from "../../SimulationObjects/Simulation.js";
-import api, { getOwnersSupportedByMechanism } from "../../API/api.js";
+import api from "../../API/api.js";
 import {
   canRecoverSimulationSingleton,
   hasSimulationSingleton,
   setSimulationSingleton,
 } from "../../scripts/simulation.js";
-import { useConfigStore } from "../../stores/config";
+import { useSimulationConfigStore } from "../../stores/simulationConfig";
 
-const config = useConfigStore();
+const simulationConfig = useSimulationConfigStore();
 
 const message = useMessage();
 const loadingBar = useLoadingBar();
@@ -134,12 +134,6 @@ const loadingInterval = ref(undefined);
 const finished = ref(false);
 const canRecover = ref(hasSimulationSingleton() || canRecoverSimulationSingleton());
 
-const modelFilledOut = computed(() => !!config.name);
-
-api.getAllocators().then((allocators) => {
-  config.availableMechanisms = allocators.map((_allocator) => ({ label: _allocator, value: _allocator }));
-});
-
 const rules = {
   name: [
     {
@@ -148,15 +142,6 @@ const rules = {
     },
   ],
 };
-
-watchEffect(async () => {
-  const mechanismName = config.mechanism;
-  const ownersSupportedByMechanism = await getOwnersSupportedByMechanism(mechanismName);
-  config.availableOwners = {};
-  ownersSupportedByMechanism.forEach((owner) => {
-    config.availableOwners[owner.classname] = owner;
-  });
-});
 
 const goToSimulation = () => {
   router.push({ name: "dashboard" });
@@ -177,17 +162,17 @@ const stopLoading = () => {
 };
 
 const downloadConfiguration = () => {
-  const fileToSave = new Blob([JSON.stringify(config.toJSON, undefined, 2)], {
+  const fileToSave = new Blob([JSON.stringify(simulationConfig.generateConfigJson(), undefined, 2)], {
     type: "application/json",
   });
-  saveAs(fileToSave, `${config.name}-config.json`);
+  saveAs(fileToSave, `${simulationConfig.name}-config.json`);
 };
 
 const uploadConfiguration = (upload) => {
   const fileReader = new FileReader();
   fileReader.onload = async (event) => {
     const data = JSON.parse(event.target.result);
-    config.overwrite(data);
+    simulationConfig.overwrite(data);
   };
   fileReader.onerror = () => {
     loadingBar.error();
@@ -203,7 +188,7 @@ const simulate = () => {
     if (!errors) {
       startLoading();
       api
-        .postSimulation(config.asJson)
+        .postSimulation(simulationConfig.generateConfigJson())
         .then((data) => {
           const simulation = new Simulation(data);
           return simulation.load();
