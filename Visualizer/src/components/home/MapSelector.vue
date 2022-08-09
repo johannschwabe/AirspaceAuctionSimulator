@@ -23,17 +23,17 @@
         </n-grid-item>
         <n-grid-item span="1">
           <n-form-item label="Dimension Lon (m)">
-            <n-input-number :value="dimension.x" disabled />
+            <n-input-number :value="simulationConfig.dimension.x" disabled />
           </n-form-item>
         </n-grid-item>
         <n-grid-item span="1">
           <n-form-item label="Height (m)">
-            <n-input-number v-model:value="config.dimension.y" :min="20" :max="1000" :step="10" />
+            <n-input-number v-model:value="simulationConfig.dimension.y" :min="20" :max="1000" :step="10" />
           </n-form-item>
         </n-grid-item>
         <n-grid-item span="1">
           <n-form-item label="Dimension Lat (m)">
-            <n-input-number :value="dimension.z" disabled />
+            <n-input-number :value="simulationConfig.dimension.z" disabled />
           </n-form-item>
         </n-grid-item>
         <n-grid-item span="1">
@@ -45,7 +45,7 @@
     </n-grid-item>
 
     <n-grid-item span="3">
-      <map-viewer />
+      <view-only-map />
     </n-grid-item>
   </n-grid>
 </template>
@@ -53,36 +53,39 @@
 <script setup>
 import OSM from "ol/source/OSM";
 import axios from "axios";
-import { ref, computed, watchEffect } from "vue";
+import { ref, watchEffect } from "vue";
 import { fromLonLat, get, transformExtent } from "ol/proj";
 import { NavigateCircleOutline } from "@vicons/ionicons5";
 import { useMessage } from "naive-ui";
 
-import MapViewer from "./MapViewer.vue";
 import { useSimulationConfigStore } from "../../stores/simulationConfig";
+import ViewOnlyMap from "../StreetMaps/ViewOnlyMap.vue";
 
 const source = new OSM();
 const grid = source.getTileGrid();
 const SINGLE_TILE_SIDE_LENGTH = 830.8261666462096;
 
 const message = useMessage();
-const config = useSimulationConfigStore();
+const simulationConfig = useSimulationConfigStore();
 
 const surroundingTiles = ref(0);
 const addressQuery = ref("Zurich, Switzerland");
 const height = ref(100);
 
-const dimension = computed(() => ({
-  x: Math.ceil((surroundingTiles.value * 2 + 1) * SINGLE_TILE_SIDE_LENGTH),
-  y: height.value,
-  z: Math.ceil((surroundingTiles.value * 2 + 1) * SINGLE_TILE_SIDE_LENGTH),
-}));
+watchEffect(() => {
+  simulationConfig.dimension.x = Math.ceil((surroundingTiles.value * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
+  simulationConfig.dimension.y = height.value;
+  simulationConfig.dimension.z = Math.ceil((surroundingTiles.value * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
+});
 
 watchEffect(() => {
-  config.map.locationName = addressQuery.value;
-  config.map.neightbouringTiles = surroundingTiles.value;
+  simulationConfig.map.locationName = addressQuery.value;
+  simulationConfig.map.neightbouringTiles = surroundingTiles.value;
   const tiles = [];
-  const projectedCoordinate = fromLonLat([config.map.coordinates.long, config.map.coordinates.lat], "EPSG:3857");
+  const projectedCoordinate = fromLonLat(
+    [simulationConfig.map.coordinates.long, simulationConfig.map.coordinates.lat],
+    "EPSG:3857"
+  );
   const tileCoord = grid.getTileCoordForCoordAndZ(projectedCoordinate, 15);
   let topLeftCoordinate, bottomRightCoordinate;
   const n = surroundingTiles.value;
@@ -102,9 +105,9 @@ watchEffect(() => {
       }
     }
   }
-  config.map.tiles = tiles;
-  config.map.topLeftCoordinate = topLeftCoordinate;
-  config.map.bottomRightCoordinate = bottomRightCoordinate;
+  simulationConfig.map.tiles = tiles;
+  simulationConfig.map.topLeftCoordinate = topLeftCoordinate;
+  simulationConfig.map.bottomRightCoordinate = bottomRightCoordinate;
 });
 
 const resolveAddress = async () => {
@@ -114,8 +117,8 @@ const resolveAddress = async () => {
     message.error("No address found for input query");
   }
   addressQuery.value = data[0].display_name;
-  config.map.coordinates.lat = parseFloat(data[0].lat);
-  config.map.coordinates.long = parseFloat(data[0].lon);
+  simulationConfig.map.coordinates.lat = parseFloat(data[0].lat);
+  simulationConfig.map.coordinates.long = parseFloat(data[0].lon);
 };
 </script>
 

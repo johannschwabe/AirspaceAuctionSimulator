@@ -1,11 +1,11 @@
 <template>
   <n-grid :cols="1" y-gap="5">
     <n-grid-item>
-      <n-select v-model:value="value.type" :options="options" placeholder="Type" filterable />
+      <n-select v-model:value="locationType" :options="options" placeholder="Type" filterable />
     </n-grid-item>
-    <n-grid-item v-if="value.type !== 'random'">
-      <owner-heatmap v-model="value" :dimension="dimension" :map-info="mapInfo" />
-    </n-grid-item>
+<!--    <n-grid-item v-if="value.type !== 'random'">-->
+<!--      <owner-heatmap v-model="value" :dimension="dimension" :map-info="mapInfo" />-->
+<!--    </n-grid-item>-->
   </n-grid>
 </template>
 
@@ -14,31 +14,24 @@ import { computed } from "vue";
 import OwnerHeatmap from "./OwnerStopMap.vue";
 
 const props = defineProps({
-  /**
-   * @property {string} type
-   * @property {?string} position
-   * @property {?string} heatmap
-   */
-  modelValue: {
+  owner: {
     type: Object,
     required: true,
   },
-  dimension: {
-    type: Object,
-    required: true,
-  },
-  mapInfo: {
-    type: Object,
+  locationIndex: {
+    type: Number,
     required: true,
   },
 });
 
-const value = computed({
-  get: () => props.modelValue,
-  set: (updatedValue) => emit("update:modelValue", updatedValue),
+const location = computed(() => {
+  return props.owner.locations[props.locationIndex];
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const locationType = computed({
+  get: () => location.value.type,
+  set: (type) => (location.value.type = type),
+});
 
 const options = [
   {

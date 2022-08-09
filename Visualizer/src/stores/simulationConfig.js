@@ -2,6 +2,8 @@ import { ref, reactive, watchEffect, computed } from "vue";
 import { defineStore } from "pinia";
 import { cloneDeep } from "lodash-es";
 import { getOwnersSupportedByAllocator, getSupportedAllocators } from "../API/api";
+import { randomColor } from "../scripts/color";
+import { randomName } from "../scripts/names";
 
 export const useSimulationConfigStore = defineStore("simulationConfig", () => {
   const name = ref("");
@@ -27,15 +29,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     tiles: [],
   });
 
-  const owners = reactive([
-    {
-      color: "#00559d",
-      name: "Digitec",
-      agents: 20,
-      type: "",
-      locations: [],
-    },
-  ]);
+  const owners = reactive([]);
 
   const generateConfigJson = () =>
     cloneDeep({
@@ -52,9 +46,13 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
   const availableAllocators = reactive([]);
   const loadAvailableAllocators = () => {
     getSupportedAllocators().then((allocatorNames) => {
+      availableAllocators.splice(0);
       allocatorNames.forEach((allocatorName) => availableAllocators.push(allocatorName));
     });
   };
+  const availableAllocatorsOptions = computed(() => {
+    return availableAllocators.map((a) => ({ label: a, value: a }));
+  });
 
   const availableOwnersForAllocator = reactive([]);
   watchEffect(async () => {
@@ -63,9 +61,53 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     const ownersSupportedByAllocator = await getOwnersSupportedByAllocator(allocatorName);
     availableOwnersForAllocator.splice(0);
     ownersSupportedByAllocator.forEach((owner) => {
-      availableOwnersForAllocator.push(owner);
+      const locationsDescriptor = owner.positions;
+      let minLocations = 0;
+      let maxLocations = 1000;
+      if (parseInt(locationsDescriptor, 10)) {
+        minLocations = parseInt(locationsDescriptor, 10);
+        maxLocations = minLocations;
+      }
+      locationsDescriptor
+        .split(";")
+        .map((d) => d.trim())
+        .forEach((d) => {
+          if (d.startsWith(">")) {
+            minLocations = parseInt(d.substring(1), 10);
+          }
+          if (d.startsWith("<")) {
+            maxLocations = parseInt(d.substring(1), 10);
+          }
+        });
+      availableOwnersForAllocator.push({
+        label: owner._label,
+        name: owner.classname,
+        description: owner.description,
+        type: owner.ownertype,
+        minLocations,
+        maxLocations,
+      });
     });
+    owners.splice(0);
+    owners.push(generateOwner());
   });
+  const randomLocation = () => ({ type: "random" });
+  const generateLocationsForOwner = (owner) => {
+    return Array(owner.minLocations, 10).map(() => randomLocation());
+  };
+  const generateOwner = () => {
+    const ownerTemplate = availableOwnersForAllocator[0];
+    const locations = generateLocationsForOwner(ownerTemplate);
+    return {
+      color: randomColor(),
+      name: randomName(),
+      agents: 20,
+      minLocations: ownerTemplate.minLocations,
+      maxLocations: ownerTemplate.maxLocations,
+      type: ownerTemplate.name,
+      locations,
+    };
+  };
 
   const overwrite = (config) => {
     name.value = config.name;
@@ -93,8 +135,11 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     map,
     owners,
     availableAllocators,
+    availableAllocatorsOptions,
     availableOwnersForAllocator,
     isEmpty,
+    randomLocation,
+    generateOwner,
     generateConfigJson,
     overwrite,
     loadAvailableAllocators,

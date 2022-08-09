@@ -4,50 +4,38 @@
   <n-input-number v-model:value="owner.agents" :min="1" :max="100" style="min-width: 130px" placeholder="Nr. Agents" />
   <n-select
     v-model:value="owner.type"
-    :options="Object.values(config.availableOwnersForMechanism)"
-    label-field="_label"
-    value-field="classname"
+    :options="simulationConfig.availableOwnersForAllocator"
+    label-field="label"
+    value-field="name"
     placeholder="Type"
     filterable
-    @update:value="defaultStops"
+    @update:value="updateLocationsForOwner"
   />
 </template>
 
 <script setup>
 import { computed } from "vue";
-import { createDefaultStop, validStops } from "../../scripts/stops";
 import { useSimulationConfigStore } from "../../stores/simulationConfig";
 
 const props = defineProps({
-  owner: {
-    type: Object,
+  ownerIndex: {
+    type: Number,
     required: true,
   },
 });
 
-const config = useSimulationConfigStore();
+const simulationConfig = useSimulationConfigStore();
 
-const owner = computed({
-  get: () => props.modelValue,
-  set: (updatedValue) => emit("update:owner", updatedValue),
-});
-const emit = defineEmits(["update:owner"]);
+const owner = computed(() => simulationConfig.owners[props.ownerIndex]);
 
-function defaultStops(ownertype) {
-  const option = config.availableOwnersForMechanism[ownertype];
-  const nr_stops = validStops(option.positions, option.ownertype);
-  if (nr_stops.start) {
-    owner.value.start = createDefaultStop();
-    owner.value.target = createDefaultStop();
-  } else {
-    owner.value.start = null;
-    owner.value.target = null;
+const updateLocationsForOwner = () => {
+  if (owner.value.locations > owner.value.maxLocations) {
+    owner.value.locations = owner.value.locations.slice(0, owner.value.maxLocations);
   }
-  owner.value.stops = [];
-  for (let i = 0; i < nr_stops.min; i++) {
-    owner.value.stops.push(createDefaultStop());
+  while (owner.value.locations < owner.value.minLocations) {
+    owner.value.locations.push(simulationConfig.randomLocation());
   }
-}
+};
 </script>
 
 <style scoped></style>

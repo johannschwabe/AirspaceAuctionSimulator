@@ -4,28 +4,30 @@
       <n-input v-model:value="simulationConfig.name" type="text" placeholder="Unique Model Name" />
     </n-form-item>
     <n-form-item path="description" label="Model Description">
-      <n-input v-model:value="simulationConfig.description" type="textarea" placeholder="Model description (Metadata)" />
+      <n-input
+        v-model:value="simulationConfig.description"
+        type="textarea"
+        placeholder="Model description (Metadata)"
+      />
     </n-form-item>
 
-    <map-selector ref="mapRef" />
+    <map-selector />
 
-<!--    <n-form-item path="dimension.t" label="Timesteps">-->
-<!--      <n-slider show-tooltip v-model:value="config.dimension.t" :min="300" :max="4000" :step="10" />-->
-<!--    </n-form-item>-->
+    <n-form-item path="dimension.t" label="Timesteps">
+      <n-slider show-tooltip v-model:value="simulationConfig.dimension.t" :min="300" :max="4000" :step="10" />
+    </n-form-item>
 
-<!--    <n-form-item path="allocator" label="Mechanism">-->
-<!--      <n-select v-model:value="config.mechanism" placeholder="Select Allocator" />-->
-<!--    </n-form-item>-->
+    <n-form-item path="allocator" label="Mechanism">
+      <n-select
+        v-model:value="simulationConfig.allocator"
+        :options="simulationConfig.availableAllocatorsOptions"
+        placeholder="Select Allocator"
+      />
+    </n-form-item>
 
-<!--    <n-form-item path="owners" label="Owners">-->
-<!--      <owner-->
-<!--        v-if="Object.keys(config.availableOwnersForMechanism).length > 0"-->
-<!--        ref="ownerRef"-->
-<!--        :dimension="config.dimension"-->
-<!--        :map-info="model.map"-->
-<!--        :availableOwners="availableOwners"-->
-<!--      />-->
-<!--    </n-form-item>-->
+        <n-form-item path="owners" label="Owners">
+          <owner />
+        </n-form-item>
   </n-form>
 
   <n-grid cols="2" x-gap="10">
@@ -42,7 +44,12 @@
       </n-upload>
     </n-grid-item>
     <n-grid-item>
-      <n-button block tertiary :type="!simulationConfig.isEmpty ? 'primary' : 'tertiary'" @click.stop="downloadConfiguration">
+      <n-button
+        block
+        tertiary
+        :type="!simulationConfig.isEmpty ? 'primary' : 'tertiary'"
+        @click.stop="downloadConfiguration"
+      >
         Download Simulation Configuration
         <template #icon>
           <n-icon>
@@ -100,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { useMessage, useLoadingBar } from "naive-ui";
 import { useRouter } from "vue-router";
 import { CloudDownloadOutline, ArrowForwardOutline, CloudUploadOutline } from "@vicons/ionicons5";
@@ -124,8 +131,7 @@ const loadingBar = useLoadingBar();
 const router = useRouter();
 
 const formRef = ref(null);
-const ownerRef = ref(null);
-const mapRef = ref(null);
+
 const errorText = ref(null);
 
 const loading = ref(false);
