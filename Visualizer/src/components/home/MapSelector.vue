@@ -38,7 +38,7 @@
         </n-grid-item>
         <n-grid-item span="1">
           <n-form-item label="Surrounding Tiles">
-            <n-input-number v-model:value="surroundingTiles" clearable :min="0" :max="3" />
+            <n-input-number v-model:value="simulationConfig.map.neightbouringTiles" clearable :min="0" :max="3" />
           </n-form-item>
         </n-grid-item>
       </n-grid>
@@ -68,19 +68,16 @@ const SINGLE_TILE_SIDE_LENGTH = 830.8261666462096;
 const message = useMessage();
 const simulationConfig = useSimulationConfigStore();
 
-const surroundingTiles = ref(0);
 const addressQuery = ref("Zurich, Switzerland");
-const height = ref(100);
 
 watchEffect(() => {
-  simulationConfig.dimension.x = Math.ceil((surroundingTiles.value * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
-  simulationConfig.dimension.y = height.value;
-  simulationConfig.dimension.z = Math.ceil((surroundingTiles.value * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
+  simulationConfig.dimension.x = Math.ceil((simulationConfig.map.neightbouringTiles * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
+  simulationConfig.dimension.z = Math.ceil((simulationConfig.map.neightbouringTiles * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
 });
 
 watchEffect(() => {
   simulationConfig.map.locationName = addressQuery.value;
-  simulationConfig.map.neightbouringTiles = surroundingTiles.value;
+  simulationConfig.map.neightbouringTiles = simulationConfig.map.neightbouringTiles;
   const tiles = [];
   const projectedCoordinate = fromLonLat(
     [simulationConfig.map.coordinates.long, simulationConfig.map.coordinates.lat],
@@ -88,7 +85,7 @@ watchEffect(() => {
   );
   const tileCoord = grid.getTileCoordForCoordAndZ(projectedCoordinate, 15);
   let topLeftCoordinate, bottomRightCoordinate;
-  const n = surroundingTiles.value;
+  const n = simulationConfig.map.neightbouringTiles;
   for (let i = -n; i <= n; i++) {
     for (let j = -n; j <= n; j++) {
       const updatedTileCord = [tileCoord[0], tileCoord[1] + j, tileCoord[2] + i];

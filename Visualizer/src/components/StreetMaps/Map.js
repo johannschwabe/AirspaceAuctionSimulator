@@ -5,11 +5,12 @@ import { boundingExtent } from "ol/extent";
 import TileLayer from "ol/layer/Tile";
 import OSM from "ol/source/OSM";
 import { Feature, Map, View } from "ol";
-import { onMounted } from "vue";
 import { Heatmap } from "ol/layer";
 import VectorSource from "ol/source/Vector";
 import VectorLayer from "ol/layer/Vector";
 import { Point } from "ol/geom";
+
+const HEATMAP_SCORE_PER_CLICK = 0.1;
 
 export const useBaseLayer = () => {
   return new TileLayer({
@@ -18,20 +19,41 @@ export const useBaseLayer = () => {
   });
 };
 
-export const useHeatmapLayer = (heatmap) => {
+export const useHeatmapLayer = (features) => {
   return new Heatmap({
     source: new VectorSource({
-      features: heatmap.features,
+      features,
     }),
   });
 };
 
-export const usePositionLayer = (position) => {
+export const usePositionLayer = (features) => {
   return new VectorLayer({
     source: new VectorSource({
-      features: position.features,
+      features,
     }),
   });
+};
+
+export const restoreHeatmapFeatures = (features, gridCoordinates) => {
+  features.clear();
+  gridCoordinates
+    .map((coord) => {
+      return Array.from({ length: Math.round(coord.value / HEATMAP_SCORE_PER_CLICK) }).map(
+        () => new Feature(new Point([coord.lat, coord.long]))
+      );
+    })
+    .flat()
+    .forEach((feat) => features.push(feat));
+};
+
+export const restorePositionFeatures = (features, gridCoordinates) => {
+  features.clear();
+  gridCoordinates
+    .map((coord) => {
+      return new Feature(new Point([coord.lat, coord.long]));
+    })
+    .forEach((feat) => features.push(feat));
 };
 
 export const useMap = (mapRoot, layers) => {
@@ -120,16 +142,15 @@ export const useMap = (mapRoot, layers) => {
   };
 };
 
-export const useHeatmapInteraction = (map, min, meterCoordsRatio, heatmap) => {
+export const useHeatmapInteraction = (map, min, meterCoordsRatio, features, location) => {
   const simulationConfig = useSimulationConfigStore();
-
-  const emit = defineEmits(["update:heatmap"]);
 
   const onClickOrDrag = (event) => {
     const coords = event.coordinate;
+    const [lat, long] = coords;
     const gridCoords = [
-      Math.floor((coords[0] - min.value[0]) / meterCoordsRatio.value),
-      Math.floor((coords[1] - min.value[1]) / meterCoordsRatio.value),
+      Math.floor((lat - min.value[0]) / meterCoordsRatio.value),
+      Math.floor((long - min.value[1]) / meterCoordsRatio.value),
     ];
     if (
       gridCoords[0] >= 0 &&
@@ -138,32 +159,32 @@ export const useHeatmapInteraction = (map, min, meterCoordsRatio, heatmap) => {
       gridCoords[0] < simulationConfig.dimension.z
     ) {
       // Inverted x coordinate
-      const key = `${simulationConfig.dimension.x - gridCoords[1]}_${gridCoords[0]}`;
-      if (heatmap.keys[key] !== undefined) {
-        if (heatmap.keys[key] === 0) {
-          heatmap.keys[key] = Math.round(heatmap.keys[key] * 10 + 1) / 10;
-        }
-      } else {
-        heatmap.keys[key] = 0.1;
+      const [x, y] = [simulationConfig.dimension.x - gridCoords[1], gridCoords[0]];
+      let fittingEntry = location.gridCoordinates.find((coord) => coord.x === x && coord.y === y);
+      if (!fittingEntry) {
+        const newLocation = { x, y, lat, long, value: 0.0 };
+        location.gridCoordinates.push(newLocation);
+        fittingEntry = newLocation;
       }
-      heatmap.features.push(new Feature(new Point(coords)));
-      emit("update:heatmap", heatmap);
+      fittingEntry.value = Math.min(fittingEntry.value + HEATMAP_SCORE_PER_CLICK, 1.0);
+      if (fittingEntry.value <= 1.0) {
+        features.push(new Feature(new Point(coords)));
+      }
     }
   };
-
-  map.on("click", onClickOrDrag);
-  map.on("pointerdrag", onClickOrDrag);
+  map.value.on("click", onClickOrDrag);
+  map.value.on("pointerdrag", onClickOrDrag);
 };
 
-export const usePositionInteraction = (map, min, meterCoordsRatio, position) => {
+export const usePositionInteraction = (map, min, meterCoordsRatio, features, location) => {
   const simulationConfig = useSimulationConfigStore();
-  const emit = defineEmits(["update:position"]);
 
   const onClickOrDrag = (event) => {
     const coords = event.coordinate;
+    const [lat, long] = coords;
     const gridCoords = [
-      Math.floor((coords[0] - min.value[0]) / meterCoordsRatio.value),
-      Math.floor((coords[1] - min.value[1]) / meterCoordsRatio.value),
+      Math.floor((lat - min.value[0]) / meterCoordsRatio.value),
+      Math.floor((long - min.value[1]) / meterCoordsRatio.value),
     ];
     if (
       gridCoords[0] >= 0 &&
@@ -172,14 +193,12 @@ export const usePositionInteraction = (map, min, meterCoordsRatio, position) => 
       gridCoords[0] < simulationConfig.dimension.z
     ) {
       // Inverted x coordinate
-      const key = `${simulationConfig.dimension.x - gridCoords[1]}_${gridCoords[0]}`;
-      position.key = key;
-      position.features.pop();
-      position.features.push(new Feature(new Point(coords)));
-      emit("update:position", position);
+      const [x, y] = [simulationConfig.dimension.x - gridCoords[1], gridCoords[0]];
+      location.gridCoordinates = [{ x, y, lat, long, value: 1 }];
+      features.pop();
+      features.push(new Feature(new Point(coords)));
     }
   };
 
-  map.on("click", onClickOrDrag);
-  map.on("pointerdrag", onClickOrDrag);
+  map.value.on("click", onClickOrDrag);
 };

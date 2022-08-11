@@ -3,15 +3,16 @@
     <n-grid-item>
       <n-select v-model:value="locationType" :options="options" placeholder="Type" filterable />
     </n-grid-item>
-<!--    <n-grid-item v-if="value.type !== 'random'">-->
-<!--      <owner-heatmap v-model="value" :dimension="dimension" :map-info="mapInfo" />-->
-<!--    </n-grid-item>-->
+    <n-grid-item>
+      <component :is="componentMap[locationType]" :location="location" />
+    </n-grid-item>
   </n-grid>
 </template>
 
 <script setup>
 import { computed } from "vue";
-import OwnerHeatmap from "./OwnerStopMap.vue";
+import PointSelectionMap from "../StreetMaps/PointSelectionMap.vue";
+import HeatmapMap from "../StreetMaps/HeatmapMap.vue";
 
 const props = defineProps({
   owner: {
@@ -24,13 +25,22 @@ const props = defineProps({
   },
 });
 
+const componentMap = {
+  random: "span",
+  position: PointSelectionMap,
+  heatmap: HeatmapMap,
+};
+
 const location = computed(() => {
   return props.owner.locations[props.locationIndex];
 });
 
 const locationType = computed({
   get: () => location.value.type,
-  set: (type) => (location.value.type = type),
+  set: (type) => {
+    location.value.type = type;
+    location.value.gridCoordinates = [];
+  },
 });
 
 const options = [

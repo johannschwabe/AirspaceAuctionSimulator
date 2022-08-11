@@ -1,20 +1,19 @@
 <template>
-  <div>
-    <h3>Stops:</h3>
-    <div style="margin-left: 5px">
-      <n-dynamic-input
-        :value="owner.locations"
-        :on-create="onCreate"
-        :on-remove="onRemove"
-        :min="owner.minLocations"
-        :max="owner.maxLocations"
-      >
-        <template #default="{ index }">
-          <owner-stop :owner="owner" :locationIndex="index" />
-        </template>
-      </n-dynamic-input>
-    </div>
-  </div>
+  <p>
+    <b>{{ ownerProperties.label }} Owner: </b>{{ ownerProperties.description }}
+  </p>
+  <h3>Stops:</h3>
+  <n-dynamic-input
+    :value="owner.locations"
+    :on-create="onCreate"
+    :on-remove="onRemove"
+    :min="owner.minLocations"
+    :max="owner.maxLocations"
+  >
+    <template #default="{ index }">
+      <owner-stop :owner="owner" :locationIndex="index" />
+    </template>
+  </n-dynamic-input>
 </template>
 
 <script setup>
@@ -32,6 +31,10 @@ const props = defineProps({
 const simulationConfig = useSimulationConfigStore();
 
 const owner = computed(() => simulationConfig.owners[props.ownerIndex]);
+
+const ownerProperties = computed(() => {
+  return simulationConfig.availableOwnersForAllocator.find((o) => o.name === owner.value.type);
+});
 
 const onCreate = (index) => {
   const location = simulationConfig.randomLocation();

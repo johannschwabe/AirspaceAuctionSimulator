@@ -84,14 +84,17 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
         name: owner.classname,
         description: owner.description,
         type: owner.ownertype,
+        allocator: allocator.value,
         minLocations,
         maxLocations,
       });
     });
-    owners.splice(0);
-    owners.push(generateOwner());
+    if (owners.length === 0 || owners[0].allocator !== allocatorName.value) {
+      owners.splice(0);
+      owners.push(generateOwner());
+    }
   });
-  const randomLocation = () => ({ type: "random" });
+  const randomLocation = () => ({ type: "random", gridCoordinates: [] });
   const generateLocationsForOwner = (owner) => {
     return Array(owner.minLocations, 10).map(() => randomLocation());
   };
@@ -105,6 +108,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
       minLocations: ownerTemplate.minLocations,
       maxLocations: ownerTemplate.maxLocations,
       type: ownerTemplate.name,
+      allocator: allocator.value,
       locations,
     };
   };
@@ -113,6 +117,11 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     name.value = config.name;
     description.value = config.description;
     allocator.value = config.allocator;
+
+    dimension.x = config.dimension.x;
+    dimension.y = config.dimension.y;
+    dimension.z = config.dimension.z;
+    dimension.t = config.dimension.t;
 
     map.coordinates = config.map.coordinates;
     map.locationName = config.map.locationName;
