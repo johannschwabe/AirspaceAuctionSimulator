@@ -32,16 +32,29 @@ const simulationConfig = useSimulationConfigStore();
 
 const owner = computed(() => simulationConfig.owners[props.ownerIndex]);
 
+/**
+ * Returns config of owner of fitting type
+ * @type {ComputedRef<OwnerConfig>}
+ */
 const ownerProperties = computed(() => {
   return simulationConfig.availableOwnersForAllocator.find((o) => o.name === owner.value.type);
 });
 
+/**
+ * Creates a new random location at given index
+ * @param {number} index
+ * @returns {LocationConfig}
+ */
 const onCreate = (index) => {
   const location = simulationConfig.randomLocation();
   owner.value.locations.splice(index, 0, location);
   return location;
 };
 
+/**
+ * Removes location at given index
+ * @param {number} index
+ */
 const onRemove = (index) => {
   owner.value.locations.splice(index, 1);
 };

@@ -11,6 +11,7 @@
 
 <script setup>
 import { computed } from "vue";
+
 import PointSelectionMap from "../map/PointSelectionMap.vue";
 import HeatmapMap from "../map/HeatmapMap.vue";
 
@@ -25,6 +26,10 @@ const props = defineProps({
   },
 });
 
+/**
+ * Maps location type to component suited of filling the features of said type
+ * @type {{random: string, heatmap: HeatmapMap, position: PointSelectionMap}}
+ */
 const componentMap = {
   random: "span",
   position: PointSelectionMap,

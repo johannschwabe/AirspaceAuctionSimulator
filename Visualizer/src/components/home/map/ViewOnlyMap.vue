@@ -6,7 +6,7 @@
 import { onMounted, ref } from "vue";
 import { useBaseLayer, useMap } from "./Map";
 
-const props = defineProps({
+defineProps({
   size: {
     type: Number,
     required: false,

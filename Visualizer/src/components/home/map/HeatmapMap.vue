@@ -4,13 +4,7 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import {
-  restoreHeatmapFeatures,
-  useBaseLayer,
-  useHeatmapInteraction,
-  useHeatmapLayer,
-  useMap
-} from "./Map";
+import { restoreHeatmapFeatures, useBaseLayer, useHeatmapInteraction, useHeatmapLayer, useMap } from "./Map";
 import { Collection } from "ol";
 
 const props = defineProps({

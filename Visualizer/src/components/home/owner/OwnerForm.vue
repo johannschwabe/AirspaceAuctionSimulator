@@ -1,7 +1,9 @@
 <template>
+  <!-- Inputs for color, name and number of agents -->
   <n-color-picker :modes="['hex']" :show-alpha="false" v-model:value="owner.color" />
   <n-input v-model:value="owner.name" type="text" placeholder="Owner Name" />
   <n-input-number v-model:value="owner.agents" :min="1" :max="100" style="min-width: 130px" placeholder="Nr. Agents" />
+  <!-- Dropdown selection for owner type -->
   <n-select
     v-model:value="owner.type"
     :options="simulationConfig.availableOwnersForAllocator"
@@ -28,6 +30,10 @@ const simulationConfig = useSimulationConfigStore();
 
 const owner = computed(() => simulationConfig.owners[props.ownerIndex]);
 
+/**
+ * Whenever the selected ownerType changes, make sure the requirements for minimum
+ * and maximum number of locations are met
+ */
 const updateLocationsForOwner = () => {
   if (owner.value.locations > owner.value.maxLocations) {
     owner.value.locations = owner.value.locations.slice(0, owner.value.maxLocations);

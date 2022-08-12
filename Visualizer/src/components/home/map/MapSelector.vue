@@ -2,6 +2,7 @@
   <n-grid cols="8" x-gap="12">
     <n-grid-item span="5">
       <n-grid cols="3" x-gap="12">
+        <!-- Address Input -->
         <n-grid-item span="3">
           <n-form-item label="Address">
             <n-input-group>
@@ -21,21 +22,29 @@
             </n-input-group>
           </n-form-item>
         </n-grid-item>
+
+        <!-- Dimension X Input -->
         <n-grid-item span="1">
           <n-form-item label="Dimension Lon (m)">
             <n-input-number :value="simulationConfig.dimension.x" disabled />
           </n-form-item>
         </n-grid-item>
+
+        <!-- Dimension Y Input -->
         <n-grid-item span="1">
           <n-form-item label="Height (m)">
             <n-input-number v-model:value="simulationConfig.dimension.y" :min="20" :max="1000" :step="10" />
           </n-form-item>
         </n-grid-item>
+
+        <!-- Dimension Z Input -->
         <n-grid-item span="1">
           <n-form-item label="Dimension Lat (m)">
             <n-input-number :value="simulationConfig.dimension.z" disabled />
           </n-form-item>
         </n-grid-item>
+
+        <!-- Surrounding Tiles Input -->
         <n-grid-item span="1">
           <n-form-item label="Surrounding Tiles">
             <n-input-number v-model:value="simulationConfig.map.neightbouringTiles" clearable :min="0" :max="3" />
@@ -53,31 +62,36 @@
 <script setup>
 import OSM from "ol/source/OSM";
 import axios from "axios";
+
 import { ref, watchEffect } from "vue";
 import { fromLonLat, get, transformExtent } from "ol/proj";
 import { NavigateCircleOutline } from "@vicons/ionicons5";
 import { useMessage } from "naive-ui";
 
-import { useSimulationConfigStore } from "../../../stores/simulationConfig";
 import ViewOnlyMap from "./ViewOnlyMap.vue";
 
-const source = new OSM();
-const grid = source.getTileGrid();
-const SINGLE_TILE_SIDE_LENGTH = 830.8261666462096;
+import { useSimulationConfigStore } from "../../../stores/simulationConfig";
 
 const message = useMessage();
 const simulationConfig = useSimulationConfigStore();
 
+// OSM Source and grid definitions
+const source = new OSM();
+const grid = source.getTileGrid();
+const SINGLE_TILE_SIDE_LENGTH = 830.8261666462096;
+
+// Prefilled address query
 const addressQuery = ref("Zurich, Switzerland");
 
+// Recalculation of dimensions x and z component on map zoom change
 watchEffect(() => {
   simulationConfig.dimension.x = Math.ceil((simulationConfig.map.neightbouringTiles * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
   simulationConfig.dimension.z = Math.ceil((simulationConfig.map.neightbouringTiles * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
 });
 
+// Watch change in map config (zoom, address, etc.) and recalculate tiles and topLeft/bottomRight coordinates
 watchEffect(() => {
   simulationConfig.map.locationName = addressQuery.value;
-  simulationConfig.map.neightbouringTiles = simulationConfig.map.neightbouringTiles;
   const tiles = [];
   const projectedCoordinate = fromLonLat(
     [simulationConfig.map.coordinates.long, simulationConfig.map.coordinates.lat],
@@ -107,6 +121,10 @@ watchEffect(() => {
   simulationConfig.map.bottomRightCoordinate = bottomRightCoordinate;
 });
 
+/**
+ * Resolves map coordinate from address input
+ * @returns {Promise<void>}
+ */
 const resolveAddress = async () => {
   const query = `https://nominatim.openstreetmap.org/search?q=${addressQuery.value}&format=json&addressdetails=1`;
   const { data } = await axios.get(query);
