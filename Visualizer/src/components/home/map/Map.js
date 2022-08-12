@@ -12,6 +12,10 @@ import { Point } from "ol/geom";
 
 const HEATMAP_SCORE_PER_CLICK = 0.1;
 
+/**
+ * Base layer showing regular Map Texture
+ * @returns {TileLayer<TileSourceType>}
+ */
 export const useBaseLayer = () => {
   return new TileLayer({
     source: new OSM(),
@@ -19,6 +23,11 @@ export const useBaseLayer = () => {
   });
 };
 
+/**
+ * Heatmap Layer
+ * @param {Collection} features - OL Collection storing Heatmap data
+ * @returns {Heatmap}
+ */
 export const useHeatmapLayer = (features) => {
   return new Heatmap({
     source: new VectorSource({
@@ -27,6 +36,11 @@ export const useHeatmapLayer = (features) => {
   });
 };
 
+/**
+ * Position Layer
+ * @param {Collection} features - OL Collection storing Positional data
+ * @returns {VectorLayer<VectorSourceType>}
+ */
 export const usePositionLayer = (features) => {
   return new VectorLayer({
     source: new VectorSource({
@@ -35,6 +49,11 @@ export const usePositionLayer = (features) => {
   });
 };
 
+/**
+ * Restores heatmap features given a list of grid coordinates
+ * @param {Collection} features
+ * @param {GridCoordinateConfig[]} gridCoordinates
+ */
 export const restoreHeatmapFeatures = (features, gridCoordinates) => {
   features.clear();
   gridCoordinates
@@ -47,6 +66,11 @@ export const restoreHeatmapFeatures = (features, gridCoordinates) => {
     .forEach((feat) => features.push(feat));
 };
 
+/**
+ * Restores positional features given a list of grid coordinates
+ * @param {Collection} features
+ * @param {GridCoordinateConfig[]} gridCoordinates
+ */
 export const restorePositionFeatures = (features, gridCoordinates) => {
   features.clear();
   gridCoordinates
@@ -56,44 +80,93 @@ export const restorePositionFeatures = (features, gridCoordinates) => {
     .forEach((feat) => features.push(feat));
 };
 
+/**
+ * Setup of OpenLayer Map
+ * @param {ref<HTMLInputElement | null>} mapRoot - HTML Element to mount OL to
+ * @param {(TileLayer|VectorLayer|Heatmap)[]} layers - Layers to display
+ */
 export const useMap = (mapRoot, layers) => {
   const simulationConfig = useSimulationConfigStore();
 
+  // Holds OL Map object
   const map = shallowRef(null);
 
+  /**
+   * Holds the coordinate at the top-left of the map
+   * @type {ComputedRef<number[]>}
+   */
   const topLeft = computed(() => {
     return fromLonLat([simulationConfig.map.topLeftCoordinate.long, simulationConfig.map.topLeftCoordinate.lat]);
   });
+
+  /**
+   * Holds the coordinate at the bottom-right of the map
+   * @type {ComputedRef<number[]>}
+   */
   const bottomRight = computed(() => {
     return fromLonLat([
       simulationConfig.map.bottomRightCoordinate.long,
       simulationConfig.map.bottomRightCoordinate.lat,
     ]);
   });
+
+  /**
+   * Holds the extent of the visible map section
+   * An extent is array of numbers representing an extent: `[minx, miny, maxx, maxy]
+   * @type {ComputedRef<number[]>}
+   */
   const extent = computed(() => {
     return boundingExtent([topLeft.value, bottomRight.value]);
   });
+
+  /**
+   * Holds the minimum coordinate of the map extent [minx, miny]
+   * @type {ComputedRef<number[]>}
+   */
   const min = computed(() => {
     return extent.value.slice(0, 2);
   });
+
+  /**
+   * Holds the maximum coordinate of the map extent [maxx, maxy]
+   * @type {ComputedRef<number[]>}
+   */
   const max = computed(() => {
     return extent.value.slice(2, 4);
   });
+
+  /**
+   * Holds the dimensions of the visible map section in coordinate format
+   * @type {ComputedRef<number[]>}
+   */
   const dimensions = computed(() => {
     return [max.value[0] - min.value[0], max.value[1] - min.value[1]];
   });
+
+  /**
+   * Indicates how many meters there are per simulation config unit
+   * @type {ComputedRef<number>}
+   */
   const meterCoordsRatio = computed(() => {
     return dimensions.value[0] / simulationConfig.dimension.x;
   });
+
+  /**
+   * Holds the center of the visible map section in coordinate format
+   * @type {ComputedRef<number[]>}
+   */
   const center = computed(() => [
     (topLeft.value[0] + bottomRight.value[0]) / 2,
     (topLeft.value[1] + bottomRight.value[1]) / 2,
   ]);
+
+  /**
+   * Holds the zoom of the map
+   * @type {ComputedRef<number>}
+   */
   const zoom = computed(() => {
     return Math.floor(15 / Math.sqrt(simulationConfig.map.tiles.length));
   });
-
-  const tileLayer = useBaseLayer();
 
   watch(extent, () => {
     if (map.value !== null) {
@@ -108,6 +181,10 @@ export const useMap = (mapRoot, layers) => {
     }
   });
 
+  /**
+   * Function that mounts the OL Map to the provided HTML element.
+   * This method should be called onMount
+   */
   const render = () => {
     map.value = new Map({
       // the map will be created using the 'map-root' ref
@@ -136,12 +213,19 @@ export const useMap = (mapRoot, layers) => {
     dimensions,
     center,
     zoom,
-    tileLayer,
     meterCoordsRatio,
     render,
   };
 };
 
+/**
+ * Registers interaction with the OL map with adding heatmap features on click and drag of the map
+ * @param {ShallowRef<Map>} map
+ * @param {ComputedRef<number[]>} min
+ * @param {ComputedRef<number>} meterCoordsRatio
+ * @param {Collection} features
+ * @param {LocationConfig} location
+ */
 export const useHeatmapInteraction = (map, min, meterCoordsRatio, features, location) => {
   const simulationConfig = useSimulationConfigStore();
 
@@ -176,6 +260,14 @@ export const useHeatmapInteraction = (map, min, meterCoordsRatio, features, loca
   map.value.on("pointerdrag", onClickOrDrag);
 };
 
+/**
+ * Registers interaction with the OL map with adding position features on click of the map
+ * @param {ShallowRef<Map>} map
+ * @param {ComputedRef<number[]>} min
+ * @param {ComputedRef<number>} meterCoordsRatio
+ * @param {Collection} features
+ * @param {LocationConfig} location
+ */
 export const usePositionInteraction = (map, min, meterCoordsRatio, features, location) => {
   const simulationConfig = useSimulationConfigStore();
 

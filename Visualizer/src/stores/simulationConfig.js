@@ -27,7 +27,7 @@ import { randomName } from "../scripts/names";
 /**
  * @typedef {Object} LocationConfig
  * @property {string} type
- * @property {GridCoordinateConfig[]}
+ * @property {GridCoordinateConfig[]} features
  */
 
 /**
