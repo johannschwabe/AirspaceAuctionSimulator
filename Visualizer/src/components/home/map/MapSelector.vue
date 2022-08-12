@@ -58,8 +58,8 @@ import { fromLonLat, get, transformExtent } from "ol/proj";
 import { NavigateCircleOutline } from "@vicons/ionicons5";
 import { useMessage } from "naive-ui";
 
-import { useSimulationConfigStore } from "../../stores/simulationConfig";
-import ViewOnlyMap from "../StreetMaps/ViewOnlyMap.vue";
+import { useSimulationConfigStore } from "../../../stores/simulationConfig";
+import ViewOnlyMap from "./ViewOnlyMap.vue";
 
 const source = new OSM();
 const grid = source.getTileGrid();

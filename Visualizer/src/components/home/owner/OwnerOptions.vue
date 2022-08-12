@@ -19,7 +19,7 @@
 <script setup>
 import { computed } from "vue";
 import OwnerStop from "./OwnerStop.vue";
-import { useSimulationConfigStore } from "../../stores/simulationConfig";
+import { useSimulationConfigStore } from "../../../stores/simulationConfig";
 
 const props = defineProps({
   ownerIndex: {

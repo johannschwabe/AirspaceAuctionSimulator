@@ -11,8 +11,8 @@
 
 <script setup>
 import { computed } from "vue";
-import PointSelectionMap from "../StreetMaps/PointSelectionMap.vue";
-import HeatmapMap from "../StreetMaps/HeatmapMap.vue";
+import PointSelectionMap from "../map/PointSelectionMap.vue";
+import HeatmapMap from "../map/HeatmapMap.vue";
 
 const props = defineProps({
   owner: {

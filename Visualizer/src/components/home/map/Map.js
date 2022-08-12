@@ -1,5 +1,5 @@
 import { computed, shallowRef, watch } from "vue";
-import { useSimulationConfigStore } from "../../stores/simulationConfig";
+import { useSimulationConfigStore } from "../../../stores/simulationConfig";
 import { fromLonLat } from "ol/proj";
 import { boundingExtent } from "ol/extent";
 import TileLayer from "ol/layer/Tile";
