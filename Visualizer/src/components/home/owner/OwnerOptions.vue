@@ -11,8 +11,10 @@
       <owner-stop :owner="owner" :locationIndex="index" />
     </template>
   </n-dynamic-input>
-  <n-divider />
-  <n-h3 v-if="meta.length > 0">Customization Options</n-h3>
+  <template v-if="meta.length > 0">
+    <n-divider />
+    <n-h3>Customization Options</n-h3>
+  </template>
   <n-form ref="formRef" label-placement="left" require-mark-placement="right-hanging" label-width="auto">
     <n-form-item v-for="m in meta" :label="m.label" :key="m.key">
       <component
@@ -27,9 +29,7 @@
     </n-form-item>
   </n-form>
   <n-divider />
-  <p>
-    {{ ownerProperties.label }}: {{ ownerProperties.description }}
-  </p>
+  <p>{{ ownerProperties.label }}: {{ ownerProperties.description }}</p>
 </template>
 
 <script setup>
