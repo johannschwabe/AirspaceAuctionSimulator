@@ -9,7 +9,7 @@ import { randomName } from "../scripts/names";
  * @typedef {Object} MapConfig
  * @property {{long: number, lat: number}} coordinates
  * @property {string} locationName
- * @property {number} neightbouringTiles
+ * @property {number} neighbouringTiles
  * @property {{long: number, lat: number}} topLeftCoordinate
  * @property {{long: number, lat: number}} bottomRightCoordinate
  * @property {number[]} tiles
@@ -90,7 +90,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
       lat: 47.3744489,
     },
     locationName: "",
-    neightbouringTiles: 0,
+    neighbouringTiles: 0,
     topLeftCoordinate: undefined,
     bottomRightCoordinate: undefined,
     tiles: [],
@@ -237,7 +237,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
 
     map.coordinates = config.map.coordinates;
     map.locationName = config.map.locationName;
-    map.neightbouringTiles = config.map.neightbouringTiles;
+    map.neighbouringTiles = config.map.neighbouringTiles;
     map.topLeftCoordinate = config.map.topLeftCoordinate;
     map.bottomRightCoordinate = config.map.bottomRightCoordinate;
     map.tiles = config.map.tiles;

@@ -47,7 +47,7 @@
         <!-- Surrounding Tiles Input -->
         <n-grid-item span="1">
           <n-form-item label="Surrounding Tiles">
-            <n-input-number v-model:value="simulationConfig.map.neightbouringTiles" clearable :min="0" :max="3" />
+            <n-input-number v-model:value="simulationConfig.map.neighbouringTiles" clearable :min="0" :max="3" />
           </n-form-item>
         </n-grid-item>
       </n-grid>
@@ -85,8 +85,8 @@ const addressQuery = ref("Zurich, Switzerland");
 
 // Recalculation of dimensions x and z component on map zoom change
 watchEffect(() => {
-  simulationConfig.dimension.x = Math.ceil((simulationConfig.map.neightbouringTiles * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
-  simulationConfig.dimension.z = Math.ceil((simulationConfig.map.neightbouringTiles * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
+  simulationConfig.dimension.x = Math.ceil((simulationConfig.map.neighbouringTiles * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
+  simulationConfig.dimension.z = Math.ceil((simulationConfig.map.neighbouringTiles * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
 });
 
 // Watch change in map config (zoom, address, etc.) and recalculate tiles and topLeft/bottomRight coordinates
@@ -99,7 +99,7 @@ watchEffect(() => {
   );
   const tileCoord = grid.getTileCoordForCoordAndZ(projectedCoordinate, 15);
   let topLeftCoordinate, bottomRightCoordinate;
-  const n = simulationConfig.map.neightbouringTiles;
+  const n = simulationConfig.map.neighbouringTiles;
   for (let i = -n; i <= n; i++) {
     for (let j = -n; j <= n; j++) {
       const updatedTileCord = [tileCoord[0], tileCoord[1] + j, tileCoord[2] + i];
