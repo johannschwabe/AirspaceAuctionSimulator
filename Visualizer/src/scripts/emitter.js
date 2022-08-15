@@ -22,8 +22,8 @@ export function emitFocusOnAgent(agent) {
   emitter.emit(AGENT_FOCUS_ON_EVENT, agent);
 }
 
-export function emitFocusOffAgent() {
-  emitter.emit(AGENT_FOCUS_OFF_EVENT);
+export function emitFocusOffAgent(agent) {
+  emitter.emit(AGENT_FOCUS_OFF_EVENT, agent);
 }
 
 export function onTick(callback) {

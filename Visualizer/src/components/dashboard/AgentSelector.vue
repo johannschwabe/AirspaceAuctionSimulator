@@ -23,7 +23,7 @@ import { isEmpty, xor } from "lodash-es";
 import { ref, computed } from "vue";
 import { useSimulationStore } from "../../stores/simulation";
 import { useSimulationSingleton } from "../../scripts/simulation";
-import PathAgent from "../../SimulationObjects/PathAgent";
+import Owner from "@/SimulationObjects/Owner";
 
 const simulationStore = useSimulationStore();
 const simulation = useSimulationSingleton();
@@ -46,7 +46,9 @@ const apply = () => {
 
 const nodeProps = ({ option }) => ({
   onClick() {
-    simulation.focusOnAgent(option);
+    if (!(option instanceof Owner)) {
+      simulation.focusOnAgent(option);
+    }
   },
 });
 </script>
