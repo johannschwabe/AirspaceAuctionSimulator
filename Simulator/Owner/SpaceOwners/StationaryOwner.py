@@ -15,6 +15,15 @@ class StationaryOwner(SpaceOwner):
     label = "Stationary Owner"
     description = "An owner interested in a set of stationary cubes"
     positions = ">0"
+    meta = [
+        {
+            "key": "size",
+            "label": "Field Size",
+            "description": "Size of Reserved Field (qubic)",
+            "type": "int",
+            "value": random.randint(0, 100)
+        }
+    ]
 
     def __init__(self, name: str, color: str, stops: List["GridLocation"], creation_ticks: List[int],
                  size: "Coordinate4D" = Coordinate4D(5, 5, 5, 5)):

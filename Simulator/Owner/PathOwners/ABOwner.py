@@ -14,6 +14,7 @@ class ABOwner(PathOwner):
     label = "A to B"
     description = "Owner with agents going from A to B"
     positions = "2"
+    meta = []
 
     def __init__(self, name: str, color: str, stops: List[GridLocation], creation_ticks: List[int]):
         assert len(stops) == 2

@@ -14,6 +14,15 @@ if TYPE_CHECKING:
 class BiddingStationaryOwner(StationaryOwner):
     label = "Bidding Stationary"
     description = "A bidding owner interested in a set of cubes"
+    meta = [
+        {
+            "key": "size",
+            "label": "Field Size",
+            "description": "Size of Reserved Field (qubic)",
+            "type": "int",
+            "value": random.randint(0, 100)
+        }
+    ]
 
     def __init__(self,
                  name: str,

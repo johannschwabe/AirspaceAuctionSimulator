@@ -1,8 +1,5 @@
 <template>
-  <p>
-    <b>{{ ownerProperties.label }} Owner: </b>{{ ownerProperties.description }}
-  </p>
-  <h3>Stops:</h3>
+  <n-h3>Stops</n-h3>
   <n-dynamic-input
     :value="owner.locations"
     :on-create="onCreate"
@@ -14,6 +11,25 @@
       <owner-stop :owner="owner" :locationIndex="index" />
     </template>
   </n-dynamic-input>
+  <n-divider />
+  <n-h3 v-if="meta.length > 0">Customization Options</n-h3>
+  <n-form ref="formRef" label-placement="left" require-mark-placement="right-hanging" label-width="auto">
+    <n-form-item v-for="m in meta" :label="m.label" :key="m.key">
+      <component
+        :is="metaInputResolver[m.type].componentName"
+        v-model:value="m.value"
+        v-bind="metaInputResolver[m.type].props"
+        :placeholder="m.label"
+      />
+      <n-text depth="3" style="padding-left: 24px">
+        {{ m.description }}
+      </n-text>
+    </n-form-item>
+  </n-form>
+  <n-divider />
+  <p>
+    {{ ownerProperties.label }}: {{ ownerProperties.description }}
+  </p>
 </template>
 
 <script setup>
@@ -39,6 +55,32 @@ const owner = computed(() => simulationConfig.owners[props.ownerIndex]);
 const ownerProperties = computed(() => {
   return simulationConfig.availableOwnersForAllocator.find((o) => o.name === owner.value.type);
 });
+
+/**
+ * @type {ComputedRef<RawMeta>}
+ */
+const meta = computed(() => owner.value.meta);
+
+const metaInputResolver = {
+  int: {
+    componentName: "NInputNumber",
+    props: {
+      precision: 0,
+    },
+  },
+  float: {
+    componentName: "NInputNumber",
+    props: {
+      precision: 2,
+    },
+  },
+  text: {
+    componentName: "NInput",
+  },
+  boolean: {
+    componentName: "NCheckbox",
+  },
+};
 
 /**
  * Creates a new random location at given index

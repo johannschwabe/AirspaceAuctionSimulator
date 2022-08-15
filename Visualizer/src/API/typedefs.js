@@ -147,6 +147,15 @@
  */
 
 /**
+ * @typedef {Object} RawMeta
+ * @property {string} key
+ * @property {string} name
+ * @property {string} description
+ * @property {string} type
+ * @property {string|number|boolean} default
+ */
+
+/**
  * @typedef {Object} RawAvailableOwner
  * @property {string} label
  * @property {string} name
@@ -155,6 +164,7 @@
  * @property {string} allocator
  * @property {int} minLocations
  * @property {int} maxLocations
+ * @property {RawMeta[]} meta
  */
 
 /**
