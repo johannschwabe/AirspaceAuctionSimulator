@@ -194,7 +194,7 @@ const downloadConfiguration = () => {
   const fileToSave = new Blob([JSON.stringify(simulationConfig.generateConfigJson(), undefined, 2)], {
     type: "application/json",
   });
-  saveAs(fileToSave, `${simulationConfig.name}-config.json`);
+  saveAs(fileToSave, `${simulationConfig.name.value}-config.json`);
 };
 
 /**
