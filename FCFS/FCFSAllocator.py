@@ -5,12 +5,13 @@ from Simulator.Owner.PathOwners.ABAOwner import ABAOwner
 from Simulator.Owner.PathOwners.ABCOwner import ABCOwner
 from Simulator.Owner.PathOwners.ABOwner import ABOwner
 from Simulator.Owner.SpaceOwners.StationaryOwner import StationaryOwner
-from Simulator.Path import PathSegment, SpaceSegment, PathReallocation, SpaceReallocation
+from Simulator.Path import PathSegment, SpaceSegment, PathAllocation, SpaceAllocation
 from Simulator.Environment import Environment
 from Simulator.Agent import Agent, PathAgent, SpaceAgent
 from Simulator.Allocator import Allocator
 from Simulator.Bid import ABBid, Bid, ABABid, StationaryBid, ABCBid
 from Simulator.Coordinate import Coordinate4D
+from Simulator.Path.Allocation import Allocation
 from Simulator.Path.AllocationReason import AllocationReason
 from Simulator.Path.Reason import Reason
 from Simulator.AStar.AStar import AStar
@@ -27,9 +28,9 @@ class FCFSAllocator(Allocator):
     def allocate_for_agents(self,
                             agents: List[Agent],
                             env: Environment,
-                            tick: int) -> List[SpaceReallocation | PathReallocation]:
+                            tick: int) -> List[Allocation]:
         astar = AStar(env)
-        res = []
+        allocations: list[Allocation] = []
         for agent in agents:
             start_time = time_ns()
             optimal_path_segments: List[PathSegment | SpaceSegment] = []
@@ -43,7 +44,7 @@ class FCFSAllocator(Allocator):
                     agent,
                 )
                 if len(ab_path) == 0 or ab_path[-1].t - ab_path[0].t > agent.battery:
-                    res.append(PathReallocation(agent, [], AllocationReason(str(Reason.ALLOCATION_FAILED.value))))
+                    allocations.append(PathAllocation(agent, [], AllocationReason(str(Reason.ALLOCATION_FAILED.value))))
                     continue
 
                 optimal_path_segments.append(PathSegment(bid.a.to_inter_temporal(), bid.b.to_inter_temporal(), 0, ab_path))
@@ -58,17 +59,17 @@ class FCFSAllocator(Allocator):
                     )
 
                     if len(ba_path) == 0 or ab_path[-1].t - ab_path[0].t + ba_path[-1].t - ba_path[0].t > agent.battery:
-                        res.append(PathReallocation(agent, [], AllocationReason(str(Reason.ALLOCATION_FAILED.value))))
+                        allocations.append(PathAllocation(agent, [], AllocationReason(str(Reason.ALLOCATION_FAILED.value))))
                         continue
 
                     optimal_path_segments.append(PathSegment(bid.b.to_inter_temporal(), bid.a.to_inter_temporal(), 1, ba_path))
 
                 env.allocate_path_for_agent(agent, optimal_path_segments)
                 env.add_agent(agent)
-                res.append(PathReallocation(agent,
-                                            optimal_path_segments,
-                                            AllocationReason(str(Reason.FIRST_ALLOCATION.value)),
-                                            (time_ns() - start_time)/1e6)
+                allocations.append(PathAllocation(agent,
+                                          optimal_path_segments,
+                                          AllocationReason(str(Reason.FIRST_ALLOCATION.value)),
+                                          (time_ns() - start_time) / 1e6)
                            )
 
             elif isinstance(bid, ABCBid) and isinstance(agent, PathAgent):
@@ -96,10 +97,10 @@ class FCFSAllocator(Allocator):
 
                 env.allocate_path_for_agent(agent, optimal_path_segments)
                 env.add_agent(agent)
-                res.append(PathReallocation(agent,
-                                            optimal_path_segments,
-                                            AllocationReason(str(Reason.FIRST_ALLOCATION.value)),
-                                            (time_ns() - start_time)/1e6)
+                allocations.append(PathAllocation(agent,
+                                          optimal_path_segments,
+                                          AllocationReason(str(Reason.FIRST_ALLOCATION.value)),
+                                          (time_ns() - start_time) / 1e6)
                            )
 
             elif isinstance(bid, StationaryBid) and isinstance(agent, SpaceAgent):
@@ -111,9 +112,9 @@ class FCFSAllocator(Allocator):
 
                 env.allocate_spaces_for_agent(agent, optimal_path_segments)
                 env.add_agent(agent)
-                res.append(SpaceReallocation(agent,
-                                             optimal_path_segments,
-                                             AllocationReason(str(Reason.FIRST_ALLOCATION.value)),
-                                             (time_ns() - start_time)/1e6)
+                allocations.append(SpaceAllocation(agent,
+                                           optimal_path_segments,
+                                           AllocationReason(str(Reason.FIRST_ALLOCATION.value)),
+                                           (time_ns() - start_time) / 1e6)
                            )
-        return res
+        return allocations

@@ -1,5 +1,5 @@
 import math
-from typing import List, TYPE_CHECKING, Set
+from typing import List, TYPE_CHECKING, Set, Optional
 import heapq
 
 from Simulator.AStar.Node import Node
@@ -7,7 +7,7 @@ from Simulator.AStar.Node import Node
 if TYPE_CHECKING:
     from Simulator.Environment import Environment
     from Simulator.Coordinate import Coordinate4D
-    from Simulator.Agent import PathAgent
+    from Simulator.Agent import PathAgent, Agent
 
 
 class AStar:
@@ -22,8 +22,11 @@ class AStar:
         self.g_sum: float = g_sum
         self.height_adjust: bool = height_adjust
 
-    def valid_start(self, start: "Coordinate4D", agent: "PathAgent", in_air: bool):
-        valid_start = start.clone()
+    def valid_start(self,
+                    start: "Coordinate4D",
+                    agent: "PathAgent",
+                    in_air: bool) -> tuple[Optional["Coordinate4D"], set["Agent"]]:
+        valid_start: "Coordinate4D" = start.clone()
 
         if in_air and not self.is_valid_for_allocation(valid_start, agent):
             print("In air start is not valid")
