@@ -5,7 +5,7 @@
   <n-select
     v-model:value="config.type"
     :options="Object.values(options)"
-    label-field="_label"
+    label-field="label"
     value-field="classname"
     placeholder="Type"
     filterable
@@ -34,9 +34,9 @@ const config = computed({
 });
 const emit = defineEmits(["update:modelValue"]);
 
-function defaultStops(ownertype) {
-  const option = props.options[ownertype];
-  const nr_stops = validStops(option.positions, option.ownertype);
+function defaultStops(ownerType) {
+  const option = props.options[ownerType];
+  const nr_stops = validStops(option.minLocations, option.maxLocations, option.ownerType);
   if (nr_stops.start) {
     config.value.start = createDefaultStop();
     config.value.target = createDefaultStop();
