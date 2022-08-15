@@ -8,6 +8,7 @@
           text="If you already have a valid Airspace-Auction-Simulation .JSON-File, drop it here to visualize it"
         />
         <simulation-uploader />
+        <simulation-chooser />
       </div>
     </n-grid-item>
 
@@ -43,8 +44,9 @@ import { useLoadingBar } from "naive-ui";
 import SimulationUploader from "../components/home/SimulationUploader.vue";
 import ModelCreator from "../components/home/ModelCreator.vue";
 import SectionText from "../components/home/SectionText.vue";
+import SimulationChooser from "@/components/home/SimulationChooser.vue";
 
-import { canRecoverSimulationSingleton, hasSimulationSingleton } from "../scripts/simulation";
+import { canRecoverSimulationSingleton, hasSimulationSingleton } from "@/scripts/simulation";
 
 const router = useRouter();
 const loadingBar = useLoadingBar();
