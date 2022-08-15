@@ -20,8 +20,8 @@ export default class Simulation {
   constructor(rawSimulation) {
     this._simulationStore = useSimulationStore();
 
-    this.name = rawSimulation.name;
-    this.description = rawSimulation.description;
+    this.name = rawSimulation.config.name;
+    this.description = rawSimulation.config.description;
 
     /**
      * Simulated dimension. Note: The dimension t describes how long new agents

@@ -105,6 +105,22 @@
  */
 
 /**
+ * @typedef {Object} RawSimpleCoordinate
+ * @property {number} lat
+ * @property {number} long
+ */
+
+/**
+ * @typedef {Object} RawMap
+ * @property {RawSimpleCoordinate} coordinates
+ * @property {string} locationName
+ * @property {int} neighbouringTiles
+ * @property {RawSimpleCoordinate} topLeftCoordinate
+ * @property {RawSimpleCoordinate} bottomRightCoordinate
+ * @property {int[][]} tiles
+ */
+
+/**
  * @typedef {Object} RawMapTile
  * @property {int} x
  * @property {int} y
@@ -131,9 +147,31 @@
  */
 
 /**
- * @typedef {Object} RawSimulation
+ * @typedef {Object} RawAvailableOwner
+ * @property {string} label
  * @property {string} name
  * @property {string} description
+ * @property {string} type
+ * @property {string} allocator
+ * @property {int} minLocations
+ * @property {int} maxLocations
+ */
+
+/**
+ * @typedef {Object} RawConfig
+ * @property {string} name
+ * @property {string} description
+ * @property {string} allocator
+ * @property {dimension} RawTimeCoordinate
+ * @property {RawMap} map
+ * @property {RawOwner[]} owners
+ * @property {string[]} availableAllocators
+ * @property {RawAvailableOwner[]} availableOwnersForAllocator
+ */
+
+/**
+ * @typedef {Object} RawSimulation
+ * @property {RawConfig} config
  * @property {RawEnvironment} environment
  * @property {RawStatistics} statistics
  * @property {RawOwner[]} owners
