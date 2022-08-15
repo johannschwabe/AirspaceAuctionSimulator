@@ -91,10 +91,11 @@ def get_owners_for_allocator(allocator_name):
         return []
     allocator = allocators[0]
     return [{"classname": owner.__name__,
-             "_label": owner.label,
+             "label": owner.label,
              "description": owner.description,
-             "ownertype": "PathOwner" if issubclass(owner, PathOwner) else "SpaceOwner",
-             "positions": owner.positions
+             "ownerType": "PathOwner" if issubclass(owner, PathOwner) else "SpaceOwner",
+             "minLocations": owner.min_locations,
+             "maxLocations": owner.max_locations
              } for owner in allocator.compatible_owner()]
 
 

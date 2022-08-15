@@ -13,7 +13,8 @@ if TYPE_CHECKING:
 class ABAOwner(PathOwner):
     label = "A to B to A"
     description = "Owner with agents going from A to B and back to A"
-    positions = "2"
+    min_locations = 2
+    max_locations = 2
 
     def __init__(self, name: str, color: str, stops: List[PathStop], creation_ticks: List[int]):
         assert len(stops) == 2

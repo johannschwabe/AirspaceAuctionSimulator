@@ -10,7 +10,8 @@ class Owner(ABC):
     _id: int = 10000
     label = "Abstract Owner"
     description = "An Abstract Owner: Override this class variable"
-    positions = "0"
+    min_locations: int
+    max_locations: int
     allocation_type: str
 
     def __init__(self, name: str, color: str):
