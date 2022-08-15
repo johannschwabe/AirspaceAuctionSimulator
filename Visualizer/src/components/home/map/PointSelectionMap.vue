@@ -4,14 +4,7 @@
 
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from "vue";
-import {
-  restoreHeatmapFeatures,
-  restorePositionFeatures,
-  useBaseLayer,
-  useMap,
-  usePositionInteraction,
-  usePositionLayer
-} from "./Map";
+import { restorePositionFeatures, useBaseLayer, useMap, usePositionInteraction, usePositionLayer } from "./Map";
 import { Collection } from "ol";
 
 const props = defineProps({

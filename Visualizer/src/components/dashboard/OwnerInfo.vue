@@ -41,7 +41,7 @@
 import Boxplot from "./Boxplot.vue";
 import { computed } from "vue";
 import { FingerPrint, Airplane, Wallet, Timer } from "@vicons/ionicons5";
-import { useSimulationSingleton } from "../../scripts/simulation";
+import { useSimulationSingleton } from "@/scripts/simulation";
 
 const simulation = useSimulationSingleton();
 

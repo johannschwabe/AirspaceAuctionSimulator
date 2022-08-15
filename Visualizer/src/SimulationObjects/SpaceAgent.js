@@ -1,6 +1,7 @@
 import Agent from "./Agent";
 import Space from "./Space";
 import { first, last } from "lodash-es";
+import { FlightEvent, ReservationEndEvent, ReservationStartEvent } from "@/SimulationObjects/FlightEvent";
 
 export default class SpaceAgent extends Agent {
   /**
@@ -26,6 +27,24 @@ export default class SpaceAgent extends Agent {
         this.combinedSpace[t] = space;
       }
     });
+  }
+
+  get events() {
+    const events = [];
+    this.spaces.forEach((space) => {
+      const takeOffEvent = new ReservationStartEvent(space.min.t);
+      events.push(takeOffEvent);
+
+      const arrivalEvent = new ReservationEndEvent(space.max.t);
+      events.push(arrivalEvent);
+    });
+    events.sort(FlightEvent.sortEventsFunction);
+    for (let i = 0; i < events.length - 1; i++) {
+      if (events[i + 1] instanceof ReservationEndEvent) {
+        events[i].lineType = "dashed";
+      }
+    }
+    return events;
   }
 
   get flyingTicks() {

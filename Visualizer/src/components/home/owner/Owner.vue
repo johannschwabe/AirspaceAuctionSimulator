@@ -30,7 +30,7 @@ import { Options } from "@vicons/ionicons5";
 import OwnerOptions from "./OwnerOptions.vue";
 import OwnerForm from "./OwnerForm.vue";
 
-import { useSimulationConfigStore } from "../../../stores/simulationConfig";
+import { useSimulationConfigStore } from "@/stores/simulationConfig";
 
 const simulationConfig = useSimulationConfigStore();
 

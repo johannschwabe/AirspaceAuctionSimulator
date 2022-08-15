@@ -70,7 +70,7 @@ import { useMessage } from "naive-ui";
 
 import ViewOnlyMap from "./ViewOnlyMap.vue";
 
-import { useSimulationConfigStore } from "../../../stores/simulationConfig";
+import { useSimulationConfigStore } from "@/stores/simulationConfig";
 
 const message = useMessage();
 const simulationConfig = useSimulationConfigStore();

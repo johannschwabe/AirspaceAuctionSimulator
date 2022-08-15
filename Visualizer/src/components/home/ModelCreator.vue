@@ -35,7 +35,6 @@
     <n-form-item path="owners" label="Owners">
       <owner />
     </n-form-item>
-
   </n-form>
 
   <!-- Upload and Download of configuration file -->
@@ -130,12 +129,8 @@ import MapSelector from "./map/MapSelector.vue";
 import Simulation from "../../SimulationObjects/Simulation.js";
 
 import api from "../../API/api.js";
-import {
-  canRecoverSimulationSingleton,
-  hasSimulationSingleton,
-  setSimulationSingleton,
-} from "../../scripts/simulation.js";
-import { useSimulationConfigStore } from "../../stores/simulationConfig";
+import { canRecoverSimulationSingleton, hasSimulationSingleton, setSimulationSingleton } from "@/scripts/simulation";
+import { useSimulationConfigStore } from "@/stores/simulationConfig";
 
 const simulationConfig = useSimulationConfigStore();
 

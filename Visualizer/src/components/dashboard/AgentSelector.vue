@@ -21,8 +21,8 @@
 <script setup>
 import { isEmpty, xor } from "lodash-es";
 import { ref, computed } from "vue";
-import { useSimulationStore } from "../../stores/simulation";
-import { useSimulationSingleton } from "../../scripts/simulation";
+import { useSimulationStore } from "@/stores/simulation";
+import { useSimulationSingleton } from "@/scripts/simulation";
 import Owner from "@/SimulationObjects/Owner";
 
 const simulationStore = useSimulationStore();

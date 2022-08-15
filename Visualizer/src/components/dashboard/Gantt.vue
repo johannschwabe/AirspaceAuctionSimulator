@@ -6,9 +6,8 @@
 import VueApexCharts from "vue3-apexcharts";
 import { reactive, ref } from "vue";
 
-import { useSimulationSingleton } from "../../scripts/simulation";
-import { onAgentsSelected } from "../../scripts/emitter";
-import PathAgent from "../../SimulationObjects/PathAgent";
+import { useSimulationSingleton } from "@/scripts/simulation";
+import { onAgentsSelected } from "@/scripts/emitter";
 
 const simulation = useSimulationSingleton();
 

@@ -22,8 +22,8 @@ import { ArchiveOutline } from "@vicons/ionicons5";
 
 import Simulation from "../../SimulationObjects/Simulation";
 
-import { setSimulationSingleton } from "../../scripts/simulation";
-import { persistSimulation } from "../../API/api";
+import { setSimulationSingleton } from "@/scripts/simulation";
+import { persistSimulation } from "@/API/api";
 
 const message = useMessage();
 const loadingBar = useLoadingBar();

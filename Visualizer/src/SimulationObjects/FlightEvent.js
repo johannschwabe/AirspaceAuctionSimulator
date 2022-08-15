@@ -49,6 +49,18 @@ export class ArrivalEvent extends FlightEvent {
   }
 }
 
+export class ReservationStartEvent extends FlightEvent {
+  constructor(tick) {
+    super("Reservation Start", "default", mdiAirplaneLanding, tick);
+  }
+}
+
+export class ReservationEndEvent extends FlightEvent {
+  constructor(tick) {
+    super("Reservation End", "success", mdiAirplaneLanding, tick);
+  }
+}
+
 export class ReallocationEvent extends FlightEvent {
   /**
    * @param {int} tick

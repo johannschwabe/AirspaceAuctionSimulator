@@ -1,6 +1,5 @@
 <template>
   <n-grid cols="2" :x-gap="24">
-
     <!-- LEFT PART: UPLOAD EXISTING SIMULATION -->
     <n-grid-item span="1">
       <div class="center">
@@ -22,8 +21,6 @@
         <model-creator />
       </div>
     </n-grid-item>
-
-
   </n-grid>
   <!-- Modal that pops up when an existing simulation is found in localStorage -->
   <n-modal
