@@ -76,7 +76,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
    */
   const dimension = reactive({
     x: 100,
-    y: 20,
+    y: 100,
     z: 100,
     t: 1500,
   });
