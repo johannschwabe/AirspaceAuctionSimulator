@@ -1,5 +1,5 @@
 import Agent from "./Agent";
-import Coordinate4D from "./Coordinate4D";
+import Space from "./Space";
 import { first, last } from "lodash-es";
 
 export default class SpaceAgent extends Agent {
@@ -11,10 +11,12 @@ export default class SpaceAgent extends Agent {
    */
   constructor(rawAgent, owner, simulation) {
     super(rawAgent, owner, simulation);
-    this.spaces = rawAgent.spaces.map((space) => ({
-      min: new Coordinate4D(space.min.x, space.min.y, space.min.z, space.min.t),
-      max: new Coordinate4D(space.max.x, space.max.y, space.max.z, space.max.t),
-    }));
+
+    /**
+     * @type {Space[]}
+     */
+    this.spaces = rawAgent.spaces.map((space) => new Space(space.min, space.max));
+
     /**
      * @type {Object<int, Coordinate4D>}
      */
@@ -27,7 +29,7 @@ export default class SpaceAgent extends Agent {
   }
 
   get flyingTicks() {
-    return Object.keys(this.combinedSpace);
+    return Object.keys(this.combinedSpace).map((t) => parseInt(t, 10));
   }
 
   get segmentsStartEnd() {

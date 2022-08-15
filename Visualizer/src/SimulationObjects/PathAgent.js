@@ -58,11 +58,11 @@ export default class PathAgent extends Agent {
   }
 
   get flyingTicks() {
-    return this.combinedPath.ticks;
+    return Object.keys(this.combinedPath.ticks).map((t) => parseInt(t, 10));
   }
 
   get segmentsStartEnd() {
-    return this.path.map((path) => [path.firstTick, path.lastTick]);
+    return this.paths.map((path) => [path.firstTick, path.lastTick]);
   }
 
   get veryFirstTick() {

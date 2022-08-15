@@ -4,7 +4,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent, onTick } from "../../scripts/emitter";
+import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent, onTick } from "@/scripts/emitter";
 import {
   updateBlockers,
   updateDrones,
@@ -26,8 +26,10 @@ import {
   useOrientationLights,
   useScene,
   useShadows,
-} from "../../scripts/3dmap";
-import { useSimulationSingleton } from "../../scripts/simulation";
+} from "@/scripts/3dmap";
+import { useSimulationSingleton } from "@/scripts/simulation";
+import SpaceAgent from "@/SimulationObjects/SpaceAgent";
+import PathAgent from "@/SimulationObjects/PathAgent";
 
 const simulation = useSimulationSingleton();
 
@@ -36,7 +38,7 @@ const canvas = ref(null);
 let engine, scene, camera;
 let mainLight, hemisphereLight, selectionLight;
 let shadows;
-let focusOn, focusOff;
+let focusOnSpaceAgent, focusOnPathAgent, focusOffSpaceAgent, focusOffPathAgent;
 let droneCache, blockerCache, focusCache;
 let blockerMaterial;
 
@@ -49,14 +51,16 @@ const doBlockerUpdate = () => {
 };
 
 const doDroneUpdate = () => {
-  updateDrones({ scene, droneCache, x, z, focusOn });
+  updateDrones({ scene, droneCache, x, z, focusOnSpaceAgent, focusOnPathAgent });
 };
 
 const doFocusUpdate = () => {
   updateFocus({
     focusCache,
-    focusOn,
-    focusOff,
+    focusOnSpaceAgent,
+    focusOnPathAgent,
+    focusOffSpaceAgent,
+    focusOffPathAgent,
   });
 };
 
@@ -72,12 +76,23 @@ onAgentsSelected(() => {
 
 onFocusOnAgent(() => {
   const agent = simulation.agentInFocus;
-  const { x: agent_x, y: agent_y, z: agent_z } = agent.combinedPath.at(simulation.tick);
-  focusOn({ agent, agent_x, agent_y, agent_z });
+  if (agent instanceof SpaceAgent) {
+    const space = agent.spaces.find((s) => s.isActiveAtTick(simulation.tick));
+    focusOnSpaceAgent({ agent, space });
+  }
+  if (agent instanceof PathAgent) {
+    const { x: agent_x, y: agent_y, z: agent_z } = agent.combinedPath.at(simulation.tick);
+    focusOnPathAgent({ agent, agent_x, agent_y, agent_z, update: true });
+  }
 });
 
-onFocusOffAgent(() => {
-  focusOff();
+onFocusOffAgent((agent) => {
+  if (agent instanceof SpaceAgent) {
+    focusOffSpaceAgent();
+  }
+  if (agent instanceof PathAgent) {
+    focusOffPathAgent();
+  }
 });
 
 onMounted(() => {
@@ -114,8 +129,10 @@ onMounted(() => {
     droneCache,
     camera,
   });
-  focusOn = focusFunctions.focusOn;
-  focusOff = focusFunctions.focusOff;
+  focusOnSpaceAgent = focusFunctions.focusOnSpaceAgent;
+  focusOnPathAgent = focusFunctions.focusOnPathAgent;
+  focusOffSpaceAgent = focusFunctions.focusOffSpaceAgent;
+  focusOffPathAgent = focusFunctions.focusOffPathAgent;
   useBlockers({ scene, blockerCache, shadows, x, z, blockerMaterial });
   useBuildings({
     scene,
@@ -128,7 +145,8 @@ onMounted(() => {
     droneCache,
     x,
     z,
-    focusOn,
+    focusOnSpaceAgent,
+    focusOnPathAgent,
   });
 
   // run the render loop

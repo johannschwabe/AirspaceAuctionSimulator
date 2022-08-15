@@ -42,7 +42,7 @@ def simulate(env: Environment, t):
         BiddingABOwner("Schnabeltier",
                        color_generator(),
                        [PathStop(str(StopType.RANDOM.value)), PathStop(str(StopType.RANDOM.value))],
-                       [random.randint(0, 5) for _ in range(100)]),
+                       [random.randint(0, 5) for _ in range(10)]),
         BiddingStationaryOwner("Ghettotier",
                                color_generator(),
                                [PathStop(str(StopType.RANDOM.value)), PathStop(str(StopType.RANDOM.value))],

@@ -30,6 +30,10 @@ export default class Agent {
     /* abstract method */
   }
 
+  isActiveAtTick(tick) {
+    return this.flyingTicks.includes(parseInt(tick, 10));
+  }
+
   get flyingTicks() {
     /* abstract method */
     return [];

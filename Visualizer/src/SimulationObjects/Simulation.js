@@ -180,7 +180,7 @@ export default class Simulation {
   buildFlyingAgentsPerTickIndex() {
     const flyingAgentsPerTick = {};
     this.agents.forEach((agent) => {
-      Object.keys(agent.flyingTicks).forEach((t) => {
+      agent.flyingTicks.forEach((t) => {
         if (!(t in flyingAgentsPerTick)) {
           flyingAgentsPerTick[t] = [];
         }
@@ -248,7 +248,7 @@ export default class Simulation {
    * @param {PathAgent} agent
    */
   focusOnAgent(agent) {
-    if (this.agentInFocus === agent || !agent.combinedPath.isActiveAtTick(this.tick)) {
+    if (this.agentInFocus === agent || !agent.isActiveAtTick(this.tick)) {
       return;
     }
     this._simulationStore.agentInFocus = true;
@@ -259,9 +259,9 @@ export default class Simulation {
   }
 
   focusOff() {
+    emitFocusOffAgent(this.agentInFocus);
     this._simulationStore.agentInFocus = false;
     this.agentInFocus = null;
-    emitFocusOffAgent();
   }
 
   /**
