@@ -8,7 +8,7 @@ from Simulator.Agent import StationaryAgent
 if TYPE_CHECKING:
     from Simulator import Environment
     from Simulator.Agent import Agent
-    from Simulator.Owner import PathStop
+    from Simulator.Owner import GridLocation
 
 
 class StationaryOwner(SpaceOwner):
@@ -16,7 +16,7 @@ class StationaryOwner(SpaceOwner):
     description = "An owner interested in a set of stationary cubes"
     positions = ">0"
 
-    def __init__(self, name: str, color: str, stops: List["PathStop"], creation_ticks: List[int],
+    def __init__(self, name: str, color: str, stops: List["GridLocation"], creation_ticks: List[int],
                  size: "Coordinate4D" = Coordinate4D(5, 5, 5, 5)):
         super().__init__(name, color, stops)
         self.creation_ticks = creation_ticks

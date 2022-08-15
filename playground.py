@@ -1,7 +1,7 @@
 import json
 import random
 
-from API import APISimpleCoordinate
+from API import APISimpleCoordinates
 from Bidding.BiddingABOwner import BiddingABOwner
 from Bidding.BiddingAllocator import BiddingAllocator
 from Bidding.BiddingStationaryOwner import BiddingStationaryOwner
@@ -12,7 +12,7 @@ from Simulator.Environment import Environment
 from Simulator import Simulator
 from Simulator.Generator.MapTile import MapTile
 from Simulator.IO.JSONS import build_json
-from Simulator.Owner import PathStop, StopType
+from Simulator.Owner import GridLocation, GridLocationType
 from Simulator.Owner.PathOwners.ABOwner import ABOwner
 from Simulator.Owner.SpaceOwners.StationaryOwner import StationaryOwner
 
@@ -30,23 +30,24 @@ def setup_map(t):
     map_tile = MapTile(
         [15, 17161, 11475],
         dimensions,
-        APISimpleCoordinate(lat=47.376034633497596, long=8.536376953124991),
-        APISimpleCoordinate(lat=47.3685943521338, long=8.547363281249993)
+        APISimpleCoordinates(lat=47.376034633497596, long=8.536376953124991),
+        APISimpleCoordinates(lat=47.3685943521338, long=8.547363281249993)
     )
     return Environment.init(dimensions, maptiles=[map_tile], allocation_period=20)
 
 
 def simulate(env: Environment, t):
-    allocator = BiddingAllocator()
+    allocator = FCFSAllocator()
     owners = [
-        BiddingABOwner("Schnabeltier",
-                       color_generator(),
-                       [PathStop(str(StopType.RANDOM.value)), PathStop(str(StopType.RANDOM.value))],
-                       [random.randint(0, 5) for _ in range(10)]),
-        BiddingStationaryOwner("Ghettotier",
-                               color_generator(),
-                               [PathStop(str(StopType.RANDOM.value)), PathStop(str(StopType.RANDOM.value))],
-                               [random.randint(0, 5) for _ in range(10)])
+        ABOwner("Schnabeltier",
+                color_generator(),
+                [GridLocation(str(GridLocationType.RANDOM.value)), GridLocation(str(GridLocationType.RANDOM.value))],
+                [random.randint(0, 5) for _ in range(10)]),
+        StationaryOwner("Ghettotier",
+                        color_generator(),
+                        [GridLocation(str(GridLocationType.RANDOM.value)),
+                         GridLocation(str(GridLocationType.RANDOM.value))],
+                        [random.randint(0, 5) for _ in range(10)])
     ]
     simulator = Simulator(owners, allocator, env)
     while simulator.time_step < t:
@@ -71,7 +72,7 @@ if __name__ == "__main__":
     environment = setup_map(max_t)
     simulatorAligator = simulate(environment, max_t)
 
-    res = build_json(simulatorAligator, "test", "Schnabeltier", 0)
+    res = build_json({"name": "test", "description": "Schnabeltier"}, simulatorAligator, 0)
     f = open("test.json", "w")
     f.write(json.dumps(res))
     f.close()

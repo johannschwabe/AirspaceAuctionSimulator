@@ -8,7 +8,7 @@ from Simulator.Coordinate import Coordinate4D
 from Simulator.Owner.SpaceOwners.StationaryOwner import StationaryOwner
 
 if TYPE_CHECKING:
-    from Simulator.Owner import PathStop
+    from Simulator.Owner import GridLocation
 
 
 class BiddingStationaryOwner(StationaryOwner):
@@ -18,7 +18,7 @@ class BiddingStationaryOwner(StationaryOwner):
     def __init__(self,
                  name: str,
                  color: str,
-                 stops: List["PathStop"],
+                 stops: List["GridLocation"],
                  creation_ticks: List[int],
                  size: "Coordinate4D" = Coordinate4D(5, 5, 5, 5),
                  priority: float = None):

@@ -2,7 +2,7 @@ import random
 from typing import List, TYPE_CHECKING
 
 from Bidding.BiddingABAgent import BiddingABAgent
-from Simulator.Owner import PathStop
+from Simulator.Owner import GridLocation
 from Simulator.Owner.PathOwners.ABOwner import ABOwner
 
 if TYPE_CHECKING:
@@ -14,7 +14,7 @@ class BiddingABOwner(ABOwner):
     label = "Bidding A to B"
     description = "A bidding owner with a priority going from A to B"
 
-    def __init__(self, name: str, color: str, stops: List[PathStop], creation_ticks: List[int], priority: float = None):
+    def __init__(self, name: str, color: str, stops: List[GridLocation], creation_ticks: List[int], priority: float = None):
         super().__init__(name, color, stops, creation_ticks)
         self.priority = priority if priority else random.random() * 10
 

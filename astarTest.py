@@ -1,12 +1,12 @@
 import random
 from time import time_ns
 
-from API import SimpleCoordinateType
-from Simulator import Environment, Owner
+from API import APISimpleCoordinates
+from Simulator import Environment
 from Simulator.Agent import ABAgent
 from Simulator.Coordinate import Coordinate4D
 from Simulator.Generator.MapTile import MapTile
-from Simulator.Owner import PathOwner, PathStop
+from Simulator.Owner import PathOwner, GridLocation
 from Simulator.helpers.PathFinding import astar
 
 dimensions = Coordinate4D(831, 30, 831, 20000)
@@ -17,8 +17,8 @@ def setup():
     environment = Environment(dimensions, [], [MapTile(
         [15, 17161, 11475],
         dimensions,
-        SimpleCoordinateType(lat=47.376034633497596, long=8.536376953124991),
-        SimpleCoordinateType(lat=47.3685943521338, long=8.547363281249993)
+        APISimpleCoordinates(lat=47.376034633497596, long=8.536376953124991),
+        APISimpleCoordinates(lat=47.3685943521338, long=8.547363281249993)
     )])
     environment.init_blocker_tree()
     return environment
@@ -46,8 +46,8 @@ def writeCoords(env: Environment, filename: str):
     nr_success = 0
     start_t = time_ns()
     for _ in range(nr_tests):
-        start = PathOwner.generate_stop_coordinate(PathStop("random"), env, 0, 1, 1)
-        end = PathOwner.generate_stop_coordinate(PathStop("random"), env, 0, 1, 1)
+        start = PathOwner.generate_stop_coordinate(GridLocation("random"), env, 0, 1, 1)
+        end = PathOwner.generate_stop_coordinate(GridLocation("random"), env, 0, 1, 1)
         res = astar(start, end, env, agent)
         f.write(f"{start.x},{start.y},{start.z},{start.t}-{end.x},{end.y},{end.z},{end.t}-{len(res)}\n")
     f.close()

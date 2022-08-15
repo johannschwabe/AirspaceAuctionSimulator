@@ -5,7 +5,7 @@ from Simulator.Blocker.BuildingBlocker import BuildingBlocker
 from Simulator.Coordinate import Coordinate4D
 
 if TYPE_CHECKING:
-    from API import APISimpleCoordinate
+    from API import APISimpleCoordinates
 
 
 class MapTile:
@@ -14,8 +14,8 @@ class MapTile:
         self,
         tile_ids: List[int],
         dimensions: Coordinate4D,
-        top_left_coordinate: "APISimpleCoordinate",
-        bottom_right_coordinate: "APISimpleCoordinate",
+        top_left_coordinate: "APISimpleCoordinates",
+        bottom_right_coordinate: "APISimpleCoordinates",
     ):
         self.blockers = []
         self.z = tile_ids[0]
