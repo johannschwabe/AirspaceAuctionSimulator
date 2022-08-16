@@ -152,7 +152,7 @@
  * @property {string} name
  * @property {string} description
  * @property {string} type
- * @property {string|number|boolean} default
+ * @property {string|number|boolean} value
  */
 
 /**

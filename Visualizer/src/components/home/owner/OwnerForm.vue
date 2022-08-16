@@ -10,7 +10,6 @@
     label-field="label"
     value-field="name"
     placeholder="Type"
-    filterable
     @update:value="updateLocationsForOwner"
   />
 </template>

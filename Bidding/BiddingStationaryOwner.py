@@ -16,9 +16,30 @@ class BiddingStationaryOwner(StationaryOwner):
     description = "A bidding owner interested in a set of cubes"
     meta = [
         {
-            "key": "size",
-            "label": "Field Size",
-            "description": "Size of Reserved Field (qubic)",
+            "key": "size_x",
+            "label": "Field Size X",
+            "description": "Size of reserved field in X-Dimension",
+            "type": "int",
+            "value": random.randint(0, 100)
+        },
+        {
+            "key": "size_y",
+            "label": "Field Size Y",
+            "description": "Size of reserved field in Y-Dimension",
+            "type": "int",
+            "value": random.randint(0, 100)
+        },
+        {
+            "key": "size_z",
+            "label": "Field Size Z",
+            "description": "Size of reserved field in Z-Dimension",
+            "type": "int",
+            "value": random.randint(0, 100)
+        },
+        {
+            "key": "size_t",
+            "label": "Reservation Duration",
+            "description": "Number of ticks field should be reserved",
             "type": "int",
             "value": random.randint(0, 100)
         }
