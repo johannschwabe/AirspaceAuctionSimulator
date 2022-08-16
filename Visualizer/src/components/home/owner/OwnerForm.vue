@@ -10,7 +10,6 @@
     label-field="label"
     value-field="name"
     placeholder="Type"
-    filterable
     @update:value="updateLocationsForOwner"
   />
 </template>
@@ -30,11 +29,18 @@ const simulationConfig = useSimulationConfigStore();
 
 const owner = computed(() => simulationConfig.owners[props.ownerIndex]);
 
+const ownerProperties = computed(() => {
+  return simulationConfig.availableOwnersForAllocator.find((o) => o.name === owner.value.type);
+});
+
 /**
  * Whenever the selected ownerType changes, make sure the requirements for minimum
  * and maximum number of locations are met
  */
 const updateLocationsForOwner = () => {
+  owner.value.meta = ownerProperties.value.meta;
+  owner.value.minLocations = ownerProperties.value.minLocations;
+  owner.value.maxLocations = ownerProperties.value.maxLocations;
   if (owner.value.locations > owner.value.maxLocations) {
     owner.value.locations = owner.value.locations.slice(0, owner.value.maxLocations);
   }

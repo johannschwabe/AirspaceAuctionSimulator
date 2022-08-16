@@ -115,7 +115,8 @@ def get_owners_for_allocator(allocator_name):
         return []
     allocator = allocators[0]
     return [{"classname": owner.__name__,
-             "_label": owner.label,
+             "label": owner.label,
+             "meta": owner.meta,
              "description": owner.description,
              "ownertype": "PathOwner" if issubclass(owner, PathOwner) else "SpaceOwner",
              "positions": owner.positions

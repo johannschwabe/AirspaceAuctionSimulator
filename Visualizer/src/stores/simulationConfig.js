@@ -27,6 +27,7 @@ import { randomName } from "../scripts/names";
 /**
  * @typedef {Object} LocationConfig
  * @property {string} type
+ * @property {Object} meta
  * @property {GridCoordinateConfig[]} features
  */
 
@@ -155,7 +156,8 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
           }
         });
       availableOwnersForAllocator.push({
-        label: owner._label,
+        label: owner.label,
+        meta: owner.meta,
         name: owner.classname,
         description: owner.description,
         type: owner.ownertype,
@@ -174,7 +176,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
    * Generates a random location
    * @returns {LocationConfig}
    */
-  const randomLocation = () => ({ type: "random", gridCoordinates: [] });
+  const randomLocation = () => ({ type: "random", gridCoordinates: [], meta: {} });
 
   /**
    * Generates random locations for owner,
@@ -201,6 +203,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
       maxLocations: ownerTemplate.maxLocations,
       type: ownerTemplate.name,
       allocator: allocator.value,
+      meta: ownerTemplate.meta,
       locations,
     };
   };

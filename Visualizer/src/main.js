@@ -58,6 +58,9 @@ import {
   NPopconfirm,
   NTabs,
   NTabPane,
+  NH1,
+  NH2,
+  NH3,
 } from "naive-ui";
 
 const naive = create({
@@ -111,6 +114,9 @@ const naive = create({
     NPopconfirm,
     NTabs,
     NTabPane,
+    NH1,
+    NH2,
+    NH3,
   ],
 });
 
