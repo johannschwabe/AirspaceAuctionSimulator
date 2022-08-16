@@ -74,7 +74,7 @@
     negative-text="Download Cached"
     positive-text="Simulate & Overwrite"
     @positive-click="simulate"
-    @negative-click="() => api.downloadSimulation()"
+    @negative-click="() => downloadSimulation()"
   >
     <template #trigger>
       <n-button type="primary" :loading="loading">
@@ -90,7 +90,7 @@
   <!-- On finished simulation, download simulation file or go to simulation -->
   <n-grid cols="2" x-gap="10" v-if="finished">
     <n-grid-item>
-      <n-button ghost block icon-placement="right" type="primary" @click.stop="() => api.downloadSimulation()">
+      <n-button ghost block icon-placement="right" type="primary" @click.stop="() => downloadSimulation()">
         Download Simulation
         <template #icon>
           <n-icon>
@@ -128,12 +128,12 @@ import Owner from "./owner/Owner.vue";
 import MapSelector from "./map/MapSelector.vue";
 import Simulation from "../../SimulationObjects/Simulation.js";
 
-import api from "../../API/api.js";
+import { postSimulation, downloadSimulation } from "../../API/api.js";
 import {
   canRecoverSimulationSingleton,
   hasSimulationSingleton,
   setSimulationConfig,
-  setSimulationSingleton
+  setSimulationSingleton,
 } from "@/scripts/simulation";
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
 
@@ -228,8 +228,7 @@ const simulate = () => {
   formRef.value?.validate((errors) => {
     if (!errors) {
       startLoading();
-      api
-        .postSimulation(simulationConfig.generateConfigJson())
+      postSimulation(simulationConfig.generateConfigJson())
         .then((data) => {
           const simulation = new Simulation(data);
           return simulation.load();

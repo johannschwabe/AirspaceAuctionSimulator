@@ -86,7 +86,7 @@ export async function getSupportedAllocators() {
 
 /**
  * Get owners compatible with selected allocator
- * @returns {Promise<string[]>} - Names of owners
+ * @returns {Promise<Object[]>} - owners
  */
 export async function getOwnersSupportedByAllocator(allocator) {
   try {
@@ -131,11 +131,3 @@ export function downloadSimulation() {
   });
   saveAs(fileToSave, `${data.name}.json`);
 }
-
-export default {
-  postSimulation,
-  downloadSimulation,
-  loadSimulation :loadSimulationData,
-  getSupportedAllocators,
-  getOwnersSupportedByAllocator,
-};

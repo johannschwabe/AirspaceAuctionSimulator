@@ -5,10 +5,10 @@
   <n-input-number v-model:value="owner.agents" :min="1" :max="100" style="min-width: 130px" placeholder="Nr. Agents" />
   <!-- Dropdown selection for owner type -->
   <n-select
-    v-model:value="owner.type"
+    v-model:value="owner.classname"
     :options="simulationConfig.availableOwnersForAllocator"
     label-field="label"
-    value-field="name"
+    value-field="classname"
     placeholder="Type"
     @update:value="updateLocationsForOwner"
   />
@@ -16,7 +16,7 @@
 
 <script setup>
 import { computed } from "vue";
-import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import { useSimulationConfigStore } from "../../../stores/simulationConfig.js";
 
 const props = defineProps({
   ownerIndex: {
@@ -30,7 +30,7 @@ const simulationConfig = useSimulationConfigStore();
 const owner = computed(() => simulationConfig.owners[props.ownerIndex]);
 
 const ownerProperties = computed(() => {
-  return simulationConfig.availableOwnersForAllocator.find((o) => o.name === owner.value.type);
+  return simulationConfig.availableOwnersForAllocator.find((o) => o.classname === owner.value.classname);
 });
 
 /**
