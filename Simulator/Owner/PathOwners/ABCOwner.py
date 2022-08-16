@@ -13,7 +13,8 @@ if TYPE_CHECKING:
 class ABCOwner(PathOwner):
     label = "A to B to C"
     description = "A owner with agents going from A to a number of stops"
-    positions = ">1; <8"
+    min_locations = 2
+    max_locations = 100
     meta = []
 
     def __init__(self, name: str, color: str, stops: List[GridLocation], creation_ticks: List[int]):

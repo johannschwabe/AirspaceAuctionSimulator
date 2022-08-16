@@ -14,7 +14,8 @@ if TYPE_CHECKING:
 class StationaryOwner(SpaceOwner):
     label = "Stationary Owner"
     description = "An owner interested in a set of stationary cubes"
-    positions = ">0"
+    min_locations = 1
+    max_locations = 100
     meta = [
         {
             "key": "size_x",

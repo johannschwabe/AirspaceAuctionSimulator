@@ -118,8 +118,9 @@ def get_owners_for_allocator(allocator_name):
              "label": owner.label,
              "meta": owner.meta,
              "description": owner.description,
-             "ownertype": "PathOwner" if issubclass(owner, PathOwner) else "SpaceOwner",
-             "positions": owner.positions
+             "ownerType": "PathOwner" if issubclass(owner, PathOwner) else "SpaceOwner",
+             "minLocations": owner.min_locations,
+             "maxLocations": owner.max_locations
              } for owner in allocator.compatible_owner()]
 
 
