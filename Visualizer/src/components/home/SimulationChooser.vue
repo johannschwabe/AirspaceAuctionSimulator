@@ -13,7 +13,7 @@ import { useLoadingBar, useMessage } from "naive-ui";
 import { useRouter } from "vue-router";
 import { persistSimulation } from "@/API/api";
 import Simulation from "@/SimulationObjects/Simulation";
-import { setSimulationSingleton } from "@/scripts/simulation";
+import { setSimulationConfig, setSimulationSingleton } from "@/scripts/simulation";
 
 const message = useMessage();
 const loadingBar = useLoadingBar();
@@ -52,6 +52,7 @@ watch(selectedModel, () => {
       const simulation = new Simulation(data);
       await simulation.load();
       setSimulationSingleton(simulation);
+      setSimulationConfig(simulation);
       await router.push({ name: "dashboard" });
     });
 });

@@ -164,7 +164,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
         maxLocations,
       });
     });
-    if (owners.length === 0 || owners[0].allocator !== allocatorName.value) {
+    if (owners.length === 0 || owners[0].allocator !== allocatorName) {
       owners.splice(0);
       owners.push(generateOwner());
     }

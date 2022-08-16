@@ -10,7 +10,21 @@ import VectorSource from "ol/source/Vector";
 import VectorLayer from "ol/layer/Vector";
 import { Point } from "ol/geom";
 
+import PointSelectionMap from "@/components/home/map/PointSelectionMap.vue";
+import HeatmapMap from "@/components/home/map/HeatmapMap.vue";
+
 const HEATMAP_SCORE_PER_CLICK = 0.1;
+
+/**
+ * @type {{random: string, heatmap: HeatmapMap, position: PointSelectionMap}}
+ */
+export const useComponentMapping = () => {
+  return {
+    random: "span",
+    position: PointSelectionMap,
+    heatmap: HeatmapMap,
+  };
+};
 
 /**
  * Base layer showing regular Map Texture

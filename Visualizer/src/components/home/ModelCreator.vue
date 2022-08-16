@@ -129,7 +129,12 @@ import MapSelector from "./map/MapSelector.vue";
 import Simulation from "../../SimulationObjects/Simulation.js";
 
 import api from "../../API/api.js";
-import { canRecoverSimulationSingleton, hasSimulationSingleton, setSimulationSingleton } from "@/scripts/simulation";
+import {
+  canRecoverSimulationSingleton,
+  hasSimulationSingleton,
+  setSimulationConfig,
+  setSimulationSingleton
+} from "@/scripts/simulation";
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
 
 const simulationConfig = useSimulationConfigStore();
@@ -231,6 +236,7 @@ const simulate = () => {
         })
         .then((simulation) => {
           setSimulationSingleton(simulation);
+          setSimulationConfig(simulation);
           loadingBar.finish();
           message.success("Simulation Created!");
           finished.value = true;

@@ -1,10 +1,10 @@
 <template>
   <n-grid :cols="1" y-gap="5">
     <n-grid-item>
-      <n-select v-model:value="locationType" :options="options" placeholder="Type" filterable />
+      <n-select v-model:value="locationType" :options="options" placeholder="Type" filterable :disabled="disabled" />
     </n-grid-item>
     <n-grid-item>
-      <component :is="componentMap[locationType]" :location="location" />
+      <component :is="componentMap[locationType]" :location="location" :size="size" />
     </n-grid-item>
   </n-grid>
 </template>
@@ -12,8 +12,8 @@
 <script setup>
 import { computed } from "vue";
 
-import PointSelectionMap from "../map/PointSelectionMap.vue";
-import HeatmapMap from "../map/HeatmapMap.vue";
+
+import { useComponentMapping } from "@/components/home/map/Map";
 
 const props = defineProps({
   owner: {
@@ -30,11 +30,7 @@ const props = defineProps({
  * Maps location type to component suited of filling the features of said type
  * @type {{random: string, heatmap: HeatmapMap, position: PointSelectionMap}}
  */
-const componentMap = {
-  random: "span",
-  position: PointSelectionMap,
-  heatmap: HeatmapMap,
-};
+const componentMap = useComponentMapping();
 
 const location = computed(() => {
   return props.owner.locations[props.locationIndex];

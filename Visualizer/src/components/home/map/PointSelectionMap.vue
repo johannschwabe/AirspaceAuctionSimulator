@@ -1,5 +1,5 @@
 <template>
-  <div ref="mapRoot" :style="{ width: `${size}px`, height: `${size}px` }" />
+  <div ref="mapRoot" :style="{ width: `${size}px`, height: `${size}px` }" class="map" />
 </template>
 
 <script setup>
@@ -17,6 +17,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const features = new Collection([]);
@@ -30,7 +34,9 @@ const { render, map, min, meterCoordsRatio } = useMap(mapRoot, [baseLayer, posit
 onMounted(() => {
   restorePositionFeatures(features, props.location.gridCoordinates);
   render();
-  usePositionInteraction(map, min, meterCoordsRatio, features, props.location);
+  if (!props.disabled) {
+    usePositionInteraction(map, min, meterCoordsRatio, features, props.location);
+  }
 });
 
 onBeforeUnmount(() => {
@@ -38,4 +44,9 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.map {
+  overflow: hidden;
+  border-radius: 5px;
+}
+</style>

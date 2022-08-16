@@ -22,7 +22,7 @@ import { ArchiveOutline } from "@vicons/ionicons5";
 
 import Simulation from "../../SimulationObjects/Simulation";
 
-import { setSimulationSingleton } from "@/scripts/simulation";
+import { setSimulationConfig, setSimulationSingleton } from "@/scripts/simulation";
 import { persistSimulation } from "@/API/api";
 
 const message = useMessage();
@@ -45,6 +45,7 @@ const onUpload = async (upload) => {
     const simulation = new Simulation(data);
     await simulation.load();
     setSimulationSingleton(simulation);
+    setSimulationConfig(simulation);
     await router.push({ name: "dashboard" });
   };
   fileReader.onerror = () => {

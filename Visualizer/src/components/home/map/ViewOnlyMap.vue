@@ -1,5 +1,5 @@
 <template>
-  <div ref="mapRoot" :style="{ width: `${size}px`, height: `${size}px` }" />
+  <div ref="mapRoot" :style="{ width: `${size}px`, height: `${size}px` }" class="map" />
 </template>
 
 <script setup>
@@ -22,4 +22,9 @@ const { render } = useMap(mapRoot, [baseLayer]);
 onMounted(() => render());
 </script>
 
-<style scoped></style>
+<style scoped>
+.map {
+  overflow: hidden;
+  border-radius: 5px;
+}
+</style>

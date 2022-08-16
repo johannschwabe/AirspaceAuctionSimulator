@@ -116,7 +116,7 @@ export function canLoadSimulation() {
 /**
  * @returns {null|RawSimulation}
  */
-export function loadSimulation() {
+export function loadSimulationData() {
   const data = localStorage.getItem(STORAGE_KEY);
   if (data) {
     return JSON.parse(data);
@@ -125,7 +125,7 @@ export function loadSimulation() {
 }
 
 export function downloadSimulation() {
-  const data = loadSimulation();
+  const data = loadSimulationData();
   const fileToSave = new Blob([JSON.stringify(data, undefined, 2)], {
     type: "application/json",
   });
@@ -135,7 +135,7 @@ export function downloadSimulation() {
 export default {
   postSimulation,
   downloadSimulation,
-  loadSimulation,
+  loadSimulation :loadSimulationData,
   getSupportedAllocators,
   getOwnersSupportedByAllocator,
 };

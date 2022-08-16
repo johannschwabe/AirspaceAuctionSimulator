@@ -1,13 +1,13 @@
 import "../API/typedefs.js";
 
-import { useSimulationStore } from "../stores/simulation.js";
+import { useSimulationStore } from "@/stores/simulation";
 
 import Coordinate4D from "./Coordinate4D";
 import Statistics from "./Statistics";
 import Owner from "./Owner";
 import MapTile from "./MapTile";
-import { emitFocusOffAgent, emitFocusOnAgent, onAgentsSelected, onTick } from "../scripts/emitter";
-import { BlockerType } from "../API/enums";
+import { emitFocusOffAgent, emitFocusOnAgent, onAgentsSelected, onTick } from "@/scripts/emitter";
+import { BlockerType } from "@/API/enums";
 import StaticBlocker from "./StaticBlocker";
 import DynamicBlocker from "./DynamicBlocker";
 import PathAgent from "./PathAgent";
