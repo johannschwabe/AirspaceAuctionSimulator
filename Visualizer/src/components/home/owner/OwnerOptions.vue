@@ -35,7 +35,7 @@
 <script setup>
 import { computed } from "vue";
 import OwnerStop from "./OwnerStop.vue";
-import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import { useSimulationConfigStore } from "../../../stores/simulationConfig";
 
 const props = defineProps({
   ownerIndex: {
@@ -53,7 +53,7 @@ const owner = computed(() => simulationConfig.owners[props.ownerIndex]);
  * @type {ComputedRef<OwnerConfig>}
  */
 const ownerProperties = computed(() => {
-  return simulationConfig.availableOwnersForAllocator.find((o) => o.name === owner.value.type);
+  return simulationConfig.availableOwnersForAllocator.find((o) => o.classname === owner.value.classname);
 });
 
 /**

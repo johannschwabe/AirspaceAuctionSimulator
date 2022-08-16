@@ -307,4 +307,5 @@ export const usePositionInteraction = (map, min, meterCoordsRatio, features, loc
   };
 
   map.value.on("click", onClickOrDrag);
+  map.value.on("pointerdrag", onClickOrDrag);
 };
