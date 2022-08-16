@@ -8,7 +8,7 @@ from ..Statistics.Statistics import Statistics
 from ..History import History
 from ..Simulator import Simulator
 from ..Coordinate import Coordinate4D, Coordinate2D
-from ..Owner import Owner, PathStop, StopType
+from ..Owner import Owner, GridLocation, GridLocationType
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
@@ -20,16 +20,12 @@ if TYPE_CHECKING:
 class Generator:
     def __init__(
         self,
-        name: str,
-        description: str,
         owners: List["APIOwner"],
         dimensions: "Coordinate4D",
         maptiles: List["MapTile"],
         allocator: "Allocator"
     ):
-        self.name: str = name
-        self.description: str = description
-        self.apiOwners: List[APIOwner] = owners
+        self.apiOwners: List["APIOwner"] = owners
         self.dimensions: "Coordinate4D" = dimensions
         self.owners: List["Owner"] = []
         self.allocator: "Allocator" = allocator
@@ -41,31 +37,32 @@ class Generator:
 
     @staticmethod
     def extract_owner_stops(owner: "APIOwner"):
-        stops: List[PathStop] = []
-        for stop in owner.stops:
-            if stop.type == StopType.RANDOM.value:
-                stops.append(PathStop(str(StopType.RANDOM.value)))
-            elif stop.type == StopType.POSITION.value:
-                x_str, z_str = stop.position.split("_")
-                stops.append(PathStop(str(StopType.POSITION.value), position=Coordinate2D(int(x_str), int(z_str))))
-            elif stop.type == StopType.HEATMAP.value:
+        stops: List[GridLocation] = []
+        for location in owner.locations:
+            if location.type == GridLocationType.RANDOM.value:
+                stops.append(GridLocation(str(GridLocationType.RANDOM.value)))
+            elif location.type == GridLocationType.POSITION.value:
+                stops.append(GridLocation(str(GridLocationType.POSITION.value),
+                             position=Coordinate2D(location.gridCoordinates[0].x, location.gridCoordinates[0].y)))
+            elif location.type == GridLocationType.HEATMAP.value:
                 heat_dict: Dict[float, List[Coordinate2D]] = {}
-                for key in stop.heatmap:
-                    float_key: float = float(key.replace("_", "."))
-                    coordinates: List[Coordinate2D] = []
-                    for coord_str in stop.heatmap[key]:
-                        x_str, z_str = coord_str.split("_")
-                        coordinates.append(Coordinate2D(int(x_str), int(z_str)))
-                    heat_dict[float_key] = coordinates
-                stops.append(PathStop(str(StopType.HEATMAP.value), heatmap=Heatmap(str(HeatmapType.INVERSE_SPARSE.value), inverse_sparse=heat_dict)))
+                for gridCoord in location.gridCoordinates:
+                    coordinate = Coordinate2D(gridCoord.x, gridCoord.y)
+                    if gridCoord.value in heat_dict:
+                        heat_dict[gridCoord.value].append(coordinate)
+                    else:
+                        heat_dict[gridCoord.value] = [coordinate]
+                stops.append(GridLocation(str(GridLocationType.HEATMAP.value),
+                                          heatmap=Heatmap(str(HeatmapType.INVERSE_SPARSE.value),
+                                          inverse_sparse=heat_dict)))
         return stops
 
     def simulate(self):
         for apiOwner in self.apiOwners:
-            stops: List["PathStop"] = self.extract_owner_stops(apiOwner)
-            owners = [_owner for _owner in self.allocator.compatible_owner() if _owner.__name__ == apiOwner.type]
+            stops: List["GridLocation"] = self.extract_owner_stops(apiOwner)
+            owners = [_owner for _owner in self.allocator.compatible_owner() if _owner.__name__ == apiOwner.classname]
             if len(owners) != 1:
-                print(f"Owner Type {apiOwner} not registered with allocator {self.allocator.__name__}")
+                print(f"Owner Type {apiOwner} not registered with allocator {self.allocator.__class__.__name__}")
                 continue
             ownerClass = owners[0]
             self.owners.append(ownerClass(apiOwner.name,

@@ -8,17 +8,47 @@ from Simulator.Coordinate import Coordinate4D
 from Simulator.Owner.SpaceOwners.StationaryOwner import StationaryOwner
 
 if TYPE_CHECKING:
-    from Simulator.Owner import PathStop
+    from Simulator.Owner import GridLocation
 
 
 class BiddingStationaryOwner(StationaryOwner):
     label = "Bidding Stationary"
     description = "A bidding owner interested in a set of cubes"
+    meta = [
+        {
+            "key": "size_x",
+            "label": "Field Size X",
+            "description": "Size of reserved field in X-Dimension",
+            "type": "int",
+            "value": random.randint(0, 100)
+        },
+        {
+            "key": "size_y",
+            "label": "Field Size Y",
+            "description": "Size of reserved field in Y-Dimension",
+            "type": "int",
+            "value": random.randint(0, 100)
+        },
+        {
+            "key": "size_z",
+            "label": "Field Size Z",
+            "description": "Size of reserved field in Z-Dimension",
+            "type": "int",
+            "value": random.randint(0, 100)
+        },
+        {
+            "key": "size_t",
+            "label": "Reservation Duration",
+            "description": "Number of ticks field should be reserved",
+            "type": "int",
+            "value": random.randint(0, 100)
+        }
+    ]
 
     def __init__(self,
                  name: str,
                  color: str,
-                 stops: List["PathStop"],
+                 stops: List["GridLocation"],
                  creation_ticks: List[int],
                  size: "Coordinate4D" = Coordinate4D(5, 5, 5, 5),
                  priority: float = None):

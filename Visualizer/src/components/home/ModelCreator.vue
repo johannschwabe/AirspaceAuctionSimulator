@@ -1,59 +1,96 @@
 <template>
-  <n-form ref="formRef" :model="model" :rules="rules">
+  <n-form ref="formRef" :model="simulationConfig" :rules="rules">
+    <!-- Model Name -->
     <n-form-item path="name" label="Model Name">
-      <n-input v-model:value="model.name" type="text" placeholder="Unique Model Name" />
+      <n-input v-model:value="simulationConfig.name" type="text" placeholder="Unique Model Name" />
     </n-form-item>
+
+    <!-- Model Description -->
     <n-form-item path="description" label="Model Description">
-      <n-input v-model:value="model.description" type="textarea" placeholder="Model description (Metadata)" />
+      <n-input
+        v-model:value="simulationConfig.description"
+        type="textarea"
+        placeholder="Model description (Metadata)"
+      />
     </n-form-item>
 
-    <map-selector @dimensionChange="setDimension" @map-change="(map) => (model.map = map)" ref="mapRef" />
+    <!-- Model Map -->
+    <map-selector />
 
+    <!-- Model Timesteps -->
     <n-form-item path="dimension.t" label="Timesteps">
-      <n-slider show-tooltip v-model:value="model.dimension.t" :min="300" :max="4000" :step="10" />
+      <n-slider show-tooltip v-model:value="simulationConfig.dimension.t" :min="300" :max="4000" :step="10" />
     </n-form-item>
 
-    <n-form-item path="owners" label="Owners">
-      <owner
-        v-if="Object.keys(availableOwners).length > 0"
-        ref="ownerRef"
-        :dimension="model.dimension"
-        :map-info="model.map"
-        :availableOwners="availableOwners"
-      />
-    </n-form-item>
-
-    <n-form-item path="allocator" label="Mechanism">
+    <!-- Model Allocator -->
+    <n-form-item path="allocator" label="Allocator">
       <n-select
-        v-model:value="selected_allocator"
-        :options="allocators"
+        v-model:value="simulationConfig.allocator"
+        :options="simulationConfig.availableAllocatorsOptions"
         placeholder="Select Allocator"
-        :on-update-value="getCompatibleOwners"
       />
+    </n-form-item>
+
+    <!-- Model Owners -->
+    <n-form-item path="owners" label="Owners">
+      <owner />
     </n-form-item>
   </n-form>
 
+  <!-- Upload and Download of configuration file -->
+  <n-grid cols="2" x-gap="10">
+    <n-grid-item>
+      <n-upload :custom-request="uploadConfiguration" accept="application/json" :on-preview="uploadConfiguration">
+        <n-button block tertiary :type="simulationConfig.isEmpty ? 'primary' : 'tertiary'">
+          Upload Simulation Configuration
+          <template #icon>
+            <n-icon>
+              <cloud-upload-outline />
+            </n-icon>
+          </template>
+        </n-button>
+      </n-upload>
+    </n-grid-item>
+    <n-grid-item>
+      <n-button
+        block
+        tertiary
+        :type="!simulationConfig.isEmpty ? 'primary' : 'tertiary'"
+        @click.stop="downloadConfiguration"
+      >
+        Download Simulation Configuration
+        <template #icon>
+          <n-icon>
+            <cloud-download-outline />
+          </n-icon>
+        </template>
+      </n-button>
+    </n-grid-item>
+  </n-grid>
+
+  <!-- Overwrite or recover existing simulations -->
   <n-popconfirm
-    v-if="canRecover"
+    v-if="canRecoverSimulation"
     negative-text="Download Cached"
     positive-text="Simulate & Overwrite"
     @positive-click="simulate"
-    @negative-click="() => api.downloadSimulation()"
+    @negative-click="() => downloadSimulation()"
   >
     <template #trigger>
-      <n-button ghost type="primary" :loading="loading">
+      <n-button type="primary" :loading="loading">
         {{ loading ? `Running Simulation... (${loadingForSeconds}s)` : "Simulate" }}
       </n-button>
     </template>
     You do have an old session in your browser cache. It will be overwritten!
   </n-popconfirm>
-  <n-button ghost type="primary" @click.stop="simulate" v-else :loading="loading">
+  <n-button type="primary" @click.stop="simulate" v-else :loading="loading">
     {{ loading ? `Running Simulation... (${loadingForSeconds}s)` : "Simulate" }}
   </n-button>
 
+  <!-- On finished simulation, download simulation file or go to simulation -->
   <n-grid cols="2" x-gap="10" v-if="finished">
     <n-grid-item>
-      <n-button ghost block icon-placement="right" type="primary" @click.stop="() => api.downloadSimulation()">
+      <n-button ghost block icon-placement="right" type="primary" @click.stop="() => downloadSimulation()">
         Download Simulation
         <template #icon>
           <n-icon>
@@ -73,79 +110,51 @@
       </n-button>
     </n-grid-item>
   </n-grid>
-  <n-grid cols="2" x-gap="10">
-    <n-grid-item>
-      <n-button ghost block type="primary" @click.stop="downloadConfiguration">
-        Download Simulation Configuration
-      </n-button>
-    </n-grid-item>
-    <n-grid-item>
-      <n-upload block :custom-request="uploadConfiguration">
-        <n-button ghost block type="primary"> Upload Simulation Configuration </n-button>
-      </n-upload>
-    </n-grid-item>
-  </n-grid>
 
+  <!-- Generic error alert -->
   <n-alert v-if="errorText" title="Invalid Data" type="error">
     {{ errorText }}
   </n-alert>
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import { ref } from "vue";
 import { useMessage, useLoadingBar } from "naive-ui";
 import { useRouter } from "vue-router";
-import { CloudDownloadOutline, ArrowForwardOutline } from "@vicons/ionicons5";
+import { CloudDownloadOutline, ArrowForwardOutline, CloudUploadOutline } from "@vicons/ionicons5";
 import { saveAs } from "file-saver";
 
-import Owner from "./Owner.vue";
-import MapSelector from "./MapSelector.vue";
+import Owner from "./owner/Owner.vue";
+import MapSelector from "./map/MapSelector.vue";
 import Simulation from "../../SimulationObjects/Simulation.js";
-import api, { getOwners } from "../../API/api.js";
+
+import { postSimulation, downloadSimulation } from "../../API/api.js";
 import {
   canRecoverSimulationSingleton,
   hasSimulationSingleton,
+  setSimulationConfig,
   setSimulationSingleton,
-} from "../../scripts/simulation.js";
+} from "@/scripts/simulation";
+import { useSimulationConfigStore } from "@/stores/simulationConfig";
+
+const simulationConfig = useSimulationConfigStore();
 
 const message = useMessage();
 const loadingBar = useLoadingBar();
 const router = useRouter();
 
+// Reference to NaiveUI Form for validation
 const formRef = ref(null);
-const ownerRef = ref(null);
-const mapRef = ref(null);
+
+// Contains error text IFF error appeared
 const errorText = ref(null);
 
 const loading = ref(false);
 const loadingForSeconds = ref(0);
 const loadingInterval = ref(undefined);
 const finished = ref(false);
-const canRecover = ref(hasSimulationSingleton() || canRecoverSimulationSingleton());
 
-const model = reactive({
-  name: null,
-  description: null,
-  map: null,
-  dimension: {
-    x: 100,
-    y: 20,
-    z: 100,
-    t: 1500,
-  },
-});
-
-const allocators = ref([]);
-const selected_allocator = ref("FCFSAllocator");
-
-api.getAllocators().then((_allocators) => {
-  allocators.value = _allocators.map((_allocator) => {
-    return { label: _allocator, value: _allocator };
-  });
-});
-
-const owners = ref([]);
-let availableOwners = ref({});
+const canRecoverSimulation = ref(hasSimulationSingleton() || canRecoverSimulationSingleton());
 
 const rules = {
   name: [
@@ -155,26 +164,17 @@ const rules = {
     },
   ],
 };
-const getCompatibleOwners = (selection) => {
-  getOwners(selection).then((_owners) => {
-    availableOwners.value = {};
-    _owners.forEach((_owner) => {
-      availableOwners.value[_owner.classname] = _owner;
-    });
-  });
-};
-getCompatibleOwners(selected_allocator.value);
 
-const setDimension = (dimension) => {
-  model.dimension.x = dimension.x;
-  model.dimension.y = dimension.y;
-  model.dimension.z = dimension.z;
-};
-
+/**
+ * Route to simulation dashboard
+ */
 const goToSimulation = () => {
   router.push({ name: "dashboard" });
 };
 
+/**
+ * Start loading indication
+ */
 const startLoading = () => {
   loading.value = true;
   loadingBar.start();
@@ -183,36 +183,34 @@ const startLoading = () => {
   }, 1000);
 };
 
+/**
+ * Stop loading indications
+ */
 const stopLoading = () => {
   loading.value = false;
   loadingForSeconds.value = 0;
   clearInterval(loadingInterval.value);
 };
 
+/**
+ * Generate and download simulation configurations as JSON-File
+ */
 const downloadConfiguration = () => {
-  const res = {};
-  res.owners = ownerRef.value.getData();
-  res.env = model;
-  res.mechanism = selected_allocator.value;
-  const fileToSave = new Blob([JSON.stringify(res, undefined, 2)], {
+  const fileToSave = new Blob([JSON.stringify(simulationConfig.generateConfigJson(), undefined, 2)], {
     type: "application/json",
   });
-  saveAs(fileToSave, `${res.env.name}-config.json`);
+  saveAs(fileToSave, `${simulationConfig.name.value}-config.json`);
 };
 
+/**
+ * Upload an existing simulation configuration File
+ * @param {UploadCustomRequestOptions} upload
+ */
 const uploadConfiguration = (upload) => {
   const fileReader = new FileReader();
   fileReader.onload = async (event) => {
     const data = JSON.parse(event.target.result);
-    ownerRef.value.setData(data.owners);
-    model.name = data.env.name;
-    model.description = data.env.description;
-    model.dimension = data.env.dimension;
-    model.map = data.env.map; //Todo does not update the map correctly
-
-    selected_allocator.value = data.mechanism;
-
-    mapRef.value.setData(data.env);
+    simulationConfig.overwrite(data);
   };
   fileReader.onerror = () => {
     loadingBar.error();
@@ -222,24 +220,22 @@ const uploadConfiguration = (upload) => {
   fileReader.readAsText(upload.file.file);
 };
 
+/**
+ * Start simulation of new AirspaceAuction Simulation using simulation configurations
+ */
 const simulate = () => {
   errorText.value = null;
-  owners.value = ownerRef.value.getData();
   formRef.value?.validate((errors) => {
     if (!errors) {
       startLoading();
-      api
-        .postSimulation({
-          ...model,
-          owners: owners.value,
-          allocator: selected_allocator.value,
-        })
+      postSimulation(simulationConfig.generateConfigJson())
         .then((data) => {
           const simulation = new Simulation(data);
           return simulation.load();
         })
         .then((simulation) => {
           setSimulationSingleton(simulation);
+          setSimulationConfig(simulation);
           loadingBar.finish();
           message.success("Simulation Created!");
           finished.value = true;

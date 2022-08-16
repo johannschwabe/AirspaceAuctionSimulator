@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class StopType(Enum):
+class GridLocationType(Enum):
     RANDOM = "random"
     POSITION = "position"
     HEATMAP = "heatmap"

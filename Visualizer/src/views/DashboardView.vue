@@ -67,6 +67,7 @@
       :width="250"
       placement="left"
       :trap-focus="false"
+      :block-scroll="false"
       :close-on-esc="false"
       :mask-closable="false"
       :on-update:show="(show) => show || simulation.focusOff()"
@@ -88,6 +89,7 @@
       :width="250"
       placement="right"
       :trap-focus="false"
+      :block-scroll="false"
       :close-on-esc="false"
       :mask-closable="false"
       :on-update:show="(show) => show || simulation.focusOff()"
@@ -124,7 +126,12 @@ import AgentInfo from "../components/dashboard/AgentInfo.vue";
 import OwnerInfo from "../components/dashboard/OwnerInfo.vue";
 import Timeline from "../components/dashboard/Timeline.vue";
 import { offAll } from "../scripts/emitter";
-import { hasSimulationSingleton, loadSimulationSingleton, useSimulationSingleton } from "../scripts/simulation";
+import {
+  hasSimulationSingleton,
+  loadSimulationConfig,
+  loadSimulationSingleton,
+  useSimulationSingleton
+} from "../scripts/simulation";
 import { useSimulationStore } from "../stores/simulation";
 import { useLoadingBar, useMessage } from "naive-ui";
 
@@ -140,6 +147,7 @@ const simulationStore = useSimulationStore();
 if (!hasSimulationSingleton()) {
   loadSimulationSingleton()
     .then((simulationSingleton) => {
+      loadSimulationConfig();
       message.success("Simulation recovered!");
       simulation.value = simulationSingleton;
     })

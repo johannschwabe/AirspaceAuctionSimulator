@@ -1,5 +1,7 @@
 import Agent from "./Agent";
-import Coordinate4D from "./Coordinate4D";
+import Space from "./Space";
+import { first, last } from "lodash-es";
+import { FlightEvent, ReservationEndEvent, ReservationStartEvent } from "@/SimulationObjects/FlightEvent";
 
 export default class SpaceAgent extends Agent {
   /**
@@ -10,9 +12,54 @@ export default class SpaceAgent extends Agent {
    */
   constructor(rawAgent, owner, simulation) {
     super(rawAgent, owner, simulation);
-    this.spaces = rawAgent.spaces.map((space) => ({
-      min: new Coordinate4D(space.min.x, space.min.y, space.min.z, space.min.t),
-      max: new Coordinate4D(space.max.x, space.max.y, space.max.z, space.max.t),
-    }));
+
+    /**
+     * @type {Space[]}
+     */
+    this.spaces = rawAgent.spaces.map((space) => new Space(space.min, space.max));
+
+    /**
+     * @type {Object<int, Coordinate4D>}
+     */
+    this.combinedSpace = {};
+    this.spaces.forEach((space) => {
+      for (let t = space.min.t; t < space.max.t; t++) {
+        this.combinedSpace[t] = space;
+      }
+    });
+  }
+
+  get events() {
+    const events = [];
+    this.spaces.forEach((space) => {
+      const takeOffEvent = new ReservationStartEvent(space.min.t);
+      events.push(takeOffEvent);
+
+      const arrivalEvent = new ReservationEndEvent(space.max.t);
+      events.push(arrivalEvent);
+    });
+    events.sort(FlightEvent.sortEventsFunction);
+    for (let i = 0; i < events.length - 1; i++) {
+      if (events[i + 1] instanceof ReservationEndEvent) {
+        events[i].lineType = "dashed";
+      }
+    }
+    return events;
+  }
+
+  get flyingTicks() {
+    return Object.keys(this.combinedSpace).map((t) => parseInt(t, 10));
+  }
+
+  get segmentsStartEnd() {
+    return this.spaces.map((space) => [space.min.t, space.max.t]);
+  }
+
+  get veryFirstTick() {
+    return first(this.spaces).min.t;
+  }
+
+  get veryLastTick() {
+    return last(this.spaces).max.t;
   }
 }

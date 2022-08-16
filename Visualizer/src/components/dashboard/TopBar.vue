@@ -43,14 +43,21 @@
 
 <script setup>
 import logo from "../../assets/drone.png";
-import { Cube, FingerPrint, Fish, HappyOutline, GitBranch, GitPullRequest } from "@vicons/ionicons5";
-import { CloudDownloadOutline } from "@vicons/ionicons5";
+import {
+  Cube,
+  FingerPrint,
+  Fish,
+  HappyOutline,
+  GitBranch,
+  GitPullRequest,
+  CloudDownloadOutline,
+} from "@vicons/ionicons5";
 
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 
-import { downloadSimulation } from "../../API/api";
-import { useSimulationSingleton } from "../../scripts/simulation";
+import { downloadSimulation } from "@/API/api";
+import { useSimulationSingleton } from "@/scripts/simulation";
 
 const router = useRouter();
 const simulation = useSimulationSingleton();

@@ -4,10 +4,9 @@ App runs on 'https://localhost:8000/'
 """
 import random
 import time
-from fastapi import FastAPI, HTTPException
-from typing import Optional, List, Dict
+from fastapi import HTTPException, FastAPI
+from typing import List
 
-from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -38,18 +37,29 @@ app.add_middleware(
 )
 
 
-class APIStop(BaseModel):
+class APIGridCoordinates(BaseModel):
+    x: int
+    y: int
+    lat: float
+    long: float
+    value: float
+
+
+class APILocations(BaseModel):
     type: str
-    position: Optional[str]
-    heatmap: Optional[Dict[str, List[str]]]
+    gridCoordinates: List[APIGridCoordinates]
 
 
 class APIOwner(BaseModel):
-    name: str
     color: str
+    name: str
     agents: int
+    minLocations: int
+    maxLocations: int
     type: str
-    stops: List[APIStop]
+    classname: str
+    allocator: str
+    locations: List[APILocations]
 
 
 class APIDimension(BaseModel):
@@ -59,24 +69,40 @@ class APIDimension(BaseModel):
     t: int
 
 
-class APISimpleCoordinate(BaseModel):
+class APISimpleCoordinates(BaseModel):
     long: float
     lat: float
 
 
 class APIMap(BaseModel):
+    coordinates: APISimpleCoordinates
+    locationName: str
+    neighbouringTiles: int
+    topLeftCoordinate: APISimpleCoordinates
+    bottomRightCoordinate: APISimpleCoordinates
     tiles: List[List[int]]
-    topLeftCoordinate: APISimpleCoordinate
-    bottomRightCoordinate: APISimpleCoordinate
+
+
+class APIAvailableOwner(BaseModel):
+    label: str
+    classname: str
+    description: str
+    ownerType: str
+    allocator: str
+    minLocations: int
+    maxLocations: int
+    meta: list[object]
 
 
 class APISimulationConfig(BaseModel):
     name: str
-    description: Optional[str] = ""
-    map: Optional[APIMap] = None
-    owners: List[APIOwner]
+    description: str
+    allocator: str
     dimension: APIDimension
-    allocator: str = "FCFSAllocator"
+    map: APIMap
+    owners: List[APIOwner]
+    availableAllocators: List[str]
+    availableOwnersForAllocator: List[APIAvailableOwner]
 
 
 @app.get("/allocators")
@@ -92,6 +118,7 @@ def get_owners_for_allocator(allocator_name):
     allocator = allocators[0]
     return [{"classname": owner.__name__,
              "label": owner.label,
+             "meta": owner.meta,
              "description": owner.description,
              "ownerType": "PathOwner" if issubclass(owner, PathOwner) else "SpaceOwner",
              "minLocations": owner.min_locations,
@@ -118,12 +145,12 @@ def read_root(config: APISimulationConfig):
     allocator = allocators[0]()
 
     random.seed(2)
-    g = Generator(name=config.name, description=config.description, owners=config.owners, dimensions=dimensions,
+    g = Generator(owners=config.owners, dimensions=dimensions,
                   maptiles=maptiles, allocator=allocator)
     start_time = time.time_ns()
     g.simulate()
     end_time = time.time_ns()
     duration = int((end_time - start_time) / 1e9)
     print("--Simulation Completed--")
-    json = build_json(g.simulator, g.name, g.description, duration)
+    json = build_json(config, g.simulator, duration)
     return json

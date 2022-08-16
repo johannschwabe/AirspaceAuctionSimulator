@@ -1,7 +1,7 @@
 import random
 from typing import List, TYPE_CHECKING
 
-from Simulator.Owner import PathStop
+from Simulator.Owner import GridLocation
 from Simulator.Owner.PathOwner import PathOwner
 from Simulator.Agent import ABAgent
 
@@ -15,8 +15,9 @@ class ABOwner(PathOwner):
     description = "Owner with agents going from A to B"
     min_locations = 2
     max_locations = 2
+    meta = []
 
-    def __init__(self, name: str, color: str, stops: List[PathStop], creation_ticks: List[int]):
+    def __init__(self, name: str, color: str, stops: List[GridLocation], creation_ticks: List[int]):
         assert len(stops) == 2
 
         super().__init__(name, color, stops)

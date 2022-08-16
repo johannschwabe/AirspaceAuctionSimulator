@@ -20,10 +20,11 @@
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
 import { reactive, ref } from "vue";
-
-import { onAgentsSelected } from "../../scripts/emitter";
-import { useSimulationSingleton } from "../../scripts/simulation";
 import { debounce } from "lodash-es";
+
+import { onAgentsSelected } from "@/scripts/emitter";
+import { useSimulationSingleton } from "@/scripts/simulation";
+
 const simulation = useSimulationSingleton();
 
 const maxTick = ref(simulation.maxTick - 1);

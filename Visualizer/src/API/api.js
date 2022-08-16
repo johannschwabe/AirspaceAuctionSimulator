@@ -74,7 +74,7 @@ export async function postSimulation(simulationConfig) {
  * Get all registered allocators from the backend
  * @returns {Promise<string[]>} - Names of allocators
  */
-export async function getAllocators() {
+export async function getSupportedAllocators() {
   try {
     const { data } = await apiServer.get("/allocators");
     return data;
@@ -86,9 +86,9 @@ export async function getAllocators() {
 
 /**
  * Get owners compatible with selected allocator
- * @returns {Promise<string[]>} - Names of owners
+ * @returns {Promise<Object[]>} - owners
  */
-export async function getOwners(allocator) {
+export async function getOwnersSupportedByAllocator(allocator) {
   try {
     const { data } = await apiServer.get(`/owners/${allocator}`);
     return data;
@@ -116,7 +116,7 @@ export function canLoadSimulation() {
 /**
  * @returns {null|RawSimulation}
  */
-export function loadSimulation() {
+export function loadSimulationData() {
   const data = localStorage.getItem(STORAGE_KEY);
   if (data) {
     return JSON.parse(data);
@@ -125,17 +125,9 @@ export function loadSimulation() {
 }
 
 export function downloadSimulation() {
-  const data = loadSimulation();
+  const data = loadSimulationData();
   const fileToSave = new Blob([JSON.stringify(data, undefined, 2)], {
     type: "application/json",
   });
   saveAs(fileToSave, `${data.name}.json`);
 }
-
-export default {
-  postSimulation,
-  downloadSimulation,
-  loadSimulation,
-  getAllocators,
-  getOwners,
-};

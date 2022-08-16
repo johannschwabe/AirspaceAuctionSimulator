@@ -2,6 +2,7 @@
   <n-grid cols="8" x-gap="12">
     <n-grid-item span="5">
       <n-grid cols="3" x-gap="12">
+        <!-- Address Input -->
         <n-grid-item span="3">
           <n-form-item label="Address">
             <n-input-group>
@@ -21,31 +22,39 @@
             </n-input-group>
           </n-form-item>
         </n-grid-item>
+
+        <!-- Dimension X Input -->
         <n-grid-item span="1">
           <n-form-item label="Dimension Lon (m)">
-            <n-input-number v-model:value="dimension.x" disabled />
+            <n-input-number :value="simulationConfig.dimension.x" disabled />
           </n-form-item>
         </n-grid-item>
+
+        <!-- Dimension Y Input -->
         <n-grid-item span="1">
           <n-form-item label="Height (m)">
-            <n-input-number v-model:value="height" :min="20" :max="1000" :step="10" />
+            <n-input-number v-model:value="simulationConfig.dimension.y" :min="20" :max="1000" :step="10" />
           </n-form-item>
         </n-grid-item>
+
+        <!-- Dimension Z Input -->
         <n-grid-item span="1">
           <n-form-item label="Dimension Lat (m)">
-            <n-input-number v-model:value="dimension.z" disabled />
+            <n-input-number :value="simulationConfig.dimension.z" disabled />
           </n-form-item>
         </n-grid-item>
+
+        <!-- Surrounding Tiles Input -->
         <n-grid-item span="1">
           <n-form-item label="Surrounding Tiles">
-            <n-input-number v-model:value="surroundingTiles" clearable :min="0" :max="3" />
+            <n-input-number v-model:value="simulationConfig.map.neighbouringTiles" clearable :min="0" :max="3" />
           </n-form-item>
         </n-grid-item>
       </n-grid>
     </n-grid-item>
 
     <n-grid-item span="3">
-      <map-viewer :map-info="mapInfo" :dimension="dimension" />
+      <view-only-map />
     </n-grid-item>
   </n-grid>
 </template>
@@ -53,46 +62,44 @@
 <script setup>
 import OSM from "ol/source/OSM";
 import axios from "axios";
-import { ref, reactive, computed, watch, onUnmounted } from "vue";
+
+import { ref, watchEffect } from "vue";
 import { fromLonLat, get, transformExtent } from "ol/proj";
 import { NavigateCircleOutline } from "@vicons/ionicons5";
 import { useMessage } from "naive-ui";
 
-import MapViewer from "./MapViewer.vue";
+import ViewOnlyMap from "./ViewOnlyMap.vue";
 
-const emit = defineEmits(["dimensionChange", "mapChange"]);
+import { useSimulationConfigStore } from "@/stores/simulationConfig";
 
+const message = useMessage();
+const simulationConfig = useSimulationConfigStore();
+
+// OSM Source and grid definitions
 const source = new OSM();
 const grid = source.getTileGrid();
 const SINGLE_TILE_SIDE_LENGTH = 830.8261666462096;
 
-const message = useMessage();
-
-const surroundingTiles = ref(0);
+// Prefilled address query
 const addressQuery = ref("Zurich, Switzerland");
-const height = ref(100);
-const coordinates = reactive({
-  long: 8.5410422,
-  lat: 47.3744489,
+
+// Recalculation of dimensions x and z component on map zoom change
+watchEffect(() => {
+  simulationConfig.dimension.x = Math.ceil((simulationConfig.map.neighbouringTiles * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
+  simulationConfig.dimension.z = Math.ceil((simulationConfig.map.neighbouringTiles * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
 });
 
-const dimension = computed(() => ({
-  x: Math.ceil((surroundingTiles.value * 2 + 1) * SINGLE_TILE_SIDE_LENGTH),
-  y: height.value,
-  z: Math.ceil((surroundingTiles.value * 2 + 1) * SINGLE_TILE_SIDE_LENGTH),
-}));
-watch(dimension, () => {
-  emit("dimensionChange", dimension.value);
-});
-emit("dimensionChange", dimension.value);
-
-const mapInfo = computed(() => {
-  const locationName = addressQuery.value;
+// Watch change in map config (zoom, address, etc.) and recalculate tiles and topLeft/bottomRight coordinates
+watchEffect(() => {
+  simulationConfig.map.locationName = addressQuery.value;
   const tiles = [];
-  const projectedCoordinate = fromLonLat([coordinates.long, coordinates.lat], "EPSG:3857");
+  const projectedCoordinate = fromLonLat(
+    [simulationConfig.map.coordinates.long, simulationConfig.map.coordinates.lat],
+    "EPSG:3857"
+  );
   const tileCoord = grid.getTileCoordForCoordAndZ(projectedCoordinate, 15);
   let topLeftCoordinate, bottomRightCoordinate;
-  const n = surroundingTiles.value;
+  const n = simulationConfig.map.neighbouringTiles;
   for (let i = -n; i <= n; i++) {
     for (let j = -n; j <= n; j++) {
       const updatedTileCord = [tileCoord[0], tileCoord[1] + j, tileCoord[2] + i];
@@ -109,30 +116,15 @@ const mapInfo = computed(() => {
       }
     }
   }
-  return {
-    locationName,
-    tiles,
-    topLeftCoordinate,
-    bottomRightCoordinate,
-    coordinates,
-  };
-});
-watch(mapInfo, () => {
-  emit("mapChange", mapInfo.value);
-});
-emit("mapChange", mapInfo.value);
-onUnmounted(() => {
-  emit("mapChange", null);
+  simulationConfig.map.tiles = tiles;
+  simulationConfig.map.topLeftCoordinate = topLeftCoordinate;
+  simulationConfig.map.bottomRightCoordinate = bottomRightCoordinate;
 });
 
-const setData = (env) => {
-  coordinates.long = env.map.coordinates.long;
-  coordinates.lat = env.map.coordinates.lat;
-  height.value = env.dimension.y;
-  addressQuery.value = env.map.locationName;
-  surroundingTiles.value = Math.round(Math.pow(env.map.tiles.length, 0.5));
-};
-
+/**
+ * Resolves map coordinate from address input
+ * @returns {Promise<void>}
+ */
 const resolveAddress = async () => {
   const query = `https://nominatim.openstreetmap.org/search?q=${addressQuery.value}&format=json&addressdetails=1`;
   const { data } = await axios.get(query);
@@ -140,13 +132,9 @@ const resolveAddress = async () => {
     message.error("No address found for input query");
   }
   addressQuery.value = data[0].display_name;
-  coordinates.lat = parseFloat(data[0].lat);
-  coordinates.long = parseFloat(data[0].lon);
+  simulationConfig.map.coordinates.lat = parseFloat(data[0].lat);
+  simulationConfig.map.coordinates.long = parseFloat(data[0].lon);
 };
-
-defineExpose({
-  setData,
-});
 </script>
 
 <style scoped></style>

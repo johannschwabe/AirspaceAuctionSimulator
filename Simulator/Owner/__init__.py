@@ -1,5 +1,5 @@
 from .Owner import Owner
-from .PathStop import PathStop
+from .GridLocation import GridLocation
 from .PathOwner import PathOwner
 from .SpaceOwner import SpaceOwner
-from .StopType import StopType
+from .GridLocationType import GridLocationType

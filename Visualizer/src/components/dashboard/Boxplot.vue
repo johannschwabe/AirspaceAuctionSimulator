@@ -4,7 +4,7 @@
 
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
-import { lightenColor } from "../../scripts/color.js";
+import { lightenColor } from "@/scripts/color";
 import { reactive } from "vue";
 
 const props = defineProps({

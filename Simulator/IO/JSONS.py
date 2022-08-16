@@ -14,6 +14,7 @@ from ..Generator.MapTile import MapTile
 if TYPE_CHECKING:
     from ..Coordinate import Coordinate4D
     from ..Path.AllocationReason import AllocationReason
+    from API import APISimulationConfig
 
 
 class Path(Stringify):
@@ -204,23 +205,22 @@ class JSONStatistics(Stringify):
 
 
 class JSONSimulation(Stringify):
-    def __init__(self, name: str,
-                 description: str,
+    def __init__(self,
+                 config: "APISimulationConfig",
                  environment: JSONEnvironment,
-                 statistics: JSONStatistics,
+                 jsonStatistics: JSONStatistics,
                  owners: List[JSONOwner],
                  total_compute_time: float,
                  step_compute_time: Dict[int, float]):
-        self.name: str = name
-        self.description: str = description
+        self.config = config
         self.environment: JSONEnvironment = environment
-        self.statistics: JSONStatistics = statistics
+        self.statistics: JSONStatistics = jsonStatistics
         self.owners: List[JSONOwner] = owners
         self.compute_time = total_compute_time
         self.step_compute_time = step_compute_time
 
 
-def build_json(simulator: Simulator, name: str, description: str, total_compute_time: float):
+def build_json(config: "APISimulationConfig", simulator: Simulator, total_compute_time: float):
     env = simulator.environment
     history = simulator.history
     stats = Statistics(simulator)
@@ -258,7 +258,7 @@ def build_json(simulator: Simulator, name: str, description: str, total_compute_
             nr_collisions += close_encounters[agent.id]["total_near_field_violations"]  # todo different collision metric
         owners.append(JSONOwner(owner.name, owner.id, owner.color, agents))
     json_stats = JSONStatistics(len(simulator.owners), len(env._agents), stats.total_agents_welfare(), nr_collisions, 0) # TODO reallocations
-    json_simulation = JSONSimulation(name, description, json_env, json_stats, owners, total_compute_time,
+    json_simulation = JSONSimulation(config, json_env, json_stats, owners, total_compute_time,
                                      history.compute_times)
     return json_simulation.as_dict()
 

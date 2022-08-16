@@ -8,8 +8,7 @@
 </template>
 
 <script setup>
-// eslint-disable-next-line no-unused-vars
-const props = defineProps(["title", "text"]);
+defineProps(["title", "text"]);
 </script>
 
 <style scoped></style>
