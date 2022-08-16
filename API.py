@@ -57,6 +57,7 @@ class APIOwner(BaseModel):
     minLocations: int
     maxLocations: int
     type: str
+    classname: str
     allocator: str
     locations: List[APILocations]
 
@@ -84,12 +85,13 @@ class APIMap(BaseModel):
 
 class APIAvailableOwner(BaseModel):
     label: str
-    name: str
+    classname: str
     description: str
-    type: str
+    ownerType: str
     allocator: str
     minLocations: int
     maxLocations: int
+    meta: list[object]
 
 
 class APISimulationConfig(BaseModel):

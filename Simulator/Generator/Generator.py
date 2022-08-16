@@ -60,9 +60,9 @@ class Generator:
     def simulate(self):
         for apiOwner in self.apiOwners:
             stops: List["GridLocation"] = self.extract_owner_stops(apiOwner)
-            owners = [_owner for _owner in self.allocator.compatible_owner() if _owner.__name__ == apiOwner.type]
+            owners = [_owner for _owner in self.allocator.compatible_owner() if _owner.__name__ == apiOwner.classname]
             if len(owners) != 1:
-                print(f"Owner Type {apiOwner} not registered with allocator {self.allocator.__name__}")
+                print(f"Owner Type {apiOwner} not registered with allocator {self.allocator.__class__.__name__}")
                 continue
             ownerClass = owners[0]
             self.owners.append(ownerClass(apiOwner.name,
