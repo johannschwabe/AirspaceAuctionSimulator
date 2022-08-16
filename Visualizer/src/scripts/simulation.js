@@ -41,7 +41,6 @@ export function setSimulationConfig(data) {
 
 export function loadSimulationConfig() {
   const data = loadSimulationData();
-  console.log({ data });
   if (!data) {
     throw new Error("Unable to recover last simulation!");
   }
