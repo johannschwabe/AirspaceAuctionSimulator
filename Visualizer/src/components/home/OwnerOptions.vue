@@ -63,6 +63,6 @@ const emit = defineEmits(["update:modelValue"]);
 
 const nr_stops = computed(() => {
   const option = props.options[config.value.type];
-  return validStops(option.positions, option.ownertype);
+  return validStops(option.minLocations, option.maxLocations, option.ownerType);
 });
 </script>
