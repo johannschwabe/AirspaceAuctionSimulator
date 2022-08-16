@@ -56,10 +56,12 @@ export default class SpaceAgent extends Agent {
   }
 
   get veryFirstTick() {
-    return first(this.spaces).min.t;
+    const tick = first(this.spaces);
+    return tick !== undefined ? tick.min.t : null;
   }
 
   get veryLastTick() {
-    return last(this.spaces).max.t;
+    const tick = last(this.spaces);
+    return tick !== undefined ? tick.max.t : null;
   }
 }

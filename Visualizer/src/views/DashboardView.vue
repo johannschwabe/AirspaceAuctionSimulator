@@ -130,7 +130,7 @@ import {
   hasSimulationSingleton,
   loadSimulationConfig,
   loadSimulationSingleton,
-  useSimulationSingleton
+  useSimulationSingleton,
 } from "../scripts/simulation";
 import { useSimulationStore } from "../stores/simulation";
 import { useLoadingBar, useMessage } from "naive-ui";

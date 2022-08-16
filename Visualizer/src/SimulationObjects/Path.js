@@ -21,11 +21,13 @@ export default class Path {
   }
 
   get firstTick() {
-    return parseInt(first(this.ticksInAir), 10);
+    const tick = first(this.ticksInAir);
+    return tick !== undefined ? parseInt(tick, 10) : null;
   }
 
   get lastTick() {
-    return parseInt(last(this.ticksInAir), 10);
+    const tick = last(this.ticksInAir);
+    return tick !== undefined ? parseInt(tick, 10) : null;
   }
 
   get firstLocation() {
