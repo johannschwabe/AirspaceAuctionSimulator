@@ -248,7 +248,6 @@ export default class Simulation {
    * @param {PathAgent} agent
    */
   focusOnAgent(agent) {
-    console.log("Focus on", agent);
     if (this.agentInFocus === agent || !agent.isActiveAtTick(this.tick)) {
       return;
     }
