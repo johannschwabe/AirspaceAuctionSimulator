@@ -1,20 +1,21 @@
 import statistics
 
-from ..History import HistoryAgent
 from ..Path import PathSegment
-from ..Simulator import Owner, Simulator
-from ..Agent import Agent, PathAgent, SpaceAgent
 from typing import TYPE_CHECKING, List
+from ..Agent import PathAgent
 
 if TYPE_CHECKING:
     from ..Coordinate import Coordinate4D
+    from .. import Simulator, Owner
+    from ..Agent import Agent
+    from ..History import HistoryAgent, History
 
 
 class Statistics:
-    def __init__(self, sim: Simulator):
-        self.history = sim.history
+    def __init__(self, sim: "Simulator"):
+        self.history: "History" = sim.history
 
-    def non_colliding_value(self, agent: Agent):
+    def non_colliding_value(self, agent: "Agent"):
         local_agent = agent.clone()
         local_env = self.history.env.new_clear()
         paths = self.history.allocator.allocate_for_agents([local_agent], local_env, 0)[0]
@@ -26,7 +27,7 @@ class Statistics:
                   f"achieved value: {agent.get_allocated_value()}")
 
     @staticmethod
-    def agents_welfare(agent: Agent):
+    def agents_welfare(agent: "Agent"):
         return agent.get_allocated_value()
 
     def total_agents_welfare(self):
@@ -36,7 +37,7 @@ class Statistics:
         return summed_welfare
 
     @staticmethod
-    def owners_welfare(owner: Owner):
+    def owners_welfare(owner: "Owner"):
         summed_welfare = 0
         for agent in owner.agents:
             summed_welfare += Statistics.agents_welfare(agent)
@@ -95,7 +96,7 @@ class Statistics:
         max_far_radi = max(far_radi)
 
         near_radi = [_agent.near_radius for _agent in self.history.env.get_agents().values() if
-             isinstance(_agent, PathAgent)]
+                     isinstance(_agent, PathAgent)]
         near_radi.append(0)
         max_near_radi = max(near_radi)
 
@@ -126,7 +127,7 @@ class Statistics:
                         res[agent.id]["total_far_field_intersection"] += res[agent.id]["far_field_intersection"][step.t]
         return res
 
-    def violations(self, position: "Coordinate4D", agent: HistoryAgent, radi: int):
+    def violations(self, position: "Coordinate4D", agent: "HistoryAgent", radi: int):
         box = [position.x - radi,
                position.y - radi,
                position.z - radi,
@@ -144,10 +145,10 @@ class Statistics:
             count += int(end) - int(start) + 1
         return count
 
-    def intersections(self, position: "Coordinate4D", agent: HistoryAgent, max_far_radi, max_near_radi):
+    def intersections(self, position: "Coordinate4D", agent: "Agent", max_far_radi, max_near_radi):
         near_intersections = 0
         far_intersections = 0
-        real_agent: Agent = self.history.env.get_agents()[agent.id]
+        real_agent: "Agent" = self.history.env.get_agents()[agent.id]
         if isinstance(real_agent, PathAgent):
             box = [position.x - max_far_radi,
                    position.y - max_far_radi,
