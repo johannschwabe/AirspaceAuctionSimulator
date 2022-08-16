@@ -137,24 +137,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     const ownersSupportedByAllocator = await getOwnersSupportedByAllocator(allocatorName);
     availableOwnersForAllocator.splice(0);
     ownersSupportedByAllocator.forEach((owner) => {
-      const locationsDescriptor = owner.positions;
-      let minLocations = 0;
-      let maxLocations = 1000;
-      if (parseInt(locationsDescriptor, 10)) {
-        minLocations = parseInt(locationsDescriptor, 10);
-        maxLocations = minLocations;
-      }
-      locationsDescriptor
-        .split(";")
-        .map((d) => d.trim())
-        .forEach((d) => {
-          if (d.startsWith(">")) {
-            minLocations = parseInt(d.substring(1), 10);
-          }
-          if (d.startsWith("<")) {
-            maxLocations = parseInt(d.substring(1), 10);
-          }
-        });
       availableOwnersForAllocator.push({
         label: owner.label,
         meta: owner.meta,
@@ -162,8 +144,8 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
         description: owner.description,
         type: owner.ownertype,
         allocator: allocator.value,
-        minLocations,
-        maxLocations,
+        minLocations: owner.minLocations,
+        maxLocations: owner.maxLocations,
       });
     });
     if (owners.length === 0 || owners[0].allocator !== allocatorName) {

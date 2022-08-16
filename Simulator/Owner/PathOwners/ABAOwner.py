@@ -15,6 +15,7 @@ class ABAOwner(PathOwner):
     description = "Owner with agents going from A to B and back to A"
     min_locations = 2
     max_locations = 2
+    meta = []
 
     def __init__(self, name: str, color: str, stops: List[GridLocation], creation_ticks: List[int]):
         assert len(stops) == 2
