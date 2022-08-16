@@ -39,6 +39,8 @@ const ownerProperties = computed(() => {
  */
 const updateLocationsForOwner = () => {
   owner.value.meta = ownerProperties.value.meta;
+  owner.value.minLocations = ownerProperties.value.minLocations;
+  owner.value.maxLocations = ownerProperties.value.maxLocations;
   if (owner.value.locations > owner.value.maxLocations) {
     owner.value.locations = owner.value.locations.slice(0, owner.value.maxLocations);
   }
