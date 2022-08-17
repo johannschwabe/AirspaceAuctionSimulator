@@ -93,7 +93,7 @@ export default class Simulation {
     this.activeBlockers = [];
 
     /**
-     * Agent that is selected through the UI and is now in focus
+     * Agents that is selected through the UI and is now in focus
      * @type {PathAgent|null}
      */
     this.agentInFocus = null;
