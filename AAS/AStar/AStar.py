@@ -1,13 +1,13 @@
-import math
-from typing import List, TYPE_CHECKING, Set, Optional
 import heapq
+import math
+from typing import List, TYPE_CHECKING, Set, Optional, Tuple
 
 from AAS.AStar.Node import Node
 
 if TYPE_CHECKING:
     from AAS.Environment import Environment
     from AAS.Coordinates import Coordinate4D
-    from AAS.Agent import PathAgent, Agent
+    from AAS.Agent import PathAgent
 
 
 class AStar:
@@ -137,7 +137,7 @@ class AStar:
         end: "Coordinate4D",
         agent: "PathAgent",
         in_air: bool = False,
-    ):
+    ) -> Tuple[list["Coordinate4D"], set["PathAgent"]]:
 
         valid_start, start_collisions = self.valid_start(start, agent, in_air)
 

@@ -1,33 +1,24 @@
-from typing import List, TYPE_CHECKING
-
-from AAS.Agent import StationaryAgent, Agent
-from AAS.Bid import Bid
-
+from AAS import StationaryAgent
 from Demos.Priority.Bids.PriorityStationaryBid import PriorityStationaryBid
-
-if TYPE_CHECKING:
-    from AAS.Coordinates import Coordinate4D
 
 
 class PriorityStationaryAgent(StationaryAgent):
     def __init__(
         self,
-        blocks: List[List["Coordinate4D"]],
-        priority: float,
+        blocks,
+        priority,
+        simulator,
+        agent_id=None
     ):
-        super().__init__(blocks)
+        super().__init__(blocks, simulator, agent_id=agent_id)
         self.priority = priority
 
-    def get_bid(self, t: int) -> Bid:
+    def get_bid(self, t: int):
         return PriorityStationaryBid(self.blocks, self.priority)
 
     def clone(self):
-        clone = PriorityStationaryAgent(self.blocks, self.priority)
-        clone.set_allocated_segments([segment.clone() for segment in self.get_allocated_segments()])
-        clone.id = self.id
-        clone.is_clone = True
-        Agent._id -= 1
-
+        clone = PriorityStationaryAgent(self.blocks, self.priority, self.simulator, agent_id=self.id)
+        clone.allocated_segments = [segment.clone() for segment in self.allocated_segments]
         return clone
 
     def generalized_bid(self):

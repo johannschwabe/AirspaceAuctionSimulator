@@ -17,14 +17,16 @@ class ABAAgent(ABAgent, ABC):
         self,
         a: "Coordinate4D",
         b: "Coordinate4D",
+        stay: int,
         simulator: "Simulator",
-        stay: int = 5,
         agent_id: Optional[int] = None,
         speed: Optional[int] = None,
         battery: Optional[int] = None,
         near_radius: Optional[int] = None,
+        far_radius: Optional[int] = None,
     ):
-        super().__init__(a, b, simulator, agent_id=agent_id, speed=speed, battery=battery, near_radius=near_radius)
+        super().__init__(a, b, simulator, agent_id=agent_id, speed=speed, battery=battery, near_radius=near_radius,
+                         far_radius=far_radius)
 
         self.stay: int = stay
 

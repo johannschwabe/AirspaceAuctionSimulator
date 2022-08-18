@@ -43,8 +43,13 @@ class Agent(ABC):
         pass
 
     @abstractmethod
-    def clone(self):
+    def initialize_clone(self) -> "Agent":
         pass
+
+    def clone(self):
+        clone = self.initialize_clone
+        clone.allocated_segments = [segment.clone() for segment in self.allocated_segments]
+        return clone
 
     def get_allocated_coords(self) -> list["Coordinate4D"]:
         return [coord for path_segment in self.allocated_segments for coord in path_segment.coordinates]

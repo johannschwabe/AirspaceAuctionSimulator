@@ -22,8 +22,10 @@ class ABAgent(PathAgent, ABC):
         speed: Optional[int] = None,
         battery: Optional[int] = None,
         near_radius: Optional[int] = None,
+        far_radius: Optional[int] = None,
     ):
-        super().__init__(simulator, agent_id=agent_id, speed=speed, battery=battery, near_radius=near_radius)
+        super().__init__(simulator, agent_id=agent_id, speed=speed, battery=battery, near_radius=near_radius,
+                         far_radius=far_radius)
 
         self.a: "Coordinate4D" = a
         self.b: "Coordinate4D" = b

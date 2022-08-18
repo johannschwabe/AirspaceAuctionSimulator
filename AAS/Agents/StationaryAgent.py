@@ -1,23 +1,25 @@
+from abc import ABC
 from typing import List, TYPE_CHECKING, Optional
 
-from .Agent import Agent
 from .AgentType import AgentType
 from .SpaceAgent import SpaceAgent
-from ..Path import SpaceSegment
-from ..Bid import Bid, StationaryBid
+from ..Path.SpaceSegment import SpaceSegment
+from ..Simulator import Simulator
 
 if TYPE_CHECKING:
-    from ..Coordinates import Coordinate4D
+    from ..Coordinates.Coordinate4D import Coordinate4D
 
 
-class StationaryAgent(SpaceAgent):
+class StationaryAgent(SpaceAgent, ABC):
     agent_type: str = AgentType.STATIONARY.value
 
     def __init__(
         self,
         blocks: List[List["Coordinate4D"]],
+        simulator: Simulator,
+        agent_id: Optional[int] = None
     ):
-        super().__init__()
+        super().__init__(simulator, agent_id=agent_id)
 
         self.blocks: List[List["Coordinate4D"]] = blocks
 
@@ -35,15 +37,3 @@ class StationaryAgent(SpaceAgent):
                           (block[1].z - block[0].z) * \
                           (block[1].t - block[0].t)
         return sum_segments / sum_blocks
-
-    def get_bid(self, t: int) -> Bid:
-        return StationaryBid(self.blocks)
-
-    def clone(self):
-        clone = StationaryAgent(self.blocks)
-        clone.set_allocated_segments([segment.clone() for segment in self.get_allocated_segments()])
-        clone.id = self.id
-        clone.is_clone = True
-        Agent._id -= 1
-
-        return clone

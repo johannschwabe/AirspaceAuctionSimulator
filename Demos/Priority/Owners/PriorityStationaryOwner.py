@@ -1,6 +1,5 @@
-import random
-
-from AAS import StationaryOwner, Coordinate4D
+from AAS import StationaryOwner
+from Demos.Priority.Agents.PriorityStationaryAgent import PriorityStationaryAgent
 
 
 class PriorityStationaryOwner(StationaryOwner):
@@ -12,7 +11,10 @@ class PriorityStationaryOwner(StationaryOwner):
                  color,
                  stops,
                  creation_ticks,
-                 size=Coordinate4D(5, 5, 5, 5),
-                 priority=None):
+                 size,
+                 priority):
         super().__init__(name, color, stops, creation_ticks, size)
-        self.priority = priority if priority else random.random() * 10
+        self.priority = priority
+
+    def initialize_agent(self, simulator, blocks):
+        return PriorityStationaryAgent(blocks, simulator, self.priority)

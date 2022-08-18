@@ -1,6 +1,6 @@
-from AAS import ABABid, Coordinate4D
+from AAS import ABABid
 
 
 class FCFSABABid(ABABid):
-    def __init__(self, battery: int, a: Coordinate4D, b: Coordinate4D, stay: int):
+    def __init__(self, battery, a, b, stay):
         super().__init__(battery, a, b, stay)

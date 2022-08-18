@@ -12,8 +12,6 @@ if TYPE_CHECKING:
 
 
 class StationaryOwner(SpaceOwner):
-    label = "Stationary Owners"
-    description = "An owner interested in a set of stationary cubes"
     min_locations = 1
     max_locations = 100
     meta = [
@@ -53,6 +51,9 @@ class StationaryOwner(SpaceOwner):
         self.creation_ticks = creation_ticks
         self.size: "Coordinate4D" = size
 
+    def initialize_agent(self, simulator: "Simulator", blocks: list[list["Coordinate4D"]]) -> StationaryAgent:
+        pass
+
     def generate_agents(self, t: int, simulator: "Simulator") -> List["StationaryAgent"]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
@@ -61,7 +62,7 @@ class StationaryOwner(SpaceOwner):
                 bottom_left = self.generate_stop_coordinates(stop, simulator.environment, t, self.size)
                 top_right = bottom_left + self.size
                 blocks.append([bottom_left, top_right])
-            agent = StationaryAgent(blocks)
+            agent = self.initialize_agent(simulator, blocks)
             res.append(agent)
             print(f"Stationary created {agent}")
 
