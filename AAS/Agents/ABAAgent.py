@@ -1,12 +1,12 @@
 from abc import ABC
 from typing import List, Optional, TYPE_CHECKING
 
-from . import ABAgent
+from .ABAgent import ABAgent
 from .AgentType import AgentType
 
 if TYPE_CHECKING:
-    from ..Coordinates import Coordinate4D
-    from ..Path import PathSegment
+    from ..Coordinates.Coordinate4D import Coordinate4D
+    from ..Path.PathSegment import PathSegment
     from ..Simulator import Simulator
 
 

@@ -12,6 +12,6 @@ class HistoryAgent:
         self.past_allocations: Dict[int, Dict[str, List[List[Coordinate4D]] | AllocationReason | float]] = {}
         self.allocation_time: Dict[int, int]
 
-    def reallocation(self, new_path: List[List[Coordinate4D]], reason: AllocationReason, time_step: int, compute_time: float):
+    def reallocation(self, new_path: List[List[Coordinate4D]], reason: AllocationReason, time_step: int,
+                     compute_time: float):
         self.past_allocations[time_step] = {"path": new_path, "reason": reason, "time": compute_time}
-

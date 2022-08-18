@@ -28,7 +28,7 @@ class FCFSABAgent(ABAgent):
         clone = FCFSABAgent(self.a,
                             self.b,
                             self.simulator,
-                            agent_id=self.agent_id,
+                            agent_id=self.id,
                             speed=self.speed,
                             battery=self.battery,
                             near_radius=self.near_radius)

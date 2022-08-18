@@ -5,10 +5,10 @@ from .History.History import History
 
 if TYPE_CHECKING:
     from .Path.Allocation import Allocation
-    from .Agents import Agent
-    from .Environment import Environment
-    from .Allocator import Allocator
-    from .Owner import Owner
+    from .Agents.Agent import Agent
+    from .Environment.Environment import Environment
+    from .Allocator.Allocator import Allocator
+    from .Owners.Owner import Owner
 
 
 class Simulator:
@@ -32,7 +32,7 @@ class Simulator:
     def tick(self) -> bool:
         newcomers: List["Agent"] = []
         for owner in self.owners:
-            newcomers += owner.generate_agents(self.time_step, self.environment)
+            newcomers += owner.generate_agents(self.time_step, self)
 
         if len(newcomers) > 0:
             print(f"STEP: {self.time_step}")
@@ -45,6 +45,6 @@ class Simulator:
                 self.time_step)
             agents_paths = self.environment.original_agents(cloned_agents_paths, newcomers)
             self.environment.allocate_segments_for_agents(agents_paths, self.time_step)
-            self.history.update_allocations(agents_paths, self.time_step, (time_ns() - start_time)/1e6)
+            self.history.update_allocations(agents_paths, self.time_step, (time_ns() - start_time) / 1e6)
         self.time_step += 1
         return True

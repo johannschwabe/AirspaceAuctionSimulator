@@ -1,7 +1,9 @@
 from typing import List, Dict, TYPE_CHECKING, Optional, Literal
 from rtree import index
 
-from ..Agent import Agent, SpaceAgent, PathAgent
+from ..Agents.Agent import Agent
+from ..Agents.SpaceAgent import SpaceAgent
+from ..Agents.PathAgent import PathAgent
 from ..Blocker.BlockerType import BlockerType
 from ..Coordinates import Coordinate4D
 from ..Path import PathSegment, SpaceSegment
@@ -190,7 +192,6 @@ class Environment:
             else:
                 if intersection_id in intersections_small:
                     return False
-
 
     def is_box_blocked(self, bottom_left: Coordinate4D, top_right: Coordinate4D) -> bool:
         blockers = self.blocker_tree.intersection((

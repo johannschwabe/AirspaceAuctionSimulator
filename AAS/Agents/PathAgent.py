@@ -1,11 +1,11 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Optional, TYPE_CHECKING
 
-from . import Agent
+from .Agent import Agent
 from .AllocationType import AllocationType
 
 if TYPE_CHECKING:
-    from ..Path import PathSegment
+    from ..Path.PathSegment import PathSegment
     from ..Simulator import Simulator
 
 

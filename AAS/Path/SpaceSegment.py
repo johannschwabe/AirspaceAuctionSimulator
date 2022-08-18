@@ -1,7 +1,8 @@
+from .Segment import Segment
 from ..Coordinates import Coordinate4D
 
 
-class SpaceSegment:
+class SpaceSegment(Segment):
     def __init__(self, mini: Coordinate4D, maxi: Coordinate4D):
         self.min = mini
         self.max = maxi

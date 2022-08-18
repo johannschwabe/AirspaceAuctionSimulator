@@ -14,7 +14,7 @@ from AAS.Coordinates import Coordinate4D
 from AAS.IO.JSONS import build_json
 from API.Generator import Generator
 from API.Generator.MapTile import MapTile
-from AAS.Owner import PathOwner
+from AAS.Owners import PathOwner
 from config import available_allocators
 
 app = FastAPI()

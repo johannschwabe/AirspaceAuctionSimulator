@@ -255,9 +255,11 @@ def build_json(config: "APISimulationConfig", simulator: Simulator, total_comput
                     owner.id,
                     owner.name,
                 ))
-            nr_collisions += close_encounters[agent.id]["total_near_field_violations"]  # todo different collision metric
+            nr_collisions += close_encounters[agent.id][
+                "total_near_field_violations"]  # todo different collision metric
         owners.append(JSONOwner(owner.name, owner.id, owner.color, agents))
-    json_stats = JSONStatistics(len(simulator.owners), len(env._agents), stats.total_agents_welfare(), nr_collisions, 0) # TODO reallocations
+    json_stats = JSONStatistics(len(simulator.owners), len(env._agents), stats.total_agents_welfare(), nr_collisions,
+                                0)  # TODO reallocations
     json_simulation = JSONSimulation(config, json_env, json_stats, owners, total_compute_time,
                                      history.compute_times)
     return json_simulation.as_dict()

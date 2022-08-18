@@ -31,7 +31,7 @@ class FCFSABAAgent(ABAAgent):
         clone = FCFSABAAgent(self.a,
                              self.b,
                              self.simulator,
-                             agent_id=self.agent_id,
+                             agent_id=self.id,
                              stay=self.stay,
                              speed=self.speed,
                              battery=self.battery,

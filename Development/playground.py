@@ -6,10 +6,10 @@ from AAS.Blocker.StaticBlocker import StaticBlocker
 from AAS.Coordinates.Coordinate3D import Coordinate3D
 from AAS.Environment.Environment import Environment
 from AAS.IO.JSONS import build_json
-from AAS.Owner.GridLocation import GridLocation
-from AAS.Owner.GridLocationType import GridLocationType
-from AAS.Owner.PathOwners.ABOwner import ABOwner
-from AAS.Owner.SpaceOwners.StationaryOwner import StationaryOwner
+from AAS.Owners.GridLocation import GridLocation
+from AAS.Owners.GridLocationType import GridLocationType
+from AAS.Owners.PathOwners.ABOwner import ABOwner
+from AAS.Owners.SpaceOwners.StationaryOwner import StationaryOwner
 from API.API import APISimpleCoordinates
 from API.Generator.MapTile import MapTile
 from Demos.FCFS.Allocator.FCFSAllocator import FCFSAllocator

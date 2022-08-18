@@ -6,7 +6,7 @@ from AAS import Environment
 from AAS.Agent import ABAgent
 from AAS.Coordinates import Coordinate4D
 from API.Generator.MapTile import MapTile
-from AAS.Owner import PathOwner, PathStop
+from AAS.Owners import PathOwner, PathStop
 from AAS.AStar.AStar import AStar
 
 dimensions = Coordinate4D(831, 30, 831, 20000)

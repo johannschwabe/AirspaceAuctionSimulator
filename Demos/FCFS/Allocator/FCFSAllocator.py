@@ -1,39 +1,29 @@
 from time import time_ns
-from typing import List
 
-from AAS.Owner.PathOwners.ABAOwner import ABAOwner
-from AAS.Owner.PathOwners.ABCOwner import ABCOwner
-from AAS.Owner.PathOwners.ABOwner import ABOwner
-from AAS.Owner.SpaceOwners.StationaryOwner import StationaryOwner
-from AAS.Path import PathSegment, SpaceSegment, PathAllocation, SpaceAllocation
-from AAS.Environment import Environment
-from AAS.Agent import Agent, PathAgent, SpaceAgent
-from AAS.Allocator import Allocator
-from AAS.Bid import ABBid, Bid, ABABid, StationaryBid, ABCBid
-from AAS.Coordinates import Coordinate4D
-from AAS.Path.Allocation import Allocation
-from AAS.Path.AllocationReason import AllocationReason
-from AAS.Path.Reason import Reason
-from AAS.AStar.AStar import AStar
+from AAS import Allocator, Agent, Environment, Allocation, Segment, AStar
+from Demos.FCFS.Owners.FCFSABAOwner import FCFSABAOwner
+from Demos.FCFS.Owners.FCFSABCOwner import FCFSABCOwner
+from Demos.FCFS.Owners.FCFSABOwner import FCFSABOwner
+from Demos.FCFS.Owners.FCFSStationaryOwner import FCFSStationaryOwner
 
 
 class FCFSAllocator(Allocator):
     @staticmethod
     def compatible_owner():
-        return [ABOwner, ABAOwner, ABCOwner, StationaryOwner]
+        return [FCFSABOwner, FCFSABAOwner, FCFSABCOwner, FCFSStationaryOwner]
 
     def __init__(self):
         super().__init__()
 
     def allocate_for_agents(self,
-                            agents: List[Agent],
+                            agents: list[Agent],
                             env: Environment,
-                            tick: int) -> List[Allocation]:
+                            tick: int) -> list[Allocation]:
         astar = AStar(env)
         allocations: list[Allocation] = []
         for agent in agents:
             start_time = time_ns()
-            optimal_path_segments: List[PathSegment | SpaceSegment] = []
+            optimal_path_segments: list[Segment] = []
             bid: Bid = agent.get_bid(tick)
 
             # A-B

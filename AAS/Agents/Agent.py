@@ -2,10 +2,10 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from ..Path import PathSegment, SpaceSegment
+    from ..Path.Segment import Segment
     from ..Simulator import Simulator
-    from ..Bids import Bid
-    from ..Coordinates import Coordinate4D
+    from ..Bids.Bid import Bid
+    from ..Coordinates.Coordinate4D import Coordinate4D
 
 
 class Agent(ABC):
@@ -26,7 +26,7 @@ class Agent(ABC):
             self.id: int = self.simulator.getAgentId()
             self.is_clone: bool = False
 
-        self.allocated_segments: list["PathSegment" | "SpaceSegment"] = []
+        self.allocated_segments: list["Segment"] = []
         self.optimal_welfare: float = 1.
         self.costs: float = 0.
 
@@ -35,7 +35,7 @@ class Agent(ABC):
         return self.value_for_segments(self.allocated_segments)
 
     @abstractmethod
-    def value_for_segments(self, segments: list["PathSegment" | "SpaceSegment"]) -> float:
+    def value_for_segments(self, segments: list["Segment"]) -> float:
         pass
 
     @abstractmethod
@@ -52,11 +52,5 @@ class Agent(ABC):
     def get_allocated_value(self) -> float:
         return self.value_for_segments(self.allocated_segments)
 
-    def generalized_bid(self):
-        return {
-            "No Bids": "-",
-            "!value": -1
-        }
-
     def __repr__(self):
-        return str(self.id)
+        return f"{self.agent_type}-{self.id}"

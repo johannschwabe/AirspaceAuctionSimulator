@@ -22,13 +22,13 @@ class FCFSABCAgent(ABCAgent):
                          near_radius=near_radius)
 
     def get_bid(self) -> FCFSABCBid:
-        return FCFSABCBid(self.battery, self._locations, self.stays)
+        return FCFSABCBid(self.battery, self.locations, self.stays)
 
     def clone(self):
         clone = FCFSABCAgent(self.locations,
                              self.stays,
                              self.simulator,
-                             agent_id=self.agent_id,
+                             agent_id=self.id,
                              speed=self.speed,
                              battery=self.battery,
                              near_radius=self.near_radius)

@@ -6,18 +6,18 @@ if TYPE_CHECKING:
     from ..Simulator import Environment
     from ..Agent import Agent
     from ..Allocator import Allocator
-    from ..Owner import Owner
+    from ..Owners import Owner
 
 
 class History:
-    def __init__(self, allocator: "Allocator", env: "Environment", owners: List["Owner"]):
+    def __init__(self, allocator: "Allocator", env: "Environment", owners: List["Owners"]):
         self.agents: Dict["Agents", HistoryAgent] = {}
-        self.owners: List["Owner"] = owners
+        self.owners: List["Owners"] = owners
         self.allocator: "Allocator" = allocator
         self.env: "Environment" = env
         self.compute_times: Dict[int, float] = {}
 
-    def set_owners(self, owners: List["Owner"]):
+    def set_owners(self, owners: List["Owners"]):
         self.owners = owners
 
     def add_new_agents(self, agents: List["Agents"], time_step: int):

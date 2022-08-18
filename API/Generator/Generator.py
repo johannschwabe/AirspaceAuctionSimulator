@@ -3,9 +3,9 @@ from typing import List, Optional, TYPE_CHECKING, Dict
 
 from AAS.Coordinates import Coordinate4D, Coordinate2D
 from AAS.History import History
-from AAS.Owner import Owner, GridLocation, GridLocationType
-from AAS.Owner.Heatmap import Heatmap
-from AAS.Owner.HeatmapType import HeatmapType
+from AAS.Owners import Owner, GridLocation, GridLocationType
+from AAS.Owners.Heatmap import Heatmap
+from AAS.Owners.HeatmapType import HeatmapType
 from AAS.Simulator import Simulator
 from AAS.Statistics.Statistics import Statistics
 from .EnvironmentGen import EnvironmentGen
@@ -27,7 +27,7 @@ class Generator:
     ):
         self.apiOwners: List["APIOwner"] = owners
         self.dimensions: "Coordinate4D" = dimensions
-        self.owners: List["Owner"] = []
+        self.owners: List["Owners"] = []
         self.allocator: "Allocator" = allocator
         self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles).generate()
         self.simulator: Optional["Simulator"] = None
@@ -63,7 +63,7 @@ class Generator:
             stops: List["GridLocation"] = self.extract_owner_stops(apiOwner)
             owners = [_owner for _owner in self.allocator.compatible_owner() if _owner.__name__ == apiOwner.classname]
             if len(owners) != 1:
-                print(f"Owner Type {apiOwner} not registered with allocator {self.allocator.__class__.__name__}")
+                print(f"Owners Type {apiOwner} not registered with allocator {self.allocator.__class__.__name__}")
                 continue
             ownerClass = owners[0]
             self.owners.append(ownerClass(apiOwner.name,
