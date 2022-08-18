@@ -5,7 +5,7 @@ from Simulator.Blocker.BuildingBlocker import BuildingBlocker
 from Simulator.Coordinate import Coordinate4D
 
 if TYPE_CHECKING:
-    from API import APISimpleCoordinates
+    from API import APISimpleCoordinates, APISubselection
 
 
 class MapTile:
@@ -16,6 +16,7 @@ class MapTile:
         dimensions: Coordinate4D,
         top_left_coordinate: "APISimpleCoordinates",
         bottom_right_coordinate: "APISimpleCoordinates",
+        subselection: "APISubselection"
     ):
         self.blockers = []
         self.z = tile_ids[0]
@@ -24,6 +25,7 @@ class MapTile:
         self.dimensions = dimensions
         self.top_left_coordinate = top_left_coordinate
         self.bottom_right_coordinate = bottom_right_coordinate
+        self.subselection = subselection
 
     @property
     def url(self):
@@ -38,6 +40,9 @@ class MapTile:
                 (coord[1] - self.top_left_coordinate.lat) /
                 (self.bottom_right_coordinate.lat - self.top_left_coordinate.lat)
             ) * self.dimensions.z
+        if self.subselection.topLeft:
+            z -= self.subselection.topLeft.x
+            x -= self.subselection.topLeft.y
         return [x, z]
 
     def resolve_buildings(self):
@@ -81,6 +86,10 @@ class MapTile:
 
                 bounds = [Coordinate4D(min_x, 0, min_z, 0),
                           Coordinate4D(max_x, building['properties']['height'], max_z, self.dimensions.t + 1000)]
+                if min_x > self.subselection.bottomRight.x - self.subselection.topLeft.x or \
+                    min_z > self.subselection.bottomRight.y - self.subselection.topLeft.y or \
+                    max_x < 0 or max_z < 0:
+                    continue
                 new_blocker = BuildingBlocker(coords, bounds, holes)
                 res.append(new_blocker)
 

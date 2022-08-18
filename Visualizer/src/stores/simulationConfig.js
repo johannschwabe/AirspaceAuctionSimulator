@@ -10,8 +10,7 @@ import { randomName } from "../scripts/names";
  * @property {{long: number, lat: number}} coordinates
  * @property {string} locationName
  * @property {number} neighbouringTiles
- * @property {{long: number, lat: number}} topLeftCoordinate
- * @property {{long: number, lat: number}} bottomRightCoordinate
+ * @property {{bottomLeft: {long: number, lat: number}, topRight: {long: number, lat: number}}} subselection
  * @property {number[]} tiles
  */
 
@@ -94,6 +93,10 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     neighbouringTiles: 0,
     topLeftCoordinate: undefined,
     bottomRightCoordinate: undefined,
+    subselection: {
+      bottomLeft: undefined,
+      topRight: undefined,
+    },
     tiles: [],
   });
 
@@ -232,6 +235,11 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     config.owners.forEach((owner) => owners.push(owner));
   };
 
+  const setMapSubTile = (topLeft, bottomRight) => {
+    map.subselection.bottomLeft = topLeft;
+    map.subselection.topRight = bottomRight;
+  };
+
   const isEmpty = computed(() => !name.value);
 
   return {
@@ -250,5 +258,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     generateConfigJson,
     overwrite,
     loadAvailableAllocators,
+    setMapSubTile,
   };
 });

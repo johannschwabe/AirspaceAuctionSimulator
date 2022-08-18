@@ -37,6 +37,7 @@ app.add_middleware(
 )
 
 
+
 class APIGridCoordinates(BaseModel):
     x: int
     y: int
@@ -44,6 +45,9 @@ class APIGridCoordinates(BaseModel):
     long: float
     value: float
 
+class APISubselection(BaseModel):
+    topLeft: APIGridCoordinates
+    bottomRight: APIGridCoordinates
 
 class APILocations(BaseModel):
     type: str
@@ -80,6 +84,7 @@ class APIMap(BaseModel):
     neighbouringTiles: int
     topLeftCoordinate: APISimpleCoordinates
     bottomRightCoordinate: APISimpleCoordinates
+    subselection: APISubselection
     tiles: List[List[int]]
 
 
@@ -132,7 +137,7 @@ def read_root(config: APISimulationConfig):
     if config.map:
         top_left_coordinate = config.map.topLeftCoordinate
         bottom_right_coordinate = config.map.bottomRightCoordinate
-        maptiles = [MapTile(tile, dimensions, top_left_coordinate, bottom_right_coordinate) for tile in
+        maptiles = [MapTile(tile, dimensions, top_left_coordinate, bottom_right_coordinate, config.map.subselection) for tile in
                     config.map.tiles]
     else:
         maptiles = []
