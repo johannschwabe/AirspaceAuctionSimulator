@@ -1,6 +1,6 @@
-from random import random, randint
+from typing import List, Tuple
 
-from .Coordinate3D import Coordinate3D
+from Coordinate3D import Coordinate3D
 
 
 class Coordinate4D(Coordinate3D):
@@ -11,50 +11,50 @@ class Coordinate4D(Coordinate3D):
         self.t: int = t
 
     @staticmethod
-    def from_3d(coord_3d: Coordinate3D, t: int):
+    def from_3d(coord_3d: "Coordinate3D", t: int) -> "Coordinate3D":
         return Coordinate4D(coord_3d.x, coord_3d.y, coord_3d.z, t)
 
-    def get_key(self):
+    def get_key(self) -> str:
         return f"{self.x}_{self.y}_{self.z}_{self.t}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"({self.x}, {self.y}, {self.z}, {self.t})"
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return self.x == other.x and \
                self.y == other.y and \
                self.z == other.z and \
                self.t == other.t
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(f"{self.x}:{self.y}:{self.z}:{self.t}")
 
-    def inter_temporal_equal(self, other):
+    def inter_temporal_equal(self, other) -> bool:
         return super().__eq__(other)
 
-    def tree_query_point_rep(self):
+    def tree_query_point_rep(self) -> List[int]:
         list_rep = self.list_rep()
         return list_rep + list_rep
 
-    def list_rep(self):
+    def list_rep(self) -> List[int]:
         return [self.x, self.y, self.z, self.t]
 
-    def to_inter_temporal(self):
+    def to_inter_temporal(self) -> "Coordinate3D":
         return Coordinate3D(self.x, self.y, self.z)
 
-    def __add__(self, other):
+    def __add__(self, other) -> "Coordinate4D":
         t_other = 0
         if type(other).__name__ == "Coordinate4D":
             t_other = other.t
         return Coordinate4D(self.x + other.x, self.y + other.y, self.z + other.z, self.t + t_other)
 
-    def __sub__(self, other):
+    def __sub__(self, other) -> "Coordinate4D":
         t_other = 0
         if type(other).__name__ == "Coordinate4D":
             t_other = other.t
         return Coordinate4D(self.x - other.x, self.y - other.y, self.z - other.z, self.t - t_other)
 
-    def distance(self, other, l2: bool = False):
+    def distance(self, other, l2: bool = False) -> Tuple[float, int]:
         temp = 0
         if isinstance(other, Coordinate4D):
             temp = abs(self.t - other.t)
@@ -63,24 +63,5 @@ class Coordinate4D(Coordinate3D):
     def inter_temporal_distance(self, other: Coordinate3D, l2: bool = False) -> float:
         return super().distance(other, l2)
 
-    def clone(self):
+    def clone(self) -> "Coordinate4D":
         return Coordinate4D(self.x, self.y, self.z, self.t)
-
-    def random_neighbor(self, delta_t=0, chance_x=1 / 3, chance_y=1 / 3, chance_forward=0.5):
-        r = random()
-        move = 1 if random() > chance_forward else -1
-        if r <= chance_x:
-            return Coordinate4D(self.x + move, self.y, self.z, self.t + delta_t)
-        elif chance_x < r <= chance_y:
-            return Coordinate4D(self.x, self.y + move, self.z, self.t + delta_t)
-        else:
-            return Coordinate4D(self.x, self.y, self.z + move, self.t + delta_t)
-
-    @staticmethod
-    def random(dimensions: "Coordinate4D"):
-        return Coordinate4D(
-            randint(0, dimensions.x - 1),
-            randint(0, dimensions.y - 1),
-            randint(0, dimensions.z - 1),
-            randint(0, dimensions.t - 1)
-        )

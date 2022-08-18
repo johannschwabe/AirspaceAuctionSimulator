@@ -1,40 +1,41 @@
 import math
 
+
 class Coordinate2D:
 
     def __init__(self, x: int, z: int):
         self.x: int = x
         self.z: int = z
 
-    def get_key(self):
+    def get_key(self) -> str:
         return f"{self.x}_{self.z}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"({self.x}, {self.z})"
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return self.x == other.x and \
                self.z == other.z
 
-    def __add__(self, other):
+    def __add__(self, other) -> "Coordinate2D":
         return Coordinate2D(self.x + other.x, self.z + other.z)
 
-    def __sub__(self, other):
+    def __sub__(self, other) -> "Coordinate2D":
         return Coordinate2D(self.x - other.x, self.z - other.z)
 
     @property
-    def l1(self):
+    def l1(self) -> int:
         return abs(self.x) + abs(self.z)
 
     @property
-    def l2(self):
+    def l2(self) -> float:
         return math.sqrt(self.x ** 2 + self.z ** 2)
 
-    def distance(self, other, l2: bool = False):
+    def distance(self, other: "Coordinate2D", l2: bool = False) -> float:
         if l2:
-            return ((self.x - other.x) ** 2 + (self.z - other.xz) ** 2) ** 0.5
+            return ((self.x - other.x) ** 2 + (self.z - other.z) ** 2) ** 0.5
         else:
             return abs(self.x - other.x) + abs(self.z - other.z)
 
-    def clone(self):
+    def clone(self) -> "Coordinate2D":
         return Coordinate2D(self.x, self.z)
