@@ -93,8 +93,8 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     },
     locationName: "",
     neighbouringTiles: 0,
-    topLeftCoordinate: undefined,
-    bottomRightCoordinate: undefined,
+    bottomLeftCoordinate: undefined,
+    topRightCoordinate: undefined,
     subselection: {
       bottomLeft: undefined,
       topRight: undefined,

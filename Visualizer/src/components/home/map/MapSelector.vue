@@ -108,12 +108,12 @@ watchEffect(() => {
       if (i === -n && j === n) {
         const projectedExtent = grid.getTileCoordExtent(updatedTileCord);
         const extent = transformExtent(projectedExtent, get("EPSG:3857"), get("EPSG:4326"));
-        bottomLeftCoordinate = { lat: extent[3], long: extent[0] };
+        bottomLeftCoordinate = { lat: extent[1], long: extent[0] };
       }
       if (i === n && j === -n) {
         const projectedExtent = grid.getTileCoordExtent(updatedTileCord);
         const extent = transformExtent(projectedExtent, get("EPSG:3857"), get("EPSG:4326"));
-        topRightCoordinate = { lat: extent[1], long: extent[2] };
+        topRightCoordinate = { lat: extent[3], long: extent[2] };
       }
     }
   }

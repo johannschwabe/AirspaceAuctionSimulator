@@ -220,7 +220,7 @@ export const useMap = (mapRoot, layers) => {
         zoom: zoom.value,
         center: [simulationConfig.map.coordinates.long, simulationConfig.map.coordinates.lat],
         extent: extend,
-        showFullExtent: true,
+        showFullExtent: false,
         projection: "EPSG:4326",
       }),
     });
