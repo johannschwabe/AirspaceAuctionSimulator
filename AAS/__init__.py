@@ -1,12 +1,12 @@
 # AStar
 from .AStar.AStar import AStar
 # Agents
-from .Agents.ABAAgent import ABAAgent
-from .Agents.ABAgent import ABAgent
-from .Agents.ABCAgent import ABCAgent
 from .Agents.AgentType import AgentType
 from .Agents.AllocationType import AllocationType
-from .Agents.StationaryAgent import StationaryAgent
+from .Agents.PathAgents.ABAAgent import ABAAgent
+from .Agents.PathAgents.ABAgent import ABAgent
+from .Agents.PathAgents.ABCAgent import ABCAgent
+from .Agents.SpaceAgents.StationaryAgent import StationaryAgent
 # Allocator
 from .Allocator.Allocator import Allocator
 # Bids

@@ -1,14 +1,14 @@
 import random
 from typing import List, TYPE_CHECKING
 
+from AAS.Agents.SpaceAgents.StationaryAgent import StationaryAgent
 from ..SpaceOwner import SpaceOwner
-from ...Agents.StationaryAgent import StationaryAgent
 from ...Coordinates.Coordinate4D import Coordinate4D
 
 if TYPE_CHECKING:
     from ..GridLocation import GridLocation
     from ...Simulator import Simulator
-    from ...Agents.StationaryAgent import StationaryAgent
+    from AAS.Agents.SpaceAgents.StationaryAgent import StationaryAgent
 
 
 class StationaryOwner(SpaceOwner):

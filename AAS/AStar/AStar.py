@@ -2,12 +2,12 @@ import heapq
 import math
 from typing import List, TYPE_CHECKING, Set, Optional, Tuple
 
-from AAS.AStar.Node import Node
+from .Node import Node
 
 if TYPE_CHECKING:
-    from AAS.Environment import Environment
-    from AAS.Coordinates import Coordinate4D
-    from AAS.Agent import PathAgent
+    from ..Environment.Environment import Environment
+    from ..Coordinates.Coordinate4D import Coordinate4D
+    from ..Agents.PathAgents.PathAgent import PathAgent
 
 
 class AStar:
@@ -25,7 +25,7 @@ class AStar:
     def valid_start(self,
                     start: "Coordinate4D",
                     agent: "PathAgent",
-                    in_air: bool) -> tuple[Optional["Coordinate4D"], set["Agents"]]:
+                    in_air: bool) -> tuple[Optional["Coordinate4D"], set["PathAgent"]]:
         valid_start: "Coordinate4D" = start.clone()
 
         if in_air and not self.is_valid_for_allocation(valid_start, agent):

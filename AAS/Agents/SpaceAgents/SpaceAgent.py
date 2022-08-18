@@ -1,12 +1,12 @@
 from abc import ABC
 from typing import Optional, TYPE_CHECKING, List
 
-from .Agent import Agent
-from .AllocationType import AllocationType
+from AAS.Agents.Agent import Agent
+from AAS.Agents.AllocationType import AllocationType
 
 if TYPE_CHECKING:
-    from ..Path.SpaceSegment import SpaceSegment
-    from ..Simulator import Simulator
+    from AAS.Path.SpaceSegment import SpaceSegment
+    from AAS.Simulator import Simulator
 
 
 class SpaceAgent(Agent, ABC):

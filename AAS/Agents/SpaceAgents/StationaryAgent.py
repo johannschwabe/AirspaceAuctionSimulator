@@ -1,13 +1,13 @@
 from abc import ABC
 from typing import List, TYPE_CHECKING, Optional
 
-from .AgentType import AgentType
+from AAS.Agents.AgentType import AgentType
 from .SpaceAgent import SpaceAgent
 
 if TYPE_CHECKING:
-    from ..Coordinates.Coordinate4D import Coordinate4D
-    from ..Simulator import Simulator
-    from ..Path.SpaceSegment import SpaceSegment
+    from AAS.Coordinates.Coordinate4D import Coordinate4D
+    from AAS.Simulator import Simulator
+    from AAS.Path.SpaceSegment import SpaceSegment
 
 
 class StationaryAgent(SpaceAgent, ABC):
@@ -35,5 +35,5 @@ class StationaryAgent(SpaceAgent, ABC):
                           (block[1].y - block[0].y) * \
                           (block[1].z - block[0].z) * \
                           (block[1].t - block[0].t)
-            
+
         return sum_segments / sum_blocks

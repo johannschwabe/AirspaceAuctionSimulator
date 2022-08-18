@@ -1,31 +1,32 @@
 from typing import TYPE_CHECKING, List, Optional, Set
 
-from AAS.Coordinates import Coordinate4D
+from ..Coordinates.Coordinate4D import Coordinate4D
 
 if TYPE_CHECKING:
-    from AAS.Agent import PathAgent
-    from AAS.Coordinates import Coordinate3D
+    from ..Agents.PathAgents.PathAgent import PathAgent
+    from ..Coordinates.Coordinate3D import Coordinate3D
 
 
 class Node:
     def __init__(self, position: "Coordinate4D", parent: Optional["Node"], collisions: Set["PathAgent"]):
-        self.position = position
-        self.parent = parent
-        self.g = 0  # Distance to start node
-        self.h = 0  # Distance to goal node
-        self.f = 0  # Total cost
+        self.position: "Coordinate4D" = position
+        self.parent: Optional["Node"] = parent
         self.collisions: Set["PathAgent"] = collisions
 
-    def __eq__(self, other):
+        self.g: float = 0  # Distance to start node
+        self.h: float = 0  # Distance to goal node
+        self.f: float = 0  # Total cost
+
+    def __eq__(self, other) -> bool:
         return self.position == other.position
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         return self.f < other.f
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.position)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.position}: {self.f}, {self.h}"
 
     def adjacent_coordinates(self, dim: "Coordinate3D", speed: int) -> List["Coordinate4D"]:

@@ -6,7 +6,7 @@ from ..PathOwner import PathOwner
 
 if TYPE_CHECKING:
     from ...Coordinates.Coordinate4D import Coordinate4D
-    from ...Agents.ABAAgent import ABAAgent
+    from AAS.Agents.PathAgents.ABAAgent import ABAAgent
     from ..GridLocation import GridLocation
     from ...Simulator import Simulator
 

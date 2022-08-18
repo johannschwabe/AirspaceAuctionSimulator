@@ -1,13 +1,13 @@
 from abc import ABC
 from typing import List, Optional, TYPE_CHECKING
 
-from .AgentType import AgentType
+from AAS.Agents.AgentType import AgentType
 from .PathAgent import PathAgent
 
 if TYPE_CHECKING:
-    from ..Coordinates.Coordinate4D import Coordinate4D
-    from ..Path.PathSegment import PathSegment
-    from ..Simulator import Simulator
+    from AAS.Coordinates.Coordinate4D import Coordinate4D
+    from AAS.Path.PathSegment import PathSegment
+    from AAS.Simulator import Simulator
 
 
 class ABCAgent(PathAgent, ABC):
@@ -22,7 +22,7 @@ class ABCAgent(PathAgent, ABC):
                  battery: Optional[int] = None,
                  near_radius: Optional[int] = None,
                  far_radius: Optional[int] = None):
-        
+
         super().__init__(simulator,
                          agent_id=agent_id,
                          speed=speed,

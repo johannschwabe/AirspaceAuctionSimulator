@@ -1,9 +1,10 @@
 from typing import List, Dict, TYPE_CHECKING, Optional, Literal
+
 from rtree import index
 
+from AAS.Agents.PathAgents.PathAgent import PathAgent
+from AAS.Agents.SpaceAgents.SpaceAgent import SpaceAgent
 from ..Agents.Agent import Agent
-from ..Agents.SpaceAgent import SpaceAgent
-from ..Agents.PathAgent import PathAgent
 from ..Blocker.BlockerType import BlockerType
 from ..Coordinates import Coordinate4D
 from ..Path import PathSegment, SpaceSegment

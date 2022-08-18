@@ -1,54 +1,55 @@
 from abc import ABC
 from typing import List, Optional, TYPE_CHECKING
 
-from .AgentType import AgentType
-from .PathAgent import PathAgent
+from AAS.Agents.AgentType import AgentType
+from .ABAgent import ABAgent
 
 if TYPE_CHECKING:
-    from ..Coordinates.Coordinate4D import Coordinate4D
-    from ..Path.PathSegment import PathSegment
-    from ..Simulator import Simulator
+    from AAS.Coordinates.Coordinate4D import Coordinate4D
+    from AAS.Path.PathSegment import PathSegment
+    from AAS.Simulator import Simulator
 
 
-class ABAgent(PathAgent, ABC):
-    agent_type: str = AgentType.AB.value
+class ABAAgent(ABAgent, ABC):
+    agent_type: str = AgentType.ABA.value
 
     def __init__(self,
                  a: "Coordinate4D",
                  b: "Coordinate4D",
+                 stay: int,
                  simulator: "Simulator",
                  agent_id: Optional[int] = None,
                  speed: Optional[int] = None,
                  battery: Optional[int] = None,
                  near_radius: Optional[int] = None,
                  far_radius: Optional[int] = None):
-        
-        super().__init__(simulator,
+
+        super().__init__(a,
+                         b,
+                         simulator,
                          agent_id=agent_id,
                          speed=speed,
                          battery=battery,
                          near_radius=near_radius,
                          far_radius=far_radius)
 
-        self.a: "Coordinate4D" = a
-        self.b: "Coordinate4D" = b
+        self.stay: int = stay
 
     def value_for_segments(self, path_segments: List["PathSegment"]) -> float:
-        if len(path_segments) != 1:
+        if len(path_segments) != 2:
             return 0.
 
-        path_segment = path_segments[0]
+        ab_path = path_segments[0]
+        ba_path = path_segments[1]
 
-        if len(path_segment) == 0:
+        if len(ab_path) == 0 or len(ba_path) == 0:
             return 0.
 
-        start: Coordinate4D = path_segment[0]
-        destination: Coordinate4D = path_segment[-1]
-        time = destination.t - start.t
+        time = ab_path[-1].t - ab_path[0].t + ba_path[-1].t - ba_path[0].t
         if time > self.battery:
             return -1.
 
-        delay = destination.t - self.b.t
+        delay = ab_path[-1].t - self.b.t
         if delay > 0:
             return round(max(0., 1. - delay / 100), 2)
 

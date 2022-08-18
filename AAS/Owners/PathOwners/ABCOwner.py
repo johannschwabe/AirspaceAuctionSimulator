@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from ..PathOwner import PathOwner
 
 if TYPE_CHECKING:
-    from ...Agents.ABCAgent import ABCAgent
+    from AAS.Agents.PathAgents.ABCAgent import ABCAgent
     from ..GridLocation import GridLocation
     from ...Simulator import Simulator
     from ...Coordinates.Coordinate4D import Coordinate4D
