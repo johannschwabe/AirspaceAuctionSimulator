@@ -4,7 +4,7 @@ from typing import List, TYPE_CHECKING
 from AAS.Allocator import Allocator
 from AAS.Path import PathAllocation, PathSegment, SpaceSegment, SpaceAllocation
 from AAS.Path.AllocationReason import AllocationReason
-from AAS.Path.Reason import Reason
+from AAS.Path.AllocationReasonType import AllocationReasonType
 from Demos.Priority.AStar.PriorityAStar import PriorityAStar
 from Demos.Priority.Agents.PriorityABAgent import PriorityABAgent
 from Demos.Priority.Agents.PriorityStationaryAgent import PriorityStationaryAgent
@@ -42,8 +42,8 @@ class PriorityAllocator(Allocator):
                 ab_path, collisions = astar.astar(bid.a, bid.b, agent, bid.flying)
                 new_path_segment = PathSegment(bid.a.to_inter_temporal(), bid.b.to_inter_temporal(), 0, ab_path)
                 reallocation_reason = AllocationReason(
-                    str(Reason.FIRST_ALLOCATION.value)) if agent in agents else AllocationReason(
-                    str(Reason.AGENT.value),
+                    str(AllocationReasonType.FIRST_ALLOCATION.value)) if agent in agents else AllocationReason(
+                    str(AllocationReasonType.AGENT.value),
                     [collision.id for collision in collisions])
                 to_add = to_add.union(collisions)
                 for agent_to_remove in collisions:
@@ -87,8 +87,8 @@ class PriorityAllocator(Allocator):
                                            reallocation.agent != agent_to_remove]
 
                     reallocation_reason = AllocationReason(
-                        str(Reason.FIRST_ALLOCATION.value)) if agent in agents else AllocationReason(
-                        str(Reason.AGENT.value),
+                        str(AllocationReasonType.FIRST_ALLOCATION.value)) if agent in agents else AllocationReason(
+                        str(AllocationReasonType.AGENT.value),
                         [collision.id for collision in blocking_agents])
                     env.allocate_spaces_for_agent(agent, space_segments)
                     if agent.id not in env.get_agents():

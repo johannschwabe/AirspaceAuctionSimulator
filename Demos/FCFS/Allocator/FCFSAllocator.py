@@ -1,6 +1,16 @@
 from time import time_ns
 
-from AAS import Allocator, AStar, AgentType, PathSegment
+from AAS import \
+    Allocator, \
+    AStar, \
+    AgentType, \
+    PathSegment, \
+    SpaceSegment, \
+    AllocationType, \
+    PathAllocation, \
+    SpaceAllocation, \
+    AllocationReason, \
+    AllocationReasonType
 from Demos.FCFS.Owners.FCFSABAOwner import FCFSABAOwner
 from Demos.FCFS.Owners.FCFSABCOwner import FCFSABCOwner
 from Demos.FCFS.Owners.FCFSABOwner import FCFSABOwner
@@ -15,7 +25,8 @@ class FCFSAllocator(Allocator):
     def __init__(self):
         super().__init__()
 
-    def allocate_ab(self, agent, bid, astar):
+    @staticmethod
+    def allocate_ab(agent, bid, astar):
         ab_path, _ = astar.astar(
             bid.a,
             bid.b,
@@ -28,7 +39,8 @@ class FCFSAllocator(Allocator):
         optimal_path_segments = [PathSegment(bid.a.to_inter_temporal(), bid.b.to_inter_temporal(), 0, ab_path)]
         return optimal_path_segments
 
-    def allocate_aba(self, agent, bid, astar):
+    @staticmethod
+    def allocate_aba(agent, bid, astar):
         ab_path, _ = astar.astar(
             bid.a,
             bid.b,
@@ -52,7 +64,8 @@ class FCFSAllocator(Allocator):
         ]
         return optimal_path_segments
 
-    def allocate_abc(self, agent, bid, astar):
+    @staticmethod
+    def allocate_abc(agent, bid, astar):
         a = bid.locations[0]
         time = 0
         count = 0
@@ -78,6 +91,15 @@ class FCFSAllocator(Allocator):
 
         return optimal_path_segments
 
+    @staticmethod
+    def allocate_stationary(agent, bid, environment):
+        optimal_path_segments = []
+        for block in bid.blocks:
+            block_valid = environment.is_box_valid_for_allocation(block[0], block[1], agent)
+            if block_valid:
+                optimal_path_segments.append(SpaceSegment(block[0], block[1]))
+        return optimal_path_segments
+
     def allocate_for_agents(self,
                             agents,
                             environment,
@@ -89,39 +111,43 @@ class FCFSAllocator(Allocator):
             optimal_path_segments = []
             bid = agent.get_bid(tick)
 
-            if agent.allocation_type == AllocationType.PATH:
-                # A-B
-                if agent.agent_type == AgentType.AB:
-                    optimal_path_segments = self.allocate_ab(agent, bid, astar)
+            # Path Agents
+            if agent.allocation_type == AllocationType.PATH.value:
+                match agent.agent_type:
+                    # A-B
+                    case AgentType.AB.value:
+                        optimal_path_segments = self.allocate_ab(agent, bid, astar)
+                    # A-B-A
+                    case AgentType.ABA.value:
+                        optimal_path_segments = self.allocate_aba(agent, bid, astar)
+                    # A-B-C
+                    case AgentType.ABC.value:
+                        optimal_path_segments = self.allocate_abc(agent, bid, astar)
 
-                # A-B-A
-                elif agent.agent_type == AgentType.ABA:
-                    optimal_path_segments = self.allocate_aba(agent, bid, astar)
-
-                # A-B-C
-                elif agent.agent_type == AgentType.ABC:
-                    optimal_path_segments = self.allocate_abc(agent, bid, astar)
+                if optimal_path_segments is None:
+                    allocations.append(
+                        PathAllocation(agent, [], AllocationReason(str(AllocationReasonType.ALLOCATION_FAILED.value)),
+                                       (time_ns() - start_time) / 1e6))
+                    continue
 
                 environment.allocate_path_for_agent(agent, optimal_path_segments)
-                environment.add_agent(agent)
                 allocations.append(PathAllocation(agent,
                                                   optimal_path_segments,
-                                                  AllocationReason(str(Reason.FIRST_ALLOCATION.value)),
-                                                  (time_ns() - start_time) / 1e6)
-                                   )
-            # Stationary
-            elif agent.agent_type == AgentType.STATIONARY:
+                                                  AllocationReason(str(AllocationReasonType.FIRST_ALLOCATION.value)),
+                                                  (time_ns() - start_time) / 1e6))
 
-                for block in bid.blocks:
-                    block_valid = environment.is_box_valid_for_allocation(block[0], block[1], agent)
-                    if block_valid:
-                        optimal_path_segments.append(SpaceSegment(block[0], block[1]))
+            # Space Agents
+            elif agent.allocation_type == AllocationType.SPACE.value:
+                match agent.agent_type:
+                    # Stationary
+                    case AgentType.STATIONARY.value:
+                        optimal_path_segments = self.allocate_stationary(agent, bid, environment)
 
                 environment.allocate_spaces_for_agent(agent, optimal_path_segments)
-                environment.add_agent(agent)
                 allocations.append(SpaceAllocation(agent,
                                                    optimal_path_segments,
-                                                   AllocationReason(str(Reason.FIRST_ALLOCATION.value)),
-                                                   (time_ns() - start_time) / 1e6)
-                                   )
+                                                   AllocationReason(str(AllocationReasonType.FIRST_ALLOCATION.value)),
+                                                   (time_ns() - start_time) / 1e6))
+
+            environment.add_agent(agent)
         return allocations
