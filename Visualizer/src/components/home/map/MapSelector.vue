@@ -105,17 +105,21 @@ watchEffect(() => {
     for (let j = -n; j <= n; j++) {
       const updatedTileCord = [tileCoord[0], tileCoord[1] + j, tileCoord[2] + i];
       tiles.push(updatedTileCord);
-      if (i === -n && j === n) {
+      if (i === n && j === -n) {
         const projectedExtent = grid.getTileCoordExtent(updatedTileCord);
         const extent = transformExtent(projectedExtent, get("EPSG:3857"), get("EPSG:4326"));
         bottomLeftCoordinate = { lat: extent[1], long: extent[0] };
       }
-      if (i === n && j === -n) {
+      if (i === -n && j === n) {
         const projectedExtent = grid.getTileCoordExtent(updatedTileCord);
         const extent = transformExtent(projectedExtent, get("EPSG:3857"), get("EPSG:4326"));
         topRightCoordinate = { lat: extent[3], long: extent[2] };
       }
+      const projectedExtent = grid.getTileCoordExtent(updatedTileCord);
+      console.log(i, j, transformExtent(projectedExtent, get("EPSG:3857"), get("EPSG:4326")));
     }
+    console.log(bottomLeftCoordinate);
+    console.log(topRightCoordinate);
   }
   simulationConfig.map.tiles = tiles;
   simulationConfig.map.topRightCoordinate = topRightCoordinate;

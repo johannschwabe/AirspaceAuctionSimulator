@@ -105,103 +105,88 @@ export const useMap = (mapRoot, layers) => {
   // Holds OL Map object
   const map = shallowRef(null);
 
-  // /**
-  //  * Holds the coordinate at the top-left of the map
-  //  * @type {ComputedRef<number[]>}
-  //  */
-  // const topLeft = computed(() => {
-  //   return fromLonLat([simulationConfig.map.topLeftCoordinate.long, simulationConfig.map.topLeftCoordinate.lat]);
-  // });
-  //
-  // /**
-  //  * Holds the coordinate at the bottom-right of the map
-  //  * @type {ComputedRef<number[]>}
-  //  */
-  // const bottomRight = computed(() => {
-  //   return fromLonLat([
-  //     simulationConfig.map.bottomRightCoordinate.long,
-  //     simulationConfig.map.bottomRightCoordinate.lat,
-  //   ]);
-  // });
-  //
-  // /**
-  //  * Holds the extent of the visible map section
-  //  * An extent is array of numbers representing an extent: `[minx, miny, maxx, maxy]
-  //  * @type {ComputedRef<number[]>}
-  //  */
-  // const extent = computed(() => {
-  //   return boundingExtent([topLeft.value, bottomRight.value]);
-  // });
-  //
-  // /**
-  //  * Holds the minimum coordinate of the map extent [minx, miny]
-  //  * @type {ComputedRef<number[]>}
-  //  */
-  // const min = computed(() => {
-  //   return extent.value.slice(0, 2);
-  // });
-  //
-  // /**
-  //  * Holds the maximum coordinate of the map extent [maxx, maxy]
-  //  * @type {ComputedRef<number[]>}
-  //  */
-  // const max = computed(() => {
-  //   return extent.value.slice(2, 4);
-  // });
-  //
-  // /**
-  //  * Holds the dimensions of the visible map section in coordinate format
-  //  * @type {ComputedRef<number[]>}
-  //  */
-  // const dimensions = computed(() => {
-  //   return [max.value[0] - min.value[0], max.value[1] - min.value[1]];
-  // });
-  //
-  // /**
-  //  * Indicates how many meters there are per simulation config unit
-  //  * @type {ComputedRef<number>}
-  //  */
-  // const meterCoordsRatio = computed(() => {
-  //   return dimensions.value[0] / simulationConfig.dimension.x;
-  // });
-  //
-  // /**
-  //  * Holds the center of the visible map section in coordinate format
-  //  * @type {ComputedRef<number[]>}
-  //  */
-  // const center = computed(() => [
-  //   (topLeft.value[0] + bottomRight.value[0]) / 2,
-  //   (topLeft.value[1] + bottomRight.value[1]) / 2,
-  // ]);
-  //
-  // /**
-  //  * Holds the zoom of the map
-  //  * @type {ComputedRef<number>}
-  //  */
+  /**
+   * Holds the extent of the visible map section
+   * An extent is array of numbers representing an extent: `[minx, miny, maxx, maxy]
+   * @type {ComputedRef<number[]>}
+   */
+  const extent = computed(() => {
+    return boundingExtent([
+      [simulationConfig.map.bottomLeftCoordinate.long, simulationConfig.map.topRightCoordinate.lat],
+      [simulationConfig.map.topRightCoordinate.long, simulationConfig.map.bottomLeftCoordinate.lat],
+    ]);
+  });
+
+  /**
+   * Holds the minimum coordinate of the map extent [minx, miny]
+   * @type {ComputedRef<number[]>}
+   */
+  const min = computed(() => {
+    return extent.value.slice(0, 2);
+  });
+
+  /**
+   * Holds the maximum coordinate of the map extent [maxx, maxy]
+   * @type {ComputedRef<number[]>}
+   */
+  const max = computed(() => {
+    return extent.value.slice(2, 4);
+  });
+
+  /**
+   * Holds the dimensions of the visible map section in coordinate format
+   * @type {ComputedRef<number[]>}
+   */
+  const dimensions = computed(() => {
+    return [max.value[0] - min.value[0], max.value[1] - min.value[1]];
+  });
+
+  /**
+   * Indicates how many meters there are per simulation config unit
+   * @type {ComputedRef<number>}
+   */
+  const meterCoordsRatio = computed(() => {
+    return dimensions.value[0] / simulationConfig.dimension.x;
+  });
+
+  /**
+   * Holds the center of the visible map section in coordinate format
+   * @type {ComputedRef<number[]>}
+   */
+  const center = computed(() => [
+    (simulationConfig.map.bottomLeftCoordinate.long + simulationConfig.map.topRightCoordinate.long) / 2,
+    (simulationConfig.map.bottomLeftCoordinate.lat + simulationConfig.map.topRightCoordinate.lat) / 2,
+  ]);
+
+  /**
+   * Holds the zoom of the map
+   * @type {ComputedRef<number>}
+   */
   const zoom = computed(() => {
     return Math.floor(15 / Math.sqrt(simulationConfig.map.tiles.length));
   });
 
-  // watch(extent, () => {
-  //   if (map.value !== null) {
-  //     map.value.setView(
-  //       new View({
-  //         zoom: zoom.value,
-  //         center: center.value,
-  //         extent: extent.value,
-  //         showFullExtent: true,
-  //       })
-  //     );
-  //   }
-  // });
+  watch(extent, () => {
+    if (map.value !== null) {
+      map.value.setView(
+        new View({
+          zoom: zoom.value,
+          center: center.value,
+          extent: extent.value,
+          showFullExtent: true,
+          projection: "EPSG:4326",
+        })
+      );
+    }
+  });
 
-  const extend = [
-    simulationConfig.map.bottomLeftCoordinate.long,
-    simulationConfig.map.bottomLeftCoordinate.lat,
-    simulationConfig.map.topRightCoordinate.long,
-    simulationConfig.map.topRightCoordinate.lat,
-  ];
-  console.log(extend);
+  // const extend = [
+  //   simulationConfig.map.bottomLeftCoordinate.long,
+  //   simulationConfig.map.bottomLeftCoordinate.lat,
+  //   simulationConfig.map.topRightCoordinate.long,
+  //   simulationConfig.map.topRightCoordinate.lat,
+  // ];
+  console.log(extent.value);
 
   /**
    * Function that mounts the OL Map to the provided HTML element.
@@ -218,9 +203,9 @@ export const useMap = (mapRoot, layers) => {
       // the map view only shows the selected tiles
       view: new View({
         zoom: zoom.value,
-        center: [simulationConfig.map.coordinates.long, simulationConfig.map.coordinates.lat],
-        extent: extend,
-        showFullExtent: false,
+        center: center.value,
+        extent: extent.value,
+        showFullExtent: true,
         projection: "EPSG:4326",
       }),
     });
@@ -230,13 +215,13 @@ export const useMap = (mapRoot, layers) => {
     map,
     // topLeft,
     // bottomRight,
-    // extent,
-    // min,
-    // max,
-    // dimensions,
-    // center,
-    // zoom,
-    // meterCoordsRatio,
+    extent,
+    min,
+    max,
+    dimensions,
+    center,
+    zoom,
+    meterCoordsRatio,
     render,
   };
 };
