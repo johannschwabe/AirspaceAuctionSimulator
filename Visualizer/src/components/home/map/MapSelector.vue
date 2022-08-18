@@ -98,27 +98,28 @@ watchEffect(() => {
     "EPSG:3857"
   );
   const tileCoord = grid.getTileCoordForCoordAndZ(projectedCoordinate, 15);
-  let topLeftCoordinate, bottomRightCoordinate;
+  console.log(tileCoord);
+  let bottomLeftCoordinate, topRightCoordinate;
   const n = simulationConfig.map.neighbouringTiles;
   for (let i = -n; i <= n; i++) {
     for (let j = -n; j <= n; j++) {
       const updatedTileCord = [tileCoord[0], tileCoord[1] + j, tileCoord[2] + i];
       tiles.push(updatedTileCord);
-      if (i === -n && j === -n) {
+      if (i === -n && j === n) {
         const projectedExtent = grid.getTileCoordExtent(updatedTileCord);
         const extent = transformExtent(projectedExtent, get("EPSG:3857"), get("EPSG:4326"));
-        topLeftCoordinate = { lat: extent[3], long: extent[0] };
+        bottomLeftCoordinate = { lat: extent[3], long: extent[0] };
       }
-      if (i === n && j === n) {
+      if (i === n && j === -n) {
         const projectedExtent = grid.getTileCoordExtent(updatedTileCord);
         const extent = transformExtent(projectedExtent, get("EPSG:3857"), get("EPSG:4326"));
-        bottomRightCoordinate = { lat: extent[1], long: extent[2] };
+        topRightCoordinate = { lat: extent[1], long: extent[2] };
       }
     }
   }
   simulationConfig.map.tiles = tiles;
-  simulationConfig.map.topLeftCoordinate = topLeftCoordinate;
-  simulationConfig.map.bottomRightCoordinate = bottomRightCoordinate;
+  simulationConfig.map.topRightCoordinate = topRightCoordinate;
+  simulationConfig.map.bottomLeftCoordinate = bottomLeftCoordinate;
 });
 
 /**
@@ -133,7 +134,7 @@ const resolveAddress = async () => {
   }
   addressQuery.value = data[0].display_name;
   simulationConfig.map.coordinates.lat = parseFloat(data[0].lat);
-  simulationConfig.map.coordinates.long = parseFloat(data[0].lon);
+  simulationConfig.map.coordinates.long = parseFloat(data[0].long);
 };
 </script>
 

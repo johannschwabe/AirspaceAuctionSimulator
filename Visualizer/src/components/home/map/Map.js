@@ -194,11 +194,12 @@ export const useMap = (mapRoot, layers) => {
   //     );
   //   }
   // });
+
   const extend = [
-    simulationConfig.map.topLeftCoordinate.long,
-    simulationConfig.map.bottomRightCoordinate.lat,
-    simulationConfig.map.bottomRightCoordinate.long,
-    simulationConfig.map.topLeftCoordinate.lat,
+    simulationConfig.map.bottomLeftCoordinate.long,
+    simulationConfig.map.bottomLeftCoordinate.lat,
+    simulationConfig.map.topRightCoordinate.long,
+    simulationConfig.map.topRightCoordinate.lat,
   ];
   console.log(extend);
 

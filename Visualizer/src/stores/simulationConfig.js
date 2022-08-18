@@ -8,6 +8,8 @@ import { randomName } from "../scripts/names";
 /**
  * @typedef {Object} MapConfig
  * @property {{long: number, lat: number}} coordinates
+ * @property {{long: number, lat: number}} bottomLeftCoordinate
+ * @property {{long: number, lat: number}} topRightCoordinate
  * @property {string} locationName
  * @property {number} neighbouringTiles
  * @property {{bottomLeft: {long: number, lat: number}, topRight: {long: number, lat: number}}} subselection
