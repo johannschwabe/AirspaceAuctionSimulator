@@ -1,12 +1,15 @@
-from typing import List
+from typing import List, TYPE_CHECKING
 
-from . import Bid
-from ..Coordinates import Coordinate4D
+from .Bid import Bid
+
+if TYPE_CHECKING:
+    from ..Coordinates.Coordinate4D import Coordinate4D
 
 
 class ABCBid(Bid):
-    def __init__(self, battery: int, locations: List[Coordinate4D], stays: List[int]):
+    def __init__(self, battery: int, locations: List["Coordinate4D"], stays: List[int]):
         super().__init__(battery)
-        self.locations = locations
-        self.stays = stays
 
+        self.battery: int = battery
+        self.locations: List["Coordinate4D"] = locations
+        self.stays: List[int] = stays
