@@ -4,8 +4,6 @@ from Coordinate3D import Coordinate3D
 
 
 class Coordinate4D(Coordinate3D):
-    dim = None
-
     def __init__(self, x: int, y: int, z: int, t: int):
         super().__init__(x, y, z)
         self.t: int = t

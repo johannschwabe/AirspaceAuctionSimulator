@@ -10,8 +10,6 @@ from AAS.Owners.GridLocation import GridLocation
 from AAS.Owners.GridLocationType import GridLocationType
 from AAS.Owners.PathOwners.ABOwner import ABOwner
 from AAS.Owners.SpaceOwners.StationaryOwner import StationaryOwner
-from API.API import APISimpleCoordinates
-from API.Generator.MapTile import MapTile
 from Demos.FCFS.Allocator.FCFSAllocator import FCFSAllocator
 
 random.seed(3)
@@ -20,18 +18,7 @@ random.seed(3)
 def setup_empty(t):
     dimensions = Coordinate4D(50, 20, 50, t)
     blocker = StaticBlocker(Coordinate3D(5, 0, 5), Coordinate3D(40, 15, 40))
-    return Environment.init(dimensions, blocker=[blocker], allocation_period=20)
-
-
-def setup_map(t):
-    dimensions = Coordinate4D(831, 30, 831, t)
-    map_tile = MapTile(
-        [15, 17161, 11475],
-        dimensions,
-        APISimpleCoordinates(lat=47.376034633497596, long=8.536376953124991),
-        APISimpleCoordinates(lat=47.3685943521338, long=8.547363281249993)
-    )
-    return Environment.init(dimensions, maptiles=[map_tile], allocation_period=20)
+    return Environment.init(dimensions, blockers=[blocker], allocation_period=20)
 
 
 def simulate(env: Environment, t):
@@ -67,7 +54,7 @@ def color_generator():
 
 if __name__ == "__main__":
     max_t = 100
-    environment = setup_map(max_t)
+    environment = setup_empty(max_t)
     simulatorAligator = simulate(environment, max_t)
 
     res = build_json({"name": "test", "description": "Schnabeltier"}, simulatorAligator, 0)

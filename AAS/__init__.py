@@ -14,6 +14,10 @@ from .Bids.ABABid import ABABid
 from .Bids.ABBid import ABBid
 from .Bids.ABCBid import ABCBid
 from .Bids.StationaryBid import StationaryBid
+# Coordinates
+from .Coordinates.Coordinate4D import Coordinate4D
+# Environment
+from .Environment.Environment import Environment
 # Owners
 from .Owners.PathOwners.ABAOwner import ABAOwner
 from .Owners.PathOwners.ABCOwner import ABCOwner
