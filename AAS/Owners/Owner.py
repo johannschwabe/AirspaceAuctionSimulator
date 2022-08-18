@@ -17,11 +17,11 @@ class Owner(ABC):
     def __init__(self, name: str, color: str):
         self.name: str = name
         self.color: str = color
-        self.agents: list["Agent"] = []
+        self.agents: List["Agent"] = []
         self.total_achieved_welfare: float = 0.
         self.total_optimal_welfare: float = 0.
         self.total_costs: float = 0.
 
     @abstractmethod
-    def generate_agents(self, t: int, simulator: "Simulator") -> list["Agent"]:
+    def generate_agents(self, t: int, simulator: "Simulator") -> List["Agent"]:
         pass

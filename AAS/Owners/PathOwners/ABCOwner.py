@@ -16,7 +16,7 @@ class ABCOwner(PathOwner):
     max_locations = 100
     meta = []
 
-    def __init__(self, name: str, color: str, stops: list["GridLocation"], creation_ticks: list[int]):
+    def __init__(self, name: str, color: str, stops: List["GridLocation"], creation_ticks: List[int]):
         assert len(stops) > 1
 
         super().__init__(name, color, stops)
@@ -24,21 +24,21 @@ class ABCOwner(PathOwner):
 
     @abstractmethod
     def initialize_agent(self,
-                         locations: list["Coordinate4D"],
-                         stays: list[int],
+                         locations: List["Coordinate4D"],
+                         stays: List[int],
                          simulator: "Simulator",
                          speed: int,
                          battery: int) -> "ABCAgent":
         pass
 
-    def generate_agents(self, t: int, simulator: "Simulator") -> list["ABCAgent"]:
+    def generate_agents(self, t: int, simulator: "Simulator") -> List["ABCAgent"]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
             speed = 1
             start = self.generate_stop_coordinate(self.stops[0], simulator.environment, t, 1, speed)
 
-            stays: list[int] = []
-            locations: list["Coordinate4D"] = [start]
+            stays: List[int] = []
+            locations: List["Coordinate4D"] = [start]
             total_travel_time: int = 0
             for stop in self.stops[1:]:
                 next_location = self.generate_stop_coordinate(stop, simulator.environment, t, 1, speed)

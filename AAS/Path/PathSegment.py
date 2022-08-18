@@ -3,12 +3,13 @@ from typing import List, TYPE_CHECKING
 from .Segment import Segment
 
 if TYPE_CHECKING:
-    from ..Coordinates import Coordinate4D, Coordinate3D
+    from ..Coordinates.Coordinate4D import Coordinate4D
+    from ..Coordinates.Coordinate3D import Coordinate3D
 
 
 class PathSegment(Segment):
-    def __init__(self, start: "Coordinate3D", end: "Coordinate3D", index: int, coords: List["Coordinate4D"]):
-        self.coordinates: List["Coordinate4D"] = coords
+    def __init__(self, start: "Coordinate3D", end: "Coordinate3D", index: int, coordinates: List["Coordinate4D"]):
+        self.coordinates: List["Coordinate4D"] = coordinates
         self.start: "Coordinate3D" = start
         self.end: "Coordinate3D" = end
         self.index: int = index

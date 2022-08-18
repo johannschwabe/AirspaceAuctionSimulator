@@ -137,7 +137,7 @@ class AStar:
         end: "Coordinate4D",
         agent: "PathAgent",
         in_air: bool = False,
-    ) -> Tuple[list["Coordinate4D"], set["PathAgent"]]:
+    ) -> Tuple[List["Coordinate4D"], set["PathAgent"]]:
 
         valid_start, start_collisions = self.valid_start(start, agent, in_air)
 

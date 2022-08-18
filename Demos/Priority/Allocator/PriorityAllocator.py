@@ -31,7 +31,7 @@ class PriorityAllocator(Allocator):
                             env: "Environment",
                             tick: int) -> List["Allocation"]:
         astar = PriorityAStar(env)
-        allocations: list["Allocation"] = []
+        allocations: List["Allocation"] = []
         to_add = set(agents)
         while len(list(to_add)) > 0:
             start_time = time_ns()

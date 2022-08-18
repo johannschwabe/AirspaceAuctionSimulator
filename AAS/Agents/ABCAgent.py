@@ -13,18 +13,21 @@ if TYPE_CHECKING:
 class ABCAgent(PathAgent, ABC):
     agent_type: str = AgentType.ABC.value
 
-    def __init__(
-        self,
-        locations: List["Coordinate4D"],
-        stays: List[int],
-        simulator: "Simulator",
-        agent_id: Optional[int] = None,
-        speed: Optional[int] = None,
-        battery: Optional[int] = None,
-        near_radius: Optional[int] = None,
-        far_radius: Optional[int] = None,
-    ):
-        super().__init__(simulator, agent_id=agent_id, speed=speed, battery=battery, near_radius=near_radius,
+    def __init__(self,
+                 locations: List["Coordinate4D"],
+                 stays: List[int],
+                 simulator: "Simulator",
+                 agent_id: Optional[int] = None,
+                 speed: Optional[int] = None,
+                 battery: Optional[int] = None,
+                 near_radius: Optional[int] = None,
+                 far_radius: Optional[int] = None):
+        
+        super().__init__(simulator,
+                         agent_id=agent_id,
+                         speed=speed,
+                         battery=battery,
+                         near_radius=near_radius,
                          far_radius=far_radius)
 
         self.locations: List["Coordinate4D"] = locations

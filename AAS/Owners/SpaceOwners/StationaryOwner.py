@@ -51,7 +51,7 @@ class StationaryOwner(SpaceOwner):
         self.creation_ticks = creation_ticks
         self.size: "Coordinate4D" = size
 
-    def initialize_agent(self, simulator: "Simulator", blocks: list[list["Coordinate4D"]]) -> StationaryAgent:
+    def initialize_agent(self, simulator: "Simulator", blocks: List[List["Coordinate4D"]]) -> StationaryAgent:
         pass
 
     def generate_agents(self, t: int, simulator: "Simulator") -> List["StationaryAgent"]:

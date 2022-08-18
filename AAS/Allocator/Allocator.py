@@ -13,15 +13,15 @@ class Allocator(ABC):
 
     @abstractmethod
     def allocate_for_agents(self,
-                            agents: list["Agent"],
+                            agents: List["Agent"],
                             env: "Environment",
-                            tick: int) -> list["Allocation"]:
+                            tick: int) -> List["Allocation"]:
         pass
 
     def temp_allocation(self,
-                        agents: list["Agent"],
+                        agents: List["Agent"],
                         env: "Environment",
-                        tick: int) -> list["Allocation"]:
+                        tick: int) -> List["Allocation"]:
         cloned_agents = [agent.clone() for agent in agents]
         return self.allocate_for_agents(cloned_agents, env, tick)
 

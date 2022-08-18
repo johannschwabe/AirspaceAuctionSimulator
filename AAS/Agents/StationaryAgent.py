@@ -3,27 +3,26 @@ from typing import List, TYPE_CHECKING, Optional
 
 from .AgentType import AgentType
 from .SpaceAgent import SpaceAgent
-from ..Path.SpaceSegment import SpaceSegment
-from ..Simulator import Simulator
 
 if TYPE_CHECKING:
     from ..Coordinates.Coordinate4D import Coordinate4D
+    from ..Simulator import Simulator
+    from ..Path.SpaceSegment import SpaceSegment
 
 
 class StationaryAgent(SpaceAgent, ABC):
     agent_type: str = AgentType.STATIONARY.value
 
-    def __init__(
-        self,
-        blocks: List[List["Coordinate4D"]],
-        simulator: Simulator,
-        agent_id: Optional[int] = None
-    ):
+    def __init__(self,
+                 blocks: List[List["Coordinate4D"]],
+                 simulator: "Simulator",
+                 agent_id: Optional[int] = None):
+
         super().__init__(simulator, agent_id=agent_id)
 
         self.blocks: List[List["Coordinate4D"]] = blocks
 
-    def value_for_segments(self, segments: List[SpaceSegment]) -> float:
+    def value_for_segments(self, segments: List["SpaceSegment"]) -> float:
         sum_segments = 0.0
         for segment in segments:
             sum_segments += (segment.max.x - segment.min.x) * \
@@ -36,4 +35,5 @@ class StationaryAgent(SpaceAgent, ABC):
                           (block[1].y - block[0].y) * \
                           (block[1].z - block[0].z) * \
                           (block[1].t - block[0].t)
+            
         return sum_segments / sum_blocks

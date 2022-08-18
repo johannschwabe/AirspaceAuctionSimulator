@@ -13,19 +13,24 @@ if TYPE_CHECKING:
 class ABAAgent(ABAgent, ABC):
     agent_type: str = AgentType.ABA.value
 
-    def __init__(
-        self,
-        a: "Coordinate4D",
-        b: "Coordinate4D",
-        stay: int,
-        simulator: "Simulator",
-        agent_id: Optional[int] = None,
-        speed: Optional[int] = None,
-        battery: Optional[int] = None,
-        near_radius: Optional[int] = None,
-        far_radius: Optional[int] = None,
-    ):
-        super().__init__(a, b, simulator, agent_id=agent_id, speed=speed, battery=battery, near_radius=near_radius,
+    def __init__(self,
+                 a: "Coordinate4D",
+                 b: "Coordinate4D",
+                 stay: int,
+                 simulator: "Simulator",
+                 agent_id: Optional[int] = None,
+                 speed: Optional[int] = None,
+                 battery: Optional[int] = None,
+                 near_radius: Optional[int] = None,
+                 far_radius: Optional[int] = None):
+        
+        super().__init__(a,
+                         b,
+                         simulator,
+                         agent_id=agent_id,
+                         speed=speed,
+                         battery=battery,
+                         near_radius=near_radius,
                          far_radius=far_radius)
 
         self.stay: int = stay

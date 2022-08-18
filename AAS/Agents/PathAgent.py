@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
-from typing import Optional, TYPE_CHECKING
+from abc import ABC
+from typing import Optional, TYPE_CHECKING, List
 
 from .Agent import Agent
 from .AllocationType import AllocationType
@@ -7,42 +7,45 @@ from .AllocationType import AllocationType
 if TYPE_CHECKING:
     from ..Path.PathSegment import PathSegment
     from ..Simulator import Simulator
+    from ..Coordinates.Coordinate4D import Coordinate4D
 
 
 class PathAgent(Agent, ABC):
-    default_near_radius = 1
-    default_far_radius = 2
-    default_speed = 1
-    default_battery = 100000
+    DEFAULT_NEAR_RADIUS = 1
+    DEFAULT_FAR_RADIUS = 2
+    DEFAULT_SPEED = 1
+    DEFAULT_BATTERY = 100_000
 
     allocation_type: str = AllocationType.PATH.value
 
-    def __init__(
-        self,
-        simulator: "Simulator",
-        agent_id: Optional[int] = None,
-        speed: Optional[int] = None,
-        battery: Optional[int] = None,
-        near_radius: Optional[int] = None,
-        far_radius: Optional[int] = None,
-    ):
+    def __init__(self,
+                 simulator: "Simulator",
+                 agent_id: Optional[int] = None,
+                 speed: Optional[int] = None,
+                 battery: Optional[int] = None,
+                 near_radius: Optional[int] = None,
+                 far_radius: Optional[int] = None):
+
         super().__init__(simulator, agent_id)
 
-        self.speed: int = speed if speed is not None else PathAgent.default_speed
-        self.battery: int = battery if battery is not None else PathAgent.default_battery
+        self.speed: int = speed if speed is not None else self.DEFAULT_SPEED
+        self.battery: int = battery if battery is not None else self.DEFAULT_BATTERY
+        self.near_radius = near_radius if near_radius is not None else self.DEFAULT_NEAR_RADIUS
+        self.far_radius = far_radius if far_radius is not None else self.DEFAULT_FAR_RADIUS
 
-        self.near_radius = near_radius if near_radius is not None else PathAgent.default_near_radius
-        self.far_radius = far_radius if far_radius is not None else PathAgent.default_far_radius
-        self.flight_time: int = 0
+        self.allocated_segments: List["PathSegment"] = []
 
     def get_airtime(self) -> int:
         airtime = 0
-        for path_segment in self._allocated_segments:
+        for path_segment in self.allocated_segments:
             airtime += path_segment[-1].t - path_segment[0].t
         return airtime
 
     def add_allocated_segment(self, path_segment: "PathSegment"):
-        if len(self._allocated_segments) > 0 and self._allocated_segments[-1].same(path_segment):
-            self._allocated_segments[-1].join(path_segment)
+        if len(self.allocated_segments) > 0 and self.allocated_segments[-1].same(path_segment):
+            self.allocated_segments[-1].join(path_segment)
         else:
-            self._allocated_segments.append(path_segment)
+            self.allocated_segments.append(path_segment)
+
+    def get_allocated_coords(self) -> List["Coordinate4D"]:
+        return [coord for path_segment in self.allocated_segments for coord in path_segment.coordinates]

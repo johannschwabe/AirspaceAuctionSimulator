@@ -6,13 +6,12 @@ from ..Agent.PathAgent import PathAgent
 if TYPE_CHECKING:
     from ..Path import PathSegment
     from .AllocationReason import AllocationReason
-    from ..Agent.Agent import Agent
 
 
 class PathAllocation(Allocation):
     def __init__(self,
                  agent: "PathAgent",
-                 segments: list["PathSegment"],
+                 segments: List["PathSegment"],
                  reason: "AllocationReason",
                  compute_time: float = 0):
         super().__init__(agent, reason, compute_time)

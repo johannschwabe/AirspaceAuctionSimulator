@@ -16,7 +16,7 @@ class ABAOwner(PathOwner, ABC):
     max_locations = 2
     meta = []
 
-    def __init__(self, name: str, color: str, stops: list["GridLocation"], creation_ticks: list[int]):
+    def __init__(self, name: str, color: str, stops: List["GridLocation"], creation_ticks: List[int]):
         assert len(stops) == 2
 
         super().__init__(name, color, stops)
@@ -32,7 +32,7 @@ class ABAOwner(PathOwner, ABC):
                          stay: int) -> "ABAAgent":
         pass
 
-    def generate_agents(self, t: int, simulator: "Simulator") -> list["ABAAgents"]:
+    def generate_agents(self, t: int, simulator: "Simulator") -> List["ABAAgents"]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
             speed = 1
