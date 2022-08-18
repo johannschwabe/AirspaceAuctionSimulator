@@ -24,7 +24,7 @@ class Simulator:
         self.time_step = 0
         self._agent_id = 0
 
-    def getAgentId(self) -> int:
+    def get_agent_id(self) -> int:
         agent_id = self._agent_id
         self._agent_id += 1
         return agent_id

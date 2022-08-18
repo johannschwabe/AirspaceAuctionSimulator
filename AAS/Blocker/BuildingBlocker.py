@@ -1,17 +1,20 @@
-from typing import List
+from typing import List, TYPE_CHECKING
+
+from shapely.geometry import Polygon, Point, box
 
 from .StaticBlocker import StaticBlocker
-from shapely.geometry import Polygon, Point, box
-from ..Coordinates import Coordinate4D
+
+if TYPE_CHECKING:
+    from ..Coordinates.Coordinate4D import Coordinate4D
 
 
 class BuildingBlocker(StaticBlocker):
-    def __init__(self, vertices: List[List[float]], bounds: List[Coordinate4D], holes: List[List[List[float]]]):
+    def __init__(self, vertices: List[List[float]], bounds: List["Coordinate4D"], holes: List[List[List[float]]]):
         super().__init__(bounds[0], bounds[1] - bounds[0])
         self.points = vertices
         self.polygon = Polygon(vertices, holes)
 
-    def is_blocking(self, coord: Coordinate4D, radius: int = 0):
+    def is_blocking(self, coord: "Coordinate4D", radius: int = 0):
         point = Point(coord.x, coord.z)
 
         if radius == 0:

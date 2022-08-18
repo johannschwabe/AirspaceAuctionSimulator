@@ -37,9 +37,15 @@ class Environment:
         props = index.Property()
         props.dimension = 4
         self.tree = index.Rtree(properties=props)
+        self._blocker_id = 0
         self.blocker_tree = None
         self.min_height = min_height
         self.max_near_field_radius = 0
+
+    def get_blocker_id(self) -> int:
+        blocker_id = self._blocker_id
+        self._blocker_id += 1
+        return blocker_id
 
     @staticmethod
     def init(dimension: Coordinate4D,
@@ -92,7 +98,7 @@ class Environment:
         props.dimension = 4
         self.blocker_tree = index.Rtree(properties=props)
         for blocker in self.blockers.values():
-            blocker.add_to_tree(self.blocker_tree, self.dimension)
+            blocker.add_to_tree(self.blocker_tree, self.dimension, self.get_blocker_id())
 
     def allocate_path_for_agent(self, agent: PathAgent, path: List[PathSegment]):
         for path_segment in path:

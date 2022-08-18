@@ -21,7 +21,7 @@ class Agent(ABC):
             self.id: int = agent_id
             self.is_clone: bool = True
         else:
-            self.id: int = self.simulator.getAgentId()
+            self.id: int = self.simulator.get_agent_id()
             self.is_clone: bool = False
 
         self.allocated_segments: List["Segment"] = []
