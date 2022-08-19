@@ -8,7 +8,7 @@ from Demos.Priority.Bids.PriorityABBid import PriorityABBid
 from Demos.Priority.Bids.PriorityStationaryBid import PriorityStationaryBid
 from Demos.Priority.Owners.PriorityABOwner import PriorityABOwner
 from Demos.Priority.Owners.PriorityStationaryOwner import PriorityStationaryOwner
-from Simulator.Allocator import Allocator
+from Simulator import Allocator
 from Simulator.Path import PathAllocation, PathSegment, SpaceSegment, SpaceAllocation
 from Simulator.Path.AllocationReason import AllocationReason
 from Simulator.Path.AllocationReasonType import AllocationReasonType

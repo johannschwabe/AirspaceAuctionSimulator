@@ -10,12 +10,12 @@ from fastapi import HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from Simulator.Coordinates import Coordinate4D
-from Simulator.IO.JSONS import build_json
-from Simulator.Owners import PathOwner
-from API.Generator import Generator
+from API.Generator.Generator import Generator
 from API.Generator.MapTile import MapTile
-from config import available_allocators
+from Simulator.Coordinates.Coordinate4D import Coordinate4D
+from Simulator.IO.JSONS import build_json
+from Simulator.Owners.PathOwner import PathOwner
+from .config import available_allocators
 
 app = FastAPI()
 

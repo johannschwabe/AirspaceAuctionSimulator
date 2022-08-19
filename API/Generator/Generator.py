@@ -1,17 +1,20 @@
 import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
-from Simulator.Coordinates import Coordinate4D, Coordinate2D
-from Simulator.History import History
-from Simulator.Owners import Owner, GridLocation, GridLocationType
+from API.Generator.EnvironmentGen import EnvironmentGen
+from Simulator import Simulator
+from Simulator.Coordinates.Coordinate2D import Coordinate2D
+from Simulator.Coordinates.Coordinate4D import Coordinate4D
+from Simulator.History.History import History
+from Simulator.Owners.GridLocation import GridLocation
+from Simulator.Owners.GridLocationType import GridLocationType
 from Simulator.Owners.Heatmap import Heatmap
 from Simulator.Owners.HeatmapType import HeatmapType
-from Simulator.Simulator import Simulator
+from Simulator.Owners.Owner import Owner
 from Simulator.Statistics.Statistics import Statistics
-from .EnvironmentGen import EnvironmentGen
 
 if TYPE_CHECKING:
-    from .MapTile import MapTile
+    from MapTile import MapTile
     from Simulator.Allocator import Allocator
     from Simulator.Environment import Environment
     from API.API import APIOwner
@@ -27,17 +30,17 @@ class Generator:
     ):
         self.apiOwners: List["APIOwner"] = owners
         self.dimensions: "Coordinate4D" = dimensions
-        self.owners: List["Owners"] = []
+        self.owners: List["Owner"] = []
         self.allocator: "Allocator" = allocator
         self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles).generate()
         self.simulator: Optional["Simulator"] = None
         self.history: Optional["History"] = None
-        self.statistics: Optional[Statistics] = None
-        self.simulator: Optional[Simulator] = None
+        self.statistics: Optional["Statistics"] = None
+        self.simulator: Optional["Simulator"] = None
 
     @staticmethod
     def extract_owner_stops(owner: "APIOwner"):
-        stops: List[GridLocation] = []
+        stops: List["GridLocation"] = []
         for location in owner.locations:
             if location.type == GridLocationType.RANDOM.value:
                 stops.append(GridLocation(str(GridLocationType.RANDOM.value)))
@@ -46,7 +49,7 @@ class Generator:
                                           position=Coordinate2D(location.gridCoordinates[0].x,
                                                                 location.gridCoordinates[0].y)))
             elif location.type == GridLocationType.HEATMAP.value:
-                heat_dict: Dict[float, List[Coordinate2D]] = {}
+                heat_dict: Dict[float, List["Coordinate2D"]] = {}
                 for gridCoord in location.gridCoordinates:
                     coordinate = Coordinate2D(gridCoord.x, gridCoord.y)
                     if gridCoord.value in heat_dict:
