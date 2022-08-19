@@ -1,16 +1,13 @@
 import axios from "axios";
 
 export default class MapTile {
-  /**
-   * @param {RawMapTile} rawMapTile
-   */
-  constructor(rawMapTile) {
-    this.x = rawMapTile.x;
-    this.y = rawMapTile.y;
-    this.z = rawMapTile.z;
-    this.top_left_coordinate = rawMapTile.top_left_coordinate;
-    this.bottom_right_coordinate = rawMapTile.bottom_right_coordinate;
-    this.dimensions = rawMapTile.dimensions;
+  constructor(tile_ids, dimensions, topLeft, bottomRight) {
+    this.x = tile_ids[1];
+    this.y = tile_ids[2];
+    this.z = tile_ids[0];
+    this.top_left_coordinate = topLeft;
+    this.bottom_right_coordinate = bottomRight;
+    this.dimensions = dimensions;
 
     /**
      * @type {{height: number, coordinates: {x: number, y: number}}[]}

@@ -112,7 +112,15 @@ export default class Simulation {
     /**
      * @type {MapTile[]}
      */
-    this.mapTiles = rawSimulation.environment.maptiles.map((tile) => new MapTile(tile));
+    this.mapTiles = rawSimulation.config.map.tiles.map(
+      (tile) =>
+        new MapTile(
+          tile,
+          rawSimulation.config.dimension,
+          rawSimulation.config.map.topLeftCoordinate,
+          rawSimulation.config.map.bottomRightCoordiante
+        )
+    );
 
     /**
      * Stores how many active agents are present over all possible ticks
@@ -139,18 +147,6 @@ export default class Simulation {
     this.updateTimeline();
   }
 
-  registerCallbacks() {
-    onTick(() => {
-      this.updateActiveAgents();
-      this.updateActiveBlockers();
-    });
-    onAgentsSelected(() => {
-      this.updateSelectedAgents();
-      this.updateActiveAgents();
-      this.updateTimeline();
-    });
-  }
-
   get tick() {
     return this._simulationStore.tick;
   }
@@ -172,6 +168,32 @@ export default class Simulation {
    */
   get ownerInFocus() {
     return this.agentInFocus?.owner || null;
+  }
+
+  /**
+   * @returns {PathAgent[]}
+   */
+  get activePathAgents() {
+    return this.activeAgents.filter((agent) => agent instanceof PathAgent);
+  }
+
+  /**
+   * @returns {SpaceAgent[]}
+   */
+  get activeSpaceAgents() {
+    return this.activeAgents.filter((agent) => agent instanceof SpaceAgent);
+  }
+
+  registerCallbacks() {
+    onTick(() => {
+      this.updateActiveAgents();
+      this.updateActiveBlockers();
+    });
+    onAgentsSelected(() => {
+      this.updateSelectedAgents();
+      this.updateActiveAgents();
+      this.updateTimeline();
+    });
   }
 
   /**
@@ -271,19 +293,5 @@ export default class Simulation {
     const promises = this.mapTiles.map((maptile) => maptile.load());
     await Promise.all(promises);
     return this;
-  }
-
-  /**
-   * @returns {PathAgent[]}
-   */
-  get activePathAgents() {
-    return this.activeAgents.filter((agent) => agent instanceof PathAgent);
-  }
-
-  /**
-   * @returns {SpaceAgent[]}
-   */
-  get activeSpaceAgents() {
-    return this.activeAgents.filter((agent) => agent instanceof SpaceAgent);
   }
 }
