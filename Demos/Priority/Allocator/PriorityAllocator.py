@@ -1,10 +1,10 @@
 from time import time_ns
 from typing import List, TYPE_CHECKING
 
-from AAS.Allocator import Allocator
-from AAS.Path import PathAllocation, PathSegment, SpaceSegment, SpaceAllocation
-from AAS.Path.AllocationReason import AllocationReason
-from AAS.Path.AllocationReasonType import AllocationReasonType
+from Simulator.Allocator import Allocator
+from Simulator.Path import PathAllocation, PathSegment, SpaceSegment, SpaceAllocation
+from Simulator.Path.AllocationReason import AllocationReason
+from Simulator.Path.AllocationReasonType import AllocationReasonType
 from Demos.Priority.AStar.PriorityAStar import PriorityAStar
 from Demos.Priority.Agents.PriorityABAgent import PriorityABAgent
 from Demos.Priority.Agents.PriorityStationaryAgent import PriorityStationaryAgent
@@ -14,8 +14,8 @@ from Demos.Priority.Owners.PriorityABOwner import PriorityABOwner
 from Demos.Priority.Owners.PriorityStationaryOwner import PriorityStationaryOwner
 
 if TYPE_CHECKING:
-    from AAS import Environment
-    from AAS.Path.Allocation import Allocation
+    from Simulator import Environment
+    from Simulator.Path.Allocation import Allocation
 
 
 class PriorityAllocator(Allocator):

@@ -1,11 +1,11 @@
 from typing import Optional, Tuple, TYPE_CHECKING
 
-from AAS.AStar.AStar import AStar
+from Simulator.AStar.AStar import AStar
 from Demos.Priority.AStar.PriorityNode import PriorityNode
 
 if TYPE_CHECKING:
-    from AAS import Environment
-    from AAS.Coordinates import Coordinate4D
+    from Simulator import Environment
+    from Simulator.Coordinates import Coordinate4D
     from Demos.Priority.Agents.PriorityABAgent import PriorityABAgent
 
 

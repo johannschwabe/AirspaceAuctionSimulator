@@ -1,8 +1,8 @@
 import random
 from typing import Dict, List, Optional
 
-from AAS.Coordinates import Coordinate2D
-from AAS.Owners.HeatmapType import HeatmapType
+from Simulator.Coordinates import Coordinate2D
+from Simulator.Owners.HeatmapType import HeatmapType
 
 
 class Heatmap:

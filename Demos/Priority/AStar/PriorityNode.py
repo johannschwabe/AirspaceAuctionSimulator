@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING, Optional, Set
 
-from AAS.AStar.Node import Node
+from Simulator.AStar.Node import Node
 
 if TYPE_CHECKING:
     from Demos.Priority.Agents.PriorityABAgent import PriorityABAgent
-    from AAS.Coordinates import Coordinate4D
+    from Simulator.Coordinates import Coordinate4D
 
 
 class PriorityNode(Node):

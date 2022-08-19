@@ -1,4 +1,4 @@
-from AAS import ABABid
+from Simulator import ABABid
 
 
 class FCFSABABid(ABABid):

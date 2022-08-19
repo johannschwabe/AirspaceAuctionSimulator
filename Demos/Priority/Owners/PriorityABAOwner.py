@@ -1,4 +1,4 @@
-from AAS import ABAOwner
+from Simulator import ABAOwner
 from Demos.Priority.Agents.PriorityABAAgent import PriorityABAAgent
 
 

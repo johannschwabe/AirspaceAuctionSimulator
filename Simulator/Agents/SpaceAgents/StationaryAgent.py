@@ -1,13 +1,13 @@
 from abc import ABC
 from typing import List, TYPE_CHECKING, Optional
 
-from AAS.Agents.AgentType import AgentType
+from Simulator.Agents.AgentType import AgentType
 from .SpaceAgent import SpaceAgent
 
 if TYPE_CHECKING:
-    from AAS.Coordinates.Coordinate4D import Coordinate4D
-    from AAS.Simulator import Simulator
-    from AAS.Path.SpaceSegment import SpaceSegment
+    from Simulator.Coordinates.Coordinate4D import Coordinate4D
+    from Simulator.Simulator import Simulator
+    from Simulator.Path.SpaceSegment import SpaceSegment
 
 
 class StationaryAgent(SpaceAgent, ABC):

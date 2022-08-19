@@ -1,12 +1,12 @@
 from abc import ABC
 from typing import List, TYPE_CHECKING
 
-from AAS.Agent.AllocationType import AllocationType
-from AAS.Owners import Owner
+from Simulator.Agent.AllocationType import AllocationType
+from Simulator.Owners import Owner
 
 if TYPE_CHECKING:
-    from AAS.Owners import GridLocation
-    from AAS import Environment
+    from Simulator.Owners import GridLocation
+    from Simulator import Environment
 
 
 class PathOwner(Owner, ABC):

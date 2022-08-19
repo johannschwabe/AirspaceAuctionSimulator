@@ -1,4 +1,4 @@
-from AAS import ABBid, Coordinate4D
+from Simulator import ABBid, Coordinate4D
 from PriorityBid import PriorityBid
 
 

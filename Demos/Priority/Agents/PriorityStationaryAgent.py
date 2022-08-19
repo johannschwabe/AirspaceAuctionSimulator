@@ -1,4 +1,4 @@
-from AAS import StationaryAgent
+from Simulator import StationaryAgent
 from Demos.Priority.Bids.PriorityStationaryBid import PriorityStationaryBid
 
 

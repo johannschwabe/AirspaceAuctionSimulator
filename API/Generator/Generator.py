@@ -1,19 +1,19 @@
 import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
-from AAS.Coordinates import Coordinate4D, Coordinate2D
-from AAS.History import History
-from AAS.Owners import Owner, GridLocation, GridLocationType
-from AAS.Owners.Heatmap import Heatmap
-from AAS.Owners.HeatmapType import HeatmapType
-from AAS.Simulator import Simulator
-from AAS.Statistics.Statistics import Statistics
+from Simulator.Coordinates import Coordinate4D, Coordinate2D
+from Simulator.History import History
+from Simulator.Owners import Owner, GridLocation, GridLocationType
+from Simulator.Owners.Heatmap import Heatmap
+from Simulator.Owners.HeatmapType import HeatmapType
+from Simulator.Simulator import Simulator
+from Simulator.Statistics.Statistics import Statistics
 from .EnvironmentGen import EnvironmentGen
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
-    from AAS.Allocator import Allocator
-    from AAS.Environment import Environment
+    from Simulator.Allocator import Allocator
+    from Simulator.Environment import Environment
     from API.API import APIOwner
 
 

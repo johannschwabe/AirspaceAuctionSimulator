@@ -1,4 +1,4 @@
-from AAS import ABCAgent
+from Simulator import ABCAgent
 from Demos.Priority.Bids.PriorityABCBid import PriorityABCBid
 
 

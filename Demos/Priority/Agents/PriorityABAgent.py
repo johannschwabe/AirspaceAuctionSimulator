@@ -1,4 +1,4 @@
-from AAS import ABAgent, Coordinate4D, Simulator
+from Simulator import ABAgent, Coordinate4D, Simulator
 from Demos.Priority.Bids.PriorityABBid import PriorityABBid
 
 

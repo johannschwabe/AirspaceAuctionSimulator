@@ -1,8 +1,8 @@
 import cloudscraper
 from typing import List, TYPE_CHECKING
 
-from AAS.Blocker.BuildingBlocker import BuildingBlocker
-from AAS.Coordinates import Coordinate4D
+from Simulator.Blocker.BuildingBlocker import BuildingBlocker
+from Simulator.Coordinates import Coordinate4D
 
 if TYPE_CHECKING:
     from API.API import APISimpleCoordinates

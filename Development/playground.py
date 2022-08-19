@@ -1,15 +1,15 @@
 import json
 import random
 
-from AAS import Simulator, Coordinate4D
-from AAS.Blocker.StaticBlocker import StaticBlocker
-from AAS.Coordinates.Coordinate3D import Coordinate3D
-from AAS.Environment.Environment import Environment
-from AAS.IO.JSONS import build_json
-from AAS.Owners.GridLocation import GridLocation
-from AAS.Owners.GridLocationType import GridLocationType
-from AAS.Owners.PathOwners.ABOwner import ABOwner
-from AAS.Owners.SpaceOwners.StationaryOwner import StationaryOwner
+from Simulator import Simulator, Coordinate4D
+from Simulator.Blocker.StaticBlocker import StaticBlocker
+from Simulator.Coordinates.Coordinate3D import Coordinate3D
+from Simulator.Environment.Environment import Environment
+from Simulator.IO.JSONS import build_json
+from Simulator.Owners.GridLocation import GridLocation
+from Simulator.Owners.GridLocationType import GridLocationType
+from Simulator.Owners.PathOwners.ABOwner import ABOwner
+from Simulator.Owners.SpaceOwners.StationaryOwner import StationaryOwner
 from Demos.FCFS.Allocator.FCFSAllocator import FCFSAllocator
 
 random.seed(3)

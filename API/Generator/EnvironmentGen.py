@@ -1,6 +1,6 @@
 from typing import List
 
-from AAS import Environment, Coordinate4D
+from Simulator import Environment, Coordinate4D
 from MapTile import MapTile
 
 

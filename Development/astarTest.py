@@ -1,12 +1,12 @@
 import random
 from time import time_ns
 
-from AAS.Agent import ABAgent
+from Simulator.Agent import ABAgent
 
-from AAS import Environment
-from AAS.AStar.AStar import AStar
-from AAS.Coordinates import Coordinate4D
-from AAS.Owners import PathOwner, PathStop
+from Simulator import Environment
+from Simulator.AStar.AStar import AStar
+from Simulator.Coordinates import Coordinate4D
+from Simulator.Owners import PathOwner, PathStop
 from API import APISimpleCoordinate
 from API.Generator.MapTile import MapTile
 

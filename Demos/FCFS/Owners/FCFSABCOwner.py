@@ -1,4 +1,4 @@
-from AAS import ABCOwner
+from Simulator import ABCOwner
 from Demos.FCFS.Agents.FCFSABCAgent import FCFSABCAgent
 
 

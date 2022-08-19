@@ -1,13 +1,13 @@
 from abc import ABC
 from typing import Optional, TYPE_CHECKING, List
 
-from AAS.Agents.Agent import Agent
-from AAS.Agents.AllocationType import AllocationType
+from Simulator.Agents.Agent import Agent
+from Simulator.Agents.AllocationType import AllocationType
 
 if TYPE_CHECKING:
-    from AAS.Path.PathSegment import PathSegment
-    from AAS.Simulator import Simulator
-    from AAS.Coordinates.Coordinate4D import Coordinate4D
+    from Simulator.Path.PathSegment import PathSegment
+    from Simulator.Simulator import Simulator
+    from Simulator.Coordinates.Coordinate4D import Coordinate4D
 
 
 class PathAgent(Agent, ABC):

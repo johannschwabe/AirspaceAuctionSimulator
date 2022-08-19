@@ -1,6 +1,6 @@
 from time import time_ns
 
-from AAS import \
+from Simulator import \
     Allocator, \
     AStar, \
     AgentType, \

@@ -1,4 +1,4 @@
-from AAS import ABCBid, Coordinate4D
+from Simulator import ABCBid, Coordinate4D
 
 
 class FCFSABCBid(ABCBid):

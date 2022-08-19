@@ -1,4 +1,4 @@
-from AAS import StationaryAgent
+from Simulator import StationaryAgent
 from Demos.FCFS.Bids.FCFSStationaryBid import FCFSStationaryBid
 
 

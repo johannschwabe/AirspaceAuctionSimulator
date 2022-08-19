@@ -1,4 +1,4 @@
-from AAS import StationaryBid, Coordinate4D
+from Simulator import StationaryBid, Coordinate4D
 
 
 class FCFSStationaryBid(StationaryBid):

@@ -1,4 +1,4 @@
-from AAS import ABCBid
+from Simulator import ABCBid
 from PriorityBid import PriorityBid
 
 

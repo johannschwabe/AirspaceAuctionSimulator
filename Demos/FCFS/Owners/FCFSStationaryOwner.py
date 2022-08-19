@@ -1,4 +1,4 @@
-from AAS import StationaryOwner
+from Simulator import StationaryOwner
 from Demos.FCFS.Agents.FCFSStationaryAgent import FCFSStationaryAgent
 
 
