@@ -2,6 +2,7 @@ from abc import ABC
 from typing import List, TYPE_CHECKING
 
 from Simulator.Agent.AllocationType import AllocationType
+
 from Simulator.Owners import Owner
 
 if TYPE_CHECKING:
@@ -25,7 +26,7 @@ class SpaceOwner(Owner, ABC):
         while len(list(env.intersect_box(coord, top_right, False))):
             coord.y += 1
             top_right.y += 1
-            if coord.y >= env.get_dim().y:
+            if coord.y >= env.dimension.y:
                 coord.y = env.min_height
                 top_right.y = env.min_height
                 print("BLOCKED")

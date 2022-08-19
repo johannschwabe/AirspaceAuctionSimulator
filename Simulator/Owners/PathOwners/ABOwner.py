@@ -36,7 +36,7 @@ class ABOwner(PathOwner, ABC):
 
             distance = start.inter_temporal_distance(target)
             travel_time = distance * speed
-            target.t = min(start.t + travel_time + random.randint(0, 100), simulator.environment.get_dim().t)
+            target.t = min(start.t + travel_time + random.randint(0, 100), simulator.environment.dimension.t)
             battery = travel_time * 2
             agent = self.initialize_agent(start, target, simulator, speed, battery)
             res.append(agent)

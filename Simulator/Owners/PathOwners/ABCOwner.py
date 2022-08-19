@@ -49,7 +49,7 @@ class ABCOwner(PathOwner):
                 travel_time = distance * speed
                 total_travel_time += travel_time
                 next_location.t = min(locations[-1].t + travel_time + stay + random.randint(0, 100),
-                                      simulator.environment.get_dim().t)
+                                      simulator.environment.dimension.t)
                 locations.append(next_location)
 
             battery = total_travel_time * 4

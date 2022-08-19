@@ -90,7 +90,7 @@ class AStar:
                 break
 
             # Find non-occupied neighbor
-            neighbors = current_node.adjacent_coordinates(self.environment.get_dim(), agent.speed)
+            neighbors = current_node.adjacent_coordinates(self.environment.dimension, agent.speed)
             for next_neighbor in neighbors:
                 valid, collisions = self.is_valid_for_allocation(next_neighbor, agent)
                 if valid and next_neighbor.t <= self.environment.dimension.t:
@@ -105,7 +105,7 @@ class AStar:
                     neighbor.f = neighbor.g + neighbor.h
 
                     if self.height_adjust:
-                        neighbor.f -= neighbor.position.y / self.environment.get_dim().y * 0.05 * neighbor.h
+                        neighbor.f -= neighbor.position.y / self.environment.dimension.y * 0.05 * neighbor.h
 
                     if hash(neighbor) in open_nodes:
                         if open_nodes[hash(neighbor)].f > neighbor.f:

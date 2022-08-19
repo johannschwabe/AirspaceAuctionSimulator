@@ -21,7 +21,7 @@ class Statistics:
         return local_agent.value_for_segments(paths.segments)
 
     def non_colliding_values(self):
-        for agent in self.history.env.get_agents().values():
+        for agent in self.history.env.agents.values():
             print(f"{agent}'s non colliding value: {self.non_colliding_value(agent)}, "
                   f"achieved value: {agent.get_allocated_value()}")
 
@@ -31,7 +31,7 @@ class Statistics:
 
     def total_agents_welfare(self):
         summed_welfare = 0
-        for agent in self.history.env.get_agents().values():
+        for agent in self.history.env.agents.values():
             summed_welfare += Statistics.agents_welfare(agent)
         return summed_welfare
 
@@ -51,7 +51,7 @@ class Statistics:
 
     def allocated_distance(self):
         length = 0
-        for agent in self.history.env.get_agents():
+        for agent in self.history.env.agents:
             for path in agent.allocated_paths:
                 length += len(path)
         return length
@@ -89,17 +89,17 @@ class Statistics:
 
     def close_encounters(self):
         res = {}
-        far_radi = [_agent.far_radius for _agent in self.history.env.get_agents().values() if
+        far_radi = [_agent.far_radius for _agent in self.history.env.agents.values() if
                     isinstance(_agent, PathAgent)]
         far_radi.append(0)
         max_far_radi = max(far_radi)
 
-        near_radi = [_agent.near_radius for _agent in self.history.env.get_agents().values() if
+        near_radi = [_agent.near_radius for _agent in self.history.env.agents.values() if
                      isinstance(_agent, PathAgent)]
         near_radi.append(0)
         max_near_radi = max(near_radi)
 
-        for agent in self.history.env.get_agents().values():
+        for agent in self.history.env.agents.values():
             res[agent.id] = {
                 "near_field_violations": {},
                 "near_field_intersection": {},
@@ -153,7 +153,7 @@ class Statistics:
     def intersections(self, position: "Coordinate4D", agent: "Agents", max_far_radi, max_near_radi):
         near_intersections = 0
         far_intersections = 0
-        real_agent: "Agents" = self.history.env.get_agents()[agent.id]
+        real_agent: "Agents" = self.history.env.agents[agent.id]
         if isinstance(real_agent, PathAgent):
             box = [position.x - max_far_radi,
                    position.y - max_far_radi,
@@ -167,7 +167,7 @@ class Statistics:
             real_collisions = filter(lambda col: col.id != agent.id, collisions)
 
             for collision in real_collisions:
-                colliding_agent = self.history.env.get_agents()[collision.id]
+                colliding_agent = self.history.env.agents[collision.id]
                 distance_x = abs(collision.bbox[0] - position.x)
                 distance_y = abs(collision.bbox[1] - position.y)
                 distance_z = abs(collision.bbox[2] - position.z)

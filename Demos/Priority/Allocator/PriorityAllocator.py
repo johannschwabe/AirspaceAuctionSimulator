@@ -1,10 +1,6 @@
 from time import time_ns
 from typing import List, TYPE_CHECKING
 
-from Simulator.Allocator import Allocator
-from Simulator.Path import PathAllocation, PathSegment, SpaceSegment, SpaceAllocation
-from Simulator.Path.AllocationReason import AllocationReason
-from Simulator.Path.AllocationReasonType import AllocationReasonType
 from Demos.Priority.AStar.PriorityAStar import PriorityAStar
 from Demos.Priority.Agents.PriorityABAgent import PriorityABAgent
 from Demos.Priority.Agents.PriorityStationaryAgent import PriorityStationaryAgent
@@ -12,6 +8,10 @@ from Demos.Priority.Bids.PriorityABBid import PriorityABBid
 from Demos.Priority.Bids.PriorityStationaryBid import PriorityStationaryBid
 from Demos.Priority.Owners.PriorityABOwner import PriorityABOwner
 from Demos.Priority.Owners.PriorityStationaryOwner import PriorityStationaryOwner
+from Simulator.Allocator import Allocator
+from Simulator.Path import PathAllocation, PathSegment, SpaceSegment, SpaceAllocation
+from Simulator.Path.AllocationReason import AllocationReason
+from Simulator.Path.AllocationReasonType import AllocationReasonType
 
 if TYPE_CHECKING:
     from Simulator import Environment
@@ -52,7 +52,7 @@ class PriorityAllocator(Allocator):
                     allocations = [reallocation for reallocation in allocations if
                                    reallocation.agent != agent_to_remove]
                 env.allocate_path_segment_for_agent(agent, new_path_segment)
-                if agent.id not in env.get_agents():
+                if agent.id not in env.agents:
                     env.add_agent(agent)
                 allocations.append(PathAllocation(agent,
                                                   [new_path_segment],
@@ -91,7 +91,7 @@ class PriorityAllocator(Allocator):
                         str(AllocationReasonType.AGENT.value),
                         [collision.id for collision in blocking_agents])
                     env.allocate_space_for_agent(agent, space_segments)
-                    if agent.id not in env.get_agents():
+                    if agent.id not in env.agents:
                         env.add_agent(agent)
                     allocations.append(SpaceAllocation(agent,
                                                        space_segments,
