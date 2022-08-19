@@ -18,14 +18,19 @@ class PathSegment(Segment):
         self.coordinates.extend(other.coordinates)
 
     def same(self, other: "PathSegment"):
-        idx = self.index == other.index
-        start_same = self.end == other.end
-        if idx and not start_same:
-            print("You done gufed")
-        return idx and start_same
+        same_index = self.index == other.index
+        same_end = self.end == other.end
+        if same_index and not same_end:
+            print(f"Same index ({self.index} == {other.index}) but not same end ({self.end} != {other.end})")
+        return same_index and same_end
 
-    def __str__(self):
-        return f"{self.start} -> {self.end}: {self.index}"
+    @property
+    def min(self):
+        return self.coordinates[0]
+
+    @property
+    def max(self):
+        return self.coordinates[-1]
 
     def clone(self):
         return PathSegment(self.start.clone(), self.end.clone(), self.index, [x.clone() for x in self.coordinates])
@@ -33,26 +38,9 @@ class PathSegment(Segment):
     def split_temporal(self, t: int) -> Tuple["PathSegment", "PathSegment"]:
         t_index = t - self.coordinates[0].t
         first_segment = self.clone()
-        first_segment.coordinates = first_segment.coordinates[:t_index+1]
+        first_segment.coordinates = first_segment.coordinates[:t_index + 1]
 
         second_segment = self.clone()
-        second_segment.coordinates = second_segment.coordinates[t_index+1:]
+        second_segment.coordinates = second_segment.coordinates[t_index + 1:]
 
         return first_segment, second_segment
-
-    def __getitem__(self, n):
-        return self.coordinates[n]
-
-    def __len__(self):
-        return len(self.coordinates)
-
-    def __iter__(self):
-        self.__i = 0
-        return self
-
-    def __next__(self):
-        if self.__i < len(self.coordinates):
-            loc = self.coordinates[self.__i]
-            self.__i += 1
-            return loc
-        raise StopIteration

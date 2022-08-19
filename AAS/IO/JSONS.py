@@ -2,6 +2,7 @@ import statistics
 from abc import ABC
 from typing import Dict, List, TYPE_CHECKING
 
+from API.Generator.MapTile import MapTile
 from .. import Blocker, Simulator, Statistics
 from ..Agent import Agent, PathAgent, SpaceAgent
 from ..Blocker.BuildingBlocker import BuildingBlocker
@@ -9,7 +10,6 @@ from ..Blocker.DynamicBlocker import DynamicBlocker
 from ..Blocker.StaticBlocker import StaticBlocker
 from ..History import HistoryAgent
 from ..IO import Stringify
-from API.Generator.MapTile import MapTile
 
 if TYPE_CHECKING:
     from ..Coordinates import Coordinate4D
@@ -33,7 +33,7 @@ class Collision(Stringify):
 
 
 class Branch(Stringify):
-    def __init__(self, tick: int, paths: List["Path"], value: float, reason: "Collision", compute_time: float):
+    def __init__(self, tick: int, paths: List["Path"], value: float, reason: "Collision", compute_time: int):
         self.tick: int = tick
         self.paths: List["Path"] = paths
         self.value: float = value
@@ -210,8 +210,8 @@ class JSONSimulation(Stringify):
                  environment: JSONEnvironment,
                  jsonStatistics: JSONStatistics,
                  owners: List[JSONOwner],
-                 total_compute_time: float,
-                 step_compute_time: Dict[int, float]):
+                 total_compute_time: int,
+                 step_compute_time: Dict[int, int]):
         self.config = config
         self.environment: JSONEnvironment = environment
         self.statistics: JSONStatistics = jsonStatistics
@@ -220,7 +220,7 @@ class JSONSimulation(Stringify):
         self.step_compute_time = step_compute_time
 
 
-def build_json(config: "APISimulationConfig", simulator: Simulator, total_compute_time: float):
+def build_json(config: "APISimulationConfig", simulator: Simulator, total_compute_time: int):
     env = simulator.environment
     history = simulator.history
     stats = Statistics(simulator)

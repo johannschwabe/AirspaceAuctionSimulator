@@ -1,8 +1,9 @@
 from typing import List, Dict
 
-from ..Agent import Agent
-from ..Coordinates import Coordinate4D
+from ..Agents.Agent import Agent
+from ..Coordinates.Coordinate4D import Coordinate4D
 from ..Path.AllocationReason import AllocationReason
+from ..Path.Segment import Segment
 
 
 class HistoryAgent:
@@ -12,6 +13,6 @@ class HistoryAgent:
         self.past_allocations: Dict[int, Dict[str, List[List[Coordinate4D]] | AllocationReason | float]] = {}
         self.allocation_time: Dict[int, int]
 
-    def reallocation(self, new_path: List[List[Coordinate4D]], reason: AllocationReason, time_step: int,
-                     compute_time: float):
+    def reallocation(self, new_path: List[Segment], reason: AllocationReason, time_step: int,
+                     compute_time: int):
         self.past_allocations[time_step] = {"path": new_path, "reason": reason, "time": compute_time}

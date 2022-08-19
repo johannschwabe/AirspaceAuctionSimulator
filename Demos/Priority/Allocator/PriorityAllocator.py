@@ -57,7 +57,7 @@ class PriorityAllocator(Allocator):
                 allocations.append(PathAllocation(agent,
                                                   [new_path_segment],
                                                   reallocation_reason,
-                                                  (time_ns() - start_time) / 1e6)
+                                                  time_ns() - start_time)
                                    )
 
             if isinstance(bid, PriorityStationaryBid) and isinstance(agent, PriorityStationaryAgent):
@@ -90,13 +90,13 @@ class PriorityAllocator(Allocator):
                         str(AllocationReasonType.FIRST_ALLOCATION.value)) if agent in agents else AllocationReason(
                         str(AllocationReasonType.AGENT.value),
                         [collision.id for collision in blocking_agents])
-                    env.allocate_spaces_for_agent(agent, space_segments)
+                    env.allocate_space_for_agent(agent, space_segments)
                     if agent.id not in env.get_agents():
                         env.add_agent(agent)
                     allocations.append(SpaceAllocation(agent,
                                                        space_segments,
                                                        reallocation_reason,
-                                                       (time_ns() - start_time) / 1e6)
+                                                       time_ns() - start_time)
                                        )
 
         return allocations

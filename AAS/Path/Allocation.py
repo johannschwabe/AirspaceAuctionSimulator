@@ -1,17 +1,23 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
-    from ..Agent.Agent import Agent
+    from ..Agents.Agent import Agent
     from .AllocationReason import AllocationReason
+    from .Segment import Segment
 
 
 class Allocation(ABC):
-    def __init__(self, agent: "Agents", reason: "AllocationReason", compute_time: float = 0):
-        self.agent = agent
-        self.reason = reason
-        self.compute_time = compute_time
+    def __init__(self,
+                 agent: "Agent",
+                 segments: List["Segment"],
+                 reason: "AllocationReason",
+                 compute_time: int = 0):
+        self.agent: "Agent" = agent
+        self.reason: "AllocationReason" = reason
+        self.compute_time: int = compute_time
+        self.segments: List["Segment"] = segments
 
     @abstractmethod
-    def correct_agent(self, agent: "Agents"):
+    def correct_agent(self, agent: "Agent"):
         pass

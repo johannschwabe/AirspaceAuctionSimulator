@@ -1,11 +1,11 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from .Allocation import Allocation
-from ..Agent.PathAgent import PathAgent
 
 if TYPE_CHECKING:
-    from ..Path import PathSegment
+    from ..Path.PathSegment import PathSegment
     from .AllocationReason import AllocationReason
+    from ..Agents.PathAgents.PathAgent import PathAgent
 
 
 class PathAllocation(Allocation):
@@ -13,11 +13,10 @@ class PathAllocation(Allocation):
                  agent: "PathAgent",
                  segments: List["PathSegment"],
                  reason: "AllocationReason",
-                 compute_time: float = 0):
-        super().__init__(agent, reason, compute_time)
-        self.segments = segments
+                 compute_time: int = 0):
+        super().__init__(agent, segments, reason, compute_time)
+        self.agent: "PathAgent" = agent
+        self.segments: List["PathSegment"] = segments
 
-    def correct_agent(self, agent: "Agents"):
-        if isinstance(agent, PathAgent):
-            return PathAllocation(agent, self.segments, self.reason, self.compute_time)
-        raise Exception("Invalid Agents Type")
+    def correct_agent(self, agent: "PathAgent"):
+        return PathAllocation(agent, self.segments, self.reason, self.compute_time)

@@ -18,10 +18,10 @@ class Allocator(ABC):
                             tick: int) -> List["Allocation"]:
         pass
 
-    def temp_allocation(self,
-                        agents: List["Agent"],
-                        env: "Environment",
-                        tick: int) -> List["Allocation"]:
+    def allocate(self,
+                 agents: List["Agent"],
+                 env: "Environment",
+                 tick: int) -> List["Allocation"]:
         cloned_agents = [agent.clone() for agent in agents]
         return self.allocate_for_agents(cloned_agents, env, tick)
 

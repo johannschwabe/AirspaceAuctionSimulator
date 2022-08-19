@@ -1,13 +1,14 @@
 import random
 from time import time_ns
 
-from API import APISimpleCoordinate
-from AAS import Environment
 from AAS.Agent import ABAgent
-from AAS.Coordinates import Coordinate4D
-from API.Generator.MapTile import MapTile
-from AAS.Owners import PathOwner, PathStop
+
+from AAS import Environment
 from AAS.AStar.AStar import AStar
+from AAS.Coordinates import Coordinate4D
+from AAS.Owners import PathOwner, PathStop
+from API import APISimpleCoordinate
+from API.Generator.MapTile import MapTile
 
 dimensions = Coordinate4D(831, 30, 831, 20000)
 
@@ -72,7 +73,7 @@ def test(env: Environment, g_sum, height_adjust):
             sum_achieved_len += len(res)
             sum_optimal_len += segment["optimal"]
 
-    duration = (time_ns() - start_t) / 1e9
+    duration = time_ns() - start_t
     print(
         f"Nr_tests: {nr_tests}, Duration: {duration:3f}s, Success: {nr_success}, {sum_achieved_len / sum_optimal_len}"
     )

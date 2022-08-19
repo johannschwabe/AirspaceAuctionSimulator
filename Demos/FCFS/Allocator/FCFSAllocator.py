@@ -127,14 +127,14 @@ class FCFSAllocator(Allocator):
                 if optimal_path_segments is None:
                     allocations.append(
                         PathAllocation(agent, [], AllocationReason(str(AllocationReasonType.ALLOCATION_FAILED.value)),
-                                       (time_ns() - start_time) / 1e6))
+                                       time_ns() - start_time))
                     continue
 
                 environment.allocate_path_for_agent(agent, optimal_path_segments)
                 allocations.append(PathAllocation(agent,
                                                   optimal_path_segments,
                                                   AllocationReason(str(AllocationReasonType.FIRST_ALLOCATION.value)),
-                                                  (time_ns() - start_time) / 1e6))
+                                                  time_ns() - start_time))
 
             # Space Agents
             elif agent.allocation_type == AllocationType.SPACE.value:
@@ -143,11 +143,11 @@ class FCFSAllocator(Allocator):
                     case AgentType.STATIONARY.value:
                         optimal_path_segments = self.allocate_stationary(agent, bid, environment)
 
-                environment.allocate_spaces_for_agent(agent, optimal_path_segments)
+                environment.allocate_space_for_agent(agent, optimal_path_segments)
                 allocations.append(SpaceAllocation(agent,
                                                    optimal_path_segments,
                                                    AllocationReason(str(AllocationReasonType.FIRST_ALLOCATION.value)),
-                                                   (time_ns() - start_time) / 1e6))
+                                                   time_ns() - start_time))
 
             environment.add_agent(agent)
         return allocations

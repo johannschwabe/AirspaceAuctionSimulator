@@ -5,12 +5,15 @@ from rtree import index, Index
 from ..Agents.PathAgents.PathAgent import PathAgent
 from ..Agents.SpaceAgents.SpaceAgent import SpaceAgent
 from ..Blocker.BlockerType import BlockerType
-from ..Path.PathSegment import PathSegment
+from ..Path.PathAllocation import PathAllocation
+from ..Path.SpaceAllocation import SpaceAllocation
 
 if TYPE_CHECKING:
     from ..Blocker.Blocker import Blocker
     from ..Coordinates.Coordinate4D import Coordinate4D
     from ..Agents.Agent import Agent
+    from ..Path.Allocation import Allocation
+    from ..Path.PathSegment import PathSegment
     from ..Path.SpaceSegment import SpaceSegment
 
 
@@ -64,16 +67,16 @@ class Environment:
     def deallocate_path_agent(self, agent: "PathAgent", time_step: int):
         new_segments = []
         for path_segment in agent.allocated_segments:
-            if path_segment[-1].t <= time_step:
+            if path_segment.max.t <= time_step:
                 new_segments.append(path_segment)
             else:
-                if path_segment[0].t < time_step:
+                if path_segment.min.t < time_step:
                     first, second = path_segment.split_temporal(time_step)
                     new_segments.append(first)
-                    for coordinate in second:
+                    for coordinate in second.coordinates:
                         self.tree.delete(agent.id, coordinate.tree_query_point_rep())
                 else:
-                    for coordinate in path_segment:
+                    for coordinate in path_segment.coordinates:
                         self.tree.delete(agent.id, coordinate.tree_query_point_rep())
 
         agent.allocated_segments = new_segments
@@ -92,75 +95,66 @@ class Environment:
 
         agent.allocated_segments = new_segments
 
-    def allocate_path_for_agent(self, agent: "PathAgent", path: List[PathSegment]):
+    def allocate_path_for_agent(self, agent: "PathAgent", path: List["PathSegment"]):
         for path_segment in path:
             self.allocate_path_segment_for_agent(agent, path_segment)
 
-    def allocate_spaces_for_agent(self, agent: "SpaceAgent", spaces: List["SpaceSegment"]):
+    def allocate_space_for_agent(self, agent: "SpaceAgent", spaces: List["SpaceSegment"]):
         for space in spaces:
-            self.allocate_space_for_agent(agent, space)
+            self.allocate_space_segment_for_agent(agent, space)
 
-    def allocate_path_segment_for_agent(self, agent: "PathAgent", path_segment: PathSegment):
-        if len(path_segment) == 0:
-            return
+    def allocate_path_segment_for_agent(self, agent: "PathAgent", path_segment: "PathSegment"):
         agent.add_allocated_segment(path_segment)
-        iterator = path_segment[0]
-        for coord in path_segment:
-            if coord.inter_temporal_equal(iterator):
-                continue
-            aggregated = iterator.tree_query_point_rep()
-            aggregated[7] = coord.t - 1
-            self.tree.insert(agent.id, aggregated)
-            iterator = coord
+        for coord in path_segment.coordinates:
+            self.tree.insert(agent.id, coord.tree_query_point_rep())
 
-        aggregated = iterator.tree_query_point_rep()
-        aggregated[7] = path_segment[-1].t
-        self.tree.insert(agent.id, aggregated)
-
-    def allocate_space_for_agent(self, agent: "SpaceAgent", space: "SpaceSegment"):
-        agent.add_allocated_segment(space)
-        self.tree.insert(agent.id, space.tree_rep())
+    def allocate_space_segment_for_agent(self, agent: "SpaceAgent", space_segment: "SpaceSegment"):
+        agent.add_allocated_segment(space_segment)
+        self.tree.insert(agent.id, space_segment.tree_rep())
 
     def allocate_segments_for_agents(self,
-                                     agents_segments: List["PathReallocation | SpaceReallocation"],
+                                     real_allocations: List["Allocation"],
                                      time_step: int):
-        for reallocation in agents_segments:
-            agent = reallocation.agent
-            segments = reallocation.segments
-            if agent.id in self.agents:
-                self.deallocate_agent(agent, time_step)
-            else:
-                self.agents[agent.id] = agent
+        for allocation in real_allocations:
+            if isinstance(allocation, SpaceAllocation):
+                agent: "SpaceAgent" = allocation.agent
+                segments: List["SpaceSegment"] = allocation.segments
+                self.register_agent(agent, time_step)
+                self.allocate_space_for_agent(agent, segments)
 
-            if isinstance(agent, SpaceAgent):
-                self.allocate_spaces_for_agent(agent, segments)
-            elif isinstance(agent, PathAgent):
+            elif isinstance(allocation, PathAllocation):
+                agent: "PathAgent" = allocation.agent
+                segments: List["PathSegment"] = allocation.segments
+                self.register_agent(agent, time_step)
                 self.allocate_path_for_agent(agent, segments)
             else:
-                raise Exception("You gufed")
+                raise Exception(f"Unknown allocation class {allocation.__class__}")
 
-    def original_agents(self,
-                        agents_segments: List["PathReallocation | SpaceReallocation"],
-                        newcomers: List["Agent"]) -> List["PathReallocation | SpaceReallocation"]:
+    def register_agent(self, agent: "Agent", time_step: int):
+        if agent.id in self.agents:
+            self.deallocate_agent(agent, time_step)
+        else:
+            self.agents[agent.id] = agent
+
+    def create_real_allocations(self,
+                                temporary_allocations: List["Allocation"],
+                                new_agents: Dict[int, "Agent"]) -> List["Allocation"]:
         res = []
-        for reallocation in agents_segments:
-            agent_id = reallocation.agent.id
-            newcomer_ids = [_agent.id for _agent in newcomers]
-            if agent_id in newcomer_ids:
-                res.append(reallocation.correct_agent(newcomers[newcomer_ids.index(agent_id)]))
+        for temporary_allocation in temporary_allocations:
+            new_agent_id = temporary_allocation.agent.id
+            if new_agent_id in new_agents:
+                res.append(temporary_allocation.correct_agent(new_agents[new_agent_id]))
             else:
-                res.append(reallocation.correct_agent(self.agents[agent_id]))
+                res.append(temporary_allocation.correct_agent(self.agents[new_agent_id]))
         return res
 
-    def get_blockers(self, coord: "Coordinate4D", radius, speed) -> List[int]:
-        return self.blocker_tree.intersection((
-            coord.x - radius, coord.y - radius, coord.z - radius, coord.t,
-            coord.x + radius, coord.y + radius, coord.z + radius, coord.t + speed,
-        ))
+    def get_blockers(self, coord: "Coordinate4D", radius: int, speed: int) -> List[int]:
+        return list(self.blocker_tree.intersection(coord.tree_query_qube_rep(radius, speed)))
 
     def is_blocked(self, coord: "Coordinate4D", radius: int = 0, speed: int = 0) -> bool:
         for blocker_id in self.get_blockers(coord, radius, speed):
-            if self.blocker_dict[blocker_id].is_blocking(coord, radius):
+            blocker = self.blocker_dict[blocker_id]
+            if blocker.is_blocking(coord, radius):
                 return True
         return False
 

@@ -1,5 +1,5 @@
 from time import time_ns
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Dict
 
 from .History.History import History
 
@@ -29,22 +29,32 @@ class Simulator:
         self._agent_id += 1
         return agent_id
 
-    def tick(self) -> bool:
-        newcomers: List["Agent"] = []
+    def generate_new_agents(self) -> Dict[int, "Agent"]:
+        new_agents: Dict[int, "Agent"] = {}
         for owner in self.owners:
-            newcomers += owner.generate_agents(self.time_step, self)
+            generated_agents = owner.generate_agents(self.time_step, self)
+            for generated_agent in generated_agents:
+                new_agents[generated_agent.id] = generated_agent
+        return new_agents
 
-        if len(newcomers) > 0:
-            print(f"STEP: {self.time_step}")
+    def tick(self):
+        print(f"\rSTEP: {self.time_step}")
+
+        new_agents: Dict[int, "Agent"] = self.generate_new_agents()
+
+        if len(new_agents) > 0:
             start_time = time_ns()
-            self.history.add_new_agents(newcomers, self.time_step)
-            temp_env = self.environment.clone()
-            cloned_agents_paths: List["Allocation"] = self.allocator.temp_allocation(
-                newcomers,
-                temp_env,
+
+            self.history.add_new_agents(list(new_agents.values()), self.time_step)
+            temporary_environment = self.environment.clone()
+            temporary_allocations: List["Allocation"] = self.allocator.allocate(
+                list(new_agents.values()),
+                temporary_environment,
                 self.time_step)
-            agents_paths = self.environment.original_agents(cloned_agents_paths, newcomers)
-            self.environment.allocate_segments_for_agents(agents_paths, self.time_step)
-            self.history.update_allocations(agents_paths, self.time_step, (time_ns() - start_time) / 1e6)
+            real_allocations = self.environment.create_real_allocations(temporary_allocations, new_agents)
+            self.environment.allocate_segments_for_agents(real_allocations, self.time_step)
+            self.history.update_allocations(real_allocations, self.time_step, time_ns() - start_time)
+            
+            print()  # negate carriage return
+
         self.time_step += 1
-        return True

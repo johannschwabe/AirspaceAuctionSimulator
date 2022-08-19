@@ -1,11 +1,11 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from .Allocation import Allocation
-from ..Agent.SpaceAgent import SpaceAgent
 
 if TYPE_CHECKING:
+    from ..Path.SpaceSegment import SpaceSegment
     from .AllocationReason import AllocationReason
-    from . import SpaceSegment
+    from ..Agents.SpaceAgents.SpaceAgent import SpaceAgent
 
 
 class SpaceAllocation(Allocation):
@@ -13,11 +13,10 @@ class SpaceAllocation(Allocation):
                  agent: "SpaceAgent",
                  segments: List["SpaceSegment"],
                  reason: "AllocationReason",
-                 compute_time: float = 0):
-        super().__init__(agent, reason, compute_time)
-        self.segments = segments
+                 compute_time: int = 0):
+        super().__init__(agent, segments, reason, compute_time)
+        self.agent: "SpaceAgent" = agent
+        self.segments: List["SpaceSegment"] = segments
 
-    def correct_agent(self, agent: "Agents"):
-        if isinstance(agent, SpaceAgent):
-            return SpaceAllocation(agent, self.segments, self.reason, self.compute_time)
-        raise Exception("Invalid Agents Type")
+    def correct_agent(self, agent: "SpaceAgent"):
+        return SpaceAllocation(agent, self.segments, self.reason, self.compute_time)
