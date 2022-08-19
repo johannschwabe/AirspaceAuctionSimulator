@@ -60,6 +60,6 @@ if __name__ == "__main__":
     simulatorAligator = simulate(environment, max_t)
 
     res = build_json({"name": "test", "description": "Schnabeltier"}, simulatorAligator, 0)
-    f = open("../test.json", "w")
+    f = open("test.json", "w")
     f.write(json.dumps(res))
     f.close()
