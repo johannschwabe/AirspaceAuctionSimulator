@@ -21,5 +21,5 @@ class Blocker(ABC):
         return True
 
     @abstractmethod
-    def add_to_tree(self, tree: "Index", dimension: "Coordinate4D", blocker_id: int):
+    def add_to_tree(self, tree: "Index", dimension: "Coordinate4D"):
         pass

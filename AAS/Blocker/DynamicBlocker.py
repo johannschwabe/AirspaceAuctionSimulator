@@ -16,9 +16,9 @@ class DynamicBlocker(Blocker):
         super().__init__(dimension)
         self.locations = locations
 
-    def add_to_tree(self, tree: "Index", dimension: "Coordinate4D", blocker_id: int):
+    def add_to_tree(self, tree: "Index", dimension: "Coordinate4D"):
+        assert self.id > -1
         idx = 0
-        self.id = blocker_id
         start = self.locations[idx]
         while idx < len(self.locations):
             end = None

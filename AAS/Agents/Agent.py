@@ -48,3 +48,7 @@ class Agent(ABC):
 
     def __repr__(self):
         return f"{self.agent_type}-{self.id}"
+
+    @abstractmethod
+    def add_allocated_segment(self, path_segment: "Segment"):
+        pass

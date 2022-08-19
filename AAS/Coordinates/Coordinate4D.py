@@ -9,7 +9,7 @@ class Coordinate4D(Coordinate3D):
         self.t: int = t
 
     @staticmethod
-    def from_3d(coord_3d: "Coordinate3D", t: int) -> "Coordinate3D":
+    def from_3d(coord_3d: "Coordinate3D", t: int) -> "Coordinate4D":
         return Coordinate4D(coord_3d.x, coord_3d.y, coord_3d.z, t)
 
     def get_key(self) -> str:

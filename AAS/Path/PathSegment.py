@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Tuple
 
 from .Segment import Segment
 
@@ -29,6 +29,16 @@ class PathSegment(Segment):
 
     def clone(self):
         return PathSegment(self.start.clone(), self.end.clone(), self.index, [x.clone() for x in self.coordinates])
+
+    def split_temporal(self, t: int) -> Tuple["PathSegment", "PathSegment"]:
+        t_index = t - self.coordinates[0].t
+        first_segment = self.clone()
+        first_segment.coordinates = first_segment.coordinates[:t_index+1]
+
+        second_segment = self.clone()
+        second_segment.coordinates = second_segment.coordinates[t_index+1:]
+
+        return first_segment, second_segment
 
     def __getitem__(self, n):
         return self.coordinates[n]
