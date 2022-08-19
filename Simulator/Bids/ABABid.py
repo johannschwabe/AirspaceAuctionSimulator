@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from . import ABBid
+from .ABBid import ABBid
 
 if TYPE_CHECKING:
     from ..Coordinates.Coordinate4D import Coordinate4D

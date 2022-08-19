@@ -1,20 +1,23 @@
 import statistics
 from typing import TYPE_CHECKING, List
 
-from ..Agent import PathAgent
-from ..Path import PathSegment
+from ..Agents.PathAgents.PathAgent import PathAgent
+from ..Owners.Owner import Owner
+from ..Path.PathSegment import PathSegment
 
 if TYPE_CHECKING:
-    from ..Coordinates import Coordinate4D
-    from .. import Simulator, Owners
-    from ..History import HistoryAgent, History
+    from ..Coordinates.Coordinate4D import Coordinate4D
+    from ..Simulator import Simulator
+    from ..History.HistoryAgent import HistoryAgent
+    from ..History.History import History
+    from ..Agents.Agent import Agent
 
 
 class Statistics:
     def __init__(self, sim: "Simulator"):
         self.history: "History" = sim.history
 
-    def non_colliding_value(self, agent: "Agents"):
+    def non_colliding_value(self, agent: "Agent"):
         local_agent = agent.clone()
         local_env = self.history.env.new_clear()
         paths = self.history.allocator.allocate_for_agents([local_agent], local_env, 0)[0]
@@ -26,7 +29,7 @@ class Statistics:
                   f"achieved value: {agent.get_allocated_value()}")
 
     @staticmethod
-    def agents_welfare(agent: "Agents"):
+    def agents_welfare(agent: "Agent"):
         return agent.get_allocated_value()
 
     def total_agents_welfare(self):
@@ -36,7 +39,7 @@ class Statistics:
         return summed_welfare
 
     @staticmethod
-    def owners_welfare(owner: "Owners"):
+    def owners_welfare(owner: "Owner"):
         summed_welfare = 0
         for agent in owner.agents:
             summed_welfare += Statistics.agents_welfare(agent)
@@ -51,9 +54,9 @@ class Statistics:
 
     def allocated_distance(self):
         length = 0
-        for agent in self.history.env.agents:
-            for path in agent.allocated_paths:
-                length += len(path)
+        for agent in self.history.env.agents.values():
+            for segment in agent.allocated_segments:
+                length += len(segment)
         return length
 
     @staticmethod
@@ -110,9 +113,9 @@ class Statistics:
                 "total_far_field_violations": 0,
                 "total_far_field_intersection": 0,
             }
-            for segment in agent.get_allocated_segments():
+            for segment in agent.allocated_segments:
                 if isinstance(segment, PathSegment):
-                    for step in segment[::agent.speed]:
+                    for step in segment.coordinates[::agent.speed]:
                         res[agent.id]["near_field_violations"][step.t] = self.violations(step, agent,
                                                                                          agent.near_radius)
                         res[agent.id]["far_field_violations"][step.t] = self.violations(step, agent,
@@ -150,10 +153,10 @@ class Statistics:
             count += int(end) - int(start) + 1
         return count
 
-    def intersections(self, position: "Coordinate4D", agent: "Agents", max_far_radi, max_near_radi):
+    def intersections(self, position: "Coordinate4D", agent: "Agent", max_far_radi, max_near_radi):
         near_intersections = 0
         far_intersections = 0
-        real_agent: "Agents" = self.history.env.agents[agent.id]
+        real_agent: "Agent" = self.history.env.agents[agent.id]
         if isinstance(real_agent, PathAgent):
             box = [position.x - max_far_radi,
                    position.y - max_far_radi,

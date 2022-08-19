@@ -3,13 +3,18 @@ from abc import ABC
 from typing import Dict, List, TYPE_CHECKING
 
 from API.Generator.MapTile import MapTile
-from .. import Blocker, Simulator, Statistics
-from ..Agent import Agent, PathAgent, SpaceAgent
+from .Stringify import Stringify
+from ..Agents.Agent import Agent
+from ..Agents.PathAgents.PathAgent import PathAgent
+from ..Agents.SpaceAgents.SpaceAgent import SpaceAgent
+from ..Blocker.Blocker import Blocker
 from ..Blocker.BuildingBlocker import BuildingBlocker
 from ..Blocker.DynamicBlocker import DynamicBlocker
 from ..Blocker.StaticBlocker import StaticBlocker
-from ..History import HistoryAgent
-from ..IO import Stringify
+from ..History.HistoryAgent import HistoryAgent
+from ..Path.PathSegment import PathSegment
+from ..Simulator import Simulator
+from ..Statistics.Statistics import Statistics
 
 if TYPE_CHECKING:
     from ..Coordinates import Coordinate4D
@@ -18,10 +23,10 @@ if TYPE_CHECKING:
 
 
 class Path(Stringify):
-    def __init__(self, path: List["Coordinate4D"]):
+    def __init__(self, path: "PathSegment"):
         self.t: Dict[str, List[int, int, int]] = {}
 
-        for coord in path:
+        for coord in path.coordinates:
             self.t[str(int(coord.t))] = [coord.x, coord.y, coord.z]
 
 
@@ -46,7 +51,6 @@ class JSONAgent(ABC):
         self,
         agent: Agent,
         non_colliding_utility: float,
-        bid: Dict[str, str | int | float],
         owner_id: int,
         owner_name: str,
     ):
@@ -57,7 +61,6 @@ class JSONAgent(ABC):
 
         self.non_colliding_utility: float = non_colliding_utility
 
-        self.bid: Dict[str, str | int | float] = bid
         self.owner_id: int = owner_id
         self.owner_name: str = owner_name
         self.name: str = f"{self.owner_name}-{self.agent_type}-{self.id}"
@@ -68,12 +71,11 @@ class JSONSpaceAgent(JSONAgent, Stringify):
         self,
         agent: SpaceAgent,
         non_colliding_utility: float,
-        bid: Dict[str, str | int | float],
         owner_id: int,
         owner_name: str,
     ):
-        super().__init__(agent, non_colliding_utility, bid, owner_id, owner_name)
-        self.spaces = agent.get_allocated_segments()
+        super().__init__(agent, non_colliding_utility, owner_id, owner_name)
+        self.spaces = agent.allocated_segments
 
 
 class JSONPathAgent(JSONAgent, Stringify):
@@ -86,12 +88,11 @@ class JSONPathAgent(JSONAgent, Stringify):
         far_field_intersections: int,
         near_field_violations: int,
         far_field_violations: int,
-        bid: Dict[str, str | int | float],
         owner_id: int,
         owner_name: str,
         path_stats: Dict[str, float | int]
     ):
-        super().__init__(agent, non_colliding_utility, bid, owner_id, owner_name)
+        super().__init__(agent, non_colliding_utility, owner_id, owner_name)
         self.speed: int = agent.speed
         self.near_radius: int = agent.near_radius
         self.far_radius: int = agent.far_radius
@@ -103,7 +104,7 @@ class JSONPathAgent(JSONAgent, Stringify):
         self.near_field_violations: int = near_field_violations
         self.far_field_violations: int = far_field_violations
 
-        self.paths: List[Path] = [Path(path.coordinates) for path in agent.get_allocated_segments()]
+        self.paths: List[Path] = [Path(path) for path in agent.allocated_segments]
 
         self.branches: List[Branch] = []
 
@@ -126,26 +127,13 @@ class JSONPathAgent(JSONAgent, Stringify):
 
 
 class JSONOwner(Stringify):
-    def __init__(self, name: str, _id: int, color: str, agents: List[JSONAgent]):
+    def __init__(self, name: str, owner_id: int, color: str, agents: List[JSONAgent]):
         self.name: str = name
-        self.id: int = _id
+        self.id: int = owner_id
         self.color: str = color
         self.agents: List[JSONAgent] = agents
         self.total_time_in_air: int = sum(
             [agent.time_in_air if isinstance(agent, JSONPathAgent) else 0 for agent in self.agents])
-
-        bids = [agent.bid["!value"] for agent in self.agents]
-        self.total_bid_value: int = sum(bids)
-        self.mean_bid_value: float = statistics.mean(bids)
-        self.median_bid_value: float = statistics.median(bids)
-        self.max_bid_value: float = max(bids)
-        self.min_bid_value: float = min(bids)
-        if len(bids) < 2:
-            self.bid_quantiles = [0] * 4
-        else:
-            self.bid_quantiles: List[float] = statistics.quantiles(bids)
-        self.bid_outliers: List[float] = [bid for bid in bids if
-                                          bid < self.bid_quantiles[0] or bid > self.bid_quantiles[-1]]
 
         utility = [agent.utility for agent in self.agents]
         self.total_utility: int = sum(utility)
@@ -188,11 +176,10 @@ class JSONMaptile(Stringify):
 
 
 class JSONEnvironment(Stringify):
-    def __init__(self, dimensions: "Coordinate4D", blockers: List[Blocker], maptiles: List[MapTile]):
+    def __init__(self, dimensions: "Coordinate4D", blockers: List["Blocker"]):
         self.dimensions: "Coordinate4D" = dimensions
         self.blockers: List[JSONBlocker] = [JSONBlocker(blocker) for blocker in blockers if
                                             not isinstance(blocker, BuildingBlocker)]
-        self.maptiles: List[JSONMaptile] = [JSONMaptile(maptile) for maptile in maptiles]
 
 
 class JSONStatistics(Stringify):
@@ -226,7 +213,7 @@ def build_json(config: "APISimulationConfig", simulator: Simulator, total_comput
     stats = Statistics(simulator)
     close_encounters = stats.close_encounters()
     nr_collisions = 0
-    json_env = JSONEnvironment(env.dimension, list(env.blocker_dict.values()), env.map_tiles)
+    json_env = JSONEnvironment(env.dimension, list(env.blocker_dict.values()))
     owners: List[JSONOwner] = []
     for owner in history.owners:
         agents: List[JSONAgent] = []
@@ -242,7 +229,6 @@ def build_json(config: "APISimulationConfig", simulator: Simulator, total_comput
                     close_encounters[agent.id]["total_far_field_intersection"],
                     close_encounters[agent.id]["total_near_field_violations"],
                     close_encounters[agent.id]["total_far_field_violations"],
-                    agent.generalized_bid(),
                     owner.id,
                     owner.name,
                     path_stats,
@@ -251,7 +237,6 @@ def build_json(config: "APISimulationConfig", simulator: Simulator, total_comput
                 agents.append(JSONSpaceAgent(
                     agent,
                     stats.non_colliding_value(agent),
-                    agent.generalized_bid(),
                     owner.id,
                     owner.name,
                 ))

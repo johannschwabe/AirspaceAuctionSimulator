@@ -1,6 +1,6 @@
-from Simulator import ABCBid, Coordinate4D
+from Simulator import ABCBid
 
 
 class FCFSABCBid(ABCBid):
-    def __init__(self, battery: int, locations: List[Coordinate4D], stays: List[int]):
+    def __init__(self, battery, locations, stays):
         super().__init__(battery, locations, stays)

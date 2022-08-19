@@ -1,6 +1,9 @@
 import json
 import random
 
+from Demos.FCFS.Allocator.FCFSAllocator import FCFSAllocator
+from Demos.FCFS.Owners.FCFSABOwner import FCFSABOwner
+from Demos.FCFS.Owners.FCFSStationaryOwner import FCFSStationaryOwner
 from Simulator import Simulator, Coordinate4D
 from Simulator.Blocker.StaticBlocker import StaticBlocker
 from Simulator.Coordinates.Coordinate3D import Coordinate3D
@@ -8,9 +11,6 @@ from Simulator.Environment.Environment import Environment
 from Simulator.IO.JSONS import build_json
 from Simulator.Owners.GridLocation import GridLocation
 from Simulator.Owners.GridLocationType import GridLocationType
-from Simulator.Owners.PathOwners.ABOwner import ABOwner
-from Simulator.Owners.SpaceOwners.StationaryOwner import StationaryOwner
-from Demos.FCFS.Allocator.FCFSAllocator import FCFSAllocator
 
 random.seed(3)
 
@@ -18,21 +18,23 @@ random.seed(3)
 def setup_empty(t):
     dimensions = Coordinate4D(50, 20, 50, t)
     blocker = StaticBlocker(Coordinate3D(5, 0, 5), Coordinate3D(40, 15, 40))
-    return Environment.init(dimensions, blockers=[blocker], allocation_period=20)
+    return Environment(dimensions, blockers=[blocker], allocation_period=20)
 
 
 def simulate(env: Environment, t):
     allocator = FCFSAllocator()
     owners = [
-        ABOwner("Schnabeltier",
-                color_generator(),
-                [GridLocation(str(GridLocationType.RANDOM.value)), GridLocation(str(GridLocationType.RANDOM.value))],
-                [random.randint(0, 5) for _ in range(10)]),
-        StationaryOwner("Ghettotier",
-                        color_generator(),
-                        [GridLocation(str(GridLocationType.RANDOM.value)),
-                         GridLocation(str(GridLocationType.RANDOM.value))],
-                        [random.randint(0, 5) for _ in range(10)])
+        FCFSABOwner("Schnabeltier",
+                    color_generator(),
+                    [GridLocation(str(GridLocationType.RANDOM.value)),
+                     GridLocation(str(GridLocationType.RANDOM.value))],
+                    [random.randint(0, 5) for _ in range(10)]),
+        FCFSStationaryOwner("Ghettotier",
+                            color_generator(),
+                            [GridLocation(str(GridLocationType.RANDOM.value)),
+                             GridLocation(str(GridLocationType.RANDOM.value))],
+                            [random.randint(0, 5) for _ in range(10)],
+                            Coordinate4D(5, 5, 5, 5))
     ]
     simulator = Simulator(owners, allocator, env)
     while simulator.time_step < t:

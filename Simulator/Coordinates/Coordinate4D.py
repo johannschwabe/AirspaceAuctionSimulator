@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from Coordinate3D import Coordinate3D
+from .Coordinate3D import Coordinate3D
 
 
 class Coordinate4D(Coordinate3D):

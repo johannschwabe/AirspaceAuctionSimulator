@@ -1,6 +1,6 @@
 import random
 from abc import abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from ..PathOwner import PathOwner
 

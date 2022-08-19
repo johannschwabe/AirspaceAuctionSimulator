@@ -1,7 +1,7 @@
 from typing import List
 
-from Simulator import Environment, Coordinate4D
 from MapTile import MapTile
+from Simulator import Environment, Coordinate4D
 
 
 class EnvironmentGen:
@@ -14,5 +14,5 @@ class EnvironmentGen:
         blockers = []
         for tile in self.maptiles:
             blockers += tile.resolve_buildings()
-        env = Environment.init(self.dimensions, blockers)
+        env = Environment(self.dimensions, blockers)
         return env

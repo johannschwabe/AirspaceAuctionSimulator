@@ -1,11 +1,13 @@
 import random
 from typing import Optional, TYPE_CHECKING
-from Simulator.Coordinates import Coordinate2D, Coordinate4D
-from Simulator.Owners.GridLocationType import GridLocationType
-from Simulator.Owners.Heatmap import Heatmap
+
+from .GridLocationType import GridLocationType
+from .Heatmap import Heatmap
+from ..Coordinates.Coordinate2D import Coordinate2D
+from ..Coordinates.Coordinate4D import Coordinate4D
 
 if TYPE_CHECKING:
-    from Simulator import Environment
+    from ..Environment.Environment import Environment
 
 
 class GridLocation:

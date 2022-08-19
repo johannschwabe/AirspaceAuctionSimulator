@@ -1,6 +1,6 @@
 import math
 
-from Coordinate2D import Coordinate2D
+from .Coordinate2D import Coordinate2D
 
 
 class Coordinate3D(Coordinate2D):

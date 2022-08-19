@@ -33,18 +33,18 @@ class Environment:
         if blockers is None:
             blockers = []
 
+        self.blocker_dict: Dict[int, "Blocker"] = {}
+        self._blocker_id = 0
+        for blocker in blockers:
+            blocker.id = self.get_blocker_id()
+            self.blocker_dict[blocker.id] = blocker
+
         if _blocker_tree is None:
             self.blocker_tree = self.setup_rtree()
             for blocker in blockers:
                 blocker.add_to_tree(self.blocker_tree, self.dimension)
         else:
             self.blocker_tree = _blocker_tree
-
-        self.blocker_dict: Dict[int, "Blocker"] = {}
-        self._blocker_id = 0
-        for blocker in blockers:
-            blocker.id = self.get_blocker_id()
-            self.blocker_dict[blocker.id] = blocker
 
         if _tree is None:
             self.tree = self.setup_rtree()
@@ -256,8 +256,10 @@ class Environment:
 
     def clone(self):
         cloned_tree: "Index" = self.setup_rtree()
-        for item in self.tree.intersection(self.tree.bounds, objects=True):
-            cloned_tree.insert(item.id, item.bbox)
+        if len(self.tree) > 0:
+            all_items = self.tree.intersection(self.tree.bounds, objects=True)
+            for item in all_items:
+                cloned_tree.insert(item.id, item.bbox)
 
         cloned = Environment(self.dimension,
                              list(self.blocker_dict.values()),

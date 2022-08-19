@@ -38,7 +38,7 @@ class PathAgent(Agent, ABC):
     def get_airtime(self) -> int:
         airtime = 0
         for path_segment in self.allocated_segments:
-            airtime += path_segment[-1].t - path_segment[0].t
+            airtime += path_segment.max.t - path_segment.min.t
         return airtime
 
     def add_allocated_segment(self, path_segment: "PathSegment"):

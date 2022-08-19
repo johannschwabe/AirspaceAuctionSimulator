@@ -1,14 +1,13 @@
 from abc import ABC
 from typing import List, TYPE_CHECKING
 
-from Simulator.Agent.AllocationType import AllocationType
-
-from Simulator.Owners import Owner
+from .Owner import Owner
+from ..Agents.AllocationType import AllocationType
 
 if TYPE_CHECKING:
-    from Simulator.Owners import GridLocation
-    from Simulator import Environment
-    from Simulator.Coordinates import Coordinate4D
+    from .GridLocation import GridLocation
+    from ..Environment.Environment import Environment
+    from ..Coordinates.Coordinate4D import Coordinate4D
 
 
 class SpaceOwner(Owner, ABC):

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from ..Agents.Agent import Agent
@@ -13,6 +13,7 @@ class Owner(ABC):
     max_locations: int
     meta: []
     allocation_type: str
+    id = -1
 
     def __init__(self, name: str, color: str):
         self.name: str = name

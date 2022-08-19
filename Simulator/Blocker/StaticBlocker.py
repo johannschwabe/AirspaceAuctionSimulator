@@ -2,9 +2,9 @@ from typing import TYPE_CHECKING
 
 from .Blocker import Blocker
 from .BlockerType import BlockerType
+from ..Coordinates.Coordinate4D import Coordinate4D
 
 if TYPE_CHECKING:
-    from ..Coordinates.Coordinate4D import Coordinate4D
     from ..Coordinates.Coordinate3D import Coordinate3D
     from rtree import Index
 
@@ -18,8 +18,8 @@ class StaticBlocker(Blocker):
 
     def add_to_tree(self, tree: "Index", dimension: "Coordinate4D"):
         assert self.id > -1
-        max_pos_3D = self.location + self.dimension
-        max_pos_4D = Coordinate4D.from_3d(max_pos_3D, dimension.t)
-        min_pos_4D = Coordinate4D.from_3d(self.location, 0)
-        tree_rep = min_pos_4D.list_rep() + max_pos_4D.list_rep()
+        max_pos_3d = self.location + self.dimension
+        max_pos_4d = Coordinate4D.from_3d(max_pos_3d, dimension.t)
+        min_pos_4d = Coordinate4D.from_3d(self.location, 0)
+        tree_rep = min_pos_4d.list_rep() + max_pos_4d.list_rep()
         tree.insert(self.id, tree_rep)

@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 class ABBid(Bid):
     def __init__(self, battery: int, a: "Coordinate4D", b: "Coordinate4D"):
-        super().__init__(battery)
+        super().__init__()
 
         self.battery: int = battery
         self.a: "Coordinate4D" = a

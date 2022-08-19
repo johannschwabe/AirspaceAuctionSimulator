@@ -1,7 +1,7 @@
 import random
 from typing import Dict, List, Optional
 
-from Simulator.Coordinates import Coordinate2D
+from Simulator.Coordinates.Coordinate2D import Coordinate2D
 from Simulator.Owners.HeatmapType import HeatmapType
 
 

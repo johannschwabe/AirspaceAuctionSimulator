@@ -38,8 +38,6 @@ class Simulator:
         return new_agents
 
     def tick(self):
-        print(f"\rSTEP: {self.time_step}")
-
         new_agents: Dict[int, "Agent"] = self.generate_new_agents()
 
         if len(new_agents) > 0:
@@ -54,7 +52,7 @@ class Simulator:
             real_allocations = self.environment.create_real_allocations(temporary_allocations, new_agents)
             self.environment.allocate_segments_for_agents(real_allocations, self.time_step)
             self.history.update_allocations(real_allocations, self.time_step, time_ns() - start_time)
-            
-            print()  # negate carriage return
+            print(f"STEP: {self.time_step}")
+            print("-------------")
 
         self.time_step += 1

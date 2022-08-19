@@ -1,6 +1,6 @@
-from Simulator import StationaryBid, Coordinate4D
+from Simulator import StationaryBid
 
 
 class FCFSStationaryBid(StationaryBid):
-    def __init__(self, blocks: List[List[Coordinate4D]]):
+    def __init__(self, blocks):
         super().__init__(blocks)

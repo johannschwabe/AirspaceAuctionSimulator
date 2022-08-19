@@ -39,7 +39,7 @@ class Agent(ABC):
         pass
 
     def clone(self):
-        clone = self.initialize_clone
+        clone = self.initialize_clone()
         clone.allocated_segments = [segment.clone() for segment in self.allocated_segments]
         return clone
 

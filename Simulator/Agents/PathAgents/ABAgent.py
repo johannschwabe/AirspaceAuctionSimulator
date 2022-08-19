@@ -39,11 +39,11 @@ class ABAgent(PathAgent, ABC):
 
         path_segment = path_segments[0]
 
-        if len(path_segment) == 0:
+        if len(path_segment.coordinates) == 0:
             return 0.
 
-        start: Coordinate4D = path_segment[0]
-        destination: Coordinate4D = path_segment[-1]
+        start: Coordinate4D = path_segment.min
+        destination: Coordinate4D = path_segment.max
         time = destination.t - start.t
         if time > self.battery:
             return -1.
