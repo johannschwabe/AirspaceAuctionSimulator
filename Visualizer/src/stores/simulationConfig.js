@@ -17,19 +17,25 @@ import { randomName } from "../scripts/names";
  */
 
 /**
- * @typedef {Object} GridCoordinateConfig
- * @property {number} x
- * @property {number} y
+ * @typedef {Object} Coordinate
  * @property {number} lat
  * @property {number} long
- * @property {number} value
+ */
+
+/**
+ * @typedef {Coordinate} PositionConfig
+ */
+
+/**
+ * @typedef {Array} HeatmapConfig
+ *
  */
 
 /**
  * @typedef {Object} LocationConfig
  * @property {string} type
  * @property {Object} meta
- * @property {GridCoordinateConfig[]} features
+ * @property {PositionConfig || HeatmapConfig} points
  */
 
 /**
@@ -161,9 +167,9 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
 
   /**
    * Generates a random location
-   * @returns {LocationConfig}
+   * @returns {{meta: {}, coordinates: *[], type: string}}
    */
-  const randomLocation = () => ({ type: "random", gridCoordinates: [], meta: {} });
+  const randomLocation = () => ({ type: "random", points: null, meta: {} });
 
   /**
    * Generates random locations for owner,
@@ -229,8 +235,9 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     map.coordinates = config.map.coordinates;
     map.locationName = config.map.locationName;
     map.neighbouringTiles = config.map.neighbouringTiles;
-    map.topLeftCoordinate = config.map.topLeftCoordinate;
-    map.bottomRightCoordinate = config.map.bottomRightCoordinate;
+    map.topRightCoordinate = config.map.topRightCoordinate;
+    map.bottomLeftCoordinate = config.map.bottomLeftCoordinate;
+    map.subselection = config.map.subselection;
     map.tiles = config.map.tiles;
 
     owners.splice(0);

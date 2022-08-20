@@ -1,20 +1,20 @@
 <template>
-  <div ref="mapRoot" :style="{ width: `${size}px`, height: `${size}px` }" class="map" />
+  <div ref="mapRoot" :style="{ width: `${size.width}px`, height: `${size.height}px` }" class="map" />
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { restorePositionFeatures, useBaseLayer, useMap, usePositionInteraction, usePositionLayer } from "./Map";
 import { Collection } from "ol";
+import { useSimulationConfigStore } from "@/stores/simulationConfig";
 
 const props = defineProps({
-  size: {
+  ownerIndex: {
     type: Number,
-    required: false,
-    default: 256,
+    required: true,
   },
-  location: {
-    type: Object,
+  locationIndex: {
+    type: Number,
     required: true,
   },
   disabled: {
@@ -22,20 +22,24 @@ const props = defineProps({
     default: false,
   },
 });
-
 const features = new Collection([]);
+const simulationConfig = useSimulationConfigStore();
 
 const mapRoot = ref(null);
 const baseLayer = useBaseLayer();
 const positionLayer = usePositionLayer(features);
 
-const { render, map, min, meterCoordsRatio } = useMap(mapRoot, [baseLayer, positionLayer]);
+const { render, size, map } = useMap(mapRoot, [baseLayer, positionLayer], true);
+
+const owner = computed(() => {
+  return simulationConfig.owners[props.ownerIndex];
+});
 
 onMounted(() => {
-  restorePositionFeatures(features, props.location.gridCoordinates);
+  restorePositionFeatures(features, owner.value.locations[props.locationIndex].points);
   render();
   if (!props.disabled) {
-    usePositionInteraction(map, min, meterCoordsRatio, features, props.location);
+    usePositionInteraction(map, features, owner.value.locations[props.locationIndex]);
   }
 });
 

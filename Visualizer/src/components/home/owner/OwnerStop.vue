@@ -4,7 +4,12 @@
       <n-select v-model:value="locationType" :options="options" placeholder="Type" filterable :disabled="disabled" />
     </n-grid-item>
     <n-grid-item>
-      <component :is="componentMap[locationType]" :location="location" :size="size" />
+      <component
+        :is="componentMap[locationType]"
+        :locationIndex="props.locationIndex"
+        :ownerIndex="props.ownerIndex"
+        :size="size"
+      />
     </n-grid-item>
   </n-grid>
 </template>
@@ -12,12 +17,12 @@
 <script setup>
 import { computed } from "vue";
 
-
 import { useComponentMapping } from "@/components/home/map/Map";
+import { useSimulationConfigStore } from "@/stores/simulationConfig";
 
 const props = defineProps({
-  owner: {
-    type: Object,
+  ownerIndex: {
+    type: Number,
     required: true,
   },
   locationIndex: {
@@ -31,16 +36,19 @@ const props = defineProps({
  * @type {{random: string, heatmap: HeatmapMap, position: PointSelectionMap}}
  */
 const componentMap = useComponentMapping();
+const simulationConfig = useSimulationConfigStore();
+
+const owner = computed(() => simulationConfig.owners[props.ownerIndex]);
 
 const location = computed(() => {
-  return props.owner.locations[props.locationIndex];
+  return owner.value.locations[props.locationIndex];
 });
 
 const locationType = computed({
   get: () => location.value.type,
   set: (type) => {
     location.value.type = type;
-    location.value.gridCoordinates = [];
+    location.value.points = null;
   },
 });
 

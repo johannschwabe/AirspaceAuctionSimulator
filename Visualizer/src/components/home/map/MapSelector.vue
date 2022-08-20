@@ -98,7 +98,6 @@ watchEffect(() => {
     "EPSG:3857"
   );
   const tileCoord = grid.getTileCoordForCoordAndZ(projectedCoordinate, 15);
-  console.log(tileCoord);
   let bottomLeftCoordinate, topRightCoordinate;
   const n = simulationConfig.map.neighbouringTiles;
   for (let i = -n; i <= n; i++) {
@@ -115,11 +114,7 @@ watchEffect(() => {
         const extent = transformExtent(projectedExtent, get("EPSG:3857"), get("EPSG:4326"));
         topRightCoordinate = { lat: extent[3], long: extent[2] };
       }
-      const projectedExtent = grid.getTileCoordExtent(updatedTileCord);
-      console.log(i, j, transformExtent(projectedExtent, get("EPSG:3857"), get("EPSG:4326")));
     }
-    console.log(bottomLeftCoordinate);
-    console.log(topRightCoordinate);
   }
   simulationConfig.map.tiles = tiles;
   simulationConfig.map.topRightCoordinate = topRightCoordinate;

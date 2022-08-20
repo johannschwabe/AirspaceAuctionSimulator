@@ -3,12 +3,14 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useBaseLayer, useMap, usePositionLayer } from "./Map";
 import { createBox } from "ol/interaction/Draw";
 import { Draw } from "ol/interaction";
-import { Collection } from "ol";
+import { Collection, Feature } from "ol";
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import { fromLonLat, toLonLat } from "ol/proj";
+import { fromExtent } from "ol/geom/Polygon";
 
 const simulationConfig = useSimulationConfigStore();
 defineProps({
@@ -18,6 +20,8 @@ defineProps({
     default: 256,
   },
 });
+
+let firstClick = true;
 
 const mapRoot = ref(null);
 const baseLayer = useBaseLayer();
@@ -29,32 +33,52 @@ const { map, render } = useMap(mapRoot, [baseLayer, positionLayer]);
 const rectangleInteraction = new Draw({
   source: positionLayer.getSource(),
   type: "Circle",
-  geometryFunction: function (coordinates, geometry) {
-    features.pop();
-    const resGeometry = createBox()(coordinates, geometry);
-    const firstPoint = coordinates[0];
-    const secondPoint = coordinates[1];
-    if (firstPoint.lat > secondPoint.lat) {
-      let min_lat = secondPoint.lat;
-      secondPoint.lat = firstPoint.lat;
-      firstPoint.lat = min_lat;
-    }
-    if (firstPoint.long > secondPoint.long) {
-      let min_long = secondPoint.long;
-      secondPoint.long = firstPoint.long;
-      firstPoint.long = min_long;
-    }
-    // const bottomLeft = fromLonLat([firstPoint.long, firstPoint.lat], "EPSG:3857");
-    // const topRight = fromLonLat([secondPoint.long, secondPoint.lat], "EPSG:3857");
-    // simulationConfig.setMapSubTile(bottomLeft, topRight);
-    simulationConfig.setMapSubTile(firstPoint, secondPoint);
-    return resGeometry;
-  },
+  geometryFunction: createBox(),
 });
+
 onMounted(() => {
   render();
+  map.value.on("click", () => {
+    if (firstClick) {
+      features.clear();
+      firstClick = false;
+    } else {
+      const extent = features.item(0).getGeometry().getExtent();
+      const bottomLeft = [extent[0], extent[1]];
+      const topRight = [extent[2], extent[3]];
+      simulationConfig.setMapSubTile(toLonLat(bottomLeft), toLonLat(topRight));
+      firstClick = true;
+    }
+  });
   map.value.addInteraction(rectangleInteraction);
 });
+watch(simulationConfig.map, () => {
+  fromConfig();
+});
+
+function fromConfig() {
+  const extent = features.item(0).getGeometry().getExtent();
+  const bottomLeft = [extent[0], extent[1]];
+  const topRight = [extent[2], extent[3]];
+  console.log(simulationConfig.map.subselection?.bottomLeft, toLonLat(bottomLeft));
+  if (
+    //Todo Kinda ugly
+    Math.abs(fromLonLat(simulationConfig.map.subselection?.bottomLeft)[0] - bottomLeft[0]) > 0.00001 ||
+    Math.abs(fromLonLat(simulationConfig.map.subselection?.bottomLeft)[1] - bottomLeft[1]) > 0.00001 ||
+    Math.abs(fromLonLat(simulationConfig.map.subselection?.topRight)[0] - topRight[0]) > 0.00001 ||
+    Math.abs(fromLonLat(simulationConfig.map.subselection?.topRight)[1] - topRight[1]) > 0.00001
+  ) {
+    features.clear();
+    const bottomLeft = fromLonLat(simulationConfig.map.subselection.bottomLeft);
+    const topRight = fromLonLat(simulationConfig.map.subselection.topRight);
+    features.push(
+      new Feature({
+        geometry: fromExtent([...bottomLeft, ...topRight]),
+      })
+    );
+    firstClick = true;
+  }
+}
 </script>
 
 <style scoped>
