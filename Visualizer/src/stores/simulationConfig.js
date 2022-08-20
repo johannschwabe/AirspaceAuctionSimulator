@@ -105,6 +105,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
       bottomLeft: undefined,
       topRight: undefined,
     },
+    resolution: 2,
     tiles: [],
   });
 

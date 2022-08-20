@@ -33,7 +33,7 @@ const heatmapLayer = useHeatmapLayer(features);
 const owner = computed(() => {
   return simulationConfig.owners[props.ownerIndex];
 });
-const { render, map, size } = useMap(mapRoot, [baseLayer, heatmapLayer]);
+const { render, map, size } = useMap(mapRoot, [baseLayer, heatmapLayer], true);
 
 onMounted(() => {
   if (!Array.isArray(owner.value.locations[props.locationIndex].points)) {

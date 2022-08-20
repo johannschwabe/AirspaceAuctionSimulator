@@ -52,7 +52,7 @@ onMounted(() => {
   });
   map.value.addInteraction(rectangleInteraction);
 });
-watch(simulationConfig.map, () => {
+watch(simulationConfig.map.subselection, () => {
   fromConfig();
 });
 

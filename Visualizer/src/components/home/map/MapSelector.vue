@@ -50,6 +50,12 @@
             <n-input-number v-model:value="simulationConfig.map.neighbouringTiles" clearable :min="0" :max="3" />
           </n-form-item>
         </n-grid-item>
+
+        <n-grid-item span="1">
+          <n-form-item label="Voxel width (m)">
+            <n-slider v-model:value="simulationConfig.map.resolution" :max="20" :min="1" :step="1" />
+          </n-form-item>
+        </n-grid-item>
       </n-grid>
     </n-grid-item>
 
