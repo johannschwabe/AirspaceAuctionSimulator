@@ -17,25 +17,16 @@ import { randomName } from "../scripts/names";
  */
 
 /**
- * @typedef {Object} Coordinate
+ * @typedef {Object} WeightedCoordinate
  * @property {number} lat
  * @property {number} long
- */
-
-/**
- * @typedef {Coordinate} PositionConfig
- */
-
-/**
- * @typedef {Array} HeatmapConfig
- *
  */
 
 /**
  * @typedef {Object} LocationConfig
  * @property {string} type
  * @property {Object} meta
- * @property {PositionConfig || HeatmapConfig} points
+ * @property {WeightedCoordinate[]} points
  */
 
 /**
@@ -170,7 +161,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
    * Generates a random location
    * @returns {{meta: {}, coordinates: *[], type: string}}
    */
-  const randomLocation = () => ({ type: "random", points: null, meta: {} });
+  const randomLocation = () => ({ type: "random", points: [], meta: {} });
 
   /**
    * Generates random locations for owner,

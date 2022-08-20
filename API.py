@@ -5,10 +5,11 @@ App runs on 'https://localhost:8000/'
 import random
 import time
 from fastapi import HTTPException, FastAPI
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic.fields import Field
 
 from Simulator.Coordinate import Coordinate4D
 from Simulator.IO.JSONS import build_json
@@ -35,23 +36,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+class APISimpleCoordinates(BaseModel):
+    long: float
+    lat: float
 
-
-
-class APIGridCoordinates(BaseModel):
-    x: int
-    y: int
+class APIWeightedCoordinate(BaseModel):
     lat: float
     long: float
     value: float
 
 class APISubselection(BaseModel):
-    topLeft: APIGridCoordinates
-    bottomRight: APIGridCoordinates
+    bottomLeft: Optional[APISimpleCoordinates] = Field(None)
+    topRight: Optional[APISimpleCoordinates] = Field(None)
 
 class APILocations(BaseModel):
     type: str
-    gridCoordinates: List[APIGridCoordinates]
+    points: List[APIWeightedCoordinate]
 
 
 class APIOwner(BaseModel):
@@ -73,18 +73,14 @@ class APIDimension(BaseModel):
     t: int
 
 
-class APISimpleCoordinates(BaseModel):
-    long: float
-    lat: float
-
-
 class APIMap(BaseModel):
     coordinates: APISimpleCoordinates
     locationName: str
     neighbouringTiles: int
-    topLeftCoordinate: APISimpleCoordinates
-    bottomRightCoordinate: APISimpleCoordinates
+    bottomLeftCoordinate: APISimpleCoordinates
+    topRightCoordinate: APISimpleCoordinates
     subselection: APISubselection
+    resolution: int
     tiles: List[List[int]]
 
 

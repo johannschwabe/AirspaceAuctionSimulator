@@ -48,7 +48,7 @@ const locationType = computed({
   get: () => location.value.type,
   set: (type) => {
     location.value.type = type;
-    location.value.points = null;
+    location.value.points = [];
   },
 });
 

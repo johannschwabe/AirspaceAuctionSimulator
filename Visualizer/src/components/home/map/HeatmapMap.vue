@@ -36,9 +36,6 @@ const owner = computed(() => {
 const { render, map, size } = useMap(mapRoot, [baseLayer, heatmapLayer], true);
 
 onMounted(() => {
-  if (!Array.isArray(owner.value.locations[props.locationIndex].points)) {
-    owner.value.locations[props.locationIndex].points = [];
-  }
   restoreHeatmapFeatures(features, owner.value.locations[props.locationIndex].points);
   render();
   if (!props.disabled) {

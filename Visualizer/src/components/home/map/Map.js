@@ -82,12 +82,12 @@ export const restoreHeatmapFeatures = (features, points) => {
 /**
  * Restores positional features given a list of grid coordinates
  * @param {Collection} features
- * @param {Coordinate} coordinate
+ * @param {WeightedCoordinate[]} coordinate
  */
 export const restorePositionFeatures = (features, coordinate) => {
   features.clear();
   if (coordinate) {
-    features.push(new Feature({ geometry: new Point(fromLonLat([coordinate.lat, coordinate.long])) }));
+    features.push(new Feature({ geometry: new Point(fromLonLat([coordinate[0].lat, coordinate[0].long])) }));
   }
 };
 
@@ -268,7 +268,7 @@ export const usePositionInteraction = (map, features, location) => {
   const onClickOrDrag = (event) => {
     const coords = event.coordinate;
     const [lat, long] = toLonLat(coords);
-    location.points = { lat, long };
+    location.points = [{ lat, long, value: 1.0 }];
     features.pop();
     features.push(new Feature(new Point(coords)));
     // }
