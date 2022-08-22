@@ -32,7 +32,7 @@ class AStar:
             print("In air start is not valid")
             return None, set()
 
-        if not self.environment.can_be_valid_for_allocation(valid_start, agent):
+        if self.environment.is_blocked_forever(valid_start, agent.near_radius, agent.speed):
             print("Static Blocker at start")
             return None, set()
 

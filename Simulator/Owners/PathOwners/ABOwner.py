@@ -24,21 +24,22 @@ class ABOwner(PathOwner, ABC):
 
     @abstractmethod
     def initialize_agent(self, start: "Coordinate4D", target: "Coordinate4D", simulator: "Simulator", speed: int,
-                         battery: int) -> "ABAgent":
+                         battery: int, near_radius: int) -> "ABAgent":
         pass
 
     def generate_agents(self, t: int, simulator: "Simulator") -> List["ABAgent"]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
             speed = 1
-            start = self.generate_stop_coordinate(self.stops[0], simulator.environment, t, 1, speed)
-            target = self.generate_stop_coordinate(self.stops[-1], simulator.environment, t, 1, speed)
+            near_radius = 1
+            start = self.generate_stop_coordinate(self.stops[0], simulator.environment, t, near_radius, speed)
+            target = self.generate_stop_coordinate(self.stops[-1], simulator.environment, t, near_radius, speed)
 
             distance = start.inter_temporal_distance(target)
             travel_time = distance * speed
             target.t = min(start.t + travel_time + random.randint(0, 100), simulator.environment.dimension.t)
             battery = travel_time * 2
-            agent = self.initialize_agent(start, target, simulator, speed, battery)
+            agent = self.initialize_agent(start, target, simulator, speed, battery, near_radius)
             res.append(agent)
             print(f"A-B created {str(agent)}: {start} -> {target}")
 

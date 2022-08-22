@@ -1,5 +1,5 @@
-from Simulator import ABCOwner
 from Demos.Priority.Agents.PriorityABCAgent import PriorityABCAgent
+from Simulator import ABCOwner
 
 
 class PriorityABCOwner(ABCOwner):
@@ -10,5 +10,6 @@ class PriorityABCOwner(ABCOwner):
         super().__init__(name, color, stops, creation_ticks)
         self.priority = priority
 
-    def initialize_agent(self, locations, stays, simulator, speed, battery):
-        return PriorityABCAgent(locations, self.priority, simulator, stays, speed=speed, battery=battery)
+    def initialize_agent(self, locations, stays, simulator, speed, battery, near_radius):
+        return PriorityABCAgent(locations, self.priority, simulator, stays, speed=speed, battery=battery,
+                                near_radius=near_radius)

@@ -1,5 +1,9 @@
 from time import time_ns
 
+from Demos.FCFS.Owners.FCFSABAOwner import FCFSABAOwner
+from Demos.FCFS.Owners.FCFSABCOwner import FCFSABCOwner
+from Demos.FCFS.Owners.FCFSABOwner import FCFSABOwner
+from Demos.FCFS.Owners.FCFSStationaryOwner import FCFSStationaryOwner
 from Simulator import \
     Allocator, \
     AStar, \
@@ -11,10 +15,6 @@ from Simulator import \
     SpaceAllocation, \
     AllocationReason, \
     AllocationReasonType
-from Demos.FCFS.Owners.FCFSABAOwner import FCFSABAOwner
-from Demos.FCFS.Owners.FCFSABCOwner import FCFSABCOwner
-from Demos.FCFS.Owners.FCFSABOwner import FCFSABOwner
-from Demos.FCFS.Owners.FCFSStationaryOwner import FCFSStationaryOwner
 
 
 class FCFSAllocator(Allocator):
@@ -95,7 +95,7 @@ class FCFSAllocator(Allocator):
     def allocate_stationary(agent, bid, environment):
         optimal_path_segments = []
         for block in bid.blocks:
-            block_valid = environment.is_box_valid_for_allocation(block[0], block[1], agent)
+            block_valid = environment.is_space_valid_for_allocation(block[0], block[1], agent)
             if block_valid:
                 optimal_path_segments.append(SpaceSegment(block[0], block[1]))
         return optimal_path_segments

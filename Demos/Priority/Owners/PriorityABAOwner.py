@@ -1,5 +1,5 @@
-from Simulator import ABAOwner
 from Demos.Priority.Agents.PriorityABAAgent import PriorityABAAgent
+from Simulator import ABAOwner
 
 
 class PriorityABAOwner(ABAOwner):
@@ -10,5 +10,6 @@ class PriorityABAOwner(ABAOwner):
         super().__init__(name, color, stops, creation_ticks)
         self.priority = priority
 
-    def initialize_agent(self, start, target, simulator, speed, battery, stay):
-        return PriorityABAAgent(start, target, self.priority, simulator, stay, speed=speed, battery=battery)
+    def initialize_agent(self, start, target, simulator, speed, battery, stay, near_radius):
+        return PriorityABAAgent(start, target, self.priority, simulator, stay, speed=speed, battery=battery,
+                                near_radius=near_radius)

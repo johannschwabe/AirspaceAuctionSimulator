@@ -19,5 +19,5 @@ class Allocation(ABC):
         self.segments: List["Segment"] = segments
 
     @abstractmethod
-    def correct_agent(self, agent: "Agent"):
+    def get_real_allocation(self, agent: "Agent"):
         pass

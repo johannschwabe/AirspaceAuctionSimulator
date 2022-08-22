@@ -18,5 +18,5 @@ class SpaceAllocation(Allocation):
         self.agent: "SpaceAgent" = agent
         self.segments: List["SpaceSegment"] = segments
 
-    def correct_agent(self, agent: "SpaceAgent"):
+    def get_real_allocation(self, agent: "SpaceAgent"):
         return SpaceAllocation(agent, self.segments, self.reason, self.compute_time)

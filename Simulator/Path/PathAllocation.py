@@ -18,5 +18,5 @@ class PathAllocation(Allocation):
         self.agent: "PathAgent" = agent
         self.segments: List["PathSegment"] = segments
 
-    def correct_agent(self, agent: "PathAgent"):
+    def get_real_allocation(self, agent: "PathAgent"):
         return PathAllocation(agent, self.segments, self.reason, self.compute_time)

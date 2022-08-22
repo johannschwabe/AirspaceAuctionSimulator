@@ -64,13 +64,13 @@ class PriorityAllocator(Allocator):
                 space_segments = []
                 blocking_agents = set()
                 for block in bid.blocks:
-                    intersecting_agents = env.intersect_box(block[0], block[1], False)
+                    intersecting_agents = env.intersect_space(block[0], block[1])
                     blocking_agents_block = set()
                     allocateable = True
                     for agent_id in intersecting_agents:
                         if agent_id == agent.id:
                             continue
-                        colliding_agent = env.get_agent(agent_id)
+                        colliding_agent = env.agents[agent_id]
                         if colliding_agent.priority < agent.priority:
                             blocking_agents_block.add(colliding_agent)
                         else:

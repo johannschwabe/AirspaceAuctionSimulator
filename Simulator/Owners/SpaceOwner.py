@@ -22,7 +22,7 @@ class SpaceOwner(Owner, ABC):
         coord = stop.generate_coordinates(env, t)
         top_right = coord + dimension
 
-        while len(list(env.intersect_box(coord, top_right, False))):
+        while len(list(env.intersect_space(coord, top_right))):
             coord.y += 1
             top_right.y += 1
             if coord.y >= env.dimension.y:

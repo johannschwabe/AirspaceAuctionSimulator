@@ -14,7 +14,7 @@ class Blocker(ABC):
         self.dimension: Coordinate3D = dimension
         self.id: int = -1
 
-    def is_blocking(self, _coord: "Coordinate4D", _radius: int = 0):
+    def is_blocking(self, _coord: "Coordinate4D", _radius: int) -> bool:
         return True
 
     def is_box_blocking(self, _bottom_left: "Coordinate4D", _top_right: "Coordinate4D") -> bool:

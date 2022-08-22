@@ -28,20 +28,22 @@ class ABCOwner(PathOwner):
                          stays: List[int],
                          simulator: "Simulator",
                          speed: int,
-                         battery: int) -> "ABCAgent":
+                         battery: int,
+                         near_radius: int) -> "ABCAgent":
         pass
 
     def generate_agents(self, t: int, simulator: "Simulator") -> List["ABCAgent"]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
             speed = 1
-            start = self.generate_stop_coordinate(self.stops[0], simulator.environment, t, 1, speed)
+            near_radius = 1
+            start = self.generate_stop_coordinate(self.stops[0], simulator.environment, t, near_radius, speed)
 
             stays: List[int] = []
             locations: List["Coordinate4D"] = [start]
             total_travel_time: int = 0
             for stop in self.stops[1:]:
-                next_location = self.generate_stop_coordinate(stop, simulator.environment, t, 1, speed)
+                next_location = self.generate_stop_coordinate(stop, simulator.environment, t, near_radius, speed)
 
                 stay = random.randint(0, 100)
                 stays.append(stay)
@@ -53,7 +55,7 @@ class ABCOwner(PathOwner):
                 locations.append(next_location)
 
             battery = total_travel_time * 4
-            agent = self.initialize_agent(locations, stays, simulator, speed, battery)
+            agent = self.initialize_agent(locations, stays, simulator, speed, battery, near_radius)
             res.append(agent)
             print(f"A-B-C created {agent}, {','.join([str(loc) for loc in locations])}")
 

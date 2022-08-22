@@ -49,3 +49,13 @@ class PathAgent(Agent, ABC):
 
     def get_allocated_coords(self) -> List["Coordinate4D"]:
         return [coord for path_segment in self.allocated_segments for coord in path_segment.coordinates]
+
+    def does_collide(self, other_coordinate: "Coordinate4D", other_agent: "PathAgent"):
+        for coordinate in self.get_allocated_coords():
+            if other_coordinate.t <= coordinate.t <= other_coordinate.t + other_agent.speed:
+                distance = coordinate.inter_temporal_distance(other_coordinate)
+                if distance == 0:
+                    return True
+                if distance < self.near_radius or distance < other_agent.near_radius:
+                    return True
+        return False

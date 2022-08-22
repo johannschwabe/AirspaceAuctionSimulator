@@ -1,5 +1,5 @@
-from Simulator import ABCOwner
 from Demos.FCFS.Agents.FCFSABCAgent import FCFSABCAgent
+from Simulator import ABCOwner
 
 
 class FCFSABCOwner(ABCOwner):
@@ -9,5 +9,5 @@ class FCFSABCOwner(ABCOwner):
     def __init__(self, name, color, stops, creation_ticks):
         super().__init__(name, color, stops, creation_ticks)
 
-    def initialize_agent(self, locations, stays, simulator, speed, battery):
-        return FCFSABCAgent(locations, stays, simulator, speed=speed, battery=battery)
+    def initialize_agent(self, locations, stays, simulator, speed, battery, near_radius):
+        return FCFSABCAgent(locations, stays, simulator, speed=speed, battery=battery, near_radius=near_radius)

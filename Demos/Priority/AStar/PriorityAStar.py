@@ -1,7 +1,7 @@
 from typing import Optional, Tuple, TYPE_CHECKING
 
-from Simulator.AStar.AStar import AStar
 from Demos.Priority.AStar.PriorityNode import PriorityNode
+from Simulator.AStar.AStar import AStar
 
 if TYPE_CHECKING:
     from Simulator import Environment
@@ -26,7 +26,7 @@ class PriorityAStar(AStar):
         for agent_id in agents:
             if agent_id == agent.id:
                 continue
-            colliding_agent = self.environment.get_agent(agent_id)
+            colliding_agent = self.environment.agents[agent_id]
             if colliding_agent.priority < agent.priority:
                 colliding_agents.add(colliding_agent)
             else:

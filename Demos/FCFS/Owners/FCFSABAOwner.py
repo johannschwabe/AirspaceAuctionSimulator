@@ -1,5 +1,5 @@
-from Simulator import ABAOwner
 from Demos.FCFS.Agents.FCFSABAAgent import FCFSABAAgent
+from Simulator import ABAOwner
 
 
 class FCFSABAOwner(ABAOwner):
@@ -9,5 +9,5 @@ class FCFSABAOwner(ABAOwner):
     def __init__(self, name, color, stops, creation_ticks):
         super().__init__(name, color, stops, creation_ticks)
 
-    def initialize_agent(self, start, target, simulator, speed, battery, stay):
-        return FCFSABAAgent(start, target, simulator, speed=speed, battery=battery, stay=stay)
+    def initialize_agent(self, start, target, simulator, speed, battery, stay, near_radius):
+        return FCFSABAAgent(start, target, stay, simulator, speed=speed, battery=battery, near_radius=near_radius)
