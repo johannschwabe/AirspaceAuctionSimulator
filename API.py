@@ -14,6 +14,7 @@ from pydantic.fields import Field
 
 from CoordinateTransformations import from_lon_lat, to_lon_lat
 from Simulator.Coordinate import Coordinate4D
+from Simulator.Generator.Area import Area
 from Simulator.IO.JSONS import build_json
 from Simulator.Generator import Generator
 from Simulator.Generator.MapTile import MapTile
@@ -140,9 +141,9 @@ def read_root(config: APISimulationConfig):
                               config.map.height,
                               math.ceil(size[1]/resolution),
                               config.map.timesteps)
-    area = config.map.subselection if config.map.subselection.topRight and config.map.subselection.bottomLeft else \
-        APISubselection(bottomLeft=config.map.bottomLeftCoordinate, topRight=config.map.topRightCoordinate)
-    maptiles = [MapTile(tile, dimensions, resolution, area) for tile in
+    area = Area(config.map.subselection.bottomLeft, config.map.subselection.topRight, config.map.resolution) if config.map.subselection.topRight and config.map.subselection.bottomLeft else \
+        Area(config.map.bottomLeftCoordinate, config.map.topRightCoordinate, config.map.resolution)
+    maptiles = [MapTile(tile, dimensions, area) for tile in
                 config.map.tiles]
 
 
@@ -155,7 +156,7 @@ def read_root(config: APISimulationConfig):
 
     random.seed(2)
     g = Generator(owners=config.owners, dimensions=dimensions,
-                  maptiles=maptiles, allocator=allocator)
+                  maptiles=maptiles, allocator=allocator, area=area)
     start_time = time.time_ns()
     g.simulate()
     end_time = time.time_ns()
