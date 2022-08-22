@@ -106,9 +106,9 @@ export function useBuildings({ scene, shadows, mapTiles, blockerMaterial }) {
   mapTiles.forEach((mapTile, i) => {
     mapTile.buildings.forEach((building, j) => {
       const options = {
-        shape: building.coordinates.map(({ x, y }) => new Vector3(x, 0, y)).reverse(),
+        shape: building.coordinates.map(({ x, z }) => new Vector3(x, 0, z)).reverse(),
         depth: building.height,
-        holes: building.holes.map((hole) => hole.map(({ x, y }) => new Vector3(x, 0, y))).reverse(),
+        holes: building.holes.map((hole) => hole.map(({ x, z }) => new Vector3(x, 0, z))).reverse(),
       };
       const buildingMesh = MeshBuilder.ExtrudePolygon(`tile-${i}-building-${j}`, options, scene, earcut);
       buildingMesh.material = blockerMaterial;

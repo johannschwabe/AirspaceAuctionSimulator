@@ -71,16 +71,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
   const allocator = ref("FCFSAllocator");
 
   /**
-   * @type {UnwrapNestedRefs<{t: number, x: number, y: number, z: number}>}
-   */
-  const dimension = reactive({
-    x: 100,
-    y: 100,
-    z: 100,
-    t: 1500,
-  });
-
-  /**
    * @type {UnwrapNestedRefs<MapConfig>}
    */
   const map = reactive({
@@ -97,6 +87,8 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
       topRight: undefined,
     },
     resolution: 2,
+    height: 100,
+    timesteps: 1500,
     tiles: [],
   });
 
@@ -202,7 +194,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
       name: name.value,
       description: description.value,
       allocator: allocator.value,
-      dimension,
       map,
       owners,
       availableAllocators,
@@ -219,11 +210,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     description.value = config.description;
     allocator.value = config.allocator;
 
-    dimension.x = config.dimension.x;
-    dimension.y = config.dimension.y;
-    dimension.z = config.dimension.z;
-    dimension.t = config.dimension.t;
-
     map.coordinates = config.map.coordinates;
     map.locationName = config.map.locationName;
     map.neighbouringTiles = config.map.neighbouringTiles;
@@ -231,14 +217,16 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     map.bottomLeftCoordinate = config.map.bottomLeftCoordinate;
     map.subselection = config.map.subselection;
     map.tiles = config.map.tiles;
+    map.timesteps = config.map.timesteps;
+    map.height = config.map.height;
 
     owners.splice(0);
     config.owners.forEach((owner) => owners.push(owner));
   };
 
   const setMapSubTile = (topLeft, bottomRight) => {
-    map.subselection.bottomLeft = topLeft;
-    map.subselection.topRight = bottomRight;
+    map.subselection.bottomLeft = { long: topLeft[0], lat: topLeft[1] };
+    map.subselection.topRight = { long: bottomRight[0], lat: bottomRight[1] };
   };
 
   const isEmpty = computed(() => !name.value);
@@ -247,7 +235,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     name,
     description,
     allocator,
-    dimension,
     map,
     owners,
     availableAllocators,

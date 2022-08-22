@@ -18,6 +18,7 @@ export default class Simulation {
    * @param {RawSimulation} rawSimulation
    */
   constructor(rawSimulation) {
+    console.log(rawSimulation);
     this._simulationStore = useSimulationStore();
 
     this.name = rawSimulation.config.name;
@@ -112,7 +113,15 @@ export default class Simulation {
     /**
      * @type {MapTile[]}
      */
-    this.mapTiles = rawSimulation.environment.maptiles.map((tile) => new MapTile(tile));
+    this.mapTiles = rawSimulation.config.map.tiles.map(
+      (tile) =>
+        new MapTile(
+          tile,
+          rawSimulation.config.map.resolution,
+          rawSimulation.config.map.subselection?.bottomLeft || rawSimulation.config.map.bottomLeftCoordinate,
+          rawSimulation.config.map.subselection?.topRight || rawSimulation.config.map.topRightCoordinate
+        )
+    );
 
     /**
      * Stores how many active agents are present over all possible ticks

@@ -2,6 +2,7 @@
 Run server using >>> uvicorn API:app --reload
 App runs on 'https://localhost:8000/'
 """
+import math
 import random
 import time
 from fastapi import HTTPException, FastAPI
@@ -11,6 +12,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic.fields import Field
 
+from CoordinateTransformations import from_lon_lat, to_lon_lat
 from Simulator.Coordinate import Coordinate4D
 from Simulator.IO.JSONS import build_json
 from Simulator.Generator import Generator
@@ -65,14 +67,6 @@ class APIOwner(BaseModel):
     allocator: str
     locations: List[APILocations]
 
-
-class APIDimension(BaseModel):
-    x: int
-    y: int
-    z: int
-    t: int
-
-
 class APIMap(BaseModel):
     coordinates: APISimpleCoordinates
     locationName: str
@@ -82,6 +76,8 @@ class APIMap(BaseModel):
     subselection: APISubselection
     resolution: int
     tiles: List[List[int]]
+    height: int
+    timesteps: int
 
 
 class APIAvailableOwner(BaseModel):
@@ -99,11 +95,12 @@ class APISimulationConfig(BaseModel):
     name: str
     description: str
     allocator: str
-    dimension: APIDimension
     map: APIMap
     owners: List[APIOwner]
     availableAllocators: List[str]
     availableOwnersForAllocator: List[APIAvailableOwner]
+
+
 
 
 @app.get("/allocators")
@@ -129,14 +126,27 @@ def get_owners_for_allocator(allocator_name):
 
 @app.post("/simulation")
 def read_root(config: APISimulationConfig):
-    dimensions = Coordinate4D(config.dimension.x, config.dimension.y, config.dimension.z, config.dimension.t)
-    if config.map:
-        top_left_coordinate = config.map.topLeftCoordinate
-        bottom_right_coordinate = config.map.bottomRightCoordinate
-        maptiles = [MapTile(tile, dimensions, top_left_coordinate, bottom_right_coordinate, config.map.subselection) for tile in
-                    config.map.tiles]
+    if config.map.subselection.bottomLeft and config.map.subselection.topRight:
+        bottom_left_pm = from_lon_lat([config.map.subselection.bottomLeft.long, config.map.subselection.bottomLeft.lat])
+        top_right_pm = from_lon_lat([config.map.subselection.topRight.long, config.map.subselection.topRight.lat])
     else:
-        maptiles = []
+        bottom_left_pm = from_lon_lat([config.map.bottomLeftCoordinate.long, config.map.bottomLeftCoordinate.lat])
+        top_right_pm = from_lon_lat([config.map.topRightCoordinate.long, config.map.topRightCoordinate.lat])
+
+    size = [top_right_pm[0] - bottom_left_pm[0], top_right_pm[1] - bottom_left_pm[1]]
+    resolution = config.map.resolution
+
+    dimensions = Coordinate4D(math.ceil(size[0]/resolution),
+                              config.map.height,
+                              math.ceil(size[1]/resolution),
+                              config.map.timesteps)
+    area = config.map.subselection if config.map.subselection.topRight and config.map.subselection.bottomLeft else \
+        APISubselection(bottomLeft=config.map.bottomLeftCoordinate, topRight=config.map.topRightCoordinate)
+    print(config.map.subselection)
+    print(area)
+    maptiles = [MapTile(tile, dimensions, resolution, area) for tile in
+                config.map.tiles]
+
 
     Coordinate4D.dim = dimensions
 

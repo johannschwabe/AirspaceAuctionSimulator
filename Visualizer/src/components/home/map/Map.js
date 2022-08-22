@@ -86,7 +86,8 @@ export const restoreHeatmapFeatures = (features, points) => {
  */
 export const restorePositionFeatures = (features, coordinate) => {
   features.clear();
-  if (coordinate) {
+  if (coordinate && coordinate.length > 0) {
+    console.log(coordinate);
     features.push(new Feature({ geometry: new Point(fromLonLat([coordinate[0].lat, coordinate[0].long])) }));
   }
 };
@@ -112,8 +113,11 @@ export const useMap = (mapRoot, layers, subselection = false) => {
     if (subselection && simulationConfig.map.subselection?.bottomLeft && simulationConfig.map.subselection?.topRight) {
       console.log([simulationConfig.map.subselection.bottomLeft]);
       return boundingExtent([
-        fromLonLat([simulationConfig.map.subselection.bottomLeft[0], simulationConfig.map.subselection.bottomLeft[1]]),
-        fromLonLat([simulationConfig.map.subselection.topRight[0], simulationConfig.map.subselection.topRight[1]]),
+        fromLonLat([
+          simulationConfig.map.subselection.bottomLeft.long,
+          simulationConfig.map.subselection.bottomLeft.lat,
+        ]),
+        fromLonLat([simulationConfig.map.subselection.topRight.long, simulationConfig.map.subselection.topRight.lat]),
       ]);
     }
     return boundingExtent([
@@ -144,14 +148,6 @@ export const useMap = (mapRoot, layers, subselection = false) => {
    */
   const dimensions = computed(() => {
     return [max.value[0] - min.value[0], max.value[1] - min.value[1]];
-  });
-
-  /**
-   * Indicates how many meters there are per simulation config unit
-   * @type {ComputedRef<number>}
-   */
-  const meterCoordsRatio = computed(() => {
-    return dimensions.value[0] / simulationConfig.dimension.x;
   });
 
   /**
@@ -225,7 +221,6 @@ export const useMap = (mapRoot, layers, subselection = false) => {
     dimensions,
     center,
     zoom,
-    meterCoordsRatio,
     render,
     size,
   };

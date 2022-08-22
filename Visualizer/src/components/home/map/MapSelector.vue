@@ -23,37 +23,22 @@
           </n-form-item>
         </n-grid-item>
 
-        <!-- Dimension X Input -->
+        <!-- Dimension Height Input -->
         <n-grid-item span="1">
-          <n-form-item label="Dimension Lon (m)">
-            <n-input-number :value="simulationConfig.dimension.x" disabled />
-          </n-form-item>
-        </n-grid-item>
-
-        <!-- Dimension Y Input -->
-        <n-grid-item span="1">
-          <n-form-item label="Height (m)">
-            <n-input-number v-model:value="simulationConfig.dimension.y" :min="20" :max="1000" :step="10" />
-          </n-form-item>
-        </n-grid-item>
-
-        <!-- Dimension Z Input -->
-        <n-grid-item span="1">
-          <n-form-item label="Dimension Lat (m)">
-            <n-input-number :value="simulationConfig.dimension.z" disabled />
-          </n-form-item>
-        </n-grid-item>
-
-        <!-- Surrounding Tiles Input -->
-        <n-grid-item span="1">
-          <n-form-item label="Surrounding Tiles">
-            <n-input-number v-model:value="simulationConfig.map.neighbouringTiles" clearable :min="0" :max="3" />
+          <n-form-item label="Height (Voxel)">
+            <n-input-number v-model:value="simulationConfig.map.height" :min="20" :max="1000" :step="10" />
           </n-form-item>
         </n-grid-item>
 
         <n-grid-item span="1">
           <n-form-item label="Voxel width (m)">
             <n-slider v-model:value="simulationConfig.map.resolution" :max="20" :min="1" :step="1" />
+          </n-form-item>
+        </n-grid-item>
+        <!-- Surrounding Tiles Input -->
+        <n-grid-item span="1">
+          <n-form-item label="Surrounding Tiles">
+            <n-input-number v-model:value="simulationConfig.map.neighbouringTiles" clearable :min="0" :max="3" />
           </n-form-item>
         </n-grid-item>
       </n-grid>
@@ -84,16 +69,10 @@ const simulationConfig = useSimulationConfigStore();
 // OSM Source and grid definitions
 const source = new OSM();
 const grid = source.getTileGrid();
-const SINGLE_TILE_SIDE_LENGTH = 830.8261666462096;
+// const SINGLE_TILE_SIDE_LENGTH = 830.8261666462096;
 
 // Prefilled address query
 const addressQuery = ref("Zurich, Switzerland");
-
-// Recalculation of dimensions x and z component on map zoom change
-watchEffect(() => {
-  simulationConfig.dimension.x = Math.ceil((simulationConfig.map.neighbouringTiles * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
-  simulationConfig.dimension.z = Math.ceil((simulationConfig.map.neighbouringTiles * 2 + 1) * SINGLE_TILE_SIDE_LENGTH);
-});
 
 // Watch change in map config (zoom, address, etc.) and recalculate tiles and topLeft/bottomRight coordinates
 watchEffect(() => {

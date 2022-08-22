@@ -1,17 +1,17 @@
 import axios from "axios";
+import { fromLonLat } from "ol/proj";
 
 export default class MapTile {
-  /**
-   * @param {RawMapTile} rawMapTile
-   */
-  constructor(rawMapTile) {
-    this.x = rawMapTile.x;
-    this.y = rawMapTile.y;
-    this.z = rawMapTile.z;
-    this.top_left_coordinate = rawMapTile.top_left_coordinate;
-    this.bottom_right_coordinate = rawMapTile.bottom_right_coordinate;
-    this.dimensions = rawMapTile.dimensions;
-
+  constructor(tile_ids, resolution, bottomLeft, topRight) {
+    this.x = tile_ids[1];
+    this.y = tile_ids[2];
+    this.y = tile_ids[2];
+    this.z = tile_ids[0];
+    this.bottomLeft = bottomLeft;
+    this.bottomLeftPM = fromLonLat([bottomLeft.long, bottomLeft.lat]);
+    this.topRight = topRight;
+    this.topRightPM = fromLonLat([topRight.long, topRight.lat]);
+    this.resolution = resolution;
     /**
      * @type {{height: number, coordinates: {x: number, y: number}}[]}
      */
@@ -22,16 +22,16 @@ export default class MapTile {
     return `https://data.osmbuildings.org/0.2/anonymous/tile/${this.z}/${this.x}/${this.y}.json`;
   }
 
-  extractPolygon([long, lat]) {
-    const x =
-      ((lat - this.top_left_coordinate.lat) / (this.bottom_right_coordinate.lat - this.top_left_coordinate.lat)) *
-        this.dimensions.x -
-      this.dimensions.x / 2;
-    const y =
-      ((long - this.top_left_coordinate.long) / (this.bottom_right_coordinate.long - this.top_left_coordinate.long)) *
-        this.dimensions.z -
-      this.dimensions.z / 2;
-    return { x, y };
+  extractPolygon(coords) {
+    const dimZ = (this.topRightPM[1] - this.bottomLeftPM[1]) / this.resolution;
+    const dimX = (this.topRightPM[0] - this.bottomLeftPM[0]) / this.resolution;
+    console.log(dimX, dimZ);
+    const coordPM = fromLonLat(coords);
+    let z = (coordPM[0] - this.bottomLeftPM[0]) / this.resolution;
+    let x = dimX - (coordPM[1] - this.bottomLeftPM[1]) / this.resolution;
+    x -= dimX / 2;
+    z -= dimZ / 2;
+    return { x, z };
   }
 
   async load() {
@@ -47,7 +47,14 @@ export default class MapTile {
         const isPolygon = feature?.geometry?.type === "Polygon";
         const hasCoordinates =
           feature?.geometry?.coordinates?.length > 0 && feature?.geometry?.coordinates[0].length > 0;
-        return isFeature && hasHeight && isPolygon && hasCoordinates;
+        const inSubselection = feature.geometry.coordinates[0].some(
+          ([long, lat]) =>
+            this.bottomLeft.long < long &&
+            this.bottomLeft.lat < lat &&
+            this.topRight.long > long &&
+            this.topRight.lat > lat
+        );
+        return isFeature && hasHeight && isPolygon && hasCoordinates && inSubselection;
       })
       .map((feature) => {
         const height = feature.properties.height;
