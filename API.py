@@ -142,8 +142,6 @@ def read_root(config: APISimulationConfig):
                               config.map.timesteps)
     area = config.map.subselection if config.map.subselection.topRight and config.map.subselection.bottomLeft else \
         APISubselection(bottomLeft=config.map.bottomLeftCoordinate, topRight=config.map.topRightCoordinate)
-    print(config.map.subselection)
-    print(area)
     maptiles = [MapTile(tile, dimensions, resolution, area) for tile in
                 config.map.tiles]
 

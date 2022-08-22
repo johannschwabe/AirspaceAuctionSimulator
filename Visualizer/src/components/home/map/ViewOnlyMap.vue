@@ -61,36 +61,41 @@ watch(
 );
 
 function fromConfig() {
+  if (!simulationConfig.map.subselection?.bottomLeft || !simulationConfig.map.subselection?.topRight) {
+    return;
+  }
   const nothingSelected = features.getLength() === 0;
   let selectionChanged = false;
+
+  const bottomLeftNewPM = fromLonLat([
+    simulationConfig.map.subselection?.bottomLeft.long,
+    simulationConfig.map.subselection?.bottomLeft.lat,
+  ]);
+  const topRightNewPM = fromLonLat([
+    simulationConfig.map.subselection?.topRight.long,
+    simulationConfig.map.subselection?.topRight.lat,
+  ]);
   if (!nothingSelected) {
+    console.log("updating");
     const extent = features.item(0).getGeometry().getExtent();
     const bottomLeftCurrent = [extent[0], extent[1]];
     const topRightCurrent = [extent[2], extent[3]];
-    const bottomLeftNewPM = fromLonLat([
-      simulationConfig.map.subselection?.bottomLeft.long,
-      simulationConfig.map.subselection?.bottomLeft.lat,
-    ]);
-    const topRightNewPM = fromLonLat([
-      simulationConfig.map.subselection?.topRight.long,
-      simulationConfig.map.subselection?.topRight.lat,
-    ]);
+
     selectionChanged = //Todo Kinda ugly
       Math.abs(bottomLeftNewPM[0] - bottomLeftCurrent[0]) > 0.00001 ||
       Math.abs(bottomLeftNewPM[1] - bottomLeftCurrent[1]) > 0.00001 ||
       Math.abs(topRightNewPM[0] - topRightCurrent[0]) > 0.00001 ||
       Math.abs(topRightNewPM[1] - topRightCurrent[1]) > 0.00001;
-
-    if (selectionChanged) {
-      console.log("updating");
-      features.clear();
-      features.push(
-        new Feature({
-          geometry: fromExtent([...bottomLeftNewPM, ...topRightNewPM]),
-        })
-      );
-      firstClick = true;
-    }
+  }
+  if (selectionChanged || nothingSelected) {
+    console.log("updating");
+    features.clear();
+    features.push(
+      new Feature({
+        geometry: fromExtent([...bottomLeftNewPM, ...topRightNewPM]),
+      })
+    );
+    firstClick = true;
   }
 }
 </script>

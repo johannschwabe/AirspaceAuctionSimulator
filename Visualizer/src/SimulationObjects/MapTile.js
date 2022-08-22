@@ -28,9 +28,9 @@ export default class MapTile {
     console.log(dimX, dimZ);
     const coordPM = fromLonLat(coords);
     let z = (coordPM[0] - this.bottomLeftPM[0]) / this.resolution;
-    let x = dimX - (coordPM[1] - this.bottomLeftPM[1]) / this.resolution;
-    x -= dimX / 2;
-    z -= dimZ / 2;
+    let x = dimZ - (coordPM[1] - this.bottomLeftPM[1]) / this.resolution;
+    x -= dimZ / 2;
+    z -= dimX / 2;
     return { x, z };
   }
 
