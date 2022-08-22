@@ -39,7 +39,6 @@ import {
   FingerPrint,
   Airplane,
   BatteryHalf,
-  Wallet,
   Speedometer,
   Happy,
   Timer,
@@ -56,16 +55,6 @@ const datapoints = computed(() =>
     { label: "Agent ID", value: simulation.agentInFocus.id, icon: FingerPrint },
     { label: "Type", value: simulation.agentInFocus.agentType, icon: Airplane },
     { label: "Battery", value: simulation.agentInFocus.battery, icon: BatteryHalf },
-    ...Object.entries(simulation.agentInFocus.bid)
-      // eslint-disable-next-line no-unused-vars
-      .filter(([key, _]) => key !== "!value")
-      .map(([key, value]) => {
-        return {
-          label: key,
-          value: value,
-          icon: Wallet,
-        };
-      }),
     { label: "Speed", value: simulation.agentInFocus.speed, icon: Speedometer },
     { label: "Utility", value: simulation.agentInFocus.utility, icon: Happy },
     { label: "Non-Colliding Utility", value: simulation.agentInFocus.nonCollidingUtility, icon: TrophyOutline },

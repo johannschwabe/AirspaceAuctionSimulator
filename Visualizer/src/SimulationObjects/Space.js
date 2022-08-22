@@ -15,15 +15,15 @@ export default class Space {
   }
 
   get dimensionX() {
-    return (this.max.x - this.min.x) * 5;
+    return this.max.x - this.min.x;
   }
 
   get dimensionY() {
-    return (this.max.y - this.min.y) * 5;
+    return this.max.y - this.min.y;
   }
 
   get dimensionZ() {
-    return (this.max.z - this.min.z) * 5;
+    return this.max.z - this.min.z;
   }
 
   get dimensionT() {

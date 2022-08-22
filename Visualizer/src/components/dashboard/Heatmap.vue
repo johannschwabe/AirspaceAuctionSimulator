@@ -100,14 +100,18 @@ const updateState = () => {
     series[dim2].data[dim1] += 1;
   });
   simulation.activeSpaceAgents.forEach((agent) => {
-    const { min, max } = agent.combinedSpace[simulation.tick];
-    for (let x = min[props.dimX]; x < max[props.dimX]; x++) {
-      for (let y = min[props.dimY]; y < max[props.dimY]; y++) {
-        const dim1 = Math.floor(x / dimXlength);
-        const dim2 = Math.floor(y / dimYlength);
-        series[dim2].data[dim1] += 1;
+    agent.combinedSpace[simulation.tick].forEach(({ min, max }) => {
+      for (let x = min[props.dimX]; x <= max[props.dimX]; x++) {
+        for (let y = min[props.dimY]; y <= max[props.dimY]; y++) {
+          const dim1 = Math.floor(x / dimXlength);
+          const dim2 = Math.floor(y / dimYlength);
+          if (dim2 >= series.length || dim1 >= series[0].data.length) {
+            continue;
+          }
+          series[dim2].data[dim1] += 1;
+        }
       }
-    }
+    });
   });
 };
 
