@@ -7,7 +7,7 @@ from Demos.Priority.Bids.PriorityABBid import PriorityABBid
 from Demos.Priority.Bids.PriorityStationaryBid import PriorityStationaryBid
 from Demos.Priority.Owners.PriorityABOwner import PriorityABOwner
 from Demos.Priority.Owners.PriorityStationaryOwner import PriorityStationaryOwner
-from Simulator import Allocator, PathSegment, AllocationType, PathAllocation, SpaceSegment, SpaceAllocation
+from Simulator import Allocator, PathSegment, AllocationReason, PathAllocation, SpaceSegment, SpaceAllocation
 
 
 class PriorityAllocator(Allocator):
@@ -30,10 +30,10 @@ class PriorityAllocator(Allocator):
             if isinstance(bid, PriorityABBid) and isinstance(agent, PriorityABAgent):
                 ab_path, collisions = astar.astar(bid.a, bid.b, agent, bid.flying)
                 new_path_segment = PathSegment(bid.a.to_inter_temporal(), bid.b.to_inter_temporal(), 0, ab_path)
-                allocation_reason = str(AllocationType.FIRST_ALLOCATION.value) if agent in agents else str(
-                    AllocationType.AGENT.value)
+                allocation_reason = str(AllocationReason.FIRST_ALLOCATION.value) if agent in agents else str(
+                    AllocationReason.AGENT.value)
 
-                collision_ids = None if allocation_reason == str(AllocationType.FIRST_ALLOCATION.value) else [
+                collision_ids = None if allocation_reason == str(AllocationReason.FIRST_ALLOCATION.value) else [
                     collision.id for collision in collisions]
                 to_add = to_add.union(collisions)
                 for agent_to_remove in collisions:
@@ -77,10 +77,10 @@ class PriorityAllocator(Allocator):
                             allocations = [reallocation for reallocation in allocations if
                                            reallocation.agent != agent_to_remove]
 
-                    allocation_reason = str(AllocationType.FIRST_ALLOCATION.value) if agent in agents else str(
-                        AllocationType.AGENT.value)
+                    allocation_reason = str(AllocationReason.FIRST_ALLOCATION.value) if agent in agents else str(
+                        AllocationReason.AGENT.value)
 
-                    collision_ids = None if allocation_reason == str(AllocationType.FIRST_ALLOCATION.value) else [
+                    collision_ids = None if allocation_reason == str(AllocationReason.FIRST_ALLOCATION.value) else [
                         collision.id for collision in blocking_agents]
                     environment.allocate_space_for_agent(agent, space_segments)
                     if agent.id not in environment.agents:

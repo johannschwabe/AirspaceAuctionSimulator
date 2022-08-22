@@ -13,9 +13,9 @@ class Owner(ABC):
     max_locations: int
     meta: []
     allocation_type: str
-    id = -1
 
-    def __init__(self, name: str, color: str):
+    def __init__(self, owner_id: int, name: str, color: str):
+        self.id = owner_id
         self.name: str = name
         self.color: str = color
         self.agents: List["Agent"] = []

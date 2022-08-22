@@ -3,16 +3,15 @@ from Simulator import ABAAgent
 
 
 class FCFSABAAgent(ABAAgent):
-    def __init__(
-        self,
-        a,
-        b,
-        stay,
-        simulator,
-        agent_id=None,
-        speed=None,
-        battery=None,
-        near_radius=None):
+    def __init__(self,
+                 a,
+                 b,
+                 stay,
+                 simulator,
+                 agent_id=None,
+                 speed=None,
+                 battery=None,
+                 near_radius=None):
         super().__init__(a,
                          b,
                          stay,

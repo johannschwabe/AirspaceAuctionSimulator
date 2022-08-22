@@ -5,6 +5,9 @@ from typing import Dict, List, TYPE_CHECKING
 from .Stringify import Stringify
 from ..Agents.PathAgents.PathAgent import PathAgent
 from ..Agents.SpaceAgents.SpaceAgent import SpaceAgent
+from ..Blocker.BuildingBlocker import BuildingBlocker
+from ..Blocker.DynamicBlocker import DynamicBlocker
+from ..Blocker.StaticBlocker import StaticBlocker
 from ..Statistics.Statistics import Statistics
 
 if TYPE_CHECKING:
@@ -12,9 +15,6 @@ if TYPE_CHECKING:
     from ..Allocation.AllocationReason import AllocationReason
     from ..Agents.Agent import Agent
     from ..Blocker.Blocker import Blocker
-    from ..Blocker.BuildingBlocker import BuildingBlocker
-    from ..Blocker.DynamicBlocker import DynamicBlocker
-    from ..Blocker.StaticBlocker import StaticBlocker
     from ..History.HistoryAgent import HistoryAgent
     from ..Allocation.PathSegment import PathSegment
     from ..Simulator import Simulator

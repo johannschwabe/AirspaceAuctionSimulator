@@ -17,10 +17,10 @@ class ABCOwner(PathOwner):
     max_locations = 100
     meta = []
 
-    def __init__(self, name: str, color: str, stops: List["GridLocation"], creation_ticks: List[int]):
+    def __init__(self, owner_id: int, name: str, color: str, stops: List["GridLocation"], creation_ticks: List[int]):
         assert len(stops) > 1
 
-        super().__init__(name, color, stops)
+        super().__init__(owner_id, name, color, stops)
         self.creation_ticks = creation_ticks
 
     @abstractmethod

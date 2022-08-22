@@ -12,7 +12,8 @@ from Simulator import \
     SpaceSegment, \
     AllocationType, \
     PathAllocation, \
-    SpaceAllocation
+    SpaceAllocation, \
+    AllocationReason
 
 
 class FCFSAllocator(Allocator):
@@ -124,14 +125,14 @@ class FCFSAllocator(Allocator):
 
                 if optimal_path_segments is None:
                     allocations.append(
-                        PathAllocation(agent, [], str(AllocationType.ALLOCATION_FAILED.value),
+                        PathAllocation(agent, [], str(AllocationReason.ALLOCATION_FAILED.value),
                                        compute_time=time_ns() - start_time))
                     continue
 
                 environment.allocate_path_for_agent(agent, optimal_path_segments)
                 allocations.append(PathAllocation(agent,
                                                   optimal_path_segments,
-                                                  str(AllocationType.FIRST_ALLOCATION.value),
+                                                  str(AllocationReason.FIRST_ALLOCATION.value),
                                                   compute_time=time_ns() - start_time))
 
             # Space Agents
@@ -144,7 +145,7 @@ class FCFSAllocator(Allocator):
                 environment.allocate_space_for_agent(agent, optimal_path_segments)
                 allocations.append(SpaceAllocation(agent,
                                                    optimal_path_segments,
-                                                   str(AllocationType.FIRST_ALLOCATION.value),
+                                                   str(AllocationReason.FIRST_ALLOCATION.value),
                                                    compute_time=time_ns() - start_time))
 
             environment.add_agent(agent)

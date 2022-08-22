@@ -44,9 +44,14 @@ class StationaryOwner(SpaceOwner):
         }
     ]
 
-    def __init__(self, name: str, color: str, stops: List["GridLocation"], creation_ticks: List[int],
-                 size: "Coordinate4D" = Coordinate4D(5, 5, 5, 5)):
-        super().__init__(name, color, stops)
+    def __init__(self,
+                 owner_id: int,
+                 name: str,
+                 color: str,
+                 stops: List["GridLocation"],
+                 creation_ticks: List[int],
+                 size: "Coordinate4D"):
+        super().__init__(owner_id, name, color, stops)
         self.creation_ticks = creation_ticks
         self.size: "Coordinate4D" = size
 

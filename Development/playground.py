@@ -24,12 +24,14 @@ def setup_empty(t):
 def simulate(env: Environment, t):
     allocator = FCFSAllocator()
     owners = [
-        FCFSABOwner("Schnabeltier",
+        FCFSABOwner(0,
+                    "Schnabeltier",
                     color_generator(),
                     [GridLocation(str(GridLocationType.RANDOM.value)),
                      GridLocation(str(GridLocationType.RANDOM.value))],
                     [random.randint(0, 5) for _ in range(10)]),
-        FCFSStationaryOwner("Ghettotier",
+        FCFSStationaryOwner(1,
+                            "Ghettotier",
                             color_generator(),
                             [GridLocation(str(GridLocationType.RANDOM.value)),
                              GridLocation(str(GridLocationType.RANDOM.value))],
@@ -59,7 +61,7 @@ if __name__ == "__main__":
     environment = setup_empty(max_t)
     simulatorAligator = simulate(environment, max_t)
 
-    res = build_json({"name": "test", "description": "Schnabeltier", "map": {"tiles": []}}, simulatorAligator, 0)
+    res = build_json(simulatorAligator, 0)
     f = open("test.json", "w")
     f.write(json.dumps(res))
     f.close()

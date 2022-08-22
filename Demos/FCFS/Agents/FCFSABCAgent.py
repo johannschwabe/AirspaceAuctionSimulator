@@ -3,15 +3,14 @@ from Simulator import ABCAgent
 
 
 class FCFSABCAgent(ABCAgent):
-    def __init__(
-        self,
-        locations,
-        stays,
-        simulator,
-        agent_id=None,
-        speed=None,
-        battery=None,
-        near_radius=None):
+    def __init__(self,
+                 locations,
+                 stays,
+                 simulator,
+                 agent_id=None,
+                 speed=None,
+                 battery=None,
+                 near_radius=None):
         super().__init__(locations,
                          stays,
                          simulator,

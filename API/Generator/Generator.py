@@ -53,6 +53,7 @@ class Generator:
         return stops
 
     def simulate(self):
+        owner_id = 0
         for apiOwner in self.apiOwners:
             stops: List["GridLocation"] = self.extract_owner_stops(apiOwner)
             owners = [_owner for _owner in self.allocator.compatible_owner() if _owner.__name__ == apiOwner.classname]
@@ -60,10 +61,12 @@ class Generator:
                 print(f"Owners Type {apiOwner} not registered with allocator {self.allocator.__class__.__name__}")
                 continue
             ownerClass = owners[0]
-            self.owners.append(ownerClass(apiOwner.name,
+            self.owners.append(ownerClass(owner_id,
+                                          apiOwner.name,
                                           apiOwner.color,
                                           stops,
                                           self.creation_ticks(self.environment.allocation_period, apiOwner.agents)))
+            owner_id += 1
 
         self.simulator = Simulator(
             self.owners,

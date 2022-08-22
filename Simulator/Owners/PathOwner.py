@@ -13,8 +13,8 @@ if TYPE_CHECKING:
 class PathOwner(Owner, ABC):
     allocation_type: str = AllocationType.PATH.value
 
-    def __init__(self, name: str, color: str, stops: List["GridLocation"]):
-        super().__init__(name, color)
+    def __init__(self, owner_id: int, name: str, color: str, stops: List["GridLocation"]):
+        super().__init__(owner_id, name, color)
         self.stops = stops
 
     @staticmethod

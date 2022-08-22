@@ -9,7 +9,7 @@ from .Agents.PathAgents.ABAgent import ABAgent
 from .Agents.PathAgents.ABCAgent import ABCAgent
 from .Agents.SpaceAgents.StationaryAgent import StationaryAgent
 # Allocation
-from .Allocation.AllocationType import AllocationType
+from .Allocation.AllocationReason import AllocationReason
 from .Allocation.PathAllocation import PathAllocation
 from .Allocation.PathSegment import PathSegment
 from .Allocation.SpaceAllocation import SpaceAllocation

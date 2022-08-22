@@ -1,15 +1,13 @@
-from Simulator import StationaryAgent
 from Demos.FCFS.Bids.FCFSStationaryBid import FCFSStationaryBid
+from Simulator import StationaryAgent
 
 
 class FCFSStationaryAgent(StationaryAgent):
 
-    def __init__(
-        self,
-        blocks,
-        simulator,
-        agent_id=None
-    ):
+    def __init__(self,
+                 blocks,
+                 simulator,
+                 agent_id=None):
         super().__init__(blocks, simulator, agent_id=agent_id)
 
     def get_bid(self, _):
