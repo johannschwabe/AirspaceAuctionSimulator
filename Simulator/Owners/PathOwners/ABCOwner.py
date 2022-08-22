@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, List
 from ..PathOwner import PathOwner
 
 if TYPE_CHECKING:
-    from Simulator.Agents.PathAgents.ABCAgent import ABCAgent
-    from ..GridLocation import GridLocation
+    from ...Agents.PathAgents.ABCAgent import ABCAgent
+    from ...Owners.Location.GridLocation import GridLocation
     from ...Simulator import Simulator
     from ...Coordinates.Coordinate4D import Coordinate4D
 

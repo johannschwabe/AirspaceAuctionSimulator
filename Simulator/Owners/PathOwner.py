@@ -1,12 +1,13 @@
 from abc import ABC
 from typing import List, TYPE_CHECKING
 
-from Simulator.Agents.AllocationType import AllocationType
-from Simulator.Owners.Owner import Owner
+from ..Agents.AllocationType import AllocationType
+from ..Owners.Owner import Owner
 
 if TYPE_CHECKING:
-    from Simulator.Owners.GridLocation import GridLocation
-    from Simulator.Environment import Environment
+    from ..Owners.Location.GridLocation import GridLocation
+    from ..Environment import Environment
+    from ..Coordinates.Coordinate4D import Coordinate4D
 
 
 class PathOwner(Owner, ABC):
@@ -17,13 +18,16 @@ class PathOwner(Owner, ABC):
         self.stops = stops
 
     @staticmethod
-    def generate_stop_coordinate(stop: "GridLocation", env: "Environment", t: int, near_radius: int, speed: int):
+    def generate_stop_coordinate(stop: "GridLocation", env: "Environment", t: int, near_radius: int,
+                                 speed: int) -> "Coordinate4D":
         coord = stop.generate_coordinates(env, t)
+        initial_y = coord.y
 
         while env.is_blocked_forever(coord, near_radius, speed):
             coord.y += 1
             if coord.y >= env.dimension.y:
                 coord.y = env.min_height
+            elif coord.y == initial_y:
                 print("BLOCKED")
                 break
 

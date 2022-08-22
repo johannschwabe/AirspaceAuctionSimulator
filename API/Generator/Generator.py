@@ -6,10 +6,10 @@ from Simulator import Simulator
 from Simulator.Coordinates.Coordinate2D import Coordinate2D
 from Simulator.Coordinates.Coordinate4D import Coordinate4D
 from Simulator.History.History import History
-from Simulator.Owners.GridLocation import GridLocation
-from Simulator.Owners.GridLocationType import GridLocationType
-from Simulator.Owners.Heatmap import Heatmap
-from Simulator.Owners.HeatmapType import HeatmapType
+from Simulator.Owners.Location.GridLocation import GridLocation
+from Simulator.Owners.Location.GridLocationType import GridLocationType
+from Simulator.Owners.Location.Heatmap import Heatmap
+from Simulator.Owners.Location.HeatmapType import HeatmapType
 from Simulator.Owners.Owner import Owner
 from Simulator.Statistics.Statistics import Statistics
 

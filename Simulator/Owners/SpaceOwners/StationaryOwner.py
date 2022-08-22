@@ -1,14 +1,13 @@
 import random
 from typing import List, TYPE_CHECKING
 
-from Simulator.Agents.SpaceAgents.StationaryAgent import StationaryAgent
 from ..SpaceOwner import SpaceOwner
 from ...Coordinates.Coordinate4D import Coordinate4D
 
 if TYPE_CHECKING:
-    from ..GridLocation import GridLocation
+    from ...Owners.Location.GridLocation import GridLocation
     from ...Simulator import Simulator
-    from Simulator.Agents.SpaceAgents.StationaryAgent import StationaryAgent
+    from ...Agents.SpaceAgents.StationaryAgent import StationaryAgent
 
 
 class StationaryOwner(SpaceOwner):
@@ -51,7 +50,7 @@ class StationaryOwner(SpaceOwner):
         self.creation_ticks = creation_ticks
         self.size: "Coordinate4D" = size
 
-    def initialize_agent(self, simulator: "Simulator", blocks: List[List["Coordinate4D"]]) -> StationaryAgent:
+    def initialize_agent(self, simulator: "Simulator", blocks: List[List["Coordinate4D"]]) -> "StationaryAgent":
         pass
 
     def generate_agents(self, t: int, simulator: "Simulator") -> List["StationaryAgent"]:
@@ -59,7 +58,7 @@ class StationaryOwner(SpaceOwner):
         for _ in range(self.creation_ticks.count(t)):
             blocks = []
             for stop in self.stops:
-                bottom_left = self.generate_stop_coordinates(stop, simulator.environment, t, self.size)
+                bottom_left = self.generate_stop_coordinates(stop, simulator.environment, t)
                 top_right = bottom_left + self.size
                 blocks.append([bottom_left, top_right])
             agent = self.initialize_agent(simulator, blocks)

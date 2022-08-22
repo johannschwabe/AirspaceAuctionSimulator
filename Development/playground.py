@@ -9,8 +9,8 @@ from Simulator.Blocker.StaticBlocker import StaticBlocker
 from Simulator.Coordinates.Coordinate3D import Coordinate3D
 from Simulator.Environment.Environment import Environment
 from Simulator.IO.JSONS import build_json
-from Simulator.Owners.GridLocation import GridLocation
-from Simulator.Owners.GridLocationType import GridLocationType
+from Simulator.Owners.Location.GridLocation import GridLocation
+from Simulator.Owners.Location.GridLocationType import GridLocationType
 
 random.seed(3)
 
