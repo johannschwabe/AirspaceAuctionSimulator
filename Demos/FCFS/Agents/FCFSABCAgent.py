@@ -1,5 +1,5 @@
-from Simulator import ABCAgent
 from Demos.FCFS.Bids.FCFSABCBid import FCFSABCBid
+from Simulator import ABCAgent
 
 
 class FCFSABCAgent(ABCAgent):
@@ -11,17 +11,14 @@ class FCFSABCAgent(ABCAgent):
         agent_id=None,
         speed=None,
         battery=None,
-        near_radius=None,
-        far_radius=None,
-    ):
+        near_radius=None):
         super().__init__(locations,
                          stays,
                          simulator,
                          agent_id=agent_id,
                          speed=speed,
                          battery=battery,
-                         near_radius=near_radius,
-                         far_radius=far_radius)
+                         near_radius=near_radius)
 
     def get_bid(self, _):
         return FCFSABCBid(self.battery, self.locations, self.stays)
@@ -33,6 +30,5 @@ class FCFSABCAgent(ABCAgent):
                              agent_id=self.id,
                              speed=self.speed,
                              battery=self.battery,
-                             near_radius=self.near_radius,
-                             far_radius=self.far_radius)
+                             near_radius=self.near_radius)
         return clone

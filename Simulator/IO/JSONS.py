@@ -83,9 +83,7 @@ class JSONPathAgent(JSONAgent, Stringify):
         agent: "PathAgent",
         non_colliding_utility: float,
         near_field_intersections: int,
-        far_field_intersections: int,
         near_field_violations: int,
-        far_field_violations: int,
         owner_id: int,
         owner_name: str,
         path_stats: Dict[str, float | int]
@@ -93,14 +91,11 @@ class JSONPathAgent(JSONAgent, Stringify):
         super().__init__(agent, non_colliding_utility, owner_id, owner_name)
         self.speed: int = agent.speed
         self.near_radius: int = agent.near_radius
-        self.far_radius: int = agent.far_radius
         self.battery: int = agent.battery
         self.time_in_air: int = agent.get_airtime()
 
         self.near_field_intersections: int = near_field_intersections
-        self.far_field_intersections: int = far_field_intersections
         self.near_field_violations: int = near_field_violations
-        self.far_field_violations: int = far_field_violations
 
         self.paths: List["JSONPath"] = [JSONPath(path) for path in agent.allocated_segments]
 
@@ -213,9 +208,7 @@ def build_json(simulator: "Simulator", total_compute_time: int):
                     agent,
                     non_colliding_values[agent],
                     close_encounters[agent.id]["total_near_field_intersection"],
-                    close_encounters[agent.id]["total_far_field_intersection"],
                     close_encounters[agent.id]["total_near_field_violations"],
-                    close_encounters[agent.id]["total_far_field_violations"],
                     owner.id,
                     owner.name,
                     path_stats,

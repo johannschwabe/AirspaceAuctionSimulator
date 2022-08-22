@@ -1,8 +1,7 @@
-from Demos.Priority.Bids.PriorityBid import PriorityBid
 from Simulator.Bids.StationaryBid import StationaryBid
 
 
-class PriorityStationaryBid(StationaryBid, PriorityBid):
+class PriorityStationaryBid(StationaryBid):
     def __init__(self, blocks, priority):
-        super(StationaryBid).__init__(blocks)
-        super(PriorityBid).__init__(priority)
+        super().__init__(blocks)
+        self.priority = priority

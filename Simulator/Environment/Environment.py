@@ -4,9 +4,9 @@ from rtree import index, Index
 
 from ..Agents.PathAgents.PathAgent import PathAgent
 from ..Agents.SpaceAgents.SpaceAgent import SpaceAgent
-from ..Blocker.BlockerType import BlockerType
 from ..Allocation.PathAllocation import PathAllocation
 from ..Allocation.SpaceAllocation import SpaceAllocation
+from ..Blocker.BlockerType import BlockerType
 
 if TYPE_CHECKING:
     from ..Blocker.Blocker import Blocker
@@ -56,7 +56,6 @@ class Environment:
         self.agents: Dict[int, "Agent"] = {}
 
         self.max_near_radius = 0
-        self.max_far_radius = 0
 
     @staticmethod
     def setup_rtree() -> Index:
@@ -287,7 +286,6 @@ class Environment:
         self.agents[agent.id] = agent
         if isinstance(agent, PathAgent):
             self.max_near_radius = max(self.max_near_radius, agent.near_radius)
-            self.max_far_radius = max(self.max_far_radius, agent.far_radius)
 
     def is_valid_for_allocation(self, coords: "Coordinate4D", agent: "PathAgent") -> bool:
         """

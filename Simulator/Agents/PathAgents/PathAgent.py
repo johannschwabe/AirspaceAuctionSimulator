@@ -12,7 +12,6 @@ if TYPE_CHECKING:
 
 class PathAgent(Agent, ABC):
     DEFAULT_NEAR_RADIUS = 1
-    DEFAULT_FAR_RADIUS = 2
     DEFAULT_SPEED = 1
     DEFAULT_BATTERY = 100_000
 
@@ -23,15 +22,13 @@ class PathAgent(Agent, ABC):
                  agent_id: Optional[int] = None,
                  speed: Optional[int] = None,
                  battery: Optional[int] = None,
-                 near_radius: Optional[int] = None,
-                 far_radius: Optional[int] = None):
+                 near_radius: Optional[int] = None):
 
         super().__init__(simulator, agent_id)
 
         self.speed: int = speed if speed is not None else self.DEFAULT_SPEED
         self.battery: int = battery if battery is not None else self.DEFAULT_BATTERY
         self.near_radius = near_radius if near_radius is not None else self.DEFAULT_NEAR_RADIUS
-        self.far_radius = far_radius if far_radius is not None else self.DEFAULT_FAR_RADIUS
 
         self.allocated_segments: List["PathSegment"] = []
 

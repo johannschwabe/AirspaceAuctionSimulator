@@ -1,13 +1,13 @@
 from abc import ABC
 from typing import List, Optional, TYPE_CHECKING
 
-from Simulator.Agents.AgentType import AgentType
 from .ABAgent import ABAgent
+from ..AgentType import AgentType
 
 if TYPE_CHECKING:
-    from Simulator.Coordinates.Coordinate4D import Coordinate4D
-    from Simulator.Allocation.PathSegment import PathSegment
-    from Simulator.Simulator import Simulator
+    from ...Coordinates.Coordinate4D import Coordinate4D
+    from ...Allocation.PathSegment import PathSegment
+    from ...Simulator import Simulator
 
 
 class ABAAgent(ABAgent, ABC):
@@ -21,8 +21,7 @@ class ABAAgent(ABAgent, ABC):
                  agent_id: Optional[int] = None,
                  speed: Optional[int] = None,
                  battery: Optional[int] = None,
-                 near_radius: Optional[int] = None,
-                 far_radius: Optional[int] = None):
+                 near_radius: Optional[int] = None):
 
         super().__init__(a,
                          b,
@@ -30,8 +29,7 @@ class ABAAgent(ABAgent, ABC):
                          agent_id=agent_id,
                          speed=speed,
                          battery=battery,
-                         near_radius=near_radius,
-                         far_radius=far_radius)
+                         near_radius=near_radius)
 
         self.stay: int = stay
 
@@ -42,14 +40,14 @@ class ABAAgent(ABAgent, ABC):
         ab_path = path_segments[0]
         ba_path = path_segments[1]
 
-        if len(ab_path) == 0 or len(ba_path) == 0:
+        if len(ab_path.coordinates) == 0 or len(ba_path.coordinates) == 0:
             return 0.
 
-        time = ab_path[-1].t - ab_path[0].t + ba_path[-1].t - ba_path[0].t
+        time = ab_path.max.t - ab_path.min.t + ba_path.max.t - ba_path.min.t
         if time > self.battery:
             return -1.
 
-        delay = ab_path[-1].t - self.b.t
+        delay = ab_path.max.t - self.b.t
         if delay > 0:
             return round(max(0., 1. - delay / 100), 2)
 

@@ -11,5 +11,11 @@ class PriorityABAOwner(ABAOwner):
         self.priority = priority
 
     def initialize_agent(self, start, target, simulator, speed, battery, stay, near_radius):
-        return PriorityABAAgent(start, target, self.priority, simulator, stay, speed=speed, battery=battery,
+        return PriorityABAAgent(start,
+                                target,
+                                self.priority,
+                                simulator,
+                                stay,
+                                speed=speed,
+                                battery=battery,
                                 near_radius=near_radius)

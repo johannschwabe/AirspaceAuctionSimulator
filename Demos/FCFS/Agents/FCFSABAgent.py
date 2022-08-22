@@ -1,5 +1,5 @@
-from Simulator import ABAgent
 from Demos.FCFS.Bids.FCFSABBid import FCFSABBid
+from Simulator import ABAgent
 
 
 class FCFSABAgent(ABAgent):
@@ -12,7 +12,6 @@ class FCFSABAgent(ABAgent):
         speed=None,
         battery=None,
         near_radius=None,
-        far_radius=None,
     ):
         super().__init__(a,
                          b,
@@ -20,8 +19,7 @@ class FCFSABAgent(ABAgent):
                          agent_id=agent_id,
                          speed=speed,
                          battery=battery,
-                         near_radius=near_radius,
-                         far_radius=far_radius)
+                         near_radius=near_radius)
 
     def get_bid(self, _):
         return FCFSABBid(self.battery, self.a, self.b)

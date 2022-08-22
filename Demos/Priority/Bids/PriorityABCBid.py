@@ -1,9 +1,8 @@
 from Simulator import ABCBid
-from PriorityBid import PriorityBid
 
 
-class PriorityABCBid(ABCBid, PriorityBid):
+class PriorityABCBid(ABCBid):
     def __init__(self, battery, locations, stays, priority, flying):
-        super(ABCBid).__init__(battery, locations, stays)
-        super(PriorityBid).__init__(priority)
+        super().__init__(battery, locations, stays)
+        self.priority = priority
         self.flying = flying

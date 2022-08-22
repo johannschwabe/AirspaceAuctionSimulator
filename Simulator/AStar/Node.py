@@ -14,7 +14,7 @@ class Node:
         self.collisions: Set["PathAgent"] = collisions
 
         self.g: float = 0  # Distance to start node
-        self.h: float = 0  # Distance to goal node
+        self.h: float = 0  # Distance to target node
         self.f: float = 0  # Total cost
 
     def __eq__(self, other) -> bool:

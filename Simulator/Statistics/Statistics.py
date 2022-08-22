@@ -2,8 +2,8 @@ import statistics
 from typing import TYPE_CHECKING, List
 
 from ..Agents.PathAgents.PathAgent import PathAgent
-from ..Owners.Owner import Owner
 from ..Allocation.PathSegment import PathSegment
+from ..Owners.Owner import Owner
 
 if TYPE_CHECKING:
     from ..Coordinates.Coordinate4D import Coordinate4D
@@ -92,11 +92,6 @@ class Statistics:
 
     def close_encounters(self):
         res = {}
-        far_radi = [_agent.far_radius for _agent in self.history.env.agents.values() if
-                    isinstance(_agent, PathAgent)]
-        far_radi.append(0)
-        max_far_radi = max(far_radi)
-
         near_radi = [_agent.near_radius for _agent in self.history.env.agents.values() if
                      isinstance(_agent, PathAgent)]
         near_radi.append(0)
@@ -106,33 +101,22 @@ class Statistics:
             res[agent.id] = {
                 "near_field_violations": {},
                 "near_field_intersection": {},
-                "far_field_violations": {},
-                "far_field_intersection": {},
                 "total_near_field_violations": 0,
                 "total_near_field_intersection": 0,
-                "total_far_field_violations": 0,
-                "total_far_field_intersection": 0,
             }
             for segment in agent.allocated_segments:
                 if isinstance(segment, PathSegment):
                     for step in segment.coordinates[::agent.speed]:
                         res[agent.id]["near_field_violations"][step.t] = self.violations(step, agent,
                                                                                          agent.near_radius)
-                        res[agent.id]["far_field_violations"][step.t] = self.violations(step, agent,
-                                                                                        agent.far_radius)
-                        near_intersections, far_intersections = \
-                            self.intersections(step, agent, max_far_radi, max_near_radi)
+                        near_intersections = \
+                            self.intersections(step, agent, max_near_radi)
                         res[agent.id]["near_field_intersection"][step.t] = near_intersections
-                        res[agent.id]["far_field_intersection"][step.t] = far_intersections
                         res[agent.id]["total_near_field_violations"] += \
                             res[agent.id]["near_field_violations"][step.t]
-                        res[agent.id]["total_far_field_violations"] += \
-                            res[agent.id]["far_field_violations"][step.t]
                         res[agent.id]["total_near_field_intersection"] += \
                             res[agent.id]["near_field_intersection"][
                                 step.t]
-                        res[agent.id]["total_far_field_intersection"] += \
-                            res[agent.id]["far_field_intersection"][step.t]
         return res
 
     def violations(self, position: "Coordinate4D", agent: "HistoryAgent", radi: int):
@@ -153,18 +137,17 @@ class Statistics:
             count += int(end) - int(start) + 1
         return count
 
-    def intersections(self, position: "Coordinate4D", agent: "Agent", max_far_radi, max_near_radi):
+    def intersections(self, position: "Coordinate4D", agent: "Agent", max_near_radi):
         near_intersections = 0
-        far_intersections = 0
         real_agent: "Agent" = self.history.env.agents[agent.id]
         if isinstance(real_agent, PathAgent):
-            box = [position.x - max_far_radi,
-                   position.y - max_far_radi,
-                   position.z - max_far_radi,
+            box = [position.x - max_near_radi,
+                   position.y - max_near_radi,
+                   position.z - max_near_radi,
                    position.t,
-                   position.x + max_far_radi,
-                   position.y + max_far_radi,
-                   position.z + max_far_radi,
+                   position.x + max_near_radi,
+                   position.y + max_near_radi,
+                   position.z + max_near_radi,
                    position.t + real_agent.speed]
             collisions = self.history.env.tree.intersection(box, objects=True)
             real_collisions = filter(lambda col: col.id != agent.id, collisions)
@@ -179,20 +162,13 @@ class Statistics:
                 col_time = int(col_end) - int(col_start) + 1
 
                 max_near_distance = real_agent.near_radius
-                max_far_distance = real_agent.far_radius
 
                 if isinstance(colliding_agent, PathAgent):
                     max_near_distance += colliding_agent.near_radius
-                    max_far_distance += colliding_agent.far_radius
 
                 if distance_x <= max_near_distance and \
                     distance_y <= max_near_distance and \
                     distance_z <= max_near_distance:
                     near_intersections += col_time
 
-                if distance_x <= max_far_distance and \
-                    distance_y <= max_far_distance and \
-                    distance_z <= max_far_distance:
-                    far_intersections += col_time
-
-        return near_intersections, far_intersections
+        return near_intersections

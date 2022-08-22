@@ -16,7 +16,6 @@ class AStar:
                  max_iter: int = 100_000,
                  g_sum: float = 0.2,
                  height_adjust: bool = True):
-        self.node_class = Node
         self.environment: "Environment" = environment
         self.max_iter: int = max_iter
         self.g_sum: float = g_sum
@@ -57,8 +56,8 @@ class AStar:
         closed_nodes = {}
         heap = []
 
-        start_node = self.node_class(start, None, start_collisions)
-        end_node = self.node_class(end, None, set())
+        start_node = Node(start, None, start_collisions)
+        end_node = Node(end, None, set())
         open_nodes[hash(start_node)] = start_node
         heapq.heappush(heap, start_node)
 
