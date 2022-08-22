@@ -41,7 +41,7 @@ def readCoords(filename: str):
 
 
 def writeCoords(simulator: Simulator, filename: str):
-    astar = AStar(simulator.environment)
+    astar = AStar(simulator.environment, max_iter=100_000_000, g_sum=1., height_adjust=False)
     f = open(filename, "w")
     nr_tests = 20
     for index in range(nr_tests):
@@ -61,7 +61,7 @@ def testCoords(simulator: Simulator, g_sum, height_adjust):
     nr_tests = 20
     nr_success = 0
     start_t = time_ns()
-    segments = readCoords("optimal_paths.txt")
+    segments = readCoords("Development/optimal_paths.txt")
     sum_optimal_len = 0
     sum_achieved_len = 0
 
@@ -77,7 +77,7 @@ def testCoords(simulator: Simulator, g_sum, height_adjust):
 
     duration = time_ns() - start_t
     print(
-        f"Nr_tests: {nr_tests}, Duration: {duration:3f}s, Success: {nr_success}, {sum_achieved_len / sum_optimal_len}"
+        f"Nr_tests: {nr_tests}, Duration: {duration / 1e9:3f}s, Success: {nr_success}, {sum_optimal_len / sum_achieved_len}"
     )
 
 
@@ -88,18 +88,18 @@ def write():
 
 def test():
     simulator = setup()
-    print("g sum: 0.1")
-    testCoords(simulator, 0.1, False)
+    print("BASE")
+    testCoords(simulator, 0.1, True)
     print()
-    print("g sum: 0.2")
-    testCoords(simulator, 0.2, False)
+    print("VARIANT: g-sum: 0.05")
+    testCoords(simulator, 0.05, True)
     print()
-    print("g sum: 0.3")
-    testCoords(simulator, 0.3, False)
-    print()
-    print("height adjust")
+    print("VARIANT: g-sum: 0.2")
     testCoords(simulator, 0.2, True)
+    print()
+    print("VARIANT: no height adjust")
+    testCoords(simulator, 0.1, False)
 
 
 if __name__ == "__main__":
-    write()
+    test()

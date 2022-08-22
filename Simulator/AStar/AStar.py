@@ -14,7 +14,7 @@ class AStar:
     def __init__(self,
                  environment: "Environment",
                  max_iter: int = 100_000,
-                 g_sum: float = 0.2,
+                 g_sum: float = 0.1,
                  height_adjust: bool = True):
         self.environment: "Environment" = environment
         self.max_iter: int = max_iter
