@@ -140,6 +140,7 @@ class JSONOwner(Stringify):
             self.utility_quantiles: List[float] = statistics.quantiles(utility)
         self.utility_outliers: List[float] = [w for w in utility if
                                               w < self.utility_quantiles[0] or w > self.utility_quantiles[-1]]
+        self.bid_quantiles = [0] * 4
 
         self.number_of_agents: int = len(self.agents)
         self.number_per_type = {}

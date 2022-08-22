@@ -1,4 +1,5 @@
 import math
+from typing import Dict
 
 from .Coordinate2D import Coordinate2D
 
@@ -11,6 +12,9 @@ class Coordinate3D(Coordinate2D):
 
     def get_key(self) -> str:
         return f"{self.x}_{self.y}_{self.z}"
+
+    def to_dict(self) -> Dict[str, int]:
+        return {"x": self.x, "y": self.y, "z": self.z}
 
     def __repr__(self) -> str:
         return f"({self.x}, {self.y}, {self.z})"

@@ -308,7 +308,7 @@ class Environment:
         for intersected_agent_id in intersections:
             if agent.id != intersected_agent_id:
                 return False
-        return self.is_space_blocked(bottom_left, top_right)
+        return not self.is_space_blocked(bottom_left, top_right)
 
     def intersect_space(self, bottom_left: "Coordinate4D", top_right: "Coordinate4D"):
         """

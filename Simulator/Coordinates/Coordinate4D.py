@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from .Coordinate3D import Coordinate3D
 
@@ -14,6 +14,9 @@ class Coordinate4D(Coordinate3D):
 
     def get_key(self) -> str:
         return f"{self.x}_{self.y}_{self.z}_{self.t}"
+
+    def to_dict(self) -> Dict[str, int]:
+        return {"x": self.x, "y": self.y, "z": self.z, "t": self.t}
 
     def __repr__(self) -> str:
         return f"({self.x}, {self.y}, {self.z}, {self.t})"

@@ -36,7 +36,7 @@ def simulate(env: Environment, t):
                             [GridLocation(str(GridLocationType.RANDOM.value)),
                              GridLocation(str(GridLocationType.RANDOM.value))],
                             [random.randint(0, 5) for _ in range(10)],
-                            Coordinate4D(5, 5, 5, 5))
+                            Coordinate4D(25, 25, 25, 25))
     ]
     simulator = Simulator(owners, allocator, env)
     while simulator.time_step < t:
@@ -62,6 +62,7 @@ if __name__ == "__main__":
     simulatorAligator = simulate(environment, max_t)
 
     res = build_json(simulatorAligator, 0)
+    res["config"] = {"name": "test", "map": {"tiles": []}, "dimension": environment.dimension.to_dict(), "owners": []}
     f = open("test.json", "w")
     f.write(json.dumps(res))
     f.close()
