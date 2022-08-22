@@ -1,3 +1,4 @@
+import math
 from typing import TYPE_CHECKING
 
 from pyproj import Transformer
@@ -29,5 +30,5 @@ def lon_lat_to_grid(bottom_left_ll, resolution, coords):
 
 
 def point_to_coordinate2D(point: "LongLatCoordinate | APIWeightedCoordinate", area: "Area"):
-    x, y = lon_lat_to_grid(area.bottom_left, area.resolution, [point.long, point.lat])
-    return Coordinate2D(x, y)
+    x, y = lon_lat_to_grid([area.bottom_left.long, area.bottom_left.lat], area.resolution, [point.long, point.lat])
+    return Coordinate2D(math.floor(x), math.floor(y))

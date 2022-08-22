@@ -183,7 +183,7 @@ class JSONMaptile(Stringify):
         self.y = maptile.y
         self.z = maptile.z
         self.dimensions = maptile.dimensions
-        self.resolution = maptile.resolution
+        self.resolution = maptile.area.resolution
 
 
 class JSONEnvironment(Stringify):

@@ -87,8 +87,7 @@ export const restoreHeatmapFeatures = (features, points) => {
 export const restorePositionFeatures = (features, coordinate) => {
   features.clear();
   if (coordinate && coordinate.length > 0) {
-    console.log(coordinate);
-    features.push(new Feature({ geometry: new Point(fromLonLat([coordinate[0].lat, coordinate[0].long])) }));
+    features.push(new Feature({ geometry: new Point(fromLonLat([coordinate[0].long, coordinate[0].lat])) }));
   }
 };
 
@@ -235,7 +234,7 @@ export const useMap = (mapRoot, layers, subselection = false) => {
 export const useHeatmapInteraction = (map, features, location) => {
   const onClickOrDrag = (event) => {
     const coords = event.coordinate;
-    const [lat, long] = toLonLat(coords);
+    const [long, lat] = toLonLat(coords);
 
     // Inverted x coordinate
     let fittingEntry = location.points.find((coord) => coord.long === long && coord.lat === lat);
@@ -262,7 +261,7 @@ export const useHeatmapInteraction = (map, features, location) => {
 export const usePositionInteraction = (map, features, location) => {
   const onClickOrDrag = (event) => {
     const coords = event.coordinate;
-    const [lat, long] = toLonLat(coords);
+    const [long, lat] = toLonLat(coords);
     location.points = [{ lat, long, value: 1.0 }];
     features.pop();
     features.push(new Feature(new Point(coords)));
