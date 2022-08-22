@@ -23,14 +23,18 @@ export default class MapTile {
   }
 
   extractPolygon(coords) {
-    const dimZ = (this.topRightPM[1] - this.bottomLeftPM[1]) / this.resolution;
-    const dimX = (this.topRightPM[0] - this.bottomLeftPM[0]) / this.resolution;
-    console.log(dimX, dimZ);
+    const dimLat = (this.topRightPM[1] - this.bottomLeftPM[1]) / this.resolution;
+    const dimLong = (this.topRightPM[0] - this.bottomLeftPM[0]) / this.resolution;
+    console.log(dimLong, dimLat);
     const coordPM = fromLonLat(coords);
-    let z = (coordPM[0] - this.bottomLeftPM[0]) / this.resolution;
-    let x = dimZ - (coordPM[1] - this.bottomLeftPM[1]) / this.resolution;
-    x -= dimZ / 2;
-    z -= dimX / 2;
+    // let z = (coordPM[0] - this.bottomLeftPM[0]) / this.resolution;
+    // let x = dimLat - (coordPM[1] - this.bottomLeftPM[1]) / this.resolution;
+    // x -= dimLat / 2;
+    // z -= dimLong / 2;
+    let x = (coordPM[0] - this.bottomLeftPM[0]) / this.resolution;
+    let z = (coordPM[1] - this.bottomLeftPM[1]) / this.resolution;
+    x -= dimLong / 2;
+    z -= dimLat / 2;
     return { x, z };
   }
 

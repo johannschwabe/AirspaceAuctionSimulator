@@ -62,11 +62,11 @@ export function useMainLight({ scene, x, y, z }) {
 }
 
 export function useCamera({ x, y, z, scene, canvas }) {
-  const target = new Vector3(0, y / 2, 0);
+  const target = new Vector3(0, 0, 0);
   const camera = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, target, scene);
   camera.attachControl(canvas, true);
   camera.setTarget(target);
-  camera.setPosition(new Vector3(-x, Math.max(x, y, z) * 1.5, -z));
+  camera.setPosition(new Vector3(0, Math.max(x, y, z), -z));
   return camera;
 }
 

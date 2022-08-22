@@ -1,6 +1,5 @@
 import Coordinate3D from "./Coordinate3D";
 import { first, last } from "lodash-es";
-
 export default class Path {
   /**
    * @param {RawPath} rawPath

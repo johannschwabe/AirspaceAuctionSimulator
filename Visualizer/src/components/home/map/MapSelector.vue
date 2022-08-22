@@ -118,7 +118,7 @@ const resolveAddress = async () => {
   }
   addressQuery.value = data[0].display_name;
   simulationConfig.map.coordinates.lat = parseFloat(data[0].lat);
-  simulationConfig.map.coordinates.long = parseFloat(data[0].long);
+  simulationConfig.map.coordinates.long = parseFloat(data[0].lon);
 };
 </script>
 
