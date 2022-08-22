@@ -12,9 +12,7 @@ from Simulator import \
     SpaceSegment, \
     AllocationType, \
     PathAllocation, \
-    SpaceAllocation, \
-    AllocationReason, \
-    AllocationReasonType
+    SpaceAllocation
 
 
 class FCFSAllocator(Allocator):
@@ -111,7 +109,7 @@ class FCFSAllocator(Allocator):
             optimal_path_segments = []
             bid = agent.get_bid(tick)
 
-            # Path Agents
+            # Allocation Agents
             if agent.allocation_type == AllocationType.PATH.value:
                 match agent.agent_type:
                     # A-B
@@ -126,15 +124,15 @@ class FCFSAllocator(Allocator):
 
                 if optimal_path_segments is None:
                     allocations.append(
-                        PathAllocation(agent, [], AllocationReason(str(AllocationReasonType.ALLOCATION_FAILED.value)),
-                                       time_ns() - start_time))
+                        PathAllocation(agent, [], str(AllocationType.ALLOCATION_FAILED.value),
+                                       compute_time=time_ns() - start_time))
                     continue
 
                 environment.allocate_path_for_agent(agent, optimal_path_segments)
                 allocations.append(PathAllocation(agent,
                                                   optimal_path_segments,
-                                                  AllocationReason(str(AllocationReasonType.FIRST_ALLOCATION.value)),
-                                                  time_ns() - start_time))
+                                                  str(AllocationType.FIRST_ALLOCATION.value),
+                                                  compute_time=time_ns() - start_time))
 
             # Space Agents
             elif agent.allocation_type == AllocationType.SPACE.value:
@@ -146,8 +144,8 @@ class FCFSAllocator(Allocator):
                 environment.allocate_space_for_agent(agent, optimal_path_segments)
                 allocations.append(SpaceAllocation(agent,
                                                    optimal_path_segments,
-                                                   AllocationReason(str(AllocationReasonType.FIRST_ALLOCATION.value)),
-                                                   time_ns() - start_time))
+                                                   str(AllocationType.FIRST_ALLOCATION.value),
+                                                   compute_time=time_ns() - start_time))
 
             environment.add_agent(agent)
         return allocations

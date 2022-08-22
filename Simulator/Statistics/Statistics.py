@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List
 
 from ..Agents.PathAgents.PathAgent import PathAgent
 from ..Owners.Owner import Owner
-from ..Path.PathSegment import PathSegment
+from ..Allocation.PathSegment import PathSegment
 
 if TYPE_CHECKING:
     from ..Coordinates.Coordinate4D import Coordinate4D

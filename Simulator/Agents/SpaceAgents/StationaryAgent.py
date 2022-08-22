@@ -7,7 +7,7 @@ from .SpaceAgent import SpaceAgent
 if TYPE_CHECKING:
     from Simulator.Coordinates.Coordinate4D import Coordinate4D
     from Simulator.Simulator import Simulator
-    from Simulator.Path.SpaceSegment import SpaceSegment
+    from Simulator.Allocation.SpaceSegment import SpaceSegment
 
 
 class StationaryAgent(SpaceAgent, ABC):

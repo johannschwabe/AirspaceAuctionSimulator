@@ -1,10 +1,9 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 from .Allocation import Allocation
 
 if TYPE_CHECKING:
-    from ..Path.SpaceSegment import SpaceSegment
-    from .AllocationReason import AllocationReason
+    from ..Allocation.SpaceSegment import SpaceSegment
     from ..Agents.SpaceAgents.SpaceAgent import SpaceAgent
 
 
@@ -12,9 +11,10 @@ class SpaceAllocation(Allocation):
     def __init__(self,
                  agent: "SpaceAgent",
                  segments: List["SpaceSegment"],
-                 reason: "AllocationReason",
-                 compute_time: int = 0):
-        super().__init__(agent, segments, reason, compute_time)
+                 reason: str,
+                 compute_time: int = 0,
+                 colliding_agents_ids: Optional[List[int]] = None):
+        super().__init__(agent, segments, reason, compute_time=compute_time, colliding_agents_ids=colliding_agents_ids)
         self.agent: "SpaceAgent" = agent
         self.segments: List["SpaceSegment"] = segments
 

@@ -117,7 +117,7 @@ class AStar:
 
     def complete_path(self, path: List["Coordinate4D"], steps: int, agent: "PathAgent"):
         if len(path) == 0:
-            print(f"ASTAR failed: {'MaxIter' if steps == self.max_iter else 'No valid Path'}")
+            print(f"ASTAR failed: {'MaxIter' if steps == self.max_iter else 'No valid Allocation'}")
 
         wait_coords: List["Coordinate4D"] = []
         for near_coord in path:

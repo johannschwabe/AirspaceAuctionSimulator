@@ -3,8 +3,8 @@ from typing import List, Dict, TYPE_CHECKING
 if TYPE_CHECKING:
     from ..Agents.Agent import Agent
     from ..Coordinates.Coordinate4D import Coordinate4D
-    from ..Path.AllocationReason import AllocationReason
-    from ..Path.Segment import Segment
+    from ..Allocation.AllocationReason import AllocationReason
+    from ..Allocation.Segment import Segment
 
 
 class HistoryAgent:

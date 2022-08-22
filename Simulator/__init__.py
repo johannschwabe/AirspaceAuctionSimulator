@@ -7,6 +7,12 @@ from .Agents.PathAgents.ABAAgent import ABAAgent
 from .Agents.PathAgents.ABAgent import ABAgent
 from .Agents.PathAgents.ABCAgent import ABCAgent
 from .Agents.SpaceAgents.StationaryAgent import StationaryAgent
+# Allocation
+from .Allocation.AllocationType import AllocationType
+from .Allocation.PathAllocation import PathAllocation
+from .Allocation.PathSegment import PathSegment
+from .Allocation.SpaceAllocation import SpaceAllocation
+from .Allocation.SpaceSegment import SpaceSegment
 # Allocator
 from .Allocator.Allocator import Allocator
 # Bids
@@ -23,12 +29,5 @@ from .Owners.PathOwners.ABAOwner import ABAOwner
 from .Owners.PathOwners.ABCOwner import ABCOwner
 from .Owners.PathOwners.ABOwner import ABOwner
 from .Owners.SpaceOwners.StationaryOwner import StationaryOwner
-# Path
-from .Path.AllocationReason import AllocationReason
-from .Path.AllocationReasonType import AllocationReasonType
-from .Path.PathAllocation import PathAllocation
-from .Path.PathSegment import PathSegment
-from .Path.SpaceAllocation import SpaceAllocation
-from .Path.SpaceSegment import SpaceSegment
 # Simulator
 from .Simulator import Simulator

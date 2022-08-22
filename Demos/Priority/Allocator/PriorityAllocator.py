@@ -1,6 +1,8 @@
 from time import time_ns
 from typing import List, TYPE_CHECKING
 
+from Simulator.Allocation.AllocationReason import AllocationReason
+
 from Demos.Priority.AStar.PriorityAStar import PriorityAStar
 from Demos.Priority.Agents.PriorityABAgent import PriorityABAgent
 from Demos.Priority.Agents.PriorityStationaryAgent import PriorityStationaryAgent
@@ -9,13 +11,12 @@ from Demos.Priority.Bids.PriorityStationaryBid import PriorityStationaryBid
 from Demos.Priority.Owners.PriorityABOwner import PriorityABOwner
 from Demos.Priority.Owners.PriorityStationaryOwner import PriorityStationaryOwner
 from Simulator import Allocator
-from Simulator.Path import PathAllocation, PathSegment, SpaceSegment, SpaceAllocation
-from Simulator.Path.AllocationReason import AllocationReason
-from Simulator.Path.AllocationReasonType import AllocationReasonType
+from Simulator.Allocation import PathAllocation, PathSegment, SpaceSegment, SpaceAllocation
+from Simulator.Allocation.AllocationType import AllocationType
 
 if TYPE_CHECKING:
     from Simulator import Environment
-    from Simulator.Path.Allocation import Allocation
+    from Simulator.Allocation.Allocation import Allocation
 
 
 class PriorityAllocator(Allocator):
@@ -42,8 +43,8 @@ class PriorityAllocator(Allocator):
                 ab_path, collisions = astar.astar(bid.a, bid.b, agent, bid.flying)
                 new_path_segment = PathSegment(bid.a.to_inter_temporal(), bid.b.to_inter_temporal(), 0, ab_path)
                 reallocation_reason = AllocationReason(
-                    str(AllocationReasonType.FIRST_ALLOCATION.value)) if agent in agents else AllocationReason(
-                    str(AllocationReasonType.AGENT.value),
+                    str(AllocationType.FIRST_ALLOCATION.value)) if agent in agents else AllocationReason(
+                    str(AllocationType.AGENT.value),
                     [collision.id for collision in collisions])
                 to_add = to_add.union(collisions)
                 for agent_to_remove in collisions:
@@ -87,8 +88,8 @@ class PriorityAllocator(Allocator):
                                            reallocation.agent != agent_to_remove]
 
                     reallocation_reason = AllocationReason(
-                        str(AllocationReasonType.FIRST_ALLOCATION.value)) if agent in agents else AllocationReason(
-                        str(AllocationReasonType.AGENT.value),
+                        str(AllocationType.FIRST_ALLOCATION.value)) if agent in agents else AllocationReason(
+                        str(AllocationType.AGENT.value),
                         [collision.id for collision in blocking_agents])
                     env.allocate_space_for_agent(agent, space_segments)
                     if agent.id not in env.agents:

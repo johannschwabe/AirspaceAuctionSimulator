@@ -5,7 +5,7 @@ from Simulator.Agents.Agent import Agent
 from Simulator.Agents.AllocationType import AllocationType
 
 if TYPE_CHECKING:
-    from Simulator.Path.SpaceSegment import SpaceSegment
+    from Simulator.Allocation.SpaceSegment import SpaceSegment
     from Simulator.Simulator import Simulator
 
 

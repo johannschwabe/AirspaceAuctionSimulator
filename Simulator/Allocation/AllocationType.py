@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class AllocationReasonType(Enum):
+class AllocationType(Enum):
     FIRST_ALLOCATION = "FIRST_ALLOCATION"
     AGENT = "AGENT"
     BLOCKER = "BLOCKER"

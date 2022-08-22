@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
-    from ..Path.Allocation import Allocation
+    from ..Allocation.Allocation import Allocation
     from ..Agents.Agent import Agent
     from ..Environment.Environment import Environment
 

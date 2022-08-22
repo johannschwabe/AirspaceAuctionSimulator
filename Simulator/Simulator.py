@@ -4,7 +4,7 @@ from typing import List, TYPE_CHECKING, Dict
 from .History.History import History
 
 if TYPE_CHECKING:
-    from .Path.Allocation import Allocation
+    from .Allocation.Allocation import Allocation
     from .Agents.Agent import Agent
     from .Environment.Environment import Environment
     from .Allocator.Allocator import Allocator

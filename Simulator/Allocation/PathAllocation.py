@@ -1,10 +1,9 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 from .Allocation import Allocation
 
 if TYPE_CHECKING:
-    from ..Path.PathSegment import PathSegment
-    from .AllocationReason import AllocationReason
+    from ..Allocation.PathSegment import PathSegment
     from ..Agents.PathAgents.PathAgent import PathAgent
 
 
@@ -12,9 +11,10 @@ class PathAllocation(Allocation):
     def __init__(self,
                  agent: "PathAgent",
                  segments: List["PathSegment"],
-                 reason: "AllocationReason",
-                 compute_time: int = 0):
-        super().__init__(agent, segments, reason, compute_time)
+                 reason: str,
+                 compute_time: int = 0,
+                 colliding_agents_ids: Optional[List[int]] = None):
+        super().__init__(agent, segments, reason, compute_time=compute_time, colliding_agents_ids=colliding_agents_ids)
         self.agent: "PathAgent" = agent
         self.segments: List["PathSegment"] = segments
 

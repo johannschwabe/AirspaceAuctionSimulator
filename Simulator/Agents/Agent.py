@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Optional, List
 
 if TYPE_CHECKING:
-    from ..Path.Segment import Segment
+    from ..Allocation.Segment import Segment
     from ..Simulator import Simulator
     from ..Bids.Bid import Bid
 

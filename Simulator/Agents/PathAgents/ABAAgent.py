@@ -6,7 +6,7 @@ from .ABAgent import ABAgent
 
 if TYPE_CHECKING:
     from Simulator.Coordinates.Coordinate4D import Coordinate4D
-    from Simulator.Path.PathSegment import PathSegment
+    from Simulator.Allocation.PathSegment import PathSegment
     from Simulator.Simulator import Simulator
 
 

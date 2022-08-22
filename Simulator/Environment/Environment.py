@@ -5,16 +5,16 @@ from rtree import index, Index
 from ..Agents.PathAgents.PathAgent import PathAgent
 from ..Agents.SpaceAgents.SpaceAgent import SpaceAgent
 from ..Blocker.BlockerType import BlockerType
-from ..Path.PathAllocation import PathAllocation
-from ..Path.SpaceAllocation import SpaceAllocation
+from ..Allocation.PathAllocation import PathAllocation
+from ..Allocation.SpaceAllocation import SpaceAllocation
 
 if TYPE_CHECKING:
     from ..Blocker.Blocker import Blocker
     from ..Coordinates.Coordinate4D import Coordinate4D
     from ..Agents.Agent import Agent
-    from ..Path.Allocation import Allocation
-    from ..Path.PathSegment import PathSegment
-    from ..Path.SpaceSegment import SpaceSegment
+    from ..Allocation.Allocation import Allocation
+    from ..Allocation.PathSegment import PathSegment
+    from ..Allocation.SpaceSegment import SpaceSegment
 
 
 class Environment:

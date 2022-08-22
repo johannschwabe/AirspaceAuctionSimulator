@@ -9,14 +9,14 @@ from ..Statistics.Statistics import Statistics
 
 if TYPE_CHECKING:
     from ..Coordinates import Coordinate4D
-    from ..Path.AllocationReason import AllocationReason
+    from ..Allocation.AllocationReason import AllocationReason
     from ..Agents.Agent import Agent
     from ..Blocker.Blocker import Blocker
     from ..Blocker.BuildingBlocker import BuildingBlocker
     from ..Blocker.DynamicBlocker import DynamicBlocker
     from ..Blocker.StaticBlocker import StaticBlocker
     from ..History.HistoryAgent import HistoryAgent
-    from ..Path.PathSegment import PathSegment
+    from ..Allocation.PathSegment import PathSegment
     from ..Simulator import Simulator
 
 
