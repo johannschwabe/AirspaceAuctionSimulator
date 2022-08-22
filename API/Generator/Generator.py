@@ -2,21 +2,12 @@ import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
 from API.Generator.EnvironmentGen import EnvironmentGen
-from Simulator import Simulator
-from Simulator.Coordinates.Coordinate2D import Coordinate2D
-from Simulator.Coordinates.Coordinate4D import Coordinate4D
-from Simulator.History.History import History
-from Simulator.Owners.Location.GridLocation import GridLocation
-from Simulator.Owners.Location.GridLocationType import GridLocationType
-from Simulator.Owners.Location.Heatmap import Heatmap
-from Simulator.Owners.Location.HeatmapType import HeatmapType
-from Simulator.Owners.Owner import Owner
-from Simulator.Statistics.Statistics import Statistics
+from Simulator import GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator
 
 if TYPE_CHECKING:
     from MapTile import MapTile
-    from Simulator.Allocator import Allocator
-    from Simulator.Environment import Environment
+    from Simulator import Allocator, Coordinate4D, Owner, Environment, History, Statistics
+
     from API.API import APIOwner
 
 

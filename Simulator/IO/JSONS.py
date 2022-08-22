@@ -204,7 +204,7 @@ def build_json(simulator: "Simulator", total_compute_time: int):
     owners: List["JSONOwner"] = []
     for owner in history.owners:
         agents: List["JSONAgent"] = []
-        non_colliding_values = calculate_non_colliding_values(owner.agents, stats)
+        non_colliding_values = _calculate_non_colliding_values(owner.agents, stats)
         for agent in owner.agents:
             if isinstance(agent, PathAgent):
                 path_stats = stats.path_statistics(agent.get_allocated_coords())
@@ -237,7 +237,7 @@ def build_json(simulator: "Simulator", total_compute_time: int):
     return json_simulation.as_dict()
 
 
-def calculate_non_colliding_values(agents: List["Agent"], stats: "Statistics"):
+def _calculate_non_colliding_values(agents: List["Agent"], stats: "Statistics"):
     res = {}
     non_colliding_values = []
     for agent in agents:

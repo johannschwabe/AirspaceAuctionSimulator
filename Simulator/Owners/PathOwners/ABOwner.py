@@ -1,3 +1,4 @@
+import math
 import random
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, List
@@ -36,9 +37,9 @@ class ABOwner(PathOwner, ABC):
             target = self.generate_stop_coordinate(self.stops[-1], simulator.environment, t, near_radius, speed)
 
             distance = start.inter_temporal_distance(target)
-            travel_time = distance * speed
+            travel_time = math.ceil(distance) * speed
             target.t = min(start.t + travel_time + random.randint(0, 100), simulator.environment.dimension.t)
-            battery = travel_time * 2
+            battery: int = travel_time * 2
             agent = self.initialize_agent(start, target, simulator, speed, battery, near_radius)
             res.append(agent)
             print(f"A-B created {str(agent)}: {start} -> {target}")

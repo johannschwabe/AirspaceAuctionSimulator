@@ -1,8 +1,8 @@
-import cloudscraper
 from typing import List, TYPE_CHECKING
 
-from Simulator.Blocker.BuildingBlocker import BuildingBlocker
-from Simulator.Coordinates import Coordinate4D
+import cloudscraper
+
+from Simulator import Coordinate4D, BuildingBlocker
 
 if TYPE_CHECKING:
     from API.API import APISimpleCoordinates
@@ -13,7 +13,7 @@ class MapTile:
     def __init__(
         self,
         tile_ids: List[int],
-        dimensions: Coordinate4D,
+        dimensions: "Coordinate4D",
         top_left_coordinate: "APISimpleCoordinates",
         bottom_right_coordinate: "APISimpleCoordinates",
     ):

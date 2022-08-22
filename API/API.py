@@ -10,11 +10,9 @@ from fastapi import HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from API.Generator.Generator import Generator
-from API.Generator.MapTile import MapTile
-from Simulator.Coordinates.Coordinate4D import Coordinate4D
-from Simulator.IO.JSONS import build_json
-from Simulator.Owners.PathOwner import PathOwner
+from Simulator import Coordinate4D, build_json
+from .Generator.Generator import Generator
+from .Generator.MapTile import MapTile
 from .config import available_allocators
 
 app = FastAPI()
@@ -120,7 +118,7 @@ def get_owners_for_allocator(allocator_name):
              "label": owner.label,
              "meta": owner.meta,
              "description": owner.description,
-             "ownerType": "PathOwner" if issubclass(owner, PathOwner) else "SpaceOwner",
+             "ownerType": owner.allocation_type,
              "minLocations": owner.min_locations,
              "maxLocations": owner.max_locations
              } for owner in allocator.compatible_owner()]
@@ -136,8 +134,6 @@ def read_root(config: APISimulationConfig):
                     config.map.tiles]
     else:
         maptiles = []
-
-    Coordinate4D.dim = dimensions
 
     allocators = list(filter(lambda x: (x.__name__ == config.allocator), available_allocators))
     if len(allocators) != 1:

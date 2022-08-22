@@ -1,3 +1,4 @@
+import math
 import random
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, List
@@ -43,7 +44,7 @@ class ABAOwner(PathOwner, ABC):
 
             stay = random.randint(0, 100)
             distance = start.inter_temporal_distance(target)
-            travel_time = distance * speed
+            travel_time = math.ceil(distance) * speed
             target.t = min(start.t + travel_time + stay + random.randint(0, 100), simulator.environment.dimension.t)
             battery = travel_time * 4
             agent = self.initialize_agent(start, target, simulator, speed, battery, stay, near_radius)

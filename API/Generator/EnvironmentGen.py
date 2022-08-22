@@ -1,7 +1,6 @@
 from typing import List
 
-from Simulator.Coordinates.Coordinate4D import Coordinate4D
-from Simulator.Environment.Environment import Environment
+from Simulator import Coordinate4D, Environment
 from .MapTile import MapTile
 
 

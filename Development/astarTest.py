@@ -1,28 +1,27 @@
 import random
 from time import time_ns
 
-from Simulator.Agent import ABAgent
-
-from Simulator import Environment
-from Simulator.AStar.AStar import AStar
-from Simulator.Coordinates import Coordinate4D
-from Simulator.Owners import PathOwner, PathStop
-from API import APISimpleCoordinate
+from API.API import APISimpleCoordinates
+from API.Generator.EnvironmentGen import EnvironmentGen
 from API.Generator.MapTile import MapTile
+from Demos.FCFS.Agents.FCFSABAgent import FCFSABAgent
+from Demos.FCFS.Allocator.FCFSAllocator import FCFSAllocator
+from Simulator import AStar, Coordinate4D, ABOwner, GridLocation, GridLocationType, Simulator
 
 dimensions = Coordinate4D(831, 30, 831, 20000)
 
 
 def setup():
-    random.seed(3)
-    environment = Environment(dimensions, [], [MapTile(
+    random.seed(0)
+    environment = EnvironmentGen(dimensions, [MapTile(
         [15, 17161, 11475],
         dimensions,
-        APISimpleCoordinate(lat=47.376034633497596, long=8.536376953124991),
-        APISimpleCoordinate(lat=47.3685943521338, long=8.547363281249993)
-    )])
-    environment.init_blocker_tree()
-    return environment
+        APISimpleCoordinates(lat=47.376034633497596, long=8.536376953124991),
+        APISimpleCoordinates(lat=47.3685943521338, long=8.547363281249993)
+    )]).generate()
+    allocator = FCFSAllocator()
+    simulator = Simulator([], allocator, environment)
+    return simulator
 
 
 def readCoords(filename: str):
@@ -41,24 +40,24 @@ def readCoords(filename: str):
     return res
 
 
-def writeCoords(env: Environment, filename: str):
-    astar = AStar(env)
+def writeCoords(simulator: Simulator, filename: str):
+    astar = AStar(simulator.environment)
     f = open(filename, "w")
-    agent = ABAgent(Coordinate4D.random(dimensions), Coordinate4D.random(dimensions))
     nr_tests = 20
-    nr_success = 0
-    start_t = time_ns()
-    for _ in range(nr_tests):
-        start = PathOwner.generate_stop_coordinate(PathStop("random"), env, 0, 1, 1)
-        end = PathOwner.generate_stop_coordinate(PathStop("random"), env, 0, 1, 1)
+    for index in range(nr_tests):
+        print(f"Test {index}")
+        start = ABOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)),
+                                                 simulator.environment, 0, 1, 1)
+        end = ABOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)), simulator.environment,
+                                               0, 1, 1)
+        agent = FCFSABAgent(start, end, simulator)
         res, _ = astar.astar(start, end, agent)
         f.write(f"{start.x},{start.y},{start.z},{start.t}-{end.x},{end.y},{end.z},{end.t}-{len(res)}\n")
     f.close()
 
 
-def test(env: Environment, g_sum, height_adjust):
-    astar = AStar(env, max_iter=1_000_000, g_sum=g_sum, height_adjust=height_adjust)
-    agent = ABAgent(Coordinate4D.random(dimensions), Coordinate4D.random(dimensions))
+def testCoords(simulator: Simulator, g_sum, height_adjust):
+    astar = AStar(simulator.environment, max_iter=1_000_000, g_sum=g_sum, height_adjust=height_adjust)
     nr_tests = 20
     nr_success = 0
     start_t = time_ns()
@@ -67,6 +66,9 @@ def test(env: Environment, g_sum, height_adjust):
     sum_achieved_len = 0
 
     for segment in segments:
+        start = segment["start"]
+        end = segment["end"]
+        agent = FCFSABAgent(start, end, simulator)
         res, _ = astar.astar(segment["start"], segment["end"], agent)
         if len(res) > 0:
             nr_success += 1
@@ -79,16 +81,25 @@ def test(env: Environment, g_sum, height_adjust):
     )
 
 
-if __name__ == "__main__":
-    envi = setup()
+def write():
+    simulator = setup()
+    writeCoords(simulator, "Development/optimal_paths.txt")
+
+
+def test():
+    simulator = setup()
     print("g sum: 0.1")
-    test(envi, 0.1, False)
+    testCoords(simulator, 0.1, False)
     print()
     print("g sum: 0.2")
-    test(envi, 0.2, False)
+    testCoords(simulator, 0.2, False)
     print()
     print("g sum: 0.3")
-    test(envi, 0.3, False)
+    testCoords(simulator, 0.3, False)
     print()
     print("height adjust")
-    test(envi, 0.2, True)
+    testCoords(simulator, 0.2, True)
+
+
+if __name__ == "__main__":
+    write()
