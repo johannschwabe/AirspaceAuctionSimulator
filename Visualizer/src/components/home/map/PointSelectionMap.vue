@@ -36,6 +36,7 @@ const owner = computed(() => {
 });
 
 onMounted(() => {
+  console.log("mounting");
   restorePositionFeatures(features, owner.value.locations[props.locationIndex].points);
   render();
   if (!props.disabled) {
