@@ -12,14 +12,11 @@ if TYPE_CHECKING:
 
 class History:
     def __init__(self, allocator: "Allocator", env: "Environment", owners: List["Owner"]):
-        self.agents: Dict["Agent", HistoryAgent] = {}
+        self.agents: Dict["Agent", "HistoryAgent"] = {}
         self.owners: List["Owner"] = owners
         self.allocator: "Allocator" = allocator
         self.env: "Environment" = env
         self.compute_times: Dict[int, int] = {}
-
-    def set_owners(self, owners: List["Owner"]):
-        self.owners = owners
 
     def add_new_agents(self, agents: List["Agent"], time_step: int):
         for agent in agents:

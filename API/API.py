@@ -152,5 +152,6 @@ def read_root(config: APISimulationConfig):
     end_time = time.time_ns()
     duration = int((end_time - start_time) / 1e9)
     print("--Simulation Completed--")
-    json = build_json(config, g.simulator, duration)
+    json = build_json(g.simulator, duration)
+    json["config"] = config
     return json
