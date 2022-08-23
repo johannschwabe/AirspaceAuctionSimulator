@@ -7,7 +7,6 @@ export default class Agent {
    */
   constructor(rawAgent, owner, simulation) {
     this.agentType = rawAgent.agent_type;
-    this.allocationType = rawAgent.allocation_type;
     this.id = rawAgent.id;
     this.name = rawAgent.name;
     this.utility = rawAgent.utility;

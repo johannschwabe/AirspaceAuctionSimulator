@@ -38,11 +38,9 @@ export default class Owner {
      */
     this.agents = rawOwner.agents.map((agent) => {
       switch (agent.agent_type) {
-        case AgentType.STATIONARY:
+        case AgentType.SPACE:
           return new SpaceAgent(agent, this, simulation);
-        case AgentType.AB:
-        case AgentType.ABA:
-        case AgentType.ABC:
+        case AgentType.PATH:
           return new PathAgent(agent, this, simulation);
         default:
           throw new Error("Invalid agent type!");
