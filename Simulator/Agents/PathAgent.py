@@ -15,7 +15,7 @@ class PathAgent(Agent, ABC):
     DEFAULT_SPEED = 1
     DEFAULT_BATTERY = 100_000
 
-    allocation_type: str = AgentType.PATH.value
+    agent_type: str = AgentType.PATH.value
 
     def __init__(self,
                  locations: List["Coordinate4D"],

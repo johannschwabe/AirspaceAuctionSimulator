@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class SpaceAgent(Agent, ABC):
-    allocation_type: str = AgentType.SPACE.value
+    agent_type: str = AgentType.SPACE.value
 
     def __init__(self,
                  blocks: List[List["Coordinate4D"]],

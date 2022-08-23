@@ -53,7 +53,6 @@ class JSONAgent(ABC):
         owner_name: str,
     ):
         self.agent_type: str = agent.agent_type
-        self.allocation_type: str = agent.allocation_type
         self.id: int = agent.id
         self.utility: float = agent.get_allocated_value()
 
@@ -187,7 +186,7 @@ class JSONSimulation(Stringify):
         self.statistics: "JSONStatistics" = jsonStatistics
         self.owners: List["JSONOwner"] = owners
         self.compute_time: int = total_compute_time
-        self.step_compute_time: int = step_compute_time
+        self.step_compute_time: Dict[int, int] = step_compute_time
 
 
 def build_json(simulator: "Simulator", total_compute_time: int):

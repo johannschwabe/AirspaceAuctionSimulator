@@ -68,7 +68,7 @@ class FCFSAllocator(Allocator):
             bid = agent.get_bid(tick)
 
             # Allocation Agents
-            if agent.allocation_type == AgentType.PATH.value:
+            if agent.agent_type == AgentType.PATH.value:
                 optimal_path_segments = self.allocate_path(agent, bid, astar)
 
                 if optimal_path_segments is None:
@@ -84,7 +84,7 @@ class FCFSAllocator(Allocator):
                                                   compute_time=time_ns() - start_time))
 
             # Space Agents
-            elif agent.allocation_type == AgentType.SPACE.value:
+            elif agent.agent_type == AgentType.SPACE.value:
                 optimal_path_segments = self.allocate_space(agent, bid, environment)
 
                 environment.allocate_space_for_agent(agent, optimal_path_segments)

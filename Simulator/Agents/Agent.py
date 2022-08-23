@@ -9,7 +9,6 @@ if TYPE_CHECKING:
 
 class Agent(ABC):
     agent_type: str
-    allocation_type: str
 
     def __init__(self,
                  simulator: "Simulator",
