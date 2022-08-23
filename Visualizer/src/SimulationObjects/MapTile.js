@@ -29,7 +29,7 @@ export default class MapTile {
   }
 
   haversin_lon_lat(pos) {
-    const x =
+    let x =
       (2 *
         EARTH_RADIUS *
         Math.asin(
@@ -40,9 +40,16 @@ export default class MapTile {
           )
         )) /
       this.resolution;
-    const z =
+    let z =
       (2 * EARTH_RADIUS * Math.asin(Math.sqrt(Math.sin(this.radian((pos.lat - this.bottomLeft.lat) / 2)) ** 2))) /
       this.resolution;
+
+    if (pos.long < this.bottomLeft.long) {
+      x *= -1;
+    }
+    if (pos.lat < this.bottomLeft.lat) {
+      z *= -1;
+    }
     return { x, z };
   }
 

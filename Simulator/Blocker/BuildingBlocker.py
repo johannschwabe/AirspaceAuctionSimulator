@@ -2,15 +2,16 @@ from typing import List
 
 from .StaticBlocker import StaticBlocker
 from shapely.geometry import Polygon, Point, box
-from ..Coordinate import Coordinate4D
+from ..Coordinate import Coordinate4D, Coordinate3D
 
 
 class BuildingBlocker(StaticBlocker):
-    def __init__(self, vertices: List[List[float]], bounds: List[Coordinate4D], holes: List[List[List[float]]]):
+    def __init__(self, vertices: List[List[float]], bounds: List[Coordinate3D], holes: List[List[List[float]]], id:str):
         super().__init__(bounds[0], bounds[1] - bounds[0])
         self.points = vertices
         self.holes = holes
         self.polygon = Polygon(vertices, holes.reverse())
+        self.b_id = id
 
     def is_blocking(self, coord: Coordinate4D, radius: int = 0):
         point = Point(coord.x, coord.z)
