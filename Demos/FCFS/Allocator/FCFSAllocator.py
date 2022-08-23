@@ -97,8 +97,8 @@ class FCFSAllocator(Allocator):
     def allocate_stationary(agent, bid, environment):
         optimal_path_segments = []
         for block in bid.blocks:
-            block_valid = environment.is_space_valid_for_allocation(block[0], block[1], agent)
-            if block_valid:
+            intersecting_agents = environment.other_agents_in_space(block[0], block[1], agent)
+            if len(intersecting_agents) == 0:
                 optimal_path_segments.append(SpaceSegment(block[0], block[1]))
         return optimal_path_segments
 

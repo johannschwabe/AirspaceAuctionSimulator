@@ -1,4 +1,4 @@
-from typing import List, Dict, TYPE_CHECKING, Optional
+from typing import List, Dict, TYPE_CHECKING, Optional, Set
 
 from rtree import index, Index
 
@@ -297,20 +297,18 @@ class Environment:
         if isinstance(agent, PathAgent):
             return not self.is_blocked_by_agent(coords, agent) and not self.is_blocked(coords, agent)
 
-    def is_space_valid_for_allocation(self,
-                                      bottom_left: "Coordinate4D",
-                                      top_right: "Coordinate4D",
-                                      agent: "SpaceAgent") -> bool:
+    def other_agents_in_space(self,
+                              bottom_left: "Coordinate4D",
+                              top_right: "Coordinate4D",
+                              agent: "SpaceAgent") -> Set["Agent"]:
         """
-        Returns True if the given space is not blocked by any agent or blocker.
+        Returns a set of all agents in the given space that are not the given agent.
         """
-        intersections = self.intersect_space(bottom_left, top_right)
-        for intersected_agent_id in intersections:
-            if agent.id != intersected_agent_id:
-                return False
-        return not self.is_space_blocked(bottom_left, top_right)
+        intersections = self._intersect_space(bottom_left, top_right)
+        other_agents = [self.agents[agent_id] for agent_id in intersections if agent_id != agent.id]
+        return set(other_agents)
 
-    def intersect_space(self, bottom_left: "Coordinate4D", top_right: "Coordinate4D"):
+    def _intersect_space(self, bottom_left: "Coordinate4D", top_right: "Coordinate4D"):
         """
         Returns all agents intersecting with the given space.
         """
