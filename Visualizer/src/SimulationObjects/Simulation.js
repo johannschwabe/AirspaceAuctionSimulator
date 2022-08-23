@@ -18,7 +18,6 @@ export default class Simulation {
    * @param {RawSimulation} rawSimulation
    */
   constructor(rawSimulation) {
-    console.log(rawSimulation);
     this._simulationStore = useSimulationStore();
 
     this.name = rawSimulation.config.name;

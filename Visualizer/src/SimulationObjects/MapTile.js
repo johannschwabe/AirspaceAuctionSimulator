@@ -1,5 +1,4 @@
 import axios from "axios";
-import { fromLonLat } from "ol/proj";
 
 const EARTH_RADIUS = 6371008.8;
 
@@ -14,9 +13,6 @@ export default class MapTile {
     const { x, z } = this.haversin_lon_lat(this.topRight);
     this.dimZ = z;
     this.dimX = x;
-    /**
-     * @type {{height: number, coordinates: {x: number, y: number}}[]}
-     */
     this.buildings = [];
   }
 

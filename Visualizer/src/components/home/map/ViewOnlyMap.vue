@@ -77,7 +77,6 @@ function fromConfig() {
     simulationConfig.map.subselection?.topRight.lat,
   ]);
   if (!nothingSelected) {
-    console.log("updating");
     const extent = features.item(0).getGeometry().getExtent();
     const bottomLeftCurrent = [extent[0], extent[1]];
     const topRightCurrent = [extent[2], extent[3]];
@@ -89,7 +88,6 @@ function fromConfig() {
       Math.abs(topRightNewPM[1] - topRightCurrent[1]) > 0.00001;
   }
   if (selectionChanged || nothingSelected) {
-    console.log("updating");
     features.clear();
     features.push(
       new Feature({

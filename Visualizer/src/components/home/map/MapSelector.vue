@@ -69,7 +69,6 @@ const simulationConfig = useSimulationConfigStore();
 // OSM Source and grid definitions
 const source = new OSM();
 const grid = source.getTileGrid();
-// const SINGLE_TILE_SIDE_LENGTH = 830.8261666462096;
 
 // Prefilled address query
 const addressQuery = ref("Zurich, Switzerland");

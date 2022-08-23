@@ -181,13 +181,6 @@ export const useMap = (mapRoot, layers, subselection = false) => {
     }
   });
 
-  // const extend = [
-  //   simulationConfig.map.bottomLeftCoordinate.long,
-  //   simulationConfig.map.bottomLeftCoordinate.lat,
-  //   simulationConfig.map.topRightCoordinate.long,
-  //   simulationConfig.map.topRightCoordinate.lat,
-  // ];
-
   /**
    * Function that mounts the OL Map to the provided HTML element.
    * This method should be called onMount
@@ -202,7 +195,7 @@ export const useMap = (mapRoot, layers, subselection = false) => {
 
       // the map view only shows the selected tiles
       view: new View({
-        zoom: 0,
+        zoom: zoom.value,
         center: center.value,
         extent: extent.value,
         showFullExtent: true,
@@ -212,8 +205,6 @@ export const useMap = (mapRoot, layers, subselection = false) => {
 
   return {
     map,
-    // topLeft,
-    // bottomRight,
     extent,
     min,
     max,
@@ -236,7 +227,6 @@ export const useHeatmapInteraction = (map, features, location) => {
     const coords = event.coordinate;
     const [long, lat] = toLonLat(coords);
 
-    // Inverted x coordinate
     let fittingEntry = location.points.find((coord) => coord.long === long && coord.lat === lat);
     if (!fittingEntry) {
       const newLocation = { lat, long, value: 0.0 };
@@ -265,7 +255,6 @@ export const usePositionInteraction = (map, features, location) => {
     location.points = [{ lat, long, value: 1.0 }];
     features.pop();
     features.push(new Feature(new Point(coords)));
-    // }
   };
 
   map.value.on("click", onClickOrDrag);
