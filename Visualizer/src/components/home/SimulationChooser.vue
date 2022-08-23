@@ -1,10 +1,5 @@
 <template>
-  <n-select
-    filterable
-    v-model:value="selectedModel"
-    :options="options"
-    placeholder="Choose predefined Simulation"
-  />
+  <n-select filterable v-model:value="selectedModel" :options="options" placeholder="Choose predefined Simulation" />
 </template>
 
 <script setup>
@@ -28,6 +23,28 @@ const options = [
       {
         label: "Barcelona Port",
         value: "barcelona-port",
+      },
+    ],
+  },
+  {
+    type: "group",
+    label: "UBS",
+    key: "ubs",
+    children: [
+      {
+        label: "UBS Paradeplatz",
+        value: "UBS",
+      },
+    ],
+  },
+  {
+    type: "group",
+    label: "Grossmünster",
+    key: "GB",
+    children: [
+      {
+        label: "Grossmünster",
+        value: "Grossmünster",
       },
     ],
   },

@@ -37,6 +37,7 @@ const rectangleInteraction = new Draw({
 });
 
 onMounted(() => {
+  fromConfig();
   render();
   map.value.on("click", () => {
     if (firstClick) {
