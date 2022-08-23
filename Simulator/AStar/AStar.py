@@ -84,7 +84,7 @@ class AStar:
                     current_node = current_node.parent
 
                 reverse_path.append(current_node.position)
-                total_collisions.union(current_node.collisions)
+                total_collisions = total_collisions.union(current_node.collisions)
                 path = reverse_path[::-1]
                 break
 

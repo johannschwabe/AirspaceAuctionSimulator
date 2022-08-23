@@ -21,9 +21,35 @@ class PriorityPathAgent(PathAgent):
                          near_radius=near_radius)
         self.priority = priority
 
-    def get_bid(self, t: int):
-        flying = False  # TODO
-        return PriorityPathBid(self.battery, self.locations, self.stays, self.priority, flying)
+    def get_bid(self, t):
+        flying = False
+        locations = self.locations
+        battery = self.battery
+        stays = self.stays
+        start = None
+        if len(self.allocated_segments) > 0 and self.allocated_segments[0].min.t <= t:
+            index = 0
+            for i, segment in enumerate(self.allocated_segments):
+                if segment.max.t >= t:
+                    index = i
+                    if segment.min.t < t:
+                        flying = True
+                        for coordinate in segment.coordinates:
+                            if coordinate.t == t:
+                                start = coordinate.clone()
+                    else:
+                        start = self.allocated_segments[i - 1].max.clone()
+                        start.t += self.stays[i - 1]
+                    break
+            if start is None:
+                raise Exception(f"Invalid segments allocated at tick {t}: {self.allocated_segments}")
+
+            locations = self.locations[index + 1:]
+            locations.insert(0, start)
+
+            stays = self.stays[index:] if index < len(self.stays) else []
+
+        return PriorityPathBid(battery, locations, stays, self.priority, flying)
 
     def initialize_clone(self):
         clone = PriorityPathAgent(self.locations,

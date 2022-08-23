@@ -67,7 +67,7 @@ class FCFSAllocator(Allocator):
             start_time = time_ns()
             bid = agent.get_bid(tick)
 
-            # Allocation Agents
+            # Path Agents
             if agent.agent_type == AgentType.PATH.value:
                 optimal_path_segments = self.allocate_path(agent, bid, astar)
 
