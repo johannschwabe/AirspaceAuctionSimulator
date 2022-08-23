@@ -448,49 +448,46 @@ export function useDrones({ scene, droneCache, x, z, focusOnPathAgent, focusOnSp
   // Push new meshes for SPACE AGENTS
   simulation.activeSpaceAgents.forEach((agent) => {
     const spaces = agent.spaces.filter((s) => s.isActiveAtTick(simulation.tick));
+    const reservedSpaces = [];
+
+    if (droneCache[agent.id]) {
+      droneCache[agent.id].meshes.forEach((mesh) => {
+        mesh.dispose();
+      });
+      delete droneCache[agent.id];
+    }
+
     spaces.forEach((space) => {
-      const spaceIdx = agent.spaces.indexOf(space);
+      // Draw occupied field
+      const agentReservedSpace = MeshBuilder.CreateBox(`space-agent-${agent.id}`, {
+        height: space.dimensionY,
+        width: space.dimensionX,
+        depth: space.dimensionZ,
+      });
+      agentReservedSpace.color = new Color3.FromHexString(agent.color);
 
-      if (agent.id in droneCache && droneCache[agent.id].spaceIdx !== spaceIdx) {
-        droneCache[agent.id].meshes.forEach((mesh) => {
-          mesh.dispose();
-        });
-        delete droneCache[agent.id];
-      }
+      // create Material
+      const ownerMaterial = new StandardMaterial(getMaterialName(agent), scene);
+      ownerMaterial.diffuseColor = new Color3.FromHexString(agent.color);
+      agentReservedSpace.visibility = 0.66;
+      agentReservedSpace.material = ownerMaterial;
+      agentReservedSpace.isPickable = true;
+      agentReservedSpace.actionManager = new ActionManager(scene);
 
-      if (!(agent.id in droneCache)) {
-        // Draw occupied field
-        const agentReservedSpace = MeshBuilder.CreateBox(`space-agent-${agent.id}`, {
-          height: space.dimensionY,
-          width: space.dimensionX,
-          depth: space.dimensionZ,
-        });
-        agentReservedSpace.color = new Color3.FromHexString(agent.color);
+      agentReservedSpace.actionManager.registerAction(
+        new ExecuteCodeAction(ActionManager.OnPickTrigger, () => focusOnSpaceAgent({ agent, space }))
+      );
 
-        // create Material
-        const ownerMaterial = new StandardMaterial(getMaterialName(agent), scene);
-        ownerMaterial.diffuseColor = new Color3.FromHexString(agent.color);
-        agentReservedSpace.visibility = 0.66;
-        agentReservedSpace.material = ownerMaterial;
-        agentReservedSpace.isPickable = true;
-        agentReservedSpace.actionManager = new ActionManager(scene);
+      agentReservedSpace.position.x = space.originX - x / 2;
+      agentReservedSpace.position.y = space.originY;
+      agentReservedSpace.position.z = space.originZ - z / 2;
 
-        agentReservedSpace.actionManager.registerAction(
-          new ExecuteCodeAction(ActionManager.OnPickTrigger, () => focusOnSpaceAgent({ agent, space }))
-        );
-
-        droneCache[agent.id] = {
-          meshes: [agentReservedSpace],
-          spaceIdx,
-        };
-      }
-
-      // Update space position
-      const storedAgentReservedSpace = droneCache[agent.id].meshes[0];
-      storedAgentReservedSpace.position.x = space.originX - x / 2;
-      storedAgentReservedSpace.position.y = space.originY;
-      storedAgentReservedSpace.position.z = space.originZ - z / 2;
+      reservedSpaces.push(agentReservedSpace);
     });
+
+    droneCache[agent.id] = {
+      meshes: reservedSpaces,
+    };
   });
 
   // Push new meshes for PATH AGENTS
