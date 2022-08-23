@@ -1,8 +1,8 @@
-from Demos.FCFS.Bids.FCFSABCBid import FCFSABCBid
-from Simulator import ABCAgent
+from Demos.FCFS.Bids.FCFSPathBid import FCFSPathBid
+from Simulator import PathAgent
 
 
-class FCFSABCAgent(ABCAgent):
+class FCFSPathAgent(PathAgent):
     def __init__(self,
                  locations,
                  stays,
@@ -20,14 +20,14 @@ class FCFSABCAgent(ABCAgent):
                          near_radius=near_radius)
 
     def get_bid(self, _):
-        return FCFSABCBid(self.battery, self.locations, self.stays)
+        return FCFSPathBid(self.battery, self.locations, self.stays)
 
     def initialize_clone(self):
-        clone = FCFSABCAgent(self.locations,
-                             self.stays,
-                             self.simulator,
-                             agent_id=self.id,
-                             speed=self.speed,
-                             battery=self.battery,
-                             near_radius=self.near_radius)
+        clone = FCFSPathAgent(self.locations,
+                              self.stays,
+                              self.simulator,
+                              agent_id=self.id,
+                              speed=self.speed,
+                              battery=self.battery,
+                              near_radius=self.near_radius)
         return clone

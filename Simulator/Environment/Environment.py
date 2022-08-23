@@ -2,8 +2,8 @@ from typing import List, Dict, TYPE_CHECKING, Optional, Set
 
 from rtree import index, Index
 
-from ..Agents.PathAgents.PathAgent import PathAgent
-from ..Agents.SpaceAgents.SpaceAgent import SpaceAgent
+from ..Agents.PathAgent import PathAgent
+from ..Agents.SpaceAgent import SpaceAgent
 from ..Allocation.PathAllocation import PathAllocation
 from ..Allocation.SpaceAllocation import SpaceAllocation
 from ..Blocker.BlockerType import BlockerType

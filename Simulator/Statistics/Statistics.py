@@ -1,7 +1,7 @@
 import statistics
 from typing import TYPE_CHECKING, List
 
-from ..Agents.PathAgents.PathAgent import PathAgent
+from ..Agents.PathAgent import PathAgent
 from ..Allocation.PathSegment import PathSegment
 from ..Owners.Owner import Owner
 

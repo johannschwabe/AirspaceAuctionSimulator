@@ -3,8 +3,8 @@ from abc import ABC
 from typing import Dict, List, TYPE_CHECKING
 
 from .Stringify import Stringify
-from ..Agents.PathAgents.PathAgent import PathAgent
-from ..Agents.SpaceAgents.SpaceAgent import SpaceAgent
+from ..Agents.PathAgent import PathAgent
+from ..Agents.SpaceAgent import SpaceAgent
 from ..Blocker.BuildingBlocker import BuildingBlocker
 from ..Blocker.DynamicBlocker import DynamicBlocker
 from ..Blocker.StaticBlocker import StaticBlocker

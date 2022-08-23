@@ -1,8 +1,8 @@
-from Demos.Priority.Bids.PriorityABCBid import PriorityABCBid
-from Simulator import ABCAgent
+from Demos.Priority.Bids.PriorityPathBid import PriorityPathBid
+from Simulator import PathAgent
 
 
-class PriorityABCAgent(ABCAgent):
+class PriorityPathAgent(PathAgent):
     def __init__(self,
                  locations,
                  priority,
@@ -23,15 +23,15 @@ class PriorityABCAgent(ABCAgent):
 
     def get_bid(self, t: int):
         flying = False  # TODO
-        return PriorityABCBid(self.battery, self.locations, self.stays, self.priority, flying)
+        return PriorityPathBid(self.battery, self.locations, self.stays, self.priority, flying)
 
     def initialize_clone(self):
-        clone = PriorityABCAgent(self.locations,
-                                 self.priority,
-                                 self.simulator,
-                                 self.stays,
-                                 agent_id=self.id,
-                                 speed=self.speed,
-                                 battery=self.battery,
-                                 near_radius=self.near_radius)
+        clone = PriorityPathAgent(self.locations,
+                                  self.priority,
+                                  self.simulator,
+                                  self.stays,
+                                  agent_id=self.id,
+                                  speed=self.speed,
+                                  battery=self.battery,
+                                  near_radius=self.near_radius)
         return clone

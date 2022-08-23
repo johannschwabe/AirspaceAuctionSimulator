@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from ..Coordinates.Coordinate4D import Coordinate4D
 
 
-class ABCBid(Bid):
+class PathBid(Bid):
     def __init__(self, battery: int, locations: List["Coordinate4D"], stays: List[int]):
         super().__init__()
 

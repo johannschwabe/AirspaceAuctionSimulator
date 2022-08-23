@@ -2,8 +2,8 @@ import json
 import random
 
 from Demos.FCFS.Allocator.FCFSAllocator import FCFSAllocator
-from Demos.FCFS.Owners.FCFSABOwner import FCFSABOwner
-from Demos.FCFS.Owners.FCFSStationaryOwner import FCFSStationaryOwner
+from Demos.FCFS.Owners.FCFSPathOwner import FCFSPathOwner
+from Demos.FCFS.Owners.FCFSSpaceOwner import FCFSSpaceOwner
 from Simulator import Simulator, Coordinate4D
 from Simulator.Blocker.StaticBlocker import StaticBlocker
 from Simulator.Coordinates.Coordinate3D import Coordinate3D
@@ -24,19 +24,19 @@ def setup_empty(t):
 def simulate(env: Environment, t):
     allocator = FCFSAllocator()
     owners = [
-        FCFSABOwner(0,
-                    "Schnabeltier",
-                    color_generator(),
-                    [GridLocation(str(GridLocationType.RANDOM.value)),
-                     GridLocation(str(GridLocationType.RANDOM.value))],
-                    [random.randint(0, 5) for _ in range(10)]),
-        FCFSStationaryOwner(1,
-                            "Ghettotier",
-                            color_generator(),
-                            [GridLocation(str(GridLocationType.RANDOM.value)),
-                             GridLocation(str(GridLocationType.RANDOM.value))],
-                            [random.randint(0, 5) for _ in range(10)],
-                            Coordinate4D(25, 25, 25, 25))
+        FCFSPathOwner(0,
+                      "Schnabeltier",
+                      color_generator(),
+                      [GridLocation(str(GridLocationType.RANDOM.value)),
+                       GridLocation(str(GridLocationType.RANDOM.value))],
+                      [random.randint(0, 5) for _ in range(10)]),
+        FCFSSpaceOwner(1,
+                       "Ghettotier",
+                       color_generator(),
+                       [GridLocation(str(GridLocationType.RANDOM.value)),
+                        GridLocation(str(GridLocationType.RANDOM.value))],
+                       [random.randint(0, 5) for _ in range(10)],
+                       Coordinate4D(25, 25, 25, 25))
     ]
     simulator = Simulator(owners, allocator, env)
     while simulator.time_step < t:

@@ -7,7 +7,7 @@ from .Node import Node
 if TYPE_CHECKING:
     from ..Environment.Environment import Environment
     from ..Coordinates.Coordinate4D import Coordinate4D
-    from ..Agents.PathAgents.PathAgent import PathAgent
+    from ..Agents.PathAgent import PathAgent
 
 
 class AStar:

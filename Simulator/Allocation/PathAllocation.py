@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING, List, Optional
 from .Allocation import Allocation
 
 if TYPE_CHECKING:
-    from ..Allocation.PathSegment import PathSegment
-    from ..Agents.PathAgents.PathAgent import PathAgent
+    from .PathSegment import PathSegment
+    from ..Agents.PathAgent import PathAgent
 
 
 class PathAllocation(Allocation):

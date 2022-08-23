@@ -1,7 +1,7 @@
-from Simulator.Bids.StationaryBid import StationaryBid
+from Simulator.Bids.SpaceBid import SpaceBid
 
 
-class PriorityStationaryBid(StationaryBid):
+class PrioritySpaceBid(SpaceBid):
     def __init__(self, blocks, priority):
         super().__init__(blocks)
         self.priority = priority

@@ -1,7 +1,7 @@
-from Simulator import ABCBid
+from Simulator import PathBid
 
 
-class PriorityABCBid(ABCBid):
+class PriorityPathBid(PathBid):
     def __init__(self, battery, locations, stays, priority, flying):
         super().__init__(battery, locations, stays)
         self.priority = priority

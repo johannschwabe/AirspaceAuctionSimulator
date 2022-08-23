@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List, Optional, Set
 from ..Coordinates.Coordinate4D import Coordinate4D
 
 if TYPE_CHECKING:
-    from ..Agents.PathAgents.PathAgent import PathAgent
+    from ..Agents.PathAgent import PathAgent
     from ..Coordinates.Coordinate3D import Coordinate3D
 
 

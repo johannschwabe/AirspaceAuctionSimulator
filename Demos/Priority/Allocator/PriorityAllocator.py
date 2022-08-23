@@ -1,19 +1,19 @@
 from time import time_ns
 
 from Demos.Priority.AStar.PriorityAStar import PriorityAStar
-from Demos.Priority.Agents.PriorityABAgent import PriorityABAgent
-from Demos.Priority.Agents.PriorityStationaryAgent import PriorityStationaryAgent
-from Demos.Priority.Bids.PriorityABBid import PriorityABBid
-from Demos.Priority.Bids.PriorityStationaryBid import PriorityStationaryBid
-from Demos.Priority.Owners.PriorityABOwner import PriorityABOwner
-from Demos.Priority.Owners.PriorityStationaryOwner import PriorityStationaryOwner
+from Demos.Priority.Agents.PriorityPathAgent import PriorityPathAgent
+from Demos.Priority.Agents.PrioritySpaceAgent import PrioritySpaceAgent
+from Demos.Priority.Bids.PriorityPathBid import PriorityPathBid
+from Demos.Priority.Bids.PrioritySpaceBid import PrioritySpaceBid
+from Demos.Priority.Owners.PriorityPathOwner import PriorityPathOwner
+from Demos.Priority.Owners.PrioritySpaceOwner import PrioritySpaceOwner
 from Simulator import Allocator, PathSegment, AllocationReason, PathAllocation, SpaceSegment, SpaceAllocation
 
 
 class PriorityAllocator(Allocator):
     @staticmethod
     def compatible_owner():
-        return [PriorityABOwner, PriorityStationaryOwner]
+        return [PriorityPathOwner, PrioritySpaceOwner]
 
     def __init__(self):
         super().__init__()
@@ -27,7 +27,7 @@ class PriorityAllocator(Allocator):
             agent = max(to_add, key=lambda _agent: _agent.get_bid(tick).priority)
             to_add.remove(agent)
             bid = agent.get_bid(tick)
-            if isinstance(bid, PriorityABBid) and isinstance(agent, PriorityABAgent):
+            if isinstance(bid, PriorityPathBid) and isinstance(agent, PriorityPathAgent):
                 ab_path, collisions = astar.astar(bid.a, bid.b, agent, bid.flying)
                 new_path_segment = PathSegment(bid.a.to_inter_temporal(), bid.b.to_inter_temporal(), 0, ab_path)
                 allocation_reason = str(AllocationReason.FIRST_ALLOCATION.value) if agent in agents else str(
@@ -51,7 +51,7 @@ class PriorityAllocator(Allocator):
                                                   colliding_agents_ids=collision_ids)
                                    )
 
-            if isinstance(bid, PriorityStationaryBid) and isinstance(agent, PriorityStationaryAgent):
+            if isinstance(bid, PrioritySpaceBid) and isinstance(agent, PrioritySpaceAgent):
                 space_segments = []
                 blocking_agents = set()
                 for block in bid.blocks:
@@ -59,7 +59,7 @@ class PriorityAllocator(Allocator):
                     blocking_agents_block = set()
                     allocateable = True
                     for colliding_agent in intersecting_agents:
-                        if isinstance(colliding_agent, PriorityABAgent) and colliding_agent.priority < agent.priority:
+                        if isinstance(colliding_agent, PriorityPathAgent) and colliding_agent.priority < agent.priority:
                             blocking_agents_block.add(colliding_agent)
                         else:
                             allocateable = False

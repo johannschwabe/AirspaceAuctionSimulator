@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING, List, Optional
 from .Allocation import Allocation
 
 if TYPE_CHECKING:
-    from ..Allocation.SpaceSegment import SpaceSegment
-    from ..Agents.SpaceAgents.SpaceAgent import SpaceAgent
+    from .SpaceSegment import SpaceSegment
+    from ..Agents.SpaceAgent import SpaceAgent
 
 
 class SpaceAllocation(Allocation):

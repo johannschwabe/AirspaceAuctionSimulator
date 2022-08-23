@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from ..Coordinates.Coordinate4D import Coordinate4D
 
 
-class StationaryBid(Bid):
+class SpaceBid(Bid):
     def __init__(self, blocks: List[List["Coordinate4D"]]):
         super().__init__()
 
