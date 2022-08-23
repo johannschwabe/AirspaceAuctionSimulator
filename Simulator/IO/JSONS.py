@@ -190,7 +190,6 @@ class JSONEnvironment(Stringify):
         self.dimensions: "Coordinate4D" = dimensions
         self.blockers: List[JSONBlocker] = [JSONBlocker(blocker) for blocker in blockers if
                                             not isinstance(blocker, BuildingBlocker)]
-        # self.blockers: List[JSONBlocker] = [JSONBlocker(blocker) for blocker in blockers ]
         self.maptiles: List[JSONMaptile] = [JSONMaptile(maptile) for maptile in maptiles]
 
 

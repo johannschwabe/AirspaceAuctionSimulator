@@ -17,17 +17,6 @@ const router = useRouter();
 const options = [
   {
     type: "group",
-    label: "Ports",
-    key: "ports",
-    children: [
-      {
-        label: "Barcelona Port",
-        value: "barcelona-port",
-      },
-    ],
-  },
-  {
-    type: "group",
     label: "UBS",
     key: "ubs",
     children: [
