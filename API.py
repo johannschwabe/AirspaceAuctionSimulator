@@ -102,8 +102,6 @@ class APISimulationConfig(BaseModel):
     availableOwnersForAllocator: List[APIAvailableOwner]
 
 
-
-
 @app.get("/allocators")
 def get_allocators():
     return [_allocator.__name__ for _allocator in available_allocators]
@@ -139,9 +137,8 @@ def read_root(config: APISimulationConfig):
                               math.floor(size[1]),
                               config.map.timesteps)
 
-    maptiles = [MapTile(tile, dimensions, area) for tile in
+    maptiles = [MapTile(tile, area) for tile in
                 config.map.tiles]
-
 
     Coordinate4D.dim = dimensions
 

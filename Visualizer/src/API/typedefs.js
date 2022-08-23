@@ -128,7 +128,6 @@
  * @property {int} resolution
  * @property {{long: number, lat: number}} bottom_left_coordinate
  * @property {{long: number, lat: number}} top_right_coordinate
- * @property {RawTimeCoordinate} dimensions
  */
 
 /**

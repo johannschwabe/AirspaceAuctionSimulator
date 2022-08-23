@@ -11,29 +11,34 @@ if TYPE_CHECKING:
 
 
 class MapTile:
-
+    """
+    A single osmbuildings tile
+    Defined by tile coordinates by which all buildings within this tile can be requested
+    """
     def __init__(
         self,
         tile_ids: List[int],
-        dimensions: Coordinate4D,
         area: "Area"
     ):
+        """
+        :param tile_ids: int[3] - coordinates of the tile (In the tile-coordinate system)
+        :param area: Area - field bounds and resolution
+        """
         self.blockers = []
         self.z = tile_ids[0]
         self.x = tile_ids[1]
         self.y = tile_ids[2]
-        self.dimensions = dimensions
         self.area = area
 
     @property
     def url(self):
         return f"https://a.data.osmbuildings.org/0.2/anonymous/tile/{self.z}/{self.x}/{self.y}.json"
 
-    def is_in_subselection(self, coordinate):
-        return self.area.bottom_left.long < coordinate[0] < self.area.top_right.long and \
-               self.area.bottom_left.lat < coordinate[1] < self.area.top_right.lat
-
     def resolve_buildings(self):
+        """
+        Extract building information from tile and convert them to building blockers
+        :return: BuildingBlocker[]
+        """
         if len(self.blockers) > 0:
             return self.blockers
         raw_data = cloudscraper.create_scraper().get(self.url)
