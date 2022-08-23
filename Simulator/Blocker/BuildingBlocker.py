@@ -6,12 +6,11 @@ from ..Coordinate import Coordinate4D, Coordinate3D
 
 
 class BuildingBlocker(StaticBlocker):
-    def __init__(self, vertices: List[List[float]], bounds: List[Coordinate3D], holes: List[List[List[float]]], id:str):
+    def __init__(self, vertices: List[List[float]], bounds: List[Coordinate3D], holes: List[List[List[float]]]):
         super().__init__(bounds[0], bounds[1] - bounds[0])
         self.points = vertices
         self.holes = holes
         self.polygon = Polygon(vertices, holes)
-        self.b_id = id
 
     def is_blocking(self, coord: Coordinate4D, radius: int = 0):
         point = Point(coord.x, coord.z)

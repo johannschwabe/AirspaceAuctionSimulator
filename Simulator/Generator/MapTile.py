@@ -94,7 +94,7 @@ class MapTile:
                     top_right_grid[1] < min_z or \
                     max_x < 0 or max_z < 0:
                     continue
-                new_blocker = BuildingBlocker(coords, bounds, holes, building["id"])
+                new_blocker = BuildingBlocker(coords, bounds, holes)
                 res.append(new_blocker)
 
         self.blockers = res
