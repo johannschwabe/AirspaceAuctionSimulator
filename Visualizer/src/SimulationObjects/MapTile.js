@@ -1,17 +1,19 @@
 import axios from "axios";
 import { fromLonLat } from "ol/proj";
 
+const EARTH_RADIUS = 6371008.8;
+
 export default class MapTile {
   constructor(tile_ids, resolution, bottomLeft, topRight) {
     this.x = tile_ids[1];
     this.y = tile_ids[2];
-    this.y = tile_ids[2];
     this.z = tile_ids[0];
     this.bottomLeft = bottomLeft;
-    this.bottomLeftPM = fromLonLat([bottomLeft.long, bottomLeft.lat]);
     this.topRight = topRight;
-    this.topRightPM = fromLonLat([topRight.long, topRight.lat]);
     this.resolution = resolution;
+    const { x, z } = this.haversin_lon_lat(this.topRight);
+    this.dimZ = z;
+    this.dimX = x;
     /**
      * @type {{height: number, coordinates: {x: number, y: number}}[]}
      */
@@ -22,19 +24,33 @@ export default class MapTile {
     return `https://data.osmbuildings.org/0.2/anonymous/tile/${this.z}/${this.x}/${this.y}.json`;
   }
 
+  radian(degrees) {
+    return (degrees * Math.PI) / 180;
+  }
+
+  haversin_lon_lat(pos) {
+    const x =
+      (2 *
+        EARTH_RADIUS *
+        Math.asin(
+          Math.sqrt(
+            Math.cos(this.radian(this.bottomLeft.lat)) *
+              Math.cos(this.radian(pos.lat)) *
+              Math.sin(this.radian(pos.long - this.bottomLeft.long) / 2) ** 2
+          )
+        )) /
+      this.resolution;
+    const z =
+      (2 * EARTH_RADIUS * Math.asin(Math.sqrt(Math.sin(this.radian((pos.lat - this.bottomLeft.lat) / 2)) ** 2))) /
+      this.resolution;
+    return { x, z };
+  }
+
   extractPolygon(coords) {
-    const dimLat = (this.topRightPM[1] - this.bottomLeftPM[1]) / this.resolution;
-    const dimLong = (this.topRightPM[0] - this.bottomLeftPM[0]) / this.resolution;
-    console.log(dimLong, dimLat);
-    const coordPM = fromLonLat(coords);
-    // let z = (coordPM[0] - this.bottomLeftPM[0]) / this.resolution;
-    // let x = dimLat - (coordPM[1] - this.bottomLeftPM[1]) / this.resolution;
-    // x -= dimLat / 2;
-    // z -= dimLong / 2;
-    let x = (coordPM[0] - this.bottomLeftPM[0]) / this.resolution;
-    let z = (coordPM[1] - this.bottomLeftPM[1]) / this.resolution;
-    x -= dimLong / 2;
-    z -= dimLat / 2;
+    let { x, z } = this.haversin_lon_lat({ long: coords[0], lat: coords[1] });
+
+    x -= this.dimX / 2;
+    z -= this.dimZ / 2;
     return { x, z };
   }
 
@@ -61,7 +77,7 @@ export default class MapTile {
         return isFeature && hasHeight && isPolygon && hasCoordinates && inSubselection;
       })
       .map((feature) => {
-        const height = feature.properties.height;
+        const height = feature.properties.height / this.resolution;
         const coordinatesArray = feature.geometry.coordinates[0].map(([long, lat]) => this.extractPolygon([long, lat]));
         const holesArray = feature.geometry.coordinates.slice(1).map((hole) => {
           return hole.map(([long, lat]) => this.extractPolygon([long, lat]));

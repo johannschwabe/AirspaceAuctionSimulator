@@ -12,7 +12,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic.fields import Field
 
-from CoordinateTransformations import from_lon_lat, to_lon_lat
+from CoordinateTransformations import lon_lat_to_grid
 from Simulator.Coordinate import Coordinate4D
 from Simulator.Generator.Area import Area
 from Simulator.IO.JSONS import build_json
@@ -128,21 +128,17 @@ def get_owners_for_allocator(allocator_name):
 @app.post("/simulation")
 def read_root(config: APISimulationConfig):
     if config.map.subselection.bottomLeft and config.map.subselection.topRight:
-        bottom_left_pm = from_lon_lat([config.map.subselection.bottomLeft.long, config.map.subselection.bottomLeft.lat])
-        top_right_pm = from_lon_lat([config.map.subselection.topRight.long, config.map.subselection.topRight.lat])
+        area = Area(config.map.subselection.bottomLeft, config.map.subselection.topRight, config.map.resolution)
     else:
-        bottom_left_pm = from_lon_lat([config.map.bottomLeftCoordinate.long, config.map.bottomLeftCoordinate.lat])
-        top_right_pm = from_lon_lat([config.map.topRightCoordinate.long, config.map.topRightCoordinate.lat])
+        area = Area(config.map.bottomLeftCoordinate, config.map.topRightCoordinate, config.map.resolution)
 
-    size = [top_right_pm[0] - bottom_left_pm[0], top_right_pm[1] - bottom_left_pm[1]]
-    resolution = config.map.resolution
+    size = lon_lat_to_grid(area.bottom_left, area.resolution, area.top_right)
 
-    dimensions = Coordinate4D(math.ceil(size[0]/resolution),
+    dimensions = Coordinate4D(math.floor(size[0]),
                               config.map.height,
-                              math.ceil(size[1]/resolution),
+                              math.floor(size[1]),
                               config.map.timesteps)
-    area = Area(config.map.subselection.bottomLeft, config.map.subselection.topRight, config.map.resolution) if config.map.subselection.topRight and config.map.subselection.bottomLeft else \
-        Area(config.map.bottomLeftCoordinate, config.map.topRightCoordinate, config.map.resolution)
+
     maptiles = [MapTile(tile, dimensions, area) for tile in
                 config.map.tiles]
 

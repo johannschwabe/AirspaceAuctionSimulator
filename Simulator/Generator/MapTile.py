@@ -4,6 +4,7 @@ from typing import List, TYPE_CHECKING
 from CoordinateTransformations import lon_lat_to_grid
 from Simulator.Blocker.BuildingBlocker import BuildingBlocker
 from Simulator.Coordinate import Coordinate4D
+from Simulator.Generator.Area import LongLatCoordinate
 
 if TYPE_CHECKING:
     from Simulator.Generator.Area import Area
@@ -56,9 +57,8 @@ class MapTile:
                 min_z = 100000
                 max_z = -100000
                 for coord in building['geometry']['coordinates'][0]:
-                    translated_coords = lon_lat_to_grid([self.area.bottom_left.long,
-                                                         self.area.bottom_left.lat],
-                                                        self.area.resolution, coord)
+                    translated_coords = lon_lat_to_grid(self.area.bottom_left,
+                                                        self.area.resolution, LongLatCoordinate(coord[0], coord[1]))
                     coords.append(translated_coords)
                     x = translated_coords[0]
                     z = translated_coords[1]
@@ -72,19 +72,16 @@ class MapTile:
                         max_z = z
                 for hole in building['geometry']['coordinates'][1:]:
                     holes.append(
-                        [lon_lat_to_grid([self.area.bottom_left.long,
-                                          self.area.bottom_left.lat],
-                                         self.area.resolution, hole_coord) for hole_coord in hole])
+                        [lon_lat_to_grid(self.area.bottom_left,
+                                         self.area.resolution, LongLatCoordinate(hole_coord[0], hole_coord[1])) for hole_coord in hole])
 
                 bounds = [Coordinate4D(min_x, 0, min_z, 0),
-                          Coordinate4D(max_x, building['properties']['height'], max_z,
+                          Coordinate4D(max_x, building['properties']['height'] / self.area.resolution, max_z,
                                        self.dimensions.t + 1000)]  # Todo remove magic number 1000
 
-                top_right_grid = lon_lat_to_grid([self.area.bottom_left.long,
-                                                  self.area.bottom_left.lat],
+                top_right_grid = lon_lat_to_grid(self.area.bottom_left,
                                                  self.area.resolution,
-                                                 [self.area.top_right.long,
-                                                  self.area.top_right.lat])
+                                                 self.area.top_right,)
                 if min_x > top_right_grid[0] > 0 or \
                     min_x > top_right_grid[1] > 0 or \
                     max_x < 0 or max_z < 0:
