@@ -70,7 +70,7 @@
 /**
  * @typedef {Object} RawOwner
  * @property {string} name
- * @property {int} id
+ * @property {string} id
  * @property {string} color
  * @property {RawAgent[]} agents
  * @property {int} total_time_in_air

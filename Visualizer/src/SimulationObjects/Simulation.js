@@ -118,7 +118,7 @@ export default class Simulation {
           tile,
           rawSimulation.config.dimension,
           rawSimulation.config.map.topLeftCoordinate,
-          rawSimulation.config.map.bottomRightCoordiante
+          rawSimulation.config.map.bottomRightCoordinate
         )
     );
 
