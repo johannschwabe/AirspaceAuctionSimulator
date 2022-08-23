@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 class ABCBid(Bid):
     def __init__(self, battery: int, locations: List["Coordinate4D"], stays: List[int]):
-        super().__init__(battery)
+        super().__init__()
 
         self.battery: int = battery
         self.locations: List["Coordinate4D"] = locations

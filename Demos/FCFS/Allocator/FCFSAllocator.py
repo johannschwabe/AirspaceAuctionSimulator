@@ -45,16 +45,19 @@ class FCFSAllocator(Allocator):
             bid.b,
             agent,
         )
+
+        if len(ab_path) == 0 or ab_path[-1].t - ab_path[0].t > agent.battery:
+            return None
+
         b = ab_path[-1].clone()
         b.t += bid.stay
         ba_path, _ = astar.astar(
-            b.
+            b,
             bid.a2,
             agent,
         )
 
-        if len(ab_path) == 0 or len(ba_path) == 0 or ab_path[-1].t - ab_path[0].t + ba_path[-1].t - ba_path[
-            0].t > agent.battery:
+        if len(ba_path) == 0 or ab_path[-1].t - ab_path[0].t + ba_path[-1].t - ba_path[0].t > agent.battery:
             return None
 
         optimal_path_segments = [

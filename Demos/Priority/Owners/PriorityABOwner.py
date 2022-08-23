@@ -1,3 +1,5 @@
+import random
+
 from Demos.Priority.Agents.PriorityABAgent import PriorityABAgent
 from Simulator import ABOwner
 
@@ -6,7 +8,7 @@ class PriorityABOwner(ABOwner):
     label = "Priority A to B"
     description = "A priority owner with a priority going from A to B"
 
-    def __init__(self, owner_id, name, color, stops, creation_ticks, priority):
+    def __init__(self, owner_id, name, color, stops, creation_ticks, priority=random.random()):
         super().__init__(owner_id, name, color, stops, creation_ticks)
         self.priority = priority
 

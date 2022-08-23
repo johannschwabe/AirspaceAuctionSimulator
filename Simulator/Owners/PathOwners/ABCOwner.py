@@ -58,7 +58,7 @@ class ABCOwner(PathOwner):
             battery = total_travel_time * 4
             agent = self.initialize_agent(locations, stays, simulator, speed, battery, near_radius)
             res.append(agent)
-            print(f"A-B-C created {agent}, {','.join([str(loc) for loc in locations])}")
+            print(f"A-B-C created {agent}: {' -> '.join([str(loc) for loc in locations])}")
 
         self.agents += res
         return res

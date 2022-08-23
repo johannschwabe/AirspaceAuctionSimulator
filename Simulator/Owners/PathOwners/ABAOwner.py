@@ -49,7 +49,7 @@ class ABAOwner(PathOwner, ABC):
             battery = travel_time * 4
             agent = self.initialize_agent(start, target, simulator, speed, battery, stay, near_radius)
             res.append(agent)
-            print(f"A-B-A created {agent}: {start} --> {target}")
+            print(f"A-B-A created {agent}: {start} -> {target}")
 
         self.agents += res
         return res

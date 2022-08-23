@@ -42,12 +42,12 @@ class ABCAgent(PathAgent, ABC):
         value = 1.
         time = 0
         for path, location in zip(paths, self.locations[1:]):
-            destination = path[-1]
+            destination = path.max
             if not destination.inter_temporal_equal(location):
                 print("Invalid allocation!")
                 return 0.
 
-            time += destination.t - path[0].t
+            time += destination.t - path.min.t
             value -= (destination.t - location.t) / 100
 
         if time > self.battery:

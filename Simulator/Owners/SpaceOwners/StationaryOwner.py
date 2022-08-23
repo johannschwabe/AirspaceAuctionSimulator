@@ -68,7 +68,7 @@ class StationaryOwner(SpaceOwner):
                 blocks.append([bottom_left, top_right])
             agent = self.initialize_agent(simulator, blocks)
             res.append(agent)
-            print(f"Stationary created {agent}")
+            print(f"Stationary created {agent}: {', '.join([str(block) for block in blocks])}")
 
         self.agents += res
         return res

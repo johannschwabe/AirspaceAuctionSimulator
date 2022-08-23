@@ -122,7 +122,7 @@ class JSONPathAgent(JSONAgent, Stringify):
 class JSONOwner(Stringify):
     def __init__(self, name: str, owner_id: int, color: str, agents: List["JSONAgent"]):
         self.name: str = name
-        self.id: int = owner_id
+        self.id: str = f"owner-{owner_id}"
         self.color: str = color
         self.agents: List["JSONAgent"] = agents
         self.total_time_in_air: int = sum(

@@ -138,6 +138,12 @@ class AStar:
         in_air: bool = False,
     ) -> Tuple[List["Coordinate4D"], set["PathAgent"]]:
 
+        distance = start.inter_temporal_distance(end)
+        time_left = self.environment.dimension.t - start.t
+
+        if distance > time_left:
+            return [], set()
+
         valid_start, start_collisions = self.valid_start(start, agent, in_air)
 
         if valid_start is None:
