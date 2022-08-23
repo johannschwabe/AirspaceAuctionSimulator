@@ -10,7 +10,7 @@ class BuildingBlocker(StaticBlocker):
         super().__init__(bounds[0], bounds[1] - bounds[0])
         self.points = vertices
         self.holes = holes
-        self.polygon = Polygon(vertices, holes.reverse())
+        self.polygon = Polygon(vertices, holes)
         self.b_id = id
 
     def is_blocking(self, coord: Coordinate4D, radius: int = 0):
