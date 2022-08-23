@@ -393,7 +393,7 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
     });
 
     // Focus camera to base again
-    const target = new Vector3(0, y / 2, 0);
+    const target = new Vector3(0, 0, 0);
     camera.setTarget(target);
 
     focusCache.agent = undefined;
