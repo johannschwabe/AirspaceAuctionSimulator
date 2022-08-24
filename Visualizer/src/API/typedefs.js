@@ -46,7 +46,7 @@
  * @typedef {Object} RawAgent
  * @property {string} agent_type
  * @property {string} allocation_type
- * @property {int} id
+ * @property {string} id
  * @property {string} name
  * @property {int} speed
  * @property {int} near_radius
@@ -97,7 +97,7 @@
 
 /**
  * @typedef {Object} RawBlocker
- * @property {int} id
+ * @property {string} id
  * @property {string} blocker_type
  * @property {RawPath | undefined} [path]
  * @property {RawCoordinate | undefined} [location]
