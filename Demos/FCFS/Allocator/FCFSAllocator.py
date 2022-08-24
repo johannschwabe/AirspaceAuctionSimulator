@@ -18,9 +18,6 @@ class FCFSAllocator(Allocator):
     def compatible_owner():
         return [FCFSPathOwner, FCFSSpaceOwner]
 
-    def __init__(self):
-        super().__init__()
-
     @staticmethod
     def allocate_path(agent, bid, astar):
         a = bid.locations[0]

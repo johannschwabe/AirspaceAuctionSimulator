@@ -11,9 +11,6 @@ class PriorityAllocator(Allocator):
     def compatible_owner():
         return [PriorityPathOwner, PrioritySpaceOwner]
 
-    def __init__(self):
-        super().__init__()
-
     @staticmethod
     def allocate_path(agent, bid, astar):
         a = bid.locations[0]
