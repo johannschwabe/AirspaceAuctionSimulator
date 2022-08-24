@@ -2,12 +2,11 @@ from typing import List, TYPE_CHECKING
 
 import cloudscraper
 
-from Simulator import Coordinate4D, BuildingBlocker
+from Simulator import BuildingBlocker, Coordinate3D
 
 if TYPE_CHECKING:
-    from ..API import APIWorldCoordinates
     from ..Area import Area
-    from .LongLatCoordinate import LongLatCoordinate
+    from ..LongLatCoordinate import LongLatCoordinate
 
 
 class MapTile:
@@ -15,12 +14,10 @@ class MapTile:
     A single osmbuildings tile
     Defined by tile coordinates by which all buildings within this tile can be requested
     """
+
     def __init__(
         self,
         tile_ids: List[int],
-        dimensions: "Coordinate4D",
-        top_left_coordinate: "APIWorldCoordinates",
-        bottom_right_coordinate: "APIWorldCoordinates",
         area: "Area"
     ):
         """
@@ -88,9 +85,7 @@ class MapTile:
                           Coordinate3D(max_x, building['properties']['height'] / self.area.resolution, max_z)]
 
                 dimension = self.area.dimension
-                if dimension[0] < min_x or \
-                    dimension[1] < min_z or \
-                    max_x < 0 or max_z < 0:
+                if dimension[0] < min_x or dimension[1] < min_z or max_x < 0 or max_z < 0:
                     continue
                 new_blocker = BuildingBlocker(coords, bounds, holes)
                 res.append(new_blocker)

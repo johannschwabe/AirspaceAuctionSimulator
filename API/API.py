@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from pydantic.fields import Field
 
 from Simulator import Coordinate4D, build_json
+from .Area import Area
 from .Generator.Generator import Generator
 from .Generator.MapTile import MapTile
 from .config import available_allocators
@@ -36,14 +37,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+class APIWorldCoordinates(BaseModel):
+    long: float
+    lat: float
+
+
 class APIWeightedCoordinate(BaseModel):
     lat: float
     long: float
     value: float
 
+
 class APISubselection(BaseModel):
-    bottomLeft: Optional[APISimpleCoordinates] = Field(None)
-    topRight: Optional[APISimpleCoordinates] = Field(None)
+    bottomLeft: Optional["APIWorldCoordinates"] = Field(None)
+    topRight: Optional["APIWorldCoordinates"] = Field(None)
+
 
 class APILocations(BaseModel):
     type: str
@@ -60,11 +69,6 @@ class APIOwner(BaseModel):
     classname: str
     allocator: str
     locations: List[APILocations]
-
-
-class APIWorldCoordinates(BaseModel):
-    long: float
-    lat: float
 
 
 class APIMap(BaseModel):
@@ -136,8 +140,7 @@ def read_root(config: APISimulationConfig):
                               math.floor(size[1]),
                               config.map.timesteps)
 
-    maptiles = [MapTile(tile, area) for tile in
-                config.map.tiles]
+    maptiles = [MapTile(tile, area) for tile in config.map.tiles]
 
     allocators = list(filter(lambda x: (x.__name__ == config.allocator), available_allocators))
     if len(allocators) != 1:

@@ -1,10 +1,9 @@
-import math
 import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
 from Simulator import GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator
-from .Area import Area
 from .EnvironmentGen import EnvironmentGen
+from ..Area import Area
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
@@ -40,7 +39,7 @@ class Generator:
             elif location.type == GridLocationType.POSITION.value:
                 gridCoord = self.area.point_to_coordinate2D(location.points[0])
                 stops.append(GridLocation(str(GridLocationType.POSITION.value),
-                             position=gridCoord))
+                                          position=gridCoord))
             elif location.type == GridLocationType.HEATMAP.value:
                 heat_dict: Dict[float, List["Coordinate2D"]] = {}
                 for point in location.points:
