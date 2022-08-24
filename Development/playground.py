@@ -92,6 +92,6 @@ if __name__ == "__main__":
 
     res = build_json(simulatorAligator, 0)
     res["config"] = {"name": "test", "map": {"tiles": []}, "dimension": environment.dimension.to_dict(), "owners": []}
-    f = open("test.json", "w")
+    f = open("Development/playground.json", "w")
     f.write(json.dumps(res))
     f.close()
