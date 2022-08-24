@@ -129,10 +129,10 @@ def read_root(config: APISimulationConfig):
     else:
         area = Area(config.map.bottomLeftCoordinate, config.map.topRightCoordinate, config.map.resolution)
 
-    size = area.lon_lat_to_grid(area.top_right)
+    size = area.dimension
 
     dimensions = Coordinate4D(math.floor(size[0]),
-                              config.map.height,
+                              math.floor(config.map.height / area.resolution),
                               math.floor(size[1]),
                               config.map.timesteps)
 

@@ -25,13 +25,13 @@
 
         <!-- Dimension Height Input -->
         <n-grid-item span="1">
-          <n-form-item label="Height (Voxel)">
+          <n-form-item label="Height (m)">
             <n-input-number v-model:value="simulationConfig.map.height" :min="20" :max="1000" :step="10" />
           </n-form-item>
         </n-grid-item>
 
         <n-grid-item span="1">
-          <n-form-item label="Voxel width (m)">
+          <n-form-item label="Voxel size (m)">
             <n-slider v-model:value="simulationConfig.map.resolution" :max="20" :min="1" :step="1" />
           </n-form-item>
         </n-grid-item>

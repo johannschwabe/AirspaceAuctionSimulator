@@ -3,7 +3,7 @@ from typing import List, TYPE_CHECKING
 
 from Simulator.Blocker.BuildingBlocker import BuildingBlocker
 from Simulator.Coordinate import Coordinate3D
-from Simulator.Generator.Area import LongLatCoordinate
+from Simulator.Generator import LongLatCoordinate
 
 if TYPE_CHECKING:
     from Simulator.Generator.Area import Area
@@ -83,9 +83,9 @@ class MapTile:
                 bounds = [Coordinate3D(min_x, 0, min_z),
                           Coordinate3D(max_x, building['properties']['height'] / self.area.resolution, max_z)]
 
-                top_right_grid = self.area.lon_lat_to_grid(self.area.top_right)
-                if top_right_grid[0] < min_x or \
-                    top_right_grid[1] < min_z or \
+                dimension = self.area.dimension
+                if dimension[0] < min_x or \
+                    dimension[1] < min_z or \
                     max_x < 0 or max_z < 0:
                     continue
                 new_blocker = BuildingBlocker(coords, bounds, holes)

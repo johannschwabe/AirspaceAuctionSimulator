@@ -1,20 +1,13 @@
 from typing import TYPE_CHECKING
+
+from Simulator.Generator import LongLatCoordinate
+
 if TYPE_CHECKING:
     from API import APISimpleCoordinates
 import math
 from Simulator.Coordinate import Coordinate2D
 
 EARTH_RADIUS = 6371008.8
-
-
-class LongLatCoordinate:
-    """
-    Wrapper for long-lat coordinates
-    """
-    def __init__(self, long: float, lat: float):
-        self.long = long
-        self.lat = lat
-
 
 
 
@@ -28,6 +21,9 @@ class Area:
         self.top_right = LongLatCoordinate(top_right_ll.long, top_right_ll.lat)
         self.resolution = resolution
 
+    @property
+    def dimension(self):
+        return self.lon_lat_to_grid(self.top_right)
     def lon_lat_to_grid(self, coords):
         """
         Converts coordinates from longitude / latitude to our own "grid" coordinates. Resulting coordinates
