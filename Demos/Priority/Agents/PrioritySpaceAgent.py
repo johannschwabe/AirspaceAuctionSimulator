@@ -8,7 +8,7 @@ class PrioritySpaceAgent(SpaceAgent):
                  blocks,
                  priority,
                  _is_clone=False):
-        super().__init__(agent_id, blocks)
+        super().__init__(agent_id, blocks, _is_clone=_is_clone)
         self.priority = priority
 
     def get_bid(self, t: int):
