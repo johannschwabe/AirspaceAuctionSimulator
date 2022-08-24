@@ -121,20 +121,9 @@
  */
 
 /**
- * @typedef {Object} RawMapTile
- * @property {int} x
- * @property {int} y
- * @property {int} z
- * @property {int} resolution
- * @property {{long: number, lat: number}} bottom_left_coordinate
- * @property {{long: number, lat: number}} top_right_coordinate
- */
-
-/**
  * @typedef {Object} RawEnvironment
  * @property {RawTimeCoordinate} dimensions
  * @property {RawBlocker[]} blockers
- * @property {RawMapTile[]} maptiles
  */
 
 /**
