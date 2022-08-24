@@ -1,19 +1,22 @@
 import json
 import random
 
-from Demos.FCFS.Allocator.FCFSAllocator import FCFSAllocator
-from Demos.FCFS.Owners.FCFSPathOwner import FCFSPathOwner
-from Demos.FCFS.Owners.FCFSSpaceOwner import FCFSSpaceOwner
-from Demos.Priority.Allocator.PriorityAllocator import PriorityAllocator
-from Demos.Priority.Owners.PriorityPathOwner import PriorityPathOwner
-from Demos.Priority.Owners.PrioritySpaceOwner import PrioritySpaceOwner
-from Simulator import Simulator, Coordinate4D
-from Simulator.Blocker.StaticBlocker import StaticBlocker
-from Simulator.Coordinates.Coordinate3D import Coordinate3D
-from Simulator.Environment.Environment import Environment
-from Simulator.IO.JSONS import build_json
-from Simulator.Owners.Location.GridLocation import GridLocation
-from Simulator.Owners.Location.GridLocationType import GridLocationType
+from Demos import \
+    FCFSAllocator, \
+    FCFSSpaceOwner, \
+    FCFSPathOwner, \
+    PriorityAllocator, \
+    PrioritySpaceOwner, \
+    PriorityPathOwner
+from Simulator import \
+    Simulator, \
+    Coordinate4D, \
+    StaticBlocker, \
+    Coordinate3D, \
+    Environment, \
+    GridLocation, \
+    GridLocationType, \
+    build_json
 
 random.seed(3)
 

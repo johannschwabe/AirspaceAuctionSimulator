@@ -4,17 +4,17 @@ from rtree import index, Index
 
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
-from ..Allocation.PathAllocation import PathAllocation
-from ..Allocation.SpaceAllocation import SpaceAllocation
+from ..Allocations.PathAllocation import PathAllocation
+from ..Allocations.SpaceAllocation import SpaceAllocation
 from ..Blocker.BlockerType import BlockerType
 
 if TYPE_CHECKING:
     from ..Blocker.Blocker import Blocker
     from ..Coordinates.Coordinate4D import Coordinate4D
     from ..Agents.Agent import Agent
-    from ..Allocation.Allocation import Allocation
-    from ..Allocation.PathSegment import PathSegment
-    from ..Allocation.SpaceSegment import SpaceSegment
+    from ..Allocations.Allocation import Allocation
+    from ..Segments.PathSegment import PathSegment
+    from ..Segments.SpaceSegment import SpaceSegment
 
 
 class Environment:

@@ -12,11 +12,11 @@ from ..Statistics.Statistics import Statistics
 
 if TYPE_CHECKING:
     from ..Coordinates import Coordinate4D
-    from ..Allocation.AllocationReason import AllocationReason
+    from ..Allocations.AllocationReason import AllocationReason
     from ..Agents.Agent import Agent
     from ..Blocker.Blocker import Blocker
     from ..History.HistoryAgent import HistoryAgent
-    from ..Allocation.PathSegment import PathSegment
+    from ..Segments.PathSegment import PathSegment
     from ..Simulator import Simulator
 
 

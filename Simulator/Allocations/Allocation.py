@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List, Optional
 
 if TYPE_CHECKING:
     from ..Agents.Agent import Agent
-    from .Segment import Segment
+    from ..Segments.Segment import Segment
 
 
 class Allocation(ABC):

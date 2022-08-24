@@ -6,7 +6,7 @@ from .Owner import Owner
 from ..Agents.AgentType import AgentType
 
 if TYPE_CHECKING:
-    from ..Owners.Location.GridLocation import GridLocation
+    from ..Location.GridLocation import GridLocation
     from ..Environment.Environment import Environment
     from ..Coordinates.Coordinate4D import Coordinate4D
     from ..Simulator import Simulator

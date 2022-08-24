@@ -5,7 +5,7 @@ from .Agent import Agent
 from .AgentType import AgentType
 
 if TYPE_CHECKING:
-    from ..Allocation.SpaceSegment import SpaceSegment
+    from ..Segments.SpaceSegment import SpaceSegment
     from ..Simulator import Simulator
     from ..Coordinates.Coordinate4D import Coordinate4D
 

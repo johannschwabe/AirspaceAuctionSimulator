@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List, Optional
 from .Allocation import Allocation
 
 if TYPE_CHECKING:
-    from .SpaceSegment import SpaceSegment
+    from ..Segments.SpaceSegment import SpaceSegment
     from ..Agents.SpaceAgent import SpaceAgent
 
 

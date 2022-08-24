@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List, Optional
 from .Allocation import Allocation
 
 if TYPE_CHECKING:
-    from .PathSegment import PathSegment
+    from ..Segments.PathSegment import PathSegment
     from ..Agents.PathAgent import PathAgent
 
 

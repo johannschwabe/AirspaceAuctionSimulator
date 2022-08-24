@@ -5,7 +5,7 @@ from ..Agents.Agent import Agent
 from ..Agents.AgentType import AgentType
 
 if TYPE_CHECKING:
-    from ..Allocation.PathSegment import PathSegment
+    from ..Segments.PathSegment import PathSegment
     from ..Simulator import Simulator
     from ..Coordinates.Coordinate4D import Coordinate4D
 

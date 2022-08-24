@@ -1,8 +1,8 @@
 import random
 from typing import Dict, List, Optional
 
-from ...Coordinates.Coordinate2D import Coordinate2D
-from ...Owners.Location.HeatmapType import HeatmapType
+from .HeatmapType import HeatmapType
+from ..Coordinates.Coordinate2D import Coordinate2D
 
 
 class Heatmap:

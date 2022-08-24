@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from ..Allocator.Allocator import Allocator
     from ..Agents.Agent import Agent
     from ..Owners.Owner import Owner
-    from ..Allocation.Allocation import Allocation
+    from ..Allocations.Allocation import Allocation
 
 
 class History:
