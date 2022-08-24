@@ -30,13 +30,13 @@ def setup_empty(t):
 def simulateFCFS(env: Environment, t):
     allocator = FCFSAllocator()
     owners = [
-        FCFSPathOwner(0,
+        FCFSPathOwner("owner-0",
                       "Schnabeltier",
                       color_generator(),
                       [GridLocation(str(GridLocationType.RANDOM.value)),
                        GridLocation(str(GridLocationType.RANDOM.value))],
                       [random.randint(0, 5) for _ in range(10)]),
-        FCFSSpaceOwner(1,
+        FCFSSpaceOwner("owner-1",
                        "Ghettotier",
                        color_generator(),
                        [GridLocation(str(GridLocationType.RANDOM.value)),
@@ -54,14 +54,14 @@ def simulateFCFS(env: Environment, t):
 def simulatePriority(env: Environment, t):
     allocator = PriorityAllocator()
     owners = [
-        PriorityPathOwner(0,
+        PriorityPathOwner("owner-0",
                           "Schnabeltier",
                           color_generator(),
                           [GridLocation(str(GridLocationType.RANDOM.value)),
                            GridLocation(str(GridLocationType.RANDOM.value))],
                           [random.randint(0, 5) for _ in range(10)],
                           priority=0.5),
-        PrioritySpaceOwner(1,
+        PrioritySpaceOwner("owner-1",
                            "Ghettotier",
                            color_generator(),
                            [GridLocation(str(GridLocationType.RANDOM.value)),

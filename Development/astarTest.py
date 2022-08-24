@@ -2,8 +2,8 @@ import random
 from time import time_ns
 
 from API import APIWorldCoordinates, EnvironmentGen, MapTile, Area
-from Demos import FCFSAllocator, FCFSPathAgent
-from Simulator import AStar, Coordinate4D, GridLocation, GridLocationType, Simulator, PathOwner
+from Demos import FCFSPathAgent
+from Simulator import AStar, Coordinate4D, GridLocation, GridLocationType, PathOwner, Environment
 
 dimensions = Coordinate4D(831, 30, 831, 20000)
 
@@ -14,9 +14,7 @@ def setup():
                 APIWorldCoordinates(lat=47.376034633497596, long=8.547363281249993),
                 1)
     environment = EnvironmentGen(dimensions, [MapTile([15, 17161, 11475], area)]).generate()
-    allocator = FCFSAllocator()
-    simulator = Simulator([], allocator, environment)
-    return simulator
+    return environment
 
 
 def readCoords(filename: str):
@@ -35,25 +33,25 @@ def readCoords(filename: str):
     return res
 
 
-def writeCoords(simulator: Simulator, filename: str):
-    astar = AStar(simulator.environment, max_iter=100_000_000, g_sum=1., height_adjust=False)
+def writeCoords(environment: Environment, filename: str):
+    astar = AStar(environment, max_iter=100_000_000, g_sum=1., height_adjust=False)
     f = open(filename, "w")
     nr_tests = 20
     for index in range(nr_tests):
         print(f"Test {index}")
         start = PathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)),
-                                                   simulator.environment, 0, 1, 1)
+                                                   environment, 0, 1, 1)
         end = PathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)),
-                                                 simulator.environment,
+                                                 environment,
                                                  0, 1, 1)
-        agent = FCFSPathAgent([start, end], [], simulator)
+        agent = FCFSPathAgent("agent-id", [start, end], [])
         res, _ = astar.astar(start, end, agent)
         f.write(f"{start.x},{start.y},{start.z},{start.t}-{end.x},{end.y},{end.z},{end.t}-{len(res)}\n")
     f.close()
 
 
-def testCoords(simulator: Simulator, g_sum, height_adjust):
-    astar = AStar(simulator.environment, max_iter=1_000_000, g_sum=g_sum, height_adjust=height_adjust)
+def testCoords(environment: Environment, g_sum, height_adjust):
+    astar = AStar(environment, max_iter=1_000_000, g_sum=g_sum, height_adjust=height_adjust)
     nr_tests = 20
     nr_success = 0
     start_t = time_ns()
@@ -64,7 +62,7 @@ def testCoords(simulator: Simulator, g_sum, height_adjust):
     for segment in segments:
         start = segment["start"]
         end = segment["end"]
-        agent = FCFSPathAgent([start, end], [], simulator)
+        agent = FCFSPathAgent("agent-id", [start, end], [])
         res, _ = astar.astar(segment["start"], segment["end"], agent)
         if len(res) > 0:
             nr_success += 1
@@ -73,28 +71,29 @@ def testCoords(simulator: Simulator, g_sum, height_adjust):
 
     duration = time_ns() - start_t
     print(
-        f"Nr_tests: {nr_tests}, Duration: {duration / 1e9:3f}s, Success: {nr_success}, {sum_optimal_len / sum_achieved_len}"
+        f"Nr_tests: {nr_tests}, Duration: {duration / 1e9:3f}s, Success: {nr_success}, "
+        f"Optimality: {sum_optimal_len / sum_achieved_len} "
     )
 
 
 def write():
-    simulator = setup()
-    writeCoords(simulator, "Development/optimal_paths.txt")
+    environment = setup()
+    writeCoords(environment, "Development/optimal_paths.txt")
 
 
 def test():
-    simulator = setup()
+    environment = setup()
     print("BASE")
-    testCoords(simulator, 0.1, True)
+    testCoords(environment, 0.1, True)
     print()
     print("VARIANT: g-sum: 0.05")
-    testCoords(simulator, 0.05, True)
+    testCoords(environment, 0.05, True)
     print()
     print("VARIANT: g-sum: 0.2")
-    testCoords(simulator, 0.2, True)
+    testCoords(environment, 0.2, True)
     print()
     print("VARIANT: no height adjust")
-    testCoords(simulator, 0.1, False)
+    testCoords(environment, 0.1, False)
 
 
 if __name__ == "__main__":
