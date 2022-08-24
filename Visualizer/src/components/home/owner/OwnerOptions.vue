@@ -8,7 +8,7 @@
     :max="owner.maxLocations"
   >
     <template #default="{ index }">
-      <owner-stop :owner="owner" :locationIndex="index" />
+      <owner-stop :ownerIndex="props.ownerIndex" :locationIndex="index" />
     </template>
   </n-dynamic-input>
   <template v-if="meta.length > 0">
@@ -35,7 +35,7 @@
 <script setup>
 import { computed } from "vue";
 import OwnerStop from "./OwnerStop.vue";
-import { useSimulationConfigStore } from "../../../stores/simulationConfig";
+import { useSimulationConfigStore } from "@/stores/simulationConfig";
 
 const props = defineProps({
   ownerIndex: {

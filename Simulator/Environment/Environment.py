@@ -21,7 +21,7 @@ class Environment:
     def __init__(self,
                  dimension: "Coordinate4D",
                  blockers: Optional[List["Blocker"]] = None,
-                 min_height: int = 5,
+                 min_height: int = 0,       # Todo Frontend connection
                  allocation_period: int = 50,
                  _tree: Optional[Index] = None,
                  _blocker_tree: Optional[Index] = None):

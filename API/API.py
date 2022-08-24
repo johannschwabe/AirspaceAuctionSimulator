@@ -2,13 +2,15 @@
 Run server using >>> uvicorn API:app --reload
 App runs on 'https://localhost:8000/'
 """
+import math
 import random
 import time
-from typing import List
+from typing import List, Optional
 
 from fastapi import HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from pydantic.fields import Field
 
 from Simulator import Coordinate4D, build_json
 from .Generator.Generator import Generator
@@ -34,18 +36,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-class APIGridCoordinates(BaseModel):
-    x: int
-    y: int
+class APIWeightedCoordinate(BaseModel):
     lat: float
     long: float
     value: float
 
+class APISubselection(BaseModel):
+    bottomLeft: Optional[APISimpleCoordinates] = Field(None)
+    topRight: Optional[APISimpleCoordinates] = Field(None)
 
 class APILocations(BaseModel):
     type: str
-    gridCoordinates: List[APIGridCoordinates]
+    points: List[APIWeightedCoordinate]
 
 
 class APIOwner(BaseModel):
@@ -60,13 +62,6 @@ class APIOwner(BaseModel):
     locations: List[APILocations]
 
 
-class APIDimension(BaseModel):
-    x: int
-    y: int
-    z: int
-    t: int
-
-
 class APIWorldCoordinates(BaseModel):
     long: float
     lat: float
@@ -76,9 +71,13 @@ class APIMap(BaseModel):
     coordinates: APIWorldCoordinates
     locationName: str
     neighbouringTiles: int
-    topLeftCoordinate: APIWorldCoordinates
-    bottomRightCoordinate: APIWorldCoordinates
+    bottomLeftCoordinate: APIWorldCoordinates
+    topRightCoordinate: APIWorldCoordinates
+    subselection: APISubselection
+    resolution: int
     tiles: List[List[int]]
+    height: int
+    timesteps: int
 
 
 class APIAvailableOwner(BaseModel):
@@ -96,7 +95,6 @@ class APISimulationConfig(BaseModel):
     name: str
     description: str
     allocator: str
-    dimension: APIDimension
     map: APIMap
     owners: List[APIOwner]
     availableAllocators: List[str]
@@ -126,14 +124,20 @@ def get_owners_for_allocator(allocator_name):
 
 @app.post("/simulation")
 def read_root(config: APISimulationConfig):
-    dimensions = Coordinate4D(config.dimension.x, config.dimension.y, config.dimension.z, config.dimension.t)
-    if config.map:
-        top_left_coordinate = config.map.topLeftCoordinate
-        bottom_right_coordinate = config.map.bottomRightCoordinate
-        maptiles = [MapTile(tile, dimensions, top_left_coordinate, bottom_right_coordinate) for tile in
-                    config.map.tiles]
+    if config.map.subselection.bottomLeft and config.map.subselection.topRight:
+        area = Area(config.map.subselection.bottomLeft, config.map.subselection.topRight, config.map.resolution)
     else:
-        maptiles = []
+        area = Area(config.map.bottomLeftCoordinate, config.map.topRightCoordinate, config.map.resolution)
+
+    size = area.dimension
+
+    dimensions = Coordinate4D(math.floor(size[0]),
+                              math.floor(config.map.height / area.resolution),
+                              math.floor(size[1]),
+                              config.map.timesteps)
+
+    maptiles = [MapTile(tile, area) for tile in
+                config.map.tiles]
 
     allocators = list(filter(lambda x: (x.__name__ == config.allocator), available_allocators))
     if len(allocators) != 1:
@@ -142,7 +146,7 @@ def read_root(config: APISimulationConfig):
 
     random.seed(2)
     g = Generator(owners=config.owners, dimensions=dimensions,
-                  maptiles=maptiles, allocator=allocator)
+                  maptiles=maptiles, allocator=allocator, area=area)
     start_time = time.time_ns()
     g.simulate()
     end_time = time.time_ns()

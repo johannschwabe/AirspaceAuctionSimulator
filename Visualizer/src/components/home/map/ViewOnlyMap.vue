@@ -3,9 +3,16 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
-import { useBaseLayer, useMap } from "./Map";
+import { onMounted, ref, watch } from "vue";
+import { useBaseLayer, useMap, usePositionLayer } from "./Map";
+import { createBox } from "ol/interaction/Draw";
+import { Draw } from "ol/interaction";
+import { Collection, Feature } from "ol";
+import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import { fromLonLat, toLonLat } from "ol/proj";
+import { fromExtent } from "ol/geom/Polygon";
 
+const simulationConfig = useSimulationConfigStore();
 defineProps({
   size: {
     type: Number,
@@ -14,12 +21,83 @@ defineProps({
   },
 });
 
+let firstClick = true;
+
 const mapRoot = ref(null);
 const baseLayer = useBaseLayer();
+const features = new Collection([]);
+const positionLayer = usePositionLayer(features);
 
-const { render } = useMap(mapRoot, [baseLayer]);
+const { map, render } = useMap(mapRoot, [baseLayer, positionLayer]);
 
-onMounted(() => render());
+const rectangleInteraction = new Draw({
+  source: positionLayer.getSource(),
+  type: "Circle",
+  geometryFunction: createBox(),
+});
+
+onMounted(() => {
+  fromConfig();
+  render();
+  map.value.on("click", () => {
+    if (firstClick) {
+      features.clear();
+      firstClick = false;
+    } else {
+      const extent = features.item(0).getGeometry().getExtent();
+      const bottomLeft = [extent[0], extent[1]];
+      const topRight = [extent[2], extent[3]];
+      simulationConfig.setMapSubTile(toLonLat(bottomLeft), toLonLat(topRight));
+      firstClick = true;
+    }
+  });
+  map.value.addInteraction(rectangleInteraction);
+});
+watch(
+  () => simulationConfig.map.subselection,
+  () => {
+    console.log("Triggered");
+    fromConfig();
+  }
+);
+
+function fromConfig() {
+  if (!simulationConfig.map.subselection?.bottomLeft || !simulationConfig.map.subselection?.topRight) {
+    return;
+  }
+  const nothingSelected = features.getLength() === 0;
+  let selectionChanged = false;
+
+  const bottomLeftNewPM = fromLonLat([
+    simulationConfig.map.subselection?.bottomLeft.long,
+    simulationConfig.map.subselection?.bottomLeft.lat,
+  ]);
+  const topRightNewPM = fromLonLat([
+    simulationConfig.map.subselection?.topRight.long,
+    simulationConfig.map.subselection?.topRight.lat,
+  ]);
+  if (!nothingSelected) {
+    const extent = features.item(0).getGeometry().getExtent();
+    const bottomLeftCurrent = [extent[0], extent[1]];
+    const topRightCurrent = [extent[2], extent[3]];
+
+    const roundingError = 0.001;
+    selectionChanged =
+      Math.abs(bottomLeftNewPM[0] - bottomLeftCurrent[0]) > roundingError ||
+      Math.abs(bottomLeftNewPM[1] - bottomLeftCurrent[1]) > roundingError ||
+      Math.abs(topRightNewPM[0] - topRightCurrent[0]) > roundingError ||
+      Math.abs(topRightNewPM[1] - topRightCurrent[1]) > roundingError;
+  }
+  if (selectionChanged || nothingSelected) {
+    features.clear();
+    features.push(
+      new Feature({
+        geometry: fromExtent([...bottomLeftNewPM, ...topRightNewPM]),
+      })
+    );
+    firstClick = true;
+  }
+}
 </script>
 
 <style scoped>

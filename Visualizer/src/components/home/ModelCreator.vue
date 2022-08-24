@@ -19,7 +19,7 @@
 
     <!-- Model Timesteps -->
     <n-form-item path="dimension.t" label="Timesteps">
-      <n-slider show-tooltip v-model:value="simulationConfig.dimension.t" :min="300" :max="4000" :step="10" />
+      <n-slider show-tooltip v-model:value="simulationConfig.map.timesteps" :min="300" :max="4000" :step="10" />
     </n-form-item>
 
     <!-- Model Allocator -->
@@ -199,7 +199,8 @@ const downloadConfiguration = () => {
   const fileToSave = new Blob([JSON.stringify(simulationConfig.generateConfigJson(), undefined, 2)], {
     type: "application/json",
   });
-  saveAs(fileToSave, `${simulationConfig.name.value}-config.json`);
+
+  saveAs(fileToSave, `${simulationConfig.name}-config.json`);
 };
 
 /**

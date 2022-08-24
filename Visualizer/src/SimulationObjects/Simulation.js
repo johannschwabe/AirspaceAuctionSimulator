@@ -116,9 +116,9 @@ export default class Simulation {
       (tile) =>
         new MapTile(
           tile,
-          rawSimulation.config.dimension,
-          rawSimulation.config.map.topLeftCoordinate,
-          rawSimulation.config.map.bottomRightCoordinate
+          rawSimulation.config.map.resolution,
+          rawSimulation.config.map.subselection?.bottomLeft || rawSimulation.config.map.bottomLeftCoordinate,
+          rawSimulation.config.map.subselection?.topRight || rawSimulation.config.map.topRightCoordinate
         )
     );
 

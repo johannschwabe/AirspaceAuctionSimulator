@@ -6,41 +6,42 @@ from Simulator import Coordinate4D, BuildingBlocker
 
 if TYPE_CHECKING:
     from ..API import APIWorldCoordinates
+    from ..Area import Area
+    from .LongLatCoordinate import LongLatCoordinate
 
 
 class MapTile:
-
+    """
+    A single osmbuildings tile
+    Defined by tile coordinates by which all buildings within this tile can be requested
+    """
     def __init__(
         self,
         tile_ids: List[int],
         dimensions: "Coordinate4D",
         top_left_coordinate: "APIWorldCoordinates",
         bottom_right_coordinate: "APIWorldCoordinates",
+        area: "Area"
     ):
+        """
+        :param tile_ids: int[3] - coordinates of the tile (In the tile-coordinate system)
+        :param area: Area - field bounds and resolution
+        """
         self.blockers = []
         self.z = tile_ids[0]
         self.x = tile_ids[1]
         self.y = tile_ids[2]
-        self.dimensions = dimensions
-        self.top_left_coordinate = top_left_coordinate
-        self.bottom_right_coordinate = bottom_right_coordinate
+        self.area = area
 
     @property
     def url(self):
         return f"https://a.data.osmbuildings.org/0.2/anonymous/tile/{self.z}/{self.x}/{self.y}.json"
 
-    def translate_coord(self, coord: List[int]):
-        z = (
-                (coord[0] - self.top_left_coordinate.long) /
-                (self.bottom_right_coordinate.long - self.top_left_coordinate.long)
-            ) * self.dimensions.x
-        x = (
-                (coord[1] - self.top_left_coordinate.lat) /
-                (self.bottom_right_coordinate.lat - self.top_left_coordinate.lat)
-            ) * self.dimensions.z
-        return [x, z]
-
     def resolve_buildings(self):
+        """
+        Extract building information from tile and convert them to building blockers
+        :return: BuildingBlocker[]
+        """
         if len(self.blockers) > 0:
             return self.blockers
         raw_data = cloudscraper.create_scraper().get(self.url)
@@ -64,7 +65,8 @@ class MapTile:
                 min_z = 100000
                 max_z = -100000
                 for coord in building['geometry']['coordinates'][0]:
-                    translated_coords = self.translate_coord(coord)
+                    translated_coords = self.area.lon_lat_to_grid(LongLatCoordinate(coord[0], coord[1]))
+
                     coords.append(translated_coords)
                     x = translated_coords[0]
                     z = translated_coords[1]
@@ -76,11 +78,20 @@ class MapTile:
                         max_x = x
                     if max_z < z:
                         max_z = z
-                for hole in building['geometry']['coordinates'][1:]:
-                    holes.append([self.translate_coord(hole_coord) for hole_coord in hole])
 
-                bounds = [Coordinate4D(min_x, 0, min_z, 0),
-                          Coordinate4D(max_x, building['properties']['height'], max_z, self.dimensions.t + 1000)]
+                for hole in building['geometry']['coordinates'][1:]:
+                    holes.append(
+                        [self.area.lon_lat_to_grid(LongLatCoordinate(hole_coord[0], hole_coord[1]))
+                         for hole_coord in hole])
+
+                bounds = [Coordinate3D(min_x, 0, min_z),
+                          Coordinate3D(max_x, building['properties']['height'] / self.area.resolution, max_z)]
+
+                dimension = self.area.dimension
+                if dimension[0] < min_x or \
+                    dimension[1] < min_z or \
+                    max_x < 0 or max_z < 0:
+                    continue
                 new_blocker = BuildingBlocker(coords, bounds, holes)
                 res.append(new_blocker)
 
