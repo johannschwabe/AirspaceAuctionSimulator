@@ -1,11 +1,11 @@
 import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
-from EnvironmentGen import EnvironmentGen
 from Simulator import GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator
+from .EnvironmentGen import EnvironmentGen
 
 if TYPE_CHECKING:
-    from MapTile import MapTile
+    from .MapTile import MapTile
     from Simulator import Allocator, Coordinate4D, Owner, Environment, History, Statistics
     from ..API import APIOwner
 
