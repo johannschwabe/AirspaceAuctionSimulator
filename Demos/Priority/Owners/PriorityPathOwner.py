@@ -5,8 +5,8 @@ from ..Agents.PriorityPathAgent import PriorityPathAgent
 
 
 class PriorityPathOwner(PathOwner):
-    label = "Path"
-    description = "Path"
+    label = "Priority Path Owner"
+    description = "Priority Path Owner"
 
     def __init__(self, owner_id, name, color, stops, creation_ticks, priority=random.random()):
         super().__init__(owner_id, name, color, stops, creation_ticks)

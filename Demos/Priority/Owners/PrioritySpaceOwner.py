@@ -5,8 +5,8 @@ from ..Agents.PrioritySpaceAgent import PrioritySpaceAgent
 
 
 class PrioritySpaceOwner(SpaceOwner):
-    label = "Space"
-    description = "Space"
+    label = "Priority Space Owner"
+    description = "Priority Space Owner"
 
     def __init__(self, owner_id, name, color, stops, creation_ticks, size=Coordinate4D(20, 20, 20, 200),
                  priority=random.random()):
