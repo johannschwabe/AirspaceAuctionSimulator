@@ -8,27 +8,25 @@ import { randomName } from "../scripts/names";
 /**
  * @typedef {Object} MapConfig
  * @property {{long: number, lat: number}} coordinates
+ * @property {{long: number, lat: number}} bottomLeftCoordinate
+ * @property {{long: number, lat: number}} topRightCoordinate
  * @property {string} locationName
  * @property {number} neighbouringTiles
- * @property {{long: number, lat: number}} topLeftCoordinate
- * @property {{long: number, lat: number}} bottomRightCoordinate
+ * @property {{bottomLeft: {long: number, lat: number}, topRight: {long: number, lat: number}}} subselection
  * @property {number[]} tiles
  */
 
 /**
- * @typedef {Object} GridCoordinateConfig
- * @property {number} x
- * @property {number} y
+ * @typedef {Object} WeightedCoordinate
  * @property {number} lat
  * @property {number} long
- * @property {number} value
  */
 
 /**
  * @typedef {Object} LocationConfig
  * @property {string} type
  * @property {Object} meta
- * @property {GridCoordinateConfig[]} features
+ * @property {WeightedCoordinate[]} points
  */
 
 /**
@@ -73,16 +71,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
   const allocator = ref("FCFSAllocator");
 
   /**
-   * @type {UnwrapNestedRefs<{t: number, x: number, y: number, z: number}>}
-   */
-  const dimension = reactive({
-    x: 100,
-    y: 100,
-    z: 100,
-    t: 1500,
-  });
-
-  /**
    * @type {UnwrapNestedRefs<MapConfig>}
    */
   const map = reactive({
@@ -92,8 +80,15 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     },
     locationName: "",
     neighbouringTiles: 0,
-    topLeftCoordinate: undefined,
-    bottomRightCoordinate: undefined,
+    bottomLeftCoordinate: undefined,
+    topRightCoordinate: undefined,
+    subselection: {
+      bottomLeft: undefined,
+      topRight: undefined,
+    },
+    resolution: 2,
+    height: 100,
+    timesteps: 1500,
     tiles: [],
   });
 
@@ -156,9 +151,9 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
 
   /**
    * Generates a random location
-   * @returns {LocationConfig}
+   * @returns {{meta: {}, coordinates: *[], type: string}}
    */
-  const randomLocation = () => ({ type: "random", gridCoordinates: [], meta: {} });
+  const randomLocation = () => ({ type: "random", points: [], meta: {} });
 
   /**
    * Generates random locations for owner,
@@ -199,7 +194,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
       name: name.value,
       description: description.value,
       allocator: allocator.value,
-      dimension,
       map,
       owners,
       availableAllocators,
@@ -216,20 +210,23 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     description.value = config.description;
     allocator.value = config.allocator;
 
-    dimension.x = config.dimension.x;
-    dimension.y = config.dimension.y;
-    dimension.z = config.dimension.z;
-    dimension.t = config.dimension.t;
-
     map.coordinates = config.map.coordinates;
     map.locationName = config.map.locationName;
     map.neighbouringTiles = config.map.neighbouringTiles;
-    map.topLeftCoordinate = config.map.topLeftCoordinate;
-    map.bottomRightCoordinate = config.map.bottomRightCoordinate;
+    map.topRightCoordinate = config.map.topRightCoordinate;
+    map.bottomLeftCoordinate = config.map.bottomLeftCoordinate;
+    map.subselection = config.map.subselection;
     map.tiles = config.map.tiles;
+    map.timesteps = config.map.timesteps;
+    map.height = config.map.height;
 
     owners.splice(0);
     config.owners.forEach((owner) => owners.push(owner));
+  };
+
+  const setMapSubTile = (topLeft, bottomRight) => {
+    map.subselection.bottomLeft = { long: topLeft[0], lat: topLeft[1] };
+    map.subselection.topRight = { long: bottomRight[0], lat: bottomRight[1] };
   };
 
   const isEmpty = computed(() => !name.value);
@@ -238,7 +235,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     name,
     description,
     allocator,
-    dimension,
     map,
     owners,
     availableAllocators,
@@ -250,5 +246,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     generateConfigJson,
     overwrite,
     loadAvailableAllocators,
+    setMapSubTile,
   };
 });

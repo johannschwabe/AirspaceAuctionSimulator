@@ -42,7 +42,7 @@ let focusOnSpaceAgent, focusOnPathAgent, focusOffSpaceAgent, focusOffPathAgent;
 let droneCache, blockerCache, focusCache;
 let blockerMaterial;
 
-const { x, y, z } = simulation.dimensions;
+let { x, y, z } = simulation.dimensions;
 
 const lineAlpha = 0.075;
 

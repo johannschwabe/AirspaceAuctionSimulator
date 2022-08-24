@@ -62,11 +62,11 @@ export function useMainLight({ scene, x, y, z }) {
 }
 
 export function useCamera({ x, y, z, scene, canvas }) {
-  const target = new Vector3(0, y / 2, 0);
+  const target = new Vector3(0, 0, 0);
   const camera = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, target, scene);
   camera.attachControl(canvas, true);
   camera.setTarget(target);
-  camera.setPosition(new Vector3(-x, Math.max(x, y, z) * 1.5, -z));
+  camera.setPosition(new Vector3(0, Math.max(x, y, z), -z));
   return camera;
 }
 
@@ -106,9 +106,9 @@ export function useBuildings({ scene, shadows, mapTiles, blockerMaterial }) {
   mapTiles.forEach((mapTile, i) => {
     mapTile.buildings.forEach((building, j) => {
       const options = {
-        shape: building.coordinates.map(({ x, y }) => new Vector3(x, 0, y)).reverse(),
+        shape: building.coordinates.map(({ x, z }) => new Vector3(x, 0, z)).reverse(),
         depth: building.height,
-        holes: building.holes.map((hole) => hole.map(({ x, y }) => new Vector3(x, 0, y))).reverse(),
+        holes: building.holes.map((hole) => hole.map(({ x, z }) => new Vector3(x, 0, z))).reverse(),
       };
       const buildingMesh = MeshBuilder.ExtrudePolygon(`tile-${i}-building-${j}`, options, scene, earcut);
       buildingMesh.material = blockerMaterial;
@@ -393,7 +393,7 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
     });
 
     // Focus camera to base again
-    const target = new Vector3(0, y / 2, 0);
+    const target = new Vector3(0, 0, 0);
     camera.setTarget(target);
 
     focusCache.agent = undefined;

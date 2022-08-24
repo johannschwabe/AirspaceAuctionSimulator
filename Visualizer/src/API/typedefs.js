@@ -115,8 +115,8 @@
  * @property {RawSimpleCoordinate} coordinates
  * @property {string} locationName
  * @property {int} neighbouringTiles
- * @property {RawSimpleCoordinate} topLeftCoordinate
- * @property {RawSimpleCoordinate} bottomRightCoordinate
+ * @property {int} resolution
+ * @property {RawSimpleCoordinate} bottomLeftCoordinate
  * @property {int[][]} tiles
  */
 
@@ -125,9 +125,9 @@
  * @property {int} x
  * @property {int} y
  * @property {int} z
- * @property {{long: number, lat: number}} top_left_coordinate
- * @property {{long: number, lat: number}} bottom_right_coordinate
- * @property {RawTimeCoordinate} dimensions
+ * @property {int} resolution
+ * @property {{long: number, lat: number}} bottom_left_coordinate
+ * @property {{long: number, lat: number}} top_right_coordinate
  */
 
 /**

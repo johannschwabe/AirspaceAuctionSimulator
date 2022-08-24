@@ -1,6 +1,6 @@
 import { computed, shallowRef, watch } from "vue";
 import { useSimulationConfigStore } from "../../../stores/simulationConfig";
-import { fromLonLat } from "ol/proj";
+import { fromLonLat, toLonLat } from "ol/proj";
 import { boundingExtent } from "ol/extent";
 import TileLayer from "ol/layer/Tile";
 import OSM from "ol/source/OSM";
@@ -66,15 +66,14 @@ export const usePositionLayer = (features) => {
 /**
  * Restores heatmap features given a list of grid coordinates
  * @param {Collection} features
- * @param {GridCoordinateConfig[]} gridCoordinates
+ * @param {HeatmapConfig} points
  */
-export const restoreHeatmapFeatures = (features, gridCoordinates) => {
+export const restoreHeatmapFeatures = (features, points) => {
   features.clear();
-  gridCoordinates
+
+  points
     .map((coord) => {
-      return Array.from({ length: Math.round(coord.value / HEATMAP_SCORE_PER_CLICK) }).map(
-        () => new Feature(new Point([coord.lat, coord.long]))
-      );
+      return new Feature(new Point(fromLonLat([coord.lat, coord.long])));
     })
     .flat()
     .forEach((feat) => features.push(feat));
@@ -83,46 +82,26 @@ export const restoreHeatmapFeatures = (features, gridCoordinates) => {
 /**
  * Restores positional features given a list of grid coordinates
  * @param {Collection} features
- * @param {GridCoordinateConfig[]} gridCoordinates
+ * @param {WeightedCoordinate[]} coordinate
  */
-export const restorePositionFeatures = (features, gridCoordinates) => {
+export const restorePositionFeatures = (features, coordinate) => {
   features.clear();
-  gridCoordinates
-    .map((coord) => {
-      return new Feature(new Point([coord.lat, coord.long]));
-    })
-    .forEach((feat) => features.push(feat));
+  if (coordinate && coordinate.length > 0) {
+    features.push(new Feature({ geometry: new Point(fromLonLat([coordinate[0].long, coordinate[0].lat])) }));
+  }
 };
 
 /**
  * Setup of OpenLayer Map
  * @param {ref<HTMLInputElement | null>} mapRoot - HTML Element to mount OL to
  * @param {(TileLayer|VectorLayer|Heatmap)[]} layers - Layers to display
+ * @param {boolean} subselection - Show full extent or just the subselection
  */
-export const useMap = (mapRoot, layers) => {
+export const useMap = (mapRoot, layers, subselection = false) => {
   const simulationConfig = useSimulationConfigStore();
 
   // Holds OL Map object
   const map = shallowRef(null);
-
-  /**
-   * Holds the coordinate at the top-left of the map
-   * @type {ComputedRef<number[]>}
-   */
-  const topLeft = computed(() => {
-    return fromLonLat([simulationConfig.map.topLeftCoordinate.long, simulationConfig.map.topLeftCoordinate.lat]);
-  });
-
-  /**
-   * Holds the coordinate at the bottom-right of the map
-   * @type {ComputedRef<number[]>}
-   */
-  const bottomRight = computed(() => {
-    return fromLonLat([
-      simulationConfig.map.bottomRightCoordinate.long,
-      simulationConfig.map.bottomRightCoordinate.lat,
-    ]);
-  });
 
   /**
    * Holds the extent of the visible map section
@@ -130,7 +109,20 @@ export const useMap = (mapRoot, layers) => {
    * @type {ComputedRef<number[]>}
    */
   const extent = computed(() => {
-    return boundingExtent([topLeft.value, bottomRight.value]);
+    if (subselection && simulationConfig.map.subselection?.bottomLeft && simulationConfig.map.subselection?.topRight) {
+      console.log([simulationConfig.map.subselection.bottomLeft]);
+      return boundingExtent([
+        fromLonLat([
+          simulationConfig.map.subselection.bottomLeft.long,
+          simulationConfig.map.subselection.bottomLeft.lat,
+        ]),
+        fromLonLat([simulationConfig.map.subselection.topRight.long, simulationConfig.map.subselection.topRight.lat]),
+      ]);
+    }
+    return boundingExtent([
+      fromLonLat([simulationConfig.map.bottomLeftCoordinate.long, simulationConfig.map.bottomLeftCoordinate.lat]),
+      fromLonLat([simulationConfig.map.topRightCoordinate.long, simulationConfig.map.topRightCoordinate.lat]),
+    ]);
   });
 
   /**
@@ -158,21 +150,10 @@ export const useMap = (mapRoot, layers) => {
   });
 
   /**
-   * Indicates how many meters there are per simulation config unit
-   * @type {ComputedRef<number>}
-   */
-  const meterCoordsRatio = computed(() => {
-    return dimensions.value[0] / simulationConfig.dimension.x;
-  });
-
-  /**
    * Holds the center of the visible map section in coordinate format
    * @type {ComputedRef<number[]>}
    */
-  const center = computed(() => [
-    (topLeft.value[0] + bottomRight.value[0]) / 2,
-    (topLeft.value[1] + bottomRight.value[1]) / 2,
-  ]);
+  const center = computed(() => [(extent.value[0] + extent.value[2]) / 2, (extent.value[0] + extent.value[2]) / 2]);
 
   /**
    * Holds the zoom of the map
@@ -180,6 +161,11 @@ export const useMap = (mapRoot, layers) => {
    */
   const zoom = computed(() => {
     return Math.floor(15 / Math.sqrt(simulationConfig.map.tiles.length));
+  });
+
+  const size = computed(() => {
+    const ratio = (max.value[0] - min.value[0]) / (max.value[1] - min.value[1]);
+    return { width: 400, height: 400 / ratio };
   });
 
   watch(extent, () => {
@@ -219,55 +205,37 @@ export const useMap = (mapRoot, layers) => {
 
   return {
     map,
-    topLeft,
-    bottomRight,
     extent,
     min,
     max,
     dimensions,
     center,
     zoom,
-    meterCoordsRatio,
     render,
+    size,
   };
 };
 
 /**
  * Registers interaction with the OL map with adding heatmap features on click and drag of the map
  * @param {ShallowRef<Map>} map
- * @param {ComputedRef<number[]>} min
- * @param {ComputedRef<number>} meterCoordsRatio
  * @param {Collection} features
  * @param {LocationConfig} location
  */
-export const useHeatmapInteraction = (map, min, meterCoordsRatio, features, location) => {
-  const simulationConfig = useSimulationConfigStore();
-
+export const useHeatmapInteraction = (map, features, location) => {
   const onClickOrDrag = (event) => {
     const coords = event.coordinate;
-    const [lat, long] = coords;
-    const gridCoords = [
-      Math.floor((lat - min.value[0]) / meterCoordsRatio.value),
-      Math.floor((long - min.value[1]) / meterCoordsRatio.value),
-    ];
-    if (
-      gridCoords[0] >= 0 &&
-      gridCoords[1] >= 0 &&
-      gridCoords[1] < simulationConfig.dimension.x &&
-      gridCoords[0] < simulationConfig.dimension.z
-    ) {
-      // Inverted x coordinate
-      const [x, y] = [simulationConfig.dimension.x - gridCoords[1], gridCoords[0]];
-      let fittingEntry = location.gridCoordinates.find((coord) => coord.x === x && coord.y === y);
-      if (!fittingEntry) {
-        const newLocation = { x, y, lat, long, value: 0.0 };
-        location.gridCoordinates.push(newLocation);
-        fittingEntry = newLocation;
-      }
-      fittingEntry.value = Math.min(fittingEntry.value + HEATMAP_SCORE_PER_CLICK, 1.0);
-      if (fittingEntry.value <= 1.0) {
-        features.push(new Feature(new Point(coords)));
-      }
+    const [long, lat] = toLonLat(coords);
+
+    let fittingEntry = location.points.find((coord) => coord.long === long && coord.lat === lat);
+    if (!fittingEntry) {
+      const newLocation = { lat, long, value: 0.0 };
+      location.points.push(newLocation);
+      fittingEntry = newLocation;
+    }
+    fittingEntry.value = Math.min(fittingEntry.value + HEATMAP_SCORE_PER_CLICK, 1.0);
+    if (fittingEntry.value <= 1.0) {
+      features.push(new Feature(new Point(coords)));
     }
   };
   map.value.on("click", onClickOrDrag);
@@ -277,33 +245,16 @@ export const useHeatmapInteraction = (map, min, meterCoordsRatio, features, loca
 /**
  * Registers interaction with the OL map with adding position features on click of the map
  * @param {ShallowRef<Map>} map
- * @param {ComputedRef<number[]>} min
- * @param {ComputedRef<number>} meterCoordsRatio
  * @param {Collection} features
  * @param {LocationConfig} location
  */
-export const usePositionInteraction = (map, min, meterCoordsRatio, features, location) => {
-  const simulationConfig = useSimulationConfigStore();
-
+export const usePositionInteraction = (map, features, location) => {
   const onClickOrDrag = (event) => {
     const coords = event.coordinate;
-    const [lat, long] = coords;
-    const gridCoords = [
-      Math.floor((lat - min.value[0]) / meterCoordsRatio.value),
-      Math.floor((long - min.value[1]) / meterCoordsRatio.value),
-    ];
-    if (
-      gridCoords[0] >= 0 &&
-      gridCoords[1] >= 0 &&
-      gridCoords[1] < simulationConfig.dimension.x &&
-      gridCoords[0] < simulationConfig.dimension.z
-    ) {
-      // Inverted x coordinate
-      const [x, y] = [simulationConfig.dimension.x - gridCoords[1], gridCoords[0]];
-      location.gridCoordinates = [{ x, y, lat, long, value: 1 }];
-      features.pop();
-      features.push(new Feature(new Point(coords)));
-    }
+    const [long, lat] = toLonLat(coords);
+    location.points = [{ lat, long, value: 1.0 }];
+    features.pop();
+    features.push(new Feature(new Point(coords)));
   };
 
   map.value.on("click", onClickOrDrag);

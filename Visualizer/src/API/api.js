@@ -129,5 +129,5 @@ export function downloadSimulation() {
   const fileToSave = new Blob([JSON.stringify(data, undefined, 2)], {
     type: "application/json",
   });
-  saveAs(fileToSave, `${data.name}.json`);
+  saveAs(fileToSave, `${data?.config.name}.json`);
 }
