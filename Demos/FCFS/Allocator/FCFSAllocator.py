@@ -1,7 +1,5 @@
 from time import time_ns
 
-from Demos.FCFS.Owners.FCFSPathOwner import FCFSPathOwner
-from Demos.FCFS.Owners.FCFSSpaceOwner import FCFSSpaceOwner
 from Simulator import \
     Allocator, \
     AStar, \
@@ -11,6 +9,8 @@ from Simulator import \
     PathAllocation, \
     SpaceAllocation, \
     AllocationReason
+from ..Owners.FCFSPathOwner import FCFSPathOwner
+from ..Owners.FCFSSpaceOwner import FCFSSpaceOwner
 
 
 class FCFSAllocator(Allocator):

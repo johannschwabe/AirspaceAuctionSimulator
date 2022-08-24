@@ -1,7 +1,7 @@
 import random
 
-from Demos.Priority.Agents.PrioritySpaceAgent import PrioritySpaceAgent
 from Simulator import SpaceOwner, Coordinate4D
+from ..Agents.PrioritySpaceAgent import PrioritySpaceAgent
 
 
 class PrioritySpaceOwner(SpaceOwner):

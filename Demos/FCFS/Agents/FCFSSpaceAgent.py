@@ -1,5 +1,5 @@
-from Demos.FCFS.Bids.FCFSSpaceBid import FCFSSpaceBid
 from Simulator import SpaceAgent
+from ..Bids.FCFSSpaceBid import FCFSSpaceBid
 
 
 class FCFSSpaceAgent(SpaceAgent):

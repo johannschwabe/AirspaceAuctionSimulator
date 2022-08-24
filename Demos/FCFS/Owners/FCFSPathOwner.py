@@ -1,5 +1,5 @@
-from Demos.FCFS.Agents.FCFSPathAgent import FCFSPathAgent
 from Simulator import PathOwner
+from ..Agents.FCFSPathAgent import FCFSPathAgent
 
 
 class FCFSPathOwner(PathOwner):

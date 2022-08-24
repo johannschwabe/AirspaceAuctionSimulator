@@ -1,7 +1,7 @@
 import random
 
-from Demos.Priority.Agents.PriorityPathAgent import PriorityPathAgent
 from Simulator import PathOwner
+from ..Agents.PriorityPathAgent import PriorityPathAgent
 
 
 class PriorityPathOwner(PathOwner):

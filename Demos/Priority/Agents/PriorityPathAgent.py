@@ -1,5 +1,5 @@
-from Demos.Priority.Bids.PriorityPathBid import PriorityPathBid
 from Simulator import PathAgent
+from ..Bids.PriorityPathBid import PriorityPathBid
 
 
 class PriorityPathAgent(PathAgent):

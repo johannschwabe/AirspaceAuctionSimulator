@@ -1,5 +1,5 @@
-from Demos.FCFS.Bids.FCFSPathBid import FCFSPathBid
 from Simulator import PathAgent
+from ..Bids.FCFSPathBid import FCFSPathBid
 
 
 class FCFSPathAgent(PathAgent):

@@ -1,5 +1,5 @@
-from Demos.FCFS.Agents.FCFSSpaceAgent import FCFSSpaceAgent
 from Simulator import SpaceOwner, Coordinate4D
+from ..Agents.FCFSSpaceAgent import FCFSSpaceAgent
 
 
 class FCFSSpaceOwner(SpaceOwner):

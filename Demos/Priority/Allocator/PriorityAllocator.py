@@ -1,9 +1,9 @@
 from time import time_ns
 
-from Demos.Priority.AStar.PriorityAStar import PriorityAStar
-from Demos.Priority.Owners.PriorityPathOwner import PriorityPathOwner
-from Demos.Priority.Owners.PrioritySpaceOwner import PrioritySpaceOwner
 from Simulator import Allocator, PathSegment, AllocationReason, PathAllocation, SpaceSegment, SpaceAllocation, AgentType
+from ..AStar.PriorityAStar import PriorityAStar
+from ..Owners.PriorityPathOwner import PriorityPathOwner
+from ..Owners.PrioritySpaceOwner import PrioritySpaceOwner
 
 
 class PriorityAllocator(Allocator):

@@ -1,5 +1,5 @@
-from Demos.Priority.Bids.PrioritySpaceBid import PrioritySpaceBid
 from Simulator import SpaceAgent
+from ..Bids.PrioritySpaceBid import PrioritySpaceBid
 
 
 class PrioritySpaceAgent(SpaceAgent):
