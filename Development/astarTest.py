@@ -1,7 +1,7 @@
 import random
 from time import time_ns
 
-from API import APIWorldCoordinates, EnvironmentGen, MapTile
+from API import APIWorldCoordinates, EnvironmentGen, MapTile, Area
 from Demos import FCFSAllocator, FCFSPathAgent
 from Simulator import AStar, Coordinate4D, GridLocation, GridLocationType, Simulator, PathOwner
 
@@ -10,12 +10,10 @@ dimensions = Coordinate4D(831, 30, 831, 20000)
 
 def setup():
     random.seed(0)
-    environment = EnvironmentGen(dimensions, [MapTile(
-        [15, 17161, 11475],
-        dimensions,
-        APIWorldCoordinates(lat=47.376034633497596, long=8.536376953124991),
-        APIWorldCoordinates(lat=47.3685943521338, long=8.547363281249993)
-    )]).generate()
+    area = Area(APIWorldCoordinates(lat=47.3685943521338, long=8.536376953124991),
+                APIWorldCoordinates(lat=47.376034633497596, long=8.547363281249993),
+                1)
+    environment = EnvironmentGen(dimensions, [MapTile([15, 17161, 11475], area)]).generate()
     allocator = FCFSAllocator()
     simulator = Simulator([], allocator, environment)
     return simulator

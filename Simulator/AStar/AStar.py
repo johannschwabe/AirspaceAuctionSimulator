@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from ..Environment.Environment import Environment
     from ..Coordinates.Coordinate4D import Coordinate4D
     from ..Agents.PathAgent import PathAgent
+    from ..Agents.Agent import Agent
 
 
 class AStar:
@@ -24,7 +25,7 @@ class AStar:
     def valid_start(self,
                     start: "Coordinate4D",
                     agent: "PathAgent",
-                    in_air: bool) -> tuple[Optional["Coordinate4D"], set["PathAgent"]]:
+                    in_air: bool) -> tuple[Optional["Coordinate4D"], set["Agent"]]:
         valid_start: "Coordinate4D" = start.clone()
 
         if in_air and not self.is_valid_for_allocation(valid_start, agent):
@@ -51,7 +52,7 @@ class AStar:
                    start: "Coordinate4D",
                    end: "Coordinate4D",
                    agent: "PathAgent",
-                   start_collisions: Set["PathAgent"]):
+                   start_collisions: Set["Agent"]):
         open_nodes = {}
         closed_nodes = {}
         heap = []
@@ -136,7 +137,7 @@ class AStar:
         end: "Coordinate4D",
         agent: "PathAgent",
         in_air: bool = False,
-    ) -> Tuple[List["Coordinate4D"], set["PathAgent"]]:
+    ) -> Tuple[List["Coordinate4D"], set["Agent"]]:
 
         distance = start.inter_temporal_distance(end)
         time_left = self.environment.dimension.t - start.t

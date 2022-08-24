@@ -3,15 +3,15 @@ from typing import TYPE_CHECKING, List, Optional, Set
 from ..Coordinates.Coordinate4D import Coordinate4D
 
 if TYPE_CHECKING:
-    from ..Agents.PathAgent import PathAgent
+    from ..Agents.Agent import Agent
     from ..Coordinates.Coordinate3D import Coordinate3D
 
 
 class Node:
-    def __init__(self, position: "Coordinate4D", parent: Optional["Node"], collisions: Set["PathAgent"]):
+    def __init__(self, position: "Coordinate4D", parent: Optional["Node"], collisions: Set["Agent"]):
         self.position: "Coordinate4D" = position
         self.parent: Optional["Node"] = parent
-        self.collisions: Set["PathAgent"] = collisions
+        self.collisions: Set["Agent"] = collisions
 
         self.g: float = 0  # Distance to start node
         self.h: float = 0  # Distance to target node
