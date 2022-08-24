@@ -1,4 +1,4 @@
-from Simulator.AStar.AStar import AStar
+from Simulator import AStar
 
 
 class PriorityAStar(AStar):

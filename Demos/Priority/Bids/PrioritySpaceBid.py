@@ -1,4 +1,4 @@
-from Simulator.Bids.SpaceBid import SpaceBid
+from Simulator import SpaceBid
 
 
 class PrioritySpaceBid(SpaceBid):
