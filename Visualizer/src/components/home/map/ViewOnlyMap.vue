@@ -81,11 +81,12 @@ function fromConfig() {
     const bottomLeftCurrent = [extent[0], extent[1]];
     const topRightCurrent = [extent[2], extent[3]];
 
-    selectionChanged = //Todo Kinda ugly
-      Math.abs(bottomLeftNewPM[0] - bottomLeftCurrent[0]) > 0.00001 ||
-      Math.abs(bottomLeftNewPM[1] - bottomLeftCurrent[1]) > 0.00001 ||
-      Math.abs(topRightNewPM[0] - topRightCurrent[0]) > 0.00001 ||
-      Math.abs(topRightNewPM[1] - topRightCurrent[1]) > 0.00001;
+    const roundingError = 0.001;
+    selectionChanged =
+      Math.abs(bottomLeftNewPM[0] - bottomLeftCurrent[0]) > roundingError ||
+      Math.abs(bottomLeftNewPM[1] - bottomLeftCurrent[1]) > roundingError ||
+      Math.abs(topRightNewPM[0] - topRightCurrent[0]) > roundingError ||
+      Math.abs(topRightNewPM[1] - topRightCurrent[1]) > roundingError;
   }
   if (selectionChanged || nothingSelected) {
     features.clear();
