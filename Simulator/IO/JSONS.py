@@ -53,14 +53,14 @@ class JSONAgent(ABC):
         owner_name: str,
     ):
         self.agent_type: str = agent.agent_type
-        self.id: int = agent.id
+        self.id: str = f"agent-{agent.id}"
         self.utility: float = agent.get_allocated_value()
 
         self.non_colliding_utility: float = non_colliding_utility
 
         self.owner_id: int = owner_id
         self.owner_name: str = owner_name
-        self.name: str = f"{self.owner_name}-{self.agent_type}-{self.id}"
+        self.name: str = f"{self.owner_name}-{self.agent_type}-{agent.id}"
 
 
 class JSONSpaceAgent(JSONAgent, Stringify):
@@ -149,7 +149,7 @@ class JSONOwner(Stringify):
 
 class JSONBlocker(Stringify):
     def __init__(self, blocker: "Blocker"):
-        self.id: int = blocker.id
+        self.id: str = f"blocker-{blocker.id}"
         self.blocker_type = blocker.blocker_type
         if isinstance(blocker, DynamicBlocker):
             self.locations: List["Coordinate4D"] = blocker.locations
