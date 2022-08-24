@@ -1,8 +1,6 @@
 import math
 import random
 from typing import List, Optional, TYPE_CHECKING, Dict
-
-from CoordinateTransformations import point_to_coordinate2D
 from .Area import Area
 from .EnvironmentGen import EnvironmentGen
 from ..Owner.Heatmap import Heatmap
@@ -46,13 +44,13 @@ class Generator:
             if location.type == GridLocationType.RANDOM.value:
                 stops.append(GridLocation(str(GridLocationType.RANDOM.value)))
             elif location.type == GridLocationType.POSITION.value:
-                gridCoord = point_to_coordinate2D(location.points[0], self.area)
+                gridCoord = self.area.point_to_coordinate2D(location.points[0])
                 stops.append(GridLocation(str(GridLocationType.POSITION.value),
                              position=gridCoord))
             elif location.type == GridLocationType.HEATMAP.value:
                 heat_dict: Dict[float, List[Coordinate2D]] = {}
                 for point in location.points:
-                    coordinate = point_to_coordinate2D(point, self.area)
+                    coordinate = self.area.point_to_coordinate2D(point)
                     if point.value in heat_dict:
                         heat_dict[point.value].append(coordinate)
                     else:

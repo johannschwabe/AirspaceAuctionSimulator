@@ -1,9 +1,8 @@
 import cloudscraper
 from typing import List, TYPE_CHECKING
 
-from CoordinateTransformations import lon_lat_to_grid
 from Simulator.Blocker.BuildingBlocker import BuildingBlocker
-from Simulator.Coordinate import Coordinate4D, Coordinate3D
+from Simulator.Coordinate import Coordinate3D
 from Simulator.Generator.Area import LongLatCoordinate
 
 if TYPE_CHECKING:
@@ -62,9 +61,8 @@ class MapTile:
                 min_z = 100000
                 max_z = -100000
                 for coord in building['geometry']['coordinates'][0]:
-                    translated_coords = lon_lat_to_grid(self.area.bottom_left,
-                                                        self.area.resolution,
-                                                        LongLatCoordinate(coord[0], coord[1]))
+                    translated_coords = self.area.lon_lat_to_grid(LongLatCoordinate(coord[0], coord[1]))
+
                     coords.append(translated_coords)
                     x = translated_coords[0]
                     z = translated_coords[1]
@@ -79,17 +77,13 @@ class MapTile:
 
                 for hole in building['geometry']['coordinates'][1:]:
                     holes.append(
-                        [lon_lat_to_grid(self.area.bottom_left,
-                                         self.area.resolution,
-                                         LongLatCoordinate(hole_coord[0], hole_coord[1]))
+                        [self.area.lon_lat_to_grid(LongLatCoordinate(hole_coord[0], hole_coord[1]))
                          for hole_coord in hole])
 
                 bounds = [Coordinate3D(min_x, 0, min_z),
                           Coordinate3D(max_x, building['properties']['height'] / self.area.resolution, max_z)]
 
-                top_right_grid = lon_lat_to_grid(self.area.bottom_left,
-                                                 self.area.resolution,
-                                                 self.area.top_right, )
+                top_right_grid = self.area.lon_lat_to_grid(self.area.top_right)
                 if top_right_grid[0] < min_x or \
                     top_right_grid[1] < min_z or \
                     max_x < 0 or max_z < 0:

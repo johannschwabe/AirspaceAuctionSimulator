@@ -12,7 +12,6 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic.fields import Field
 
-from CoordinateTransformations import lon_lat_to_grid
 from Simulator.Coordinate import Coordinate4D
 from Simulator.Generator.Area import Area
 from Simulator.IO.JSONS import build_json
@@ -130,7 +129,7 @@ def read_root(config: APISimulationConfig):
     else:
         area = Area(config.map.bottomLeftCoordinate, config.map.topRightCoordinate, config.map.resolution)
 
-    size = lon_lat_to_grid(area.bottom_left, area.resolution, area.top_right)
+    size = area.lon_lat_to_grid(area.top_right)
 
     dimensions = Coordinate4D(math.floor(size[0]),
                               config.map.height,
