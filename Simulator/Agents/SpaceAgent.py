@@ -1,12 +1,11 @@
 from abc import ABC
-from typing import Optional, TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List
 
 from .Agent import Agent
 from .AgentType import AgentType
 
 if TYPE_CHECKING:
     from ..Segments.SpaceSegment import SpaceSegment
-    from ..Simulator import Simulator
     from ..Coordinates.Coordinate4D import Coordinate4D
 
 
@@ -14,10 +13,10 @@ class SpaceAgent(Agent, ABC):
     agent_type: str = AgentType.SPACE.value
 
     def __init__(self,
+                 agent_id: str,
                  blocks: List[List["Coordinate4D"]],
-                 simulator: "Simulator",
-                 agent_id: Optional[int] = None):
-        super().__init__(simulator, agent_id)
+                 _is_clone: bool = False):
+        super().__init__(agent_id, _is_clone=_is_clone)
 
         self.blocks: List[List["Coordinate4D"]] = blocks
         self.allocated_segments: List["SpaceSegment"] = []

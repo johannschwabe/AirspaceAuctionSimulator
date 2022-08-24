@@ -12,6 +12,7 @@ class PriorityPathOwner(PathOwner):
         super().__init__(owner_id, name, color, stops, creation_ticks)
         self.priority = priority
 
-    def initialize_agent(self, locations, stays, simulator, speed, battery, near_radius):
-        return PriorityPathAgent(locations, self.priority, simulator, stays, speed=speed, battery=battery,
+    def initialize_agent(self, locations, stays, speed, battery, near_radius):
+        agent_id: str = self.get_agent_id()
+        return PriorityPathAgent(agent_id, locations, self.priority, stays, speed=speed, battery=battery,
                                  near_radius=near_radius)

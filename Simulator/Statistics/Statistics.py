@@ -8,7 +8,6 @@ from ..Segments.PathSegment import PathSegment
 if TYPE_CHECKING:
     from ..Coordinates.Coordinate4D import Coordinate4D
     from ..Simulator import Simulator
-    from ..History.HistoryAgent import HistoryAgent
     from ..History.History import History
     from ..Agents.Agent import Agent
 
@@ -51,13 +50,6 @@ class Statistics:
             summed_welfare += Statistics.owners_welfare(owner)
         print(f"AOW: {summed_welfare / len(self.history.owners)}")
         return summed_welfare / len(self.history.owners)
-
-    def allocated_distance(self):
-        length = 0
-        for agent in self.history.env.agents.values():
-            for segment in agent.allocated_segments:
-                length += len(segment)
-        return length
 
     @staticmethod
     def path_statistics(path: List["Coordinate4D"]):
@@ -105,7 +97,7 @@ class Statistics:
                 "total_near_field_intersection": 0,
             }
             for segment in agent.allocated_segments:
-                if isinstance(segment, PathSegment):
+                if isinstance(segment, PathSegment) and isinstance(agent, PathAgent):
                     for step in segment.coordinates[::agent.speed]:
                         res[agent.id]["near_field_violations"][step.t] = self.violations(step, agent,
                                                                                          agent.near_radius)
@@ -119,7 +111,7 @@ class Statistics:
                                 step.t]
         return res
 
-    def violations(self, position: "Coordinate4D", agent: "HistoryAgent", radi: int):
+    def violations(self, position: "Coordinate4D", agent: "PathAgent", radi: int):
         box = [position.x - radi,
                position.y - radi,
                position.z - radi,
@@ -139,7 +131,7 @@ class Statistics:
 
     def intersections(self, position: "Coordinate4D", agent: "Agent", max_near_radi):
         near_intersections = 0
-        real_agent: "Agent" = self.history.env.agents[agent.id]
+        real_agent: "Agent" = self.history.env.agents[hash(agent)]
         if isinstance(real_agent, PathAgent):
             box = [position.x - max_near_radi,
                    position.y - max_near_radi,
@@ -150,7 +142,7 @@ class Statistics:
                    position.z + max_near_radi,
                    position.t + real_agent.speed]
             collisions = self.history.env.tree.intersection(box, objects=True)
-            real_collisions = filter(lambda col: col.id != agent.id, collisions)
+            real_collisions = filter(lambda col: col.id != hash(agent), collisions)
 
             for collision in real_collisions:
                 colliding_agent = self.history.env.agents[collision.id]

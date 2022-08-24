@@ -4,21 +4,21 @@ from ..Bids.PriorityPathBid import PriorityPathBid
 
 class PriorityPathAgent(PathAgent):
     def __init__(self,
+                 agent_id,
                  locations,
                  priority,
-                 simulator,
                  stays,
-                 agent_id=None,
                  speed=None,
                  battery=None,
-                 near_radius=None):
-        super().__init__(locations,
+                 near_radius=None,
+                 _is_clone=False):
+        super().__init__(agent_id,
+                         locations,
                          stays,
-                         simulator,
-                         agent_id=agent_id,
                          speed=speed,
                          battery=battery,
-                         near_radius=near_radius)
+                         near_radius=near_radius,
+                         _is_clone=_is_clone)
         self.priority = priority
 
     def get_bid(self, t):
@@ -52,12 +52,12 @@ class PriorityPathAgent(PathAgent):
         return PriorityPathBid(battery, locations, stays, self.priority, flying)
 
     def initialize_clone(self):
-        clone = PriorityPathAgent(self.locations,
+        clone = PriorityPathAgent(self.id,
+                                  self.locations,
                                   self.priority,
-                                  self.simulator,
                                   self.stays,
-                                  agent_id=self.id,
                                   speed=self.speed,
                                   battery=self.battery,
-                                  near_radius=self.near_radius)
+                                  near_radius=self.near_radius,
+                                  _is_clone=True)
         return clone

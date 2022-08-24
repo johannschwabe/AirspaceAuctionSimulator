@@ -13,5 +13,6 @@ class PrioritySpaceOwner(SpaceOwner):
         super().__init__(owner_id, name, color, stops, creation_ticks, size)
         self.priority = priority
 
-    def initialize_agent(self, simulator, blocks):
-        return PrioritySpaceAgent(blocks, self.priority, simulator)
+    def initialize_agent(self, blocks):
+        agent_id: str = self.get_agent_id()
+        return PrioritySpaceAgent(agent_id, blocks, self.priority)

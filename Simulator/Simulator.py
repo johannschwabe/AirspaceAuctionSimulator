@@ -32,9 +32,9 @@ class Simulator:
     def generate_new_agents(self) -> Dict[int, "Agent"]:
         new_agents: Dict[int, "Agent"] = {}
         for owner in self.owners:
-            generated_agents = owner.generate_agents(self.time_step, self)
+            generated_agents = owner.generate_agents(self.time_step, self.environment)
             for generated_agent in generated_agents:
-                new_agents[generated_agent.id] = generated_agent
+                new_agents[hash(generated_agent)] = generated_agent
         return new_agents
 
     def tick(self):

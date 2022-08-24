@@ -9,5 +9,6 @@ class FCFSPathOwner(PathOwner):
     def __init__(self, owner_id, name, color, stops, creation_ticks):
         super().__init__(owner_id, name, color, stops, creation_ticks)
 
-    def initialize_agent(self, locations, stays, simulator, speed, battery, near_radius):
-        return FCFSPathAgent(locations, stays, simulator, speed=speed, battery=battery, near_radius=near_radius)
+    def initialize_agent(self, locations, stays, speed, battery, near_radius):
+        agent_id: str = self.get_agent_id()
+        return FCFSPathAgent(agent_id, locations, stays, speed=speed, battery=battery, near_radius=near_radius)

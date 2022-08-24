@@ -49,16 +49,16 @@ class JSONAgent(ABC):
         self,
         agent: "Agent",
         non_colliding_utility: float,
-        owner_id: int,
+        owner_id: str,
         owner_name: str,
     ):
         self.agent_type: str = agent.agent_type
-        self.id: str = f"agent-{agent.id}"
+        self.id: str = agent.id
         self.utility: float = agent.get_allocated_value()
 
         self.non_colliding_utility: float = non_colliding_utility
 
-        self.owner_id: int = owner_id
+        self.owner_id: str = owner_id
         self.owner_name: str = owner_name
         self.name: str = f"{self.owner_name}-{self.agent_type}-{agent.id}"
 
@@ -68,7 +68,7 @@ class JSONSpaceAgent(JSONAgent, Stringify):
         self,
         agent: "SpaceAgent",
         non_colliding_utility: float,
-        owner_id: int,
+        owner_id: str,
         owner_name: str,
     ):
         super().__init__(agent, non_colliding_utility, owner_id, owner_name)
@@ -83,7 +83,7 @@ class JSONPathAgent(JSONAgent, Stringify):
         non_colliding_utility: float,
         near_field_intersections: int,
         near_field_violations: int,
-        owner_id: int,
+        owner_id: str,
         owner_name: str,
         path_stats: Dict[str, float | int]
     ):
@@ -119,9 +119,9 @@ class JSONPathAgent(JSONAgent, Stringify):
 
 
 class JSONOwner(Stringify):
-    def __init__(self, name: str, owner_id: int, color: str, agents: List["JSONAgent"]):
+    def __init__(self, name: str, owner_id: str, color: str, agents: List["JSONAgent"]):
         self.name: str = name
-        self.id: str = f"owner-{owner_id}"
+        self.id: str = owner_id
         self.color: str = color
         self.agents: List["JSONAgent"] = agents
         self.total_time_in_air: int = sum(

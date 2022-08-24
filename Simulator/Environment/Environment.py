@@ -21,7 +21,7 @@ class Environment:
     def __init__(self,
                  dimension: "Coordinate4D",
                  blockers: Optional[List["Blocker"]] = None,
-                 min_height: int = 0,       # Todo Frontend connection
+                 min_height: int = 0,  # Todo Frontend connection
                  allocation_period: int = 50,
                  _tree: Optional[Index] = None,
                  _blocker_tree: Optional[Index] = None):
@@ -98,10 +98,10 @@ class Environment:
                     first, second = path_segment.split_temporal(time_step)
                     new_segments.append(first)
                     for coordinate in second.coordinates:
-                        self.tree.delete(agent.id, coordinate.tree_query_point_rep())
+                        self.tree.delete(hash(agent), coordinate.tree_query_point_rep())
                 else:
                     for coordinate in path_segment.coordinates:
-                        self.tree.delete(agent.id, coordinate.tree_query_point_rep())
+                        self.tree.delete(hash(agent), coordinate.tree_query_point_rep())
 
         agent.allocated_segments = new_segments
 
@@ -114,11 +114,11 @@ class Environment:
             if space_segment.max.t <= time_step:
                 new_segments.append(space_segment)
             else:
-                self.tree.delete(agent.id, space_segment.tree_rep())
+                self.tree.delete(hash(agent), space_segment.tree_rep())
                 if space_segment.min.t < time_step:
                     first, _ = space_segment.split_temporal(time_step)
                     new_segments.append(first)
-                    self.tree.insert(agent.id, first)
+                    self.tree.insert(hash(agent), first)
 
         agent.allocated_segments = new_segments
 
@@ -142,14 +142,14 @@ class Environment:
         """
         agent.add_allocated_segment(path_segment)
         for coord in path_segment.coordinates:
-            self.tree.insert(agent.id, coord.tree_query_point_rep())
+            self.tree.insert(hash(agent), coord.tree_query_point_rep())
 
     def allocate_space_segment_for_agent(self, agent: "SpaceAgent", space_segment: "SpaceSegment"):
         """
         Allocate a space segment.
         """
         agent.add_allocated_segment(space_segment)
-        self.tree.insert(agent.id, space_segment.tree_rep())
+        self.tree.insert(hash(agent), space_segment.tree_rep())
 
     def allocate_segments_for_agents(self,
                                      real_allocations: List["Allocation"],
@@ -178,7 +178,7 @@ class Environment:
         Register a new (or existing) agent with the environment.
         If the agent already exists, he gets deallocated.
         """
-        if agent.id in self.agents:
+        if hash(agent) in self.agents:
             self.deallocate_agent(agent, time_step)
         else:
             self.add_agent(agent)
@@ -191,11 +191,11 @@ class Environment:
         """
         res = []
         for temporary_allocation in temporary_allocations:
-            new_agent_id = temporary_allocation.agent.id
-            if new_agent_id in new_agents:
-                res.append(temporary_allocation.get_real_allocation(new_agents[new_agent_id]))
+            agent_hash: int = hash(temporary_allocation.agent)
+            if agent_hash in new_agents:
+                res.append(temporary_allocation.get_real_allocation(new_agents[agent_hash]))
             else:
-                res.append(temporary_allocation.get_real_allocation(self.agents[new_agent_id]))
+                res.append(temporary_allocation.get_real_allocation(self.agents[agent_hash]))
         return res
 
     def get_blockers(self, coord: "Coordinate4D", radius: int, speed: int) -> List[int]:
@@ -235,9 +235,9 @@ class Environment:
         Returns True if the the given intersections have any collisions with the agent.
         The exclusions are not checked. They should be checked before.
         """
-        for agent_id in intersections:
-            if agent_id != agent.id and agent_id not in exclusions:
-                other_agent = self.agents[agent_id]
+        for agent_hash in intersections:
+            if agent_hash != agent.id and agent_hash not in exclusions:
+                other_agent = self.agents[agent_hash]
                 if isinstance(other_agent, PathAgent):
                     if other_agent.does_collide(coord, agent):
                         return True
@@ -283,7 +283,7 @@ class Environment:
         """
         Add a new agent and record its radii.
         """
-        self.agents[agent.id] = agent
+        self.agents[hash(agent)] = agent
         if isinstance(agent, PathAgent):
             self.max_near_radius = max(self.max_near_radius, agent.near_radius)
 
@@ -305,7 +305,7 @@ class Environment:
         Returns a set of all agents in the given space that are not the given agent.
         """
         intersections = self._intersect_space(bottom_left, top_right)
-        other_agents = [self.agents[agent_id] for agent_id in intersections if agent_id != agent.id]
+        other_agents = [self.agents[agent_hash] for agent_hash in intersections if agent_hash != agent.id]
         return set(other_agents)
 
     def _intersect_space(self, bottom_left: "Coordinate4D", top_right: "Coordinate4D"):

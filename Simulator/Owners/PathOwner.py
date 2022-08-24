@@ -8,9 +8,8 @@ from ..Owners.Owner import Owner
 
 if TYPE_CHECKING:
     from ..Location.GridLocation import GridLocation
-    from ..Environment import Environment
+    from ..Environment.Environment import Environment
     from ..Coordinates.Coordinate4D import Coordinate4D
-    from ..Simulator import Simulator
     from ..Agents.PathAgent import PathAgent
 
 
@@ -20,7 +19,7 @@ class PathOwner(Owner, ABC):
     max_locations = 100
     meta = []
 
-    def __init__(self, owner_id: int, name: str, color: str, stops: List["GridLocation"], creation_ticks: List[int]):
+    def __init__(self, owner_id: str, name: str, color: str, stops: List["GridLocation"], creation_ticks: List[int]):
         super().__init__(owner_id, name, color)
         self.creation_ticks = creation_ticks
         self.stops = stops
@@ -45,24 +44,23 @@ class PathOwner(Owner, ABC):
     def initialize_agent(self,
                          locations: List["Coordinate4D"],
                          stays: List[int],
-                         simulator: "Simulator",
                          speed: int,
                          battery: int,
                          near_radius: int) -> "PathAgent":
         pass
 
-    def generate_agents(self, t: int, simulator: "Simulator") -> List["PathAgent"]:
+    def generate_agents(self, t: int, environment: "Environment") -> List["PathAgent"]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
             speed = 1
             near_radius = 1
-            start = self.generate_stop_coordinate(self.stops[0], simulator.environment, t, near_radius, speed)
+            start = self.generate_stop_coordinate(self.stops[0], environment, t, near_radius, speed)
 
             stays: List[int] = []
             locations: List["Coordinate4D"] = [start]
             total_travel_time: int = 0
             for stop in self.stops[1:]:
-                next_location = self.generate_stop_coordinate(stop, simulator.environment, t, near_radius, speed)
+                next_location = self.generate_stop_coordinate(stop, environment, t, near_radius, speed)
 
                 stay = random.randint(0, 100)
                 stays.append(stay)
@@ -70,11 +68,11 @@ class PathOwner(Owner, ABC):
                 travel_time = math.ceil(distance) * speed
                 total_travel_time += travel_time
                 next_location.t = min(locations[-1].t + travel_time + stay + random.randint(0, 100),
-                                      simulator.environment.dimension.t)
+                                      environment.dimension.t)
                 locations.append(next_location)
 
             battery = total_travel_time * 4
-            agent = self.initialize_agent(locations, stays, simulator, speed, battery, near_radius)
+            agent = self.initialize_agent(locations, stays, speed, battery, near_radius)
             res.append(agent)
             print(f"Path {agent}: {' -> '.join([str(loc) for loc in locations])}")
 

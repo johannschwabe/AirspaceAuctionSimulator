@@ -6,7 +6,6 @@ from ..Agents.AgentType import AgentType
 
 if TYPE_CHECKING:
     from ..Segments.PathSegment import PathSegment
-    from ..Simulator import Simulator
     from ..Coordinates.Coordinate4D import Coordinate4D
 
 
@@ -18,15 +17,15 @@ class PathAgent(Agent, ABC):
     agent_type: str = AgentType.PATH.value
 
     def __init__(self,
+                 agent_id: str,
                  locations: List["Coordinate4D"],
                  stays: List[int],
-                 simulator: "Simulator",
-                 agent_id: Optional[int] = None,
                  speed: Optional[int] = None,
                  battery: Optional[int] = None,
-                 near_radius: Optional[int] = None):
+                 near_radius: Optional[int] = None,
+                 _is_clone: bool = False):
 
-        super().__init__(simulator, agent_id)
+        super().__init__(agent_id, _is_clone=_is_clone)
 
         self.locations: List["Coordinate4D"] = locations
         self.stays: List[int] = stays

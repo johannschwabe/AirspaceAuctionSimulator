@@ -1,29 +1,21 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Optional, List
+from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from ..Segments.Segment import Segment
-    from ..Simulator import Simulator
     from ..Bids.Bid import Bid
 
 
 class Agent(ABC):
     agent_type: str
 
-    def __init__(self,
-                 simulator: "Simulator",
-                 agent_id: Optional[int] = None):
-
-        self.simulator: "Simulator" = simulator
-
-        if agent_id is not None:
-            self.id: int = agent_id
-            self.is_clone: bool = True
-        else:
-            self.id: int = self.simulator.get_agent_id()
-            self.is_clone: bool = False
-
+    def __init__(self, agent_id: str, _is_clone: bool = False):
+        self.id: str = agent_id
+        self.is_clone: bool = _is_clone
         self.allocated_segments: List["Segment"] = []
+
+    def __hash__(self):
+        return hash(self.id)
 
     @abstractmethod
     def value_for_segments(self, segments: List["Segment"]) -> float:

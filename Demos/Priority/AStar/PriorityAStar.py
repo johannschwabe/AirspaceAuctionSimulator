@@ -14,10 +14,10 @@ class PriorityAStar(AStar):
             return False, set()
         agents = self.environment.intersect(position, agent.near_radius, agent.speed)
         colliding_agents = set()
-        for agent_id in agents:
-            if agent_id == agent.id:
+        for agent_hash in agents:
+            if agent_hash == agent.id:
                 continue
-            colliding_agent = self.environment.agents[agent_id]
+            colliding_agent = self.environment.agents[agent_hash]
             if colliding_agent.priority < agent.priority:
                 colliding_agents.add(colliding_agent)
             else:

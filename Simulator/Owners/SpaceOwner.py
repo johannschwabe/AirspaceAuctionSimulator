@@ -9,7 +9,6 @@ if TYPE_CHECKING:
     from ..Location.GridLocation import GridLocation
     from ..Environment.Environment import Environment
     from ..Coordinates.Coordinate4D import Coordinate4D
-    from ..Simulator import Simulator
     from ..Agents.SpaceAgent import SpaceAgent
 
 
@@ -49,7 +48,7 @@ class SpaceOwner(Owner, ABC):
     ]
 
     def __init__(self,
-                 owner_id: int,
+                 owner_id: str,
                  name: str,
                  color: str,
                  stops: List["GridLocation"],
@@ -65,18 +64,18 @@ class SpaceOwner(Owner, ABC):
         coord = stop.generate_coordinates(env, t)
         return coord
 
-    def initialize_agent(self, simulator: "Simulator", blocks: List[List["Coordinate4D"]]) -> "SpaceAgent":
+    def initialize_agent(self, blocks: List[List["Coordinate4D"]]) -> "SpaceAgent":
         pass
 
-    def generate_agents(self, t: int, simulator: "Simulator") -> List["SpaceAgent"]:
+    def generate_agents(self, t: int, environment: "Environment") -> List["SpaceAgent"]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
             blocks = []
             for stop in self.stops:
-                bottom_left = self.generate_stop_coordinates(stop, simulator.environment, t)
+                bottom_left = self.generate_stop_coordinates(stop, environment, t)
                 top_right = bottom_left + self.size
                 blocks.append([bottom_left, top_right])
-            agent = self.initialize_agent(simulator, blocks)
+            agent = self.initialize_agent(blocks)
             res.append(agent)
             print(f"Space {agent}: {', '.join([str(block) for block in blocks])}")
 

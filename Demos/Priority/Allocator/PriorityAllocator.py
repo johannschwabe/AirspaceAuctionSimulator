@@ -111,6 +111,6 @@ class PriorityAllocator(Allocator):
                                                    compute_time=time_ns() - start_time,
                                                    colliding_agents_ids=collision_ids))
 
-            if agent.id not in environment.agents:
+            if hash(agent) not in environment.agents:
                 environment.add_agent(agent)
         return allocations
