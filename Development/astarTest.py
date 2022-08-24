@@ -1,12 +1,9 @@
 import random
 from time import time_ns
 
-from API.API import APISimpleCoordinates
-from API.Generator.EnvironmentGen import EnvironmentGen
-from API.Generator.MapTile import MapTile
-from Demos.FCFS.Agents.FCFSABAgent import FCFSABAgent
-from Demos.FCFS.Allocator.FCFSAllocator import FCFSAllocator
-from Simulator import AStar, Coordinate4D, ABOwner, GridLocation, GridLocationType, Simulator
+from API import APIWorldCoordinates, EnvironmentGen, MapTile
+from Demos import FCFSAllocator, FCFSPathAgent
+from Simulator import AStar, Coordinate4D, GridLocation, GridLocationType, Simulator, PathOwner
 
 dimensions = Coordinate4D(831, 30, 831, 20000)
 
@@ -16,8 +13,8 @@ def setup():
     environment = EnvironmentGen(dimensions, [MapTile(
         [15, 17161, 11475],
         dimensions,
-        APISimpleCoordinates(lat=47.376034633497596, long=8.536376953124991),
-        APISimpleCoordinates(lat=47.3685943521338, long=8.547363281249993)
+        APIWorldCoordinates(lat=47.376034633497596, long=8.536376953124991),
+        APIWorldCoordinates(lat=47.3685943521338, long=8.547363281249993)
     )]).generate()
     allocator = FCFSAllocator()
     simulator = Simulator([], allocator, environment)
@@ -46,11 +43,12 @@ def writeCoords(simulator: Simulator, filename: str):
     nr_tests = 20
     for index in range(nr_tests):
         print(f"Test {index}")
-        start = ABOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)),
-                                                 simulator.environment, 0, 1, 1)
-        end = ABOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)), simulator.environment,
-                                               0, 1, 1)
-        agent = FCFSABAgent(start, end, simulator)
+        start = PathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)),
+                                                   simulator.environment, 0, 1, 1)
+        end = PathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)),
+                                                 simulator.environment,
+                                                 0, 1, 1)
+        agent = FCFSPathAgent([start, end], [], simulator)
         res, _ = astar.astar(start, end, agent)
         f.write(f"{start.x},{start.y},{start.z},{start.t}-{end.x},{end.y},{end.z},{end.t}-{len(res)}\n")
     f.close()
@@ -68,7 +66,7 @@ def testCoords(simulator: Simulator, g_sum, height_adjust):
     for segment in segments:
         start = segment["start"]
         end = segment["end"]
-        agent = FCFSABAgent(start, end, simulator)
+        agent = FCFSPathAgent([start, end], [], simulator)
         res, _ = astar.astar(segment["start"], segment["end"], agent)
         if len(res) > 0:
             nr_success += 1

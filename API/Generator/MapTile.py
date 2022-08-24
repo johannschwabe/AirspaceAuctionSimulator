@@ -5,7 +5,7 @@ import cloudscraper
 from Simulator import Coordinate4D, BuildingBlocker
 
 if TYPE_CHECKING:
-    from API.API import APISimpleCoordinates
+    from ..API import APIWorldCoordinates
 
 
 class MapTile:
@@ -14,8 +14,8 @@ class MapTile:
         self,
         tile_ids: List[int],
         dimensions: "Coordinate4D",
-        top_left_coordinate: "APISimpleCoordinates",
-        bottom_right_coordinate: "APISimpleCoordinates",
+        top_left_coordinate: "APIWorldCoordinates",
+        bottom_right_coordinate: "APIWorldCoordinates",
     ):
         self.blockers = []
         self.z = tile_ids[0]

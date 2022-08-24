@@ -67,17 +67,17 @@ class APIDimension(BaseModel):
     t: int
 
 
-class APISimpleCoordinates(BaseModel):
+class APIWorldCoordinates(BaseModel):
     long: float
     lat: float
 
 
 class APIMap(BaseModel):
-    coordinates: APISimpleCoordinates
+    coordinates: APIWorldCoordinates
     locationName: str
     neighbouringTiles: int
-    topLeftCoordinate: APISimpleCoordinates
-    bottomRightCoordinate: APISimpleCoordinates
+    topLeftCoordinate: APIWorldCoordinates
+    bottomRightCoordinate: APIWorldCoordinates
     tiles: List[List[int]]
 
 
