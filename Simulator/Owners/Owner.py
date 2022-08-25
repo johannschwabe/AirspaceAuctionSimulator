@@ -26,7 +26,7 @@ class Owner(ABC):
 
     def get_agent_id(self):
         agent_id = self._agent_id
-        agent_id += 1
+        self._agent_id += 1
         return f"{self.id}-{agent_id}"
 
     @abstractmethod
