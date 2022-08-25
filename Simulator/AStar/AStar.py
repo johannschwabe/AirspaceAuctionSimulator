@@ -68,7 +68,7 @@ class AStar:
 
         total_collisions = set()
 
-        while len(open_nodes) > 0 and (self.max_iter > -1 and steps < self.max_iter):
+        while len(open_nodes) > 0 and (self.max_iter == -1 or steps < self.max_iter):
             steps += 1
 
             current_node = heapq.heappop(heap)
