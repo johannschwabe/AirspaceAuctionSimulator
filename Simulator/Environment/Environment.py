@@ -106,7 +106,7 @@ class Environment:
         Allocate a path segment.
         """
         min_index = max(time_step - path_segment.min.t, 0)
-        for coord in path_segment[min_index::agent.speed]:
+        for coord in path_segment.coordinates[min_index::agent.speed]:
             intersections = self.tree.intersection(coord.tree_query_point_rep(), objects=True)
             for intersection in intersections:
                 _index = intersection.id
