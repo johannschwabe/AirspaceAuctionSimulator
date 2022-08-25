@@ -66,26 +66,27 @@ class PathAgent(Agent, ABC):
                         return True
         return False
 
-    def value_for_segments(self, paths: List["PathSegment"]) -> float:
-        if len(paths) == 0:
+    def value_for_segments(self, path_segments: List["PathSegment"]) -> float:
+        if len(path_segments) == 0:
             return 0.
 
-        if len(paths) != len(self.locations) - 1:
-            print("Invalid allocation!!")
-            return 0.
+        if len(path_segments) != len(self.locations) - 1:
+            print("Crash: Not all locations reached")
+            return -1.
 
         value = 1.
         time = 0
-        for path, location in zip(paths, self.locations[1:]):
+        for path, location in zip(path_segments, self.locations[1:]):
             destination = path.max
             if not destination.inter_temporal_equal(location):
-                print("Invalid allocation!")
-                return 0.
+                print("Crash: no further path found")
+                return -1.
 
             time += destination.t - path.min.t
-            value -= (destination.t - location.t) / 100
+            value -= max(destination.t - location.t, 0) / 100
 
         if time > self.battery:
+            print("Crash: empty battery")
             return -1.
 
         return round(max(0., value), 2)

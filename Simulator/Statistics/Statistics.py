@@ -17,7 +17,7 @@ class Statistics:
         self.history: "History" = sim.history
 
     def non_colliding_value(self, agent: "Agent"):
-        local_agent = agent.clone()
+        local_agent = agent.initialize_clone()
         local_env = self.history.env.new_clear()
         paths = self.history.allocator.allocate_for_agents([local_agent], local_env, 0)[0]
         return local_agent.value_for_segments(paths.segments)
