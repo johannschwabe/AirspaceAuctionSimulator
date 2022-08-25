@@ -1,1 +1,0 @@
-from .PointOfInterest import PointOfInterest

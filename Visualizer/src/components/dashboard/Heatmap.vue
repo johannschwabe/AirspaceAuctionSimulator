@@ -6,8 +6,8 @@
 import VueApexCharts from "vue3-apexcharts";
 import { reactive } from "vue";
 
-import { useSimulationSingleton } from "../../scripts/simulation";
-import { onAgentsSelected, onTick } from "../../scripts/emitter";
+import { useSimulationSingleton } from "@/scripts/simulation";
+import { onAgentsSelected, onTick } from "@/scripts/emitter";
 
 const props = defineProps({
   title: String,
@@ -92,15 +92,27 @@ const resetState = () => {
 };
 
 const updateState = () => {
-  console.log("Heatmap: Update state");
-  simulation.activeAgents.forEach((agent) => {
+  simulation.activePathAgents.forEach((agent) => {
     const loc_dimx = agent.combinedPath.at(simulation.tick)[props.dimX];
     const loc_dimy = agent.combinedPath.at(simulation.tick)[props.dimY];
     const dim1 = Math.floor(loc_dimx / dimXlength);
     const dim2 = Math.floor(loc_dimy / dimYlength);
     series[dim2].data[dim1] += 1;
   });
-  console.log("Heatmap: Done");
+  simulation.activeSpaceAgents.forEach((agent) => {
+    agent.combinedSpace[simulation.tick].forEach(({ min, max }) => {
+      for (let x = min[props.dimX]; x <= max[props.dimX]; x++) {
+        for (let y = min[props.dimY]; y <= max[props.dimY]; y++) {
+          const dim1 = Math.floor(x / dimXlength);
+          const dim2 = Math.floor(y / dimYlength);
+          if (dim2 >= series.length || dim1 >= series[0].data.length) {
+            continue;
+          }
+          series[dim2].data[dim1] += 1;
+        }
+      }
+    });
+  });
 };
 
 updateState();

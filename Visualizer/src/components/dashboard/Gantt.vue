@@ -6,8 +6,8 @@
 import VueApexCharts from "vue3-apexcharts";
 import { reactive, ref } from "vue";
 
-import { useSimulationSingleton } from "../../scripts/simulation";
-import { onAgentsSelected, onTick } from "../../scripts/emitter";
+import { useSimulationSingleton } from "@/scripts/simulation";
+import { onAgentsSelected } from "@/scripts/emitter";
 
 const simulation = useSimulationSingleton();
 
@@ -54,9 +54,10 @@ const series = reactive([
 const updateSeries = () => {
   const gantt = [];
   simulation.selectedAgents.forEach((agent) => {
-    agent.paths.forEach((path) => {
-      const start = path.firstTick;
-      const end = path.lastTick;
+    agent.segmentsStartEnd.forEach(([start, end]) => {
+      if (start === null || end === null) {
+        throw new Error("Invalid start or end of path!");
+      }
       gantt.push({
         x: agent.name,
         y: [start, end],
@@ -65,7 +66,6 @@ const updateSeries = () => {
     });
   });
   series[0].data = gantt;
-  console.log("Welfare: Done");
 };
 
 onAgentsSelected(() => {

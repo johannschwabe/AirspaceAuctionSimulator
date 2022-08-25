@@ -23,7 +23,7 @@ body {
   background-color: rgb(16, 16, 16);
 }
 .content {
-  max-width: 1900px;
+  max-width: 2100px;
   margin: 0 auto;
 }
 </style>

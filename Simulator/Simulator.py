@@ -1,49 +1,58 @@
-from typing import List, Dict, TYPE_CHECKING
-from time import time
-from .Path import PathSegment
-from .Time import Tick
-from .Agent import Agent
-from .Coordinate import TimeCoordinate
-from .Environment import Environment
-from .Allocator import Allocator
-from .Owner import Owner
+from time import time_ns
+from typing import List, TYPE_CHECKING, Dict
+
+from .History.History import History
 
 if TYPE_CHECKING:
-    from .History import History
+    from .Allocations.Allocation import Allocation
+    from .Agents.Agent import Agent
+    from .Environment.Environment import Environment
+    from .Allocator.Allocator import Allocator
+    from .Owners.Owner import Owner
 
 
 class Simulator:
     def __init__(self,
-                 owners: List[Owner],
-                 allocator: Allocator,
-                 environment: Environment,
-                 history: "History"):
-        self.owners: List[Owner] = owners
-        self.allocator: Allocator = allocator
-        self.environment: Environment = environment
-        self.history: "History" = history
-        # self.agents: List[Agent] = []
-        self.time_step = Tick(0)
+                 owners: List["Owner"],
+                 allocator: "Allocator",
+                 environment: "Environment"):
+        self.owners: List["Owner"] = owners
+        self.allocator: "Allocator" = allocator
+        self.environment: "Environment" = environment
+        self.history: "History" = History(allocator, environment, owners)
 
-    def tick(self) -> bool:
-        start_t = time() * 1000
-        newcomers: List[Agent] = []
+        self.time_step = 0
+        self._agent_id = 0
+
+    def get_agent_id(self) -> int:
+        agent_id = self._agent_id
+        self._agent_id += 1
+        return agent_id
+
+    def generate_new_agents(self) -> Dict[int, "Agent"]:
+        new_agents: Dict[int, "Agent"] = {}
         for owner in self.owners:
-            newcomers += owner.generate_agents(self.time_step, self.environment)
-        agents_created_t = time() * 1000
+            generated_agents = owner.generate_agents(self.time_step, self.environment)
+            for generated_agent in generated_agents:
+                new_agents[hash(generated_agent)] = generated_agent
+        return new_agents
 
-        if len(newcomers) > 0:
-            self.history.add_new_agents(newcomers, self.time_step)
-            history_updated_t = time() * 1000
-            temp_env = self.environment.clone()
-            temp_env_created_t = time() * 1000
-            cloned_agents_paths: Dict[Agent, List[PathSegment]] = self.allocator.temp_allocation(newcomers, temp_env, self.time_step)
-            temp_allocations_t = time() * 1000
-            agents_paths = self.environment.original_agents(cloned_agents_paths, newcomers)
-            path_translated_t = time() * 1000
-            self.environment.allocate_segments_for_agents(agents_paths, self.time_step)
-            real_env_updated_t = time() * 1000
-            self.history.update_allocations(agents_paths, self.time_step)
-            history_updated_2_t = time() * 1000
+    def tick(self):
+        new_agents: Dict[int, "Agent"] = self.generate_new_agents()
+
+        if len(new_agents) > 0:
+            start_time = time_ns()
+
+            self.history.add_new_agents(list(new_agents.values()), self.time_step)
+            temporary_environment = self.environment.clone()
+            temporary_allocations: List["Allocation"] = self.allocator.allocate(
+                list(new_agents.values()),
+                temporary_environment,
+                self.time_step)
+            real_allocations = self.environment.create_real_allocations(temporary_allocations, new_agents)
+            self.environment.allocate_segments_for_agents(real_allocations, self.time_step)
+            self.history.update_allocations(real_allocations, self.time_step, time_ns() - start_time)
+            print(f"STEP: {self.time_step}")
+            print("-------------")
+
         self.time_step += 1
-        return True

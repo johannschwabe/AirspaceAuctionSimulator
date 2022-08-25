@@ -1,8 +1,6 @@
 import {
   ActionManager,
   ArcRotateCamera,
-  UniversalCamera,
-  FlyCamera,
   AxesViewer,
   Color3,
   DirectionalLight,
@@ -16,10 +14,19 @@ import {
   StandardMaterial,
   Vector3,
   Color4,
-  Mesh,
 } from "babylonjs";
 import earcut from "earcut";
 import { useSimulationSingleton } from "./simulation";
+import Path from "../SimulationObjects/Path";
+import PathAgent from "@/SimulationObjects/PathAgent";
+import SpaceAgent from "@/SimulationObjects/SpaceAgent";
+
+const HEMISPHERE_LIGHT_INTENSITY = 1.0;
+const MAIN_LIGHT_INTENSITY = 1.5;
+
+export function getMaterialName(agent) {
+  return `material-agent-${agent.id}`;
+}
 
 export function useEngine({ canvas }) {
   return new Engine(canvas.value, true, {
@@ -47,7 +54,7 @@ export function useMainLight({ scene, x, y, z }) {
   mainLight.diffuse = new Color3.FromHexString("#ffffff");
   mainLight.specular = new Color3.FromHexString("#63e2b7");
   mainLight.groundColor = new Color3.FromHexString("#44ab87");
-  mainLight.intensity = 1;
+  mainLight.intensity = MAIN_LIGHT_INTENSITY;
   mainLight.position.x = x / 2;
   mainLight.position.y = y / 2;
   mainLight.position.z = z / 2;
@@ -55,17 +62,17 @@ export function useMainLight({ scene, x, y, z }) {
 }
 
 export function useCamera({ x, y, z, scene, canvas }) {
-  const target = new Vector3(0, (y / 4) * 2, 0);
+  const target = new Vector3(0, 0, 0);
   const camera = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, target, scene);
   camera.attachControl(canvas, true);
   camera.setTarget(target);
-  camera.setPosition(new Vector3(-x, y * 2.5, -z));
+  camera.setPosition(new Vector3(0, Math.max(x, y, z), -z));
   return camera;
 }
 
 export function useHemisphereLight({ scene }) {
   const hemisphereLight = new HemisphericLight("HemiLight", new Vector3(0, 1, 0), scene);
-  hemisphereLight.intensity = 0.5;
+  hemisphereLight.intensity = HEMISPHERE_LIGHT_INTENSITY;
   return hemisphereLight;
 }
 
@@ -99,9 +106,9 @@ export function useBuildings({ scene, shadows, mapTiles, blockerMaterial }) {
   mapTiles.forEach((mapTile, i) => {
     mapTile.buildings.forEach((building, j) => {
       const options = {
-        shape: building.coordinates.map(({ x, y }) => new Vector3(x, 0, y)).reverse(),
+        shape: building.coordinates.map(({ x, z }) => new Vector3(x, 0, z)).reverse(),
         depth: building.height,
-        holes: building.holes.map((hole) => hole.map(({ x, y }) => new Vector3(x, 0, y))).reverse(),
+        holes: building.holes.map((hole) => hole.map(({ x, z }) => new Vector3(x, 0, z))).reverse(),
       };
       const buildingMesh = MeshBuilder.ExtrudePolygon(`tile-${i}-building-${j}`, options, scene, earcut);
       buildingMesh.material = blockerMaterial;
@@ -183,6 +190,8 @@ export function useFocusCache({ scene }) {
     nearFieldMaterial,
     farFieldSphere,
     farFieldMaterial,
+    pathLines: [],
+    agent: undefined,
   };
 }
 
@@ -209,9 +218,9 @@ export function useBlockers({ scene, blockerCache, shadows, x, z, blockerMateria
     }
     // Update blocker position
     const storedBlockerCube = blockerCache[blocker.id][0];
-    storedBlockerCube.position.x = blocker.positionAtTick(simulation.tick).x - x / 2;
+    storedBlockerCube.position.x = blocker.positionAtTick(simulation.tick).x + blocker.dimension.x / 2 - x / 2;
     storedBlockerCube.position.y = blocker.positionAtTick(simulation.tick).y + blocker.dimension.y / 2;
-    storedBlockerCube.position.z = blocker.positionAtTick(simulation.tick).z - z / 2;
+    storedBlockerCube.position.z = blocker.positionAtTick(simulation.tick).z + blocker.dimension.z / 2 - z / 2;
   });
 }
 
@@ -232,76 +241,257 @@ export function updateBlockers({ scene, blockerCache, shadows, x, z, blockerMate
   useBlockers({ scene, blockerCache, shadows, x, z, blockerMaterial });
 }
 
-export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLight }) {
+export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLight, droneCache, camera }) {
   const simulation = useSimulationSingleton();
-  const focusOn = ({ agent, agent_x, agent_y, agent_z }) => {
+  const focusOnSpaceAgent = ({ agent, space, update }) => {
+    // Write agent to focus cache
+    focusCache.agent = agent;
+    // Turn on focus light
+    const { selectionLight } = focusCache;
+    selectionLight.position.x = space.originX - x / 2;
+    selectionLight.position.y = space.originY;
+    selectionLight.position.z = space.originZ - z / 2;
+    if (!update) {
+      selectionLight.diffuse = new Color3.FromHexString(agent.color);
+      selectionLight.specular = new Color3.FromHexString(agent.color);
+      selectionLight.range = y * 2;
+      selectionLight.intensity = 2;
+
+      // Turn off main light
+      mainLight.intensity = 0;
+
+      // Turn off hemisphere light
+      hemisphereLight.intensity = 0.5;
+    }
+
+    // Darken all other drones
+    Object.values(droneCache).forEach(({ meshes }) => {
+      if (meshes[0].material.name !== getMaterialName(agent)) {
+        meshes[0].material.alpha = 0.2;
+        if (meshes.length > 1) {
+          meshes[1].alpha = 0.1;
+        }
+      }
+    });
+
+    // Focus camera to agent
+    const target = new Vector3(space.originX - x / 2, space.originY, space.originZ - z / 2);
+    camera.setTarget(target);
+
+    simulation.focusOnAgent(agent);
+  };
+  const focusOnPathAgent = ({ agent, agent_x, agent_y, agent_z, update }) => {
+    // Write agent to focus cache
+    focusCache.agent = agent;
     // Turn on focus light
     const { selectionLight } = focusCache;
     selectionLight.position.x = agent_x - x / 2;
     selectionLight.position.y = agent_y;
     selectionLight.position.z = agent_z - z / 2;
-    selectionLight.diffuse = new Color3.FromHexString(agent.color);
-    selectionLight.specular = new Color3.FromHexString(agent.color);
-    selectionLight.range = y * 2;
-    selectionLight.intensity = 2;
+    if (!update) {
+      selectionLight.diffuse = new Color3.FromHexString(agent.color);
+      selectionLight.specular = new Color3.FromHexString(agent.color);
+      selectionLight.range = y * 2;
+      selectionLight.intensity = 2;
 
-    // Turn off main light
-    focusCache.mainLightIntensity = mainLight.intensity;
-    mainLight.intensity = 0;
+      // Turn off main light
+      mainLight.intensity = 0;
 
-    // Turn off hemisphere light
-    focusCache.hemisphereLightIntensity = hemisphereLight.intensity;
-    hemisphereLight.intensity = 0.5;
+      // Turn off hemisphere light
+      hemisphereLight.intensity = 0.5;
+    }
 
     // Activate NearField
     const { nearFieldSphere, nearFieldMaterial } = focusCache;
-    const nearR = agent.nearRadius * 2;
-    nearFieldSphere.scaling = new Vector3(nearR, nearR, nearR);
     nearFieldSphere.position.x = agent_x - x / 2;
     nearFieldSphere.position.y = agent_y;
     nearFieldSphere.position.z = agent_z - z / 2;
-    nearFieldMaterial.diffuseColor = new Color3.FromHexString(agent.color);
-    nearFieldMaterial.emissiveColor = new Color3.FromHexString(agent.color);
+    if (!update) {
+      const nearR = agent.nearRadius * 2;
+      nearFieldSphere.scaling = new Vector3(nearR, nearR, nearR);
+      nearFieldMaterial.diffuseColor = new Color3.FromHexString(agent.color);
+      nearFieldMaterial.emissiveColor = new Color3.FromHexString(agent.color);
+    }
 
     // Activate FarField
     const { farFieldSphere, farFieldMaterial } = focusCache;
-    const farR = agent.farRadius * 2;
-    farFieldSphere.scaling = new Vector3(farR, farR, farR);
     farFieldSphere.position.x = agent_x - x / 2;
     farFieldSphere.position.y = agent_y;
     farFieldSphere.position.z = agent_z - z / 2;
-    farFieldMaterial.diffuseColor = new Color3.FromHexString(agent.color);
-    farFieldMaterial.emissiveColor = new Color3.FromHexString(agent.color);
+    if (!update) {
+      const farR = agent.farRadius * 2;
+      farFieldSphere.scaling = new Vector3(farR, farR, farR);
+      farFieldMaterial.diffuseColor = new Color3.FromHexString(agent.color);
+      farFieldMaterial.emissiveColor = new Color3.FromHexString(agent.color);
+    }
+
+    // Darken all other drones
+    Object.values(droneCache).forEach(({ meshes }) => {
+      if (meshes[0].material.name !== getMaterialName(agent)) {
+        meshes[0].material.alpha = 0.2;
+        if (meshes.length > 1) {
+          meshes[1].alpha = 0.1;
+        }
+      }
+    });
+
+    // Highlight own agents branches
+    if (!update) {
+      focusCache.pathLines.forEach((line) => {
+        line.dispose();
+      });
+      const drawPath = ({ path, color, alpha }) => {
+        const points = path.ticksInAir.map((_t, i) => {
+          const { x: ax, y: ay, z: az } = path.atIndex(i);
+          return new Vector3(ax - x / 2, ay, az - z / 2);
+        });
+        const pathLine = MeshBuilder.CreateLines(`branch-agent-${agent.id}`, {
+          points,
+        });
+        pathLine.alpha = alpha;
+        pathLine.color = new Color3.FromHexString(color);
+        return pathLine;
+      };
+      const pathLines = [];
+      agent.branches.forEach((branch) => {
+        branch.paths.forEach((branch_path) => {
+          const path_segments = Path.subtract(branch_path, agent.combinedPath);
+          path_segments.forEach((path) => {
+            pathLines.push(drawPath({ path, color: "#ffffff", alpha: 1 }));
+          });
+        });
+      });
+      agent.paths.forEach((path) => {
+        pathLines.push(drawPath({ path, color: agent.color, alpha: 1.0 }));
+      });
+      focusCache.pathLines = pathLines;
+    }
+
+    // Focus camera to agent
+    const target = new Vector3(agent_x - x / 2, agent_y, agent_z - z / 2);
+    camera.setTarget(target);
 
     simulation.focusOnAgent(agent);
   };
-  const focusOff = () => {
+  const focusOffSpaceAgent = () => {
     // Turn off focus light
     const { selectionLight } = focusCache;
     selectionLight.intensity = 0.0;
 
     // Turn on main light
-    mainLight.intensity = focusCache.mainLightIntensity;
+    mainLight.intensity = MAIN_LIGHT_INTENSITY;
 
     // Turn on hemisphere light
-    hemisphereLight.intensity = focusCache.hemisphereLightIntensity;
+    hemisphereLight.intensity = HEMISPHERE_LIGHT_INTENSITY;
+
+    // Set opacity of other drones to regular values
+    Object.values(droneCache).forEach(({ meshes }) => {
+      meshes[0].material.alpha = 1.0;
+      if (meshes.length > 1) {
+        meshes[1].alpha = 0.5;
+      }
+    });
+
+    // Focus camera to base again
+    const target = new Vector3(0, 0, 0);
+    camera.setTarget(target);
+
+    focusCache.agent = undefined;
+  };
+  const focusOffPathAgent = () => {
+    // Turn off focus light
+    const { selectionLight } = focusCache;
+    selectionLight.intensity = 0.0;
+
+    // Turn on main light
+    mainLight.intensity = MAIN_LIGHT_INTENSITY;
+
+    // Turn on hemisphere light
+    hemisphereLight.intensity = HEMISPHERE_LIGHT_INTENSITY;
 
     // Disable Near-/ Farfield Spheres
     const { nearFieldSphere, farFieldSphere } = focusCache;
     nearFieldSphere.scaling = new Vector3(0, 0, 0);
     farFieldSphere.scaling = new Vector3(0, 0, 0);
+
+    // Set opacity of other drones to regular values
+    Object.values(droneCache).forEach(({ meshes }) => {
+      meshes[0].material.alpha = 1.0;
+      if (meshes.length > 1) {
+        meshes[1].alpha = 0.5;
+      }
+    });
+
+    // Disable highlighted paths
+    focusCache.pathLines.forEach((line) => {
+      line.dispose();
+    });
+    focusCache.pathLines = [];
+
+    // Focus camera to base again
+    const target = new Vector3(0, y / 2, 0);
+    camera.setTarget(target);
+
+    focusCache.agent = undefined;
   };
   return {
-    focusOn,
-    focusOff,
+    focusOnSpaceAgent,
+    focusOnPathAgent,
+    focusOffSpaceAgent,
+    focusOffPathAgent,
   };
 }
 
-export function useDrones({ scene, droneCache, x, z, focusOn }) {
+export function useDrones({ scene, droneCache, x, z, focusOnPathAgent, focusOnSpaceAgent }) {
   const simulation = useSimulationSingleton();
 
-  // Push new meshes
-  simulation.activeAgents.forEach((agent) => {
+  // Push new meshes for SPACE AGENTS
+  simulation.activeSpaceAgents.forEach((agent) => {
+    const spaces = agent.spaces.filter((s) => s.isActiveAtTick(simulation.tick));
+    const reservedSpaces = [];
+
+    if (droneCache[agent.id]) {
+      droneCache[agent.id].meshes.forEach((mesh) => {
+        mesh.dispose();
+      });
+      delete droneCache[agent.id];
+    }
+
+    spaces.forEach((space) => {
+      // Draw occupied field
+      const agentReservedSpace = MeshBuilder.CreateBox(`space-agent-${agent.id}`, {
+        height: space.dimensionY,
+        width: space.dimensionX,
+        depth: space.dimensionZ,
+      });
+      agentReservedSpace.color = new Color3.FromHexString(agent.color);
+
+      // create Material
+      const ownerMaterial = new StandardMaterial(getMaterialName(agent), scene);
+      ownerMaterial.diffuseColor = new Color3.FromHexString(agent.color);
+      agentReservedSpace.visibility = 0.66;
+      agentReservedSpace.material = ownerMaterial;
+      agentReservedSpace.isPickable = true;
+      agentReservedSpace.actionManager = new ActionManager(scene);
+
+      agentReservedSpace.actionManager.registerAction(
+        new ExecuteCodeAction(ActionManager.OnPickTrigger, () => focusOnSpaceAgent({ agent, space }))
+      );
+
+      agentReservedSpace.position.x = space.originX - x / 2;
+      agentReservedSpace.position.y = space.originY;
+      agentReservedSpace.position.z = space.originZ - z / 2;
+
+      reservedSpaces.push(agentReservedSpace);
+    });
+
+    droneCache[agent.id] = {
+      meshes: reservedSpaces,
+    };
+  });
+
+  // Push new meshes for PATH AGENTS
+  simulation.activePathAgents.forEach((agent) => {
     const path = agent.paths.find((p) => p.isActiveAtTick(simulation.tick));
     const pathIdx = agent.paths.indexOf(path);
     const { x: agent_x, y: agent_y, z: agent_z } = agent.combinedPath.at(simulation.tick);
@@ -326,7 +516,7 @@ export function useDrones({ scene, droneCache, x, z, focusOn }) {
       agentPathLine.color = new Color3.FromHexString(agent.color);
 
       // create Material
-      const ownerMaterial = new StandardMaterial(`material-agent-${agent.id}`, scene);
+      const ownerMaterial = new StandardMaterial(getMaterialName(agent), scene);
       ownerMaterial.diffuseColor = new Color3.FromHexString(agent.color);
       ownerMaterial.emissiveColor = new Color3.FromHexString(agent.color);
       ownerMaterial.alpha = 1;
@@ -342,21 +532,24 @@ export function useDrones({ scene, droneCache, x, z, focusOn }) {
       agentLocationSphere.actionManager = new ActionManager(scene);
 
       agentLocationSphere.actionManager.registerAction(
-        new ExecuteCodeAction(ActionManager.OnPickTrigger, () => focusOn({ agent, agent_x, agent_y, agent_z }))
+        new ExecuteCodeAction(ActionManager.OnPickTrigger, () => focusOnPathAgent({ agent, agent_x, agent_y, agent_z }))
       );
 
-      droneCache[agent.id] = { meshes: [agentPathLine, agentLocationSphere], pathIdx };
+      droneCache[agent.id] = {
+        meshes: [agentLocationSphere, agentPathLine],
+        pathIdx,
+      };
     }
 
     // Update sphere position
-    const storedAgentLocationSphere = droneCache[agent.id].meshes[1];
+    const storedAgentLocationSphere = droneCache[agent.id].meshes[0];
     storedAgentLocationSphere.position.x = agent_x - x / 2;
     storedAgentLocationSphere.position.y = agent_y;
     storedAgentLocationSphere.position.z = agent_z - z / 2;
   });
 }
 
-export function updateDrones({ scene, droneCache, x, z, focusOn }) {
+export function updateDrones({ scene, droneCache, x, z, focusOnSpaceAgent, focusOnPathAgent }) {
   const simulation = useSimulationSingleton();
 
   // Remove unused meshes
@@ -369,5 +562,24 @@ export function updateDrones({ scene, droneCache, x, z, focusOn }) {
       delete droneCache[uuid];
     }
   });
-  useDrones({ scene, droneCache, x, z, focusOn });
+  useDrones({ scene, droneCache, x, z, focusOnSpaceAgent, focusOnPathAgent });
+}
+export function updateFocus({ focusCache, focusOnSpaceAgent, focusOnPathAgent }) {
+  const agent = focusCache.agent;
+  if (!agent) {
+    return;
+  }
+  const simulation = useSimulationSingleton();
+  if (!agent.isActiveAtTick(simulation.tick)) {
+    simulation.focusOff();
+    return;
+  }
+  if (agent instanceof SpaceAgent) {
+    const space = agent.spaces.find((s) => s.isActiveAtTick(simulation.tick));
+    focusOnSpaceAgent({ agent, space, update: true });
+  }
+  if (agent instanceof PathAgent) {
+    const { x: agent_x, y: agent_y, z: agent_z } = focusCache.agent.combinedPath.at(simulation.tick);
+    focusOnPathAgent({ agent, agent_x, agent_y, agent_z, update: true });
+  }
 }

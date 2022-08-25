@@ -1,5 +1,4 @@
-import Path from "./Path";
-import Coordinate from "./Coordinate";
+import Coordinate3D from "./Coordinate3D";
 
 export default class Blocker {
   /**
@@ -8,11 +7,16 @@ export default class Blocker {
    */
   constructor(rawBlocker) {
     this.id = rawBlocker.id;
-    this.dimension = new Coordinate(...Object.values(rawBlocker.dimension));
-    this.path = new Path(rawBlocker.path);
+    this.dimension = new Coordinate3D(rawBlocker.dimension.x, rawBlocker.dimension.y, rawBlocker.dimension.z);
+    this.blocker_type = rawBlocker.blocker_type;
   }
 
-  positionAtTick(tick) {
-    return this.path.ticks[tick];
+  positionAtTick() {
+    /* abstract method */
+  }
+
+  get ticksInAir() {
+    /* abstract method */
+    return [];
   }
 }

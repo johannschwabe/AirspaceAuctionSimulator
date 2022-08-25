@@ -31,6 +31,7 @@ import { saveAs } from "file-saver";
  * @property {?MapObject} map
  * @property {ApiOwnerType} owners
  * @property {ApiDimensionType} dimension
+ * @property {string} allocator
  */
 
 /**
@@ -62,10 +63,36 @@ export async function postSimulation(simulationConfig) {
   try {
     const { data } = await apiServer.post("/simulation", simulationConfig);
     persistSimulation(data);
-    console.log("API Fetch successfull", data);
     return data;
   } catch (e) {
-    console.error(e);
+    const details = apiPostErrorToString(e);
+    throw new Error(details);
+  }
+}
+
+/**
+ * Get all registered allocators from the backend
+ * @returns {Promise<string[]>} - Names of allocators
+ */
+export async function getSupportedAllocators() {
+  try {
+    const { data } = await apiServer.get("/allocators");
+    return data;
+  } catch (e) {
+    const details = apiPostErrorToString(e);
+    throw new Error(details);
+  }
+}
+
+/**
+ * Get owners compatible with selected allocator
+ * @returns {Promise<Object[]>} - owners
+ */
+export async function getOwnersSupportedByAllocator(allocator) {
+  try {
+    const { data } = await apiServer.get(`/owners/${allocator}`);
+    return data;
+  } catch (e) {
     const details = apiPostErrorToString(e);
     throw new Error(details);
   }
@@ -78,7 +105,7 @@ export function persistSimulation(data) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch (e) {
-    console.error(e);
+    throw new Error(e);
   }
 }
 
@@ -89,7 +116,7 @@ export function canLoadSimulation() {
 /**
  * @returns {null|RawSimulation}
  */
-export function loadSimulation() {
+export function loadSimulationData() {
   const data = localStorage.getItem(STORAGE_KEY);
   if (data) {
     return JSON.parse(data);
@@ -98,15 +125,9 @@ export function loadSimulation() {
 }
 
 export function downloadSimulation() {
-  const data = loadSimulation();
+  const data = loadSimulationData();
   const fileToSave = new Blob([JSON.stringify(data, undefined, 2)], {
     type: "application/json",
   });
-  saveAs(fileToSave, `${data.name}.json`);
+  saveAs(fileToSave, `${data?.config.name}.json`);
 }
-
-export default {
-  postSimulation,
-  downloadSimulation,
-  loadSimulation,
-};

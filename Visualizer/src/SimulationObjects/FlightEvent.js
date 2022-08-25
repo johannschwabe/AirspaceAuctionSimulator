@@ -17,7 +17,6 @@ export class FlightEvent {
     this.content = content;
   }
 
-
   static get sortEventsFunction() {
     return (e1, e2) => {
       if (e1.tick === e2.tick) {
@@ -31,7 +30,7 @@ export class FlightEvent {
 export class TakeOffEvent extends FlightEvent {
   /**
    * @param {int} tick
-   * @param {Coordinate} location
+   * @param {Coordinate3D} location
    */
   constructor(tick, location) {
     super("Take Off", "default", mdiAirplaneTakeoff, tick);
@@ -42,7 +41,7 @@ export class TakeOffEvent extends FlightEvent {
 export class ArrivalEvent extends FlightEvent {
   /**
    * @param {int} tick
-   * @param {Coordinate} location
+   * @param {Coordinate3D} location
    */
   constructor(tick, location) {
     super("Arrival", "success", mdiAirplaneLanding, tick);
@@ -50,10 +49,22 @@ export class ArrivalEvent extends FlightEvent {
   }
 }
 
+export class ReservationStartEvent extends FlightEvent {
+  constructor(tick) {
+    super("Reservation Start", "default", mdiAirplaneLanding, tick);
+  }
+}
+
+export class ReservationEndEvent extends FlightEvent {
+  constructor(tick) {
+    super("Reservation End", "success", mdiAirplaneLanding, tick);
+  }
+}
+
 export class ReallocationEvent extends FlightEvent {
   /**
    * @param {int} tick
-   * @param {Coordinate} location
+   * @param {Coordinate3D} location
    * @param {ReasonEnum} reallocationReason
    */
   constructor(tick, location, reallocationReason) {

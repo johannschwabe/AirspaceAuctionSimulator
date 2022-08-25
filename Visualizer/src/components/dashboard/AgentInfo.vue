@@ -39,56 +39,58 @@ import {
   FingerPrint,
   Airplane,
   BatteryHalf,
-  Wallet,
   Speedometer,
   Happy,
   Timer,
   RemoveCircle,
   AlertCircle,
   InformationCircle,
+  TrophyOutline,
 } from "@vicons/ionicons5";
-import { useSimulationSingleton } from "../../scripts/simulation";
+import { useSimulationSingleton } from "@/scripts/simulation";
 
 const simulation = useSimulationSingleton();
-const datapoints = computed(() => [
-  { label: "Agent ID", value: simulation.agentInFocus.id, icon: FingerPrint },
-  { label: "Type", value: simulation.agentInFocus.agentType?.name || "-", icon: Airplane },
-  { label: "Battery", value: simulation.agentInFocus.battery, icon: BatteryHalf },
-  { label: "Bid", value: simulation.agentInFocus.bid, icon: Wallet },
-  { label: "Speed", value: simulation.agentInFocus.speed, icon: Speedometer },
-  { label: "Welfare", value: simulation.agentInFocus.welfare, icon: Happy },
-  { label: "Time in Air", value: simulation.agentInFocus.timeInAir, icon: Timer },
-  {
-    label: "Near Field Radius",
-    value: simulation.agentInFocus.nearRadius,
-    icon: InformationCircle,
-  },
-  {
-    label: "Near Field Intersections",
-    value: simulation.agentInFocus.nearFieldIntersections,
-    icon: AlertCircle,
-  },
-  {
-    label: "Near Field Violations",
-    value: simulation.agentInFocus.nearFieldViolations,
-    icon: RemoveCircle,
-  },
-  {
-    label: "Far Field Radius",
-    value: simulation.agentInFocus.farRadius,
-    icon: InformationCircle,
-  },
-  {
-    label: "Far Field Intersections",
-    value: simulation.agentInFocus.farFieldIntersections,
-    icon: AlertCircle,
-  },
-  {
-    label: "Far Field Violations",
-    value: simulation.agentInFocus.farFieldViolations,
-    icon: RemoveCircle,
-  },
-]);
+const datapoints = computed(() =>
+  [
+    { label: "Agent ID", value: simulation.agentInFocus.id, icon: FingerPrint },
+    { label: "Type", value: simulation.agentInFocus.agentType, icon: Airplane },
+    { label: "Battery", value: simulation.agentInFocus.battery, icon: BatteryHalf },
+    { label: "Speed", value: simulation.agentInFocus.speed, icon: Speedometer },
+    { label: "Utility", value: simulation.agentInFocus.utility, icon: Happy },
+    { label: "Non-Colliding Utility", value: simulation.agentInFocus.nonCollidingUtility, icon: TrophyOutline },
+    { label: "Time in Air", value: simulation.agentInFocus.timeInAir, icon: Timer },
+    {
+      label: "Near Field Radius",
+      value: simulation.agentInFocus.nearRadius,
+      icon: InformationCircle,
+    },
+    {
+      label: "Near Field Intersections",
+      value: simulation.agentInFocus.nearFieldIntersections,
+      icon: AlertCircle,
+    },
+    {
+      label: "Near Field Violations",
+      value: simulation.agentInFocus.nearFieldViolations,
+      icon: RemoveCircle,
+    },
+    {
+      label: "Far Field Radius",
+      value: simulation.agentInFocus.farRadius,
+      icon: InformationCircle,
+    },
+    {
+      label: "Far Field Intersections",
+      value: simulation.agentInFocus.farFieldIntersections,
+      icon: AlertCircle,
+    },
+    {
+      label: "Far Field Violations",
+      value: simulation.agentInFocus.farFieldViolations,
+      icon: RemoveCircle,
+    },
+  ].filter((d) => d.value)
+);
 
 const fillColor = (event) => {
   return {

@@ -1,29 +1,32 @@
-from typing import List, Dict
+from typing import List, Dict, TYPE_CHECKING
 
 from .HistoryAgent import HistoryAgent
-from ..Coordinate import Coordinate, TimeCoordinate
-from ..Simulator import Environment, Tick
-from ..Agent import Agent
-from ..Allocator import Allocator
-from ..Owner import Owner
+
+if TYPE_CHECKING:
+    from ..Environment.Environment import Environment
+    from ..Allocator.Allocator import Allocator
+    from ..Agents.Agent import Agent
+    from ..Owners.Owner import Owner
+    from ..Allocations.Allocation import Allocation
 
 
 class History:
-    def __init__(self, dims: Coordinate, allocator: Allocator, env: Environment, owners: List[Owner]):
-        self.dims = dims
-        self.agents: Dict[Agent, HistoryAgent] = {}
-        self.owners: List[Owner] = owners
-        self.allocator: Allocator = allocator
-        self.env: Environment = env
+    def __init__(self, allocator: "Allocator", env: "Environment", owners: List["Owner"]):
+        self.agents: Dict["Agent", "HistoryAgent"] = {}
+        self.owners: List["Owner"] = owners
+        self.allocator: "Allocator" = allocator
+        self.env: "Environment" = env
+        self.compute_times: Dict[int, int] = {}
 
-    def set_owners(self, owners: List[Owner]):
-        self.owners = owners
-
-    def add_new_agents(self, agents: List[Agent], time_step: Tick):
+    def add_new_agents(self, agents: List["Agent"], time_step: int):
         for agent in agents:
-            self.agents[agent] = HistoryAgent(agent, time_step, agent.speed)
+            self.agents[agent] = HistoryAgent(agent, time_step)
 
-    def update_allocations(self, new_allocations: Dict[Agent, List[List[TimeCoordinate]]], time_step):
-        for agent, paths in new_allocations.items():
-            history_agent = self.agents[agent]
-            history_agent.reallocation(paths, time_step)
+    def update_allocations(self,
+                           new_allocations: List["Allocation"],
+                           time_step: int,
+                           compute_time: int):
+        self.compute_times[time_step] = compute_time
+        for allocation in new_allocations:
+            history_agent = self.agents[allocation.agent]
+            history_agent.reallocation(allocation.segments, allocation.reason, time_step, allocation.compute_time)

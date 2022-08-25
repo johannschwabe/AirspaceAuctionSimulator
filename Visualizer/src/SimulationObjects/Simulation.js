@@ -1,15 +1,17 @@
 import "../API/typedefs.js";
 
-import { first } from "lodash-es";
+import { useSimulationStore } from "../stores/simulation";
 
-import { useSimulationStore } from "../stores/simulation.js";
-
-import TimeCoordinate from "./TimeCoordinate";
-import Blocker from "./Blocker";
+import Coordinate4D from "./Coordinate4D";
 import Statistics from "./Statistics";
 import Owner from "./Owner";
 import MapTile from "./MapTile";
-import { emitFocusOffAgent, onAgentsSelected, onTick } from "../scripts/emitter";
+import { emitFocusOffAgent, emitFocusOnAgent, onAgentsSelected, onTick } from "../scripts/emitter";
+import { BlockerType } from "../API/enums";
+import StaticBlocker from "./StaticBlocker";
+import DynamicBlocker from "./DynamicBlocker";
+import PathAgent from "./PathAgent";
+import SpaceAgent from "./SpaceAgent";
 
 export default class Simulation {
   /**
@@ -18,15 +20,20 @@ export default class Simulation {
   constructor(rawSimulation) {
     this._simulationStore = useSimulationStore();
 
-    this.name = rawSimulation.name;
-    this.description = rawSimulation.description;
+    this.name = rawSimulation.config.name;
+    this.description = rawSimulation.config.description;
 
     /**
      * Simulated dimension. Note: The dimension t describes how long new agents
      * were spawned. Agents might have flight-times exceeding t!
-     * @type {TimeCoordinate}
+     * @type {Coordinate4D}
      */
-    this.dimensions = new TimeCoordinate(...Object.values(rawSimulation.environment.dimensions));
+    this.dimensions = new Coordinate4D(
+      rawSimulation.environment.dimensions.x,
+      rawSimulation.environment.dimensions.y,
+      rawSimulation.environment.dimensions.z,
+      rawSimulation.environment.dimensions.t
+    );
 
     /**
      * Object containing statistics about the simulation
@@ -38,7 +45,16 @@ export default class Simulation {
      * Blockers living in the simulated environment
      * @type {Blocker[]}
      */
-    this.blockers = rawSimulation.environment.blockers.map((blocker) => new Blocker(blocker));
+    this.blockers = rawSimulation.environment.blockers.map((blocker) => {
+      switch (blocker.blocker_type) {
+        case BlockerType.DYNAMIC:
+          return new DynamicBlocker(blocker);
+        case BlockerType.STATIC:
+          return new StaticBlocker(blocker, this.dimensions.t);
+        default:
+          throw new Error("Invalid blocker type!");
+      }
+    });
 
     /**
      * All owners that were simulated
@@ -53,7 +69,9 @@ export default class Simulation {
     this.agents = this.owners
       .map((owner) => owner.agents)
       .flat()
-      .sort((a, b) => (first(Object.keys(a.combinedPath.ticks)) < first(Object.keys(b.combinedPath.ticks)) ? -1 : 1));
+      .sort((a, b) => {
+        return a.veryFirstTick < b.veryFirstTick ? -1 : 1;
+      });
 
     /**
      * List of agents that are selected in the User Interface
@@ -75,8 +93,8 @@ export default class Simulation {
     this.activeBlockers = [];
 
     /**
-     * Agent that is selected through the UI and is now in focus
-     * @type {Agent|null}
+     * Agents that is selected through the UI and is now in focus
+     * @type {PathAgent|null}
      */
     this.agentInFocus = null;
 
@@ -94,7 +112,15 @@ export default class Simulation {
     /**
      * @type {MapTile[]}
      */
-    this.mapTiles = rawSimulation.environment.maptiles.map((tile) => new MapTile(tile));
+    this.mapTiles = rawSimulation.config.map.tiles.map(
+      (tile) =>
+        new MapTile(
+          tile,
+          rawSimulation.config.map.resolution,
+          rawSimulation.config.map.subselection?.bottomLeft || rawSimulation.config.map.bottomLeftCoordinate,
+          rawSimulation.config.map.subselection?.topRight || rawSimulation.config.map.topRightCoordinate
+        )
+    );
 
     /**
      * Stores how many active agents are present over all possible ticks
@@ -119,22 +145,6 @@ export default class Simulation {
     this.updateActiveAgents();
     this.updateActiveBlockers();
     this.updateTimeline();
-
-    console.log({ CreatedStore: this });
-  }
-
-  registerCallbacks() {
-    onTick(() => {
-      this.updateActiveAgents();
-      this.updateActiveBlockers();
-      console.log({ UpdatedSimulation: this });
-    });
-    onAgentsSelected(() => {
-      this.updateSelectedAgents();
-      this.updateActiveAgents();
-      this.updateTimeline();
-      console.log({ UpdatedSimulation: this });
-    });
   }
 
   get tick() {
@@ -161,12 +171,38 @@ export default class Simulation {
   }
 
   /**
+   * @returns {PathAgent[]}
+   */
+  get activePathAgents() {
+    return this.activeAgents.filter((agent) => agent instanceof PathAgent);
+  }
+
+  /**
+   * @returns {SpaceAgent[]}
+   */
+  get activeSpaceAgents() {
+    return this.activeAgents.filter((agent) => agent instanceof SpaceAgent);
+  }
+
+  registerCallbacks() {
+    onTick(() => {
+      this.updateActiveAgents();
+      this.updateActiveBlockers();
+    });
+    onAgentsSelected(() => {
+      this.updateSelectedAgents();
+      this.updateActiveAgents();
+      this.updateTimeline();
+    });
+  }
+
+  /**
    * @returns {Object<int, Agent[]>}
    */
   buildFlyingAgentsPerTickIndex() {
     const flyingAgentsPerTick = {};
     this.agents.forEach((agent) => {
-      Object.keys(agent.combinedPath.ticks).forEach((t) => {
+      agent.flyingTicks.forEach((t) => {
         if (!(t in flyingAgentsPerTick)) {
           flyingAgentsPerTick[t] = [];
         }
@@ -182,7 +218,7 @@ export default class Simulation {
   buildActiveBlockersPerTickIndex() {
     const activeBlockerIndex = {};
     this.blockers.forEach((blocker) => {
-      blocker.path.ticksInAir.forEach((tick) => {
+      blocker.ticksInAir.forEach((tick) => {
         if (!(tick in activeBlockerIndex)) {
           activeBlockerIndex[tick] = [];
         }
@@ -211,7 +247,7 @@ export default class Simulation {
     const agentsPerTick = {};
     let maxTick = 0;
     this.selectedAgents.forEach((agent) => {
-      agent.combinedPath.ticksInAir.forEach((tick) => {
+      agent.flyingTicks.forEach((tick) => {
         if (!(tick in agentsPerTick)) {
           agentsPerTick[tick] = 0;
         }
@@ -231,18 +267,22 @@ export default class Simulation {
 
   /**
    * Puts a new agent into focus
-   * @param {Agent} agent
+   * @param {PathAgent} agent
    */
   focusOnAgent(agent) {
+    if (this.agentInFocus === agent || !agent.isActiveAtTick(this.tick)) {
+      return;
+    }
     this._simulationStore.agentInFocus = true;
     this._simulationStore.agentInFocusId = agent.id;
     this._simulationStore.ownerInFocusId = agent.owner.id;
     this.agentInFocus = agent;
+    emitFocusOnAgent(agent);
   }
 
   focusOff() {
+    emitFocusOffAgent(this.agentInFocus);
     this._simulationStore.agentInFocus = false;
-    emitFocusOffAgent();
     this.agentInFocus = null;
   }
 

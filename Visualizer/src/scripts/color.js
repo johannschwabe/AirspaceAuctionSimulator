@@ -16,3 +16,5 @@ export const lightenColor = function (color, percent) {
     .slice(1);
   return `#${hex}`;
 };
+
+export const randomColor = () => "#" + ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0");

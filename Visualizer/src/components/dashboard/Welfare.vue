@@ -6,8 +6,8 @@
 import VueApexCharts from "vue3-apexcharts";
 
 import { reactive, ref } from "vue";
-import { useSimulationSingleton } from "../../scripts/simulation";
-import { onAgentsSelected, onTick } from "../../scripts/emitter";
+import { useSimulationSingleton } from "@/scripts/simulation";
+import { onAgentsSelected } from "@/scripts/emitter";
 
 const simulation = useSimulationSingleton();
 
@@ -58,14 +58,13 @@ const series = reactive([
 ]);
 
 const updateSeries = () => {
-  console.log("Welfare: Update");
   const optimalWelfare = Array(simulation.maxTick + 1).fill(0);
   const achievedWelfare = Array(simulation.maxTick + 1).fill(0);
 
   simulation.selectedAgents.forEach((agent) => {
-    const arrivalTick = agent.combinedPath.lastTick;
-    optimalWelfare[arrivalTick] += agent.nonCollidingWelfare;
-    achievedWelfare[arrivalTick] += agent.welfare;
+    const arrivalTick = agent.veryLastTick;
+    optimalWelfare[arrivalTick] += agent.nonCollidingUtility;
+    achievedWelfare[arrivalTick] += agent.utility;
   });
 
   for (let i = 1; i <= simulation.maxTick; i++) {
@@ -77,13 +76,11 @@ const updateSeries = () => {
   series[1].data = achievedWelfare.map((y, x) => ({ x, y }));
 };
 
-
 onAgentsSelected(() => {
   updateSeries();
 });
 
 updateSeries();
-
 </script>
 
 <style scoped></style>

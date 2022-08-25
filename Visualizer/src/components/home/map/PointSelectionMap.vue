@@ -1,0 +1,57 @@
+<template>
+  <div ref="mapRoot" :style="{ width: `${size.width}px`, height: `${size.height}px` }" class="map" />
+</template>
+
+<script setup>
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { restorePositionFeatures, useBaseLayer, useMap, usePositionInteraction, usePositionLayer } from "./Map";
+import { Collection } from "ol";
+import { useSimulationConfigStore } from "@/stores/simulationConfig";
+
+const props = defineProps({
+  ownerIndex: {
+    type: Number,
+    required: true,
+  },
+  locationIndex: {
+    type: Number,
+    required: true,
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+});
+const features = new Collection([]);
+const simulationConfig = useSimulationConfigStore();
+
+const mapRoot = ref(null);
+const baseLayer = useBaseLayer();
+const positionLayer = usePositionLayer(features);
+
+const { render, size, map } = useMap(mapRoot, [baseLayer, positionLayer], true);
+
+const owner = computed(() => {
+  return simulationConfig.owners[props.ownerIndex];
+});
+
+onMounted(() => {
+  console.log("mounting");
+  restorePositionFeatures(features, owner.value.locations[props.locationIndex].points);
+  render();
+  if (!props.disabled) {
+    usePositionInteraction(map, features, owner.value.locations[props.locationIndex]);
+  }
+});
+
+onBeforeUnmount(() => {
+  features.clear();
+});
+</script>
+
+<style scoped>
+.map {
+  overflow: hidden;
+  border-radius: 5px;
+}
+</style>

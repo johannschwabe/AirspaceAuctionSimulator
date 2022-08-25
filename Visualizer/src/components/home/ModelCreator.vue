@@ -1,66 +1,96 @@
 <template>
-  <n-form ref="formRef" :model="model" :rules="rules">
+  <n-form ref="formRef" :model="simulationConfig" :rules="rules">
+    <!-- Model Name -->
     <n-form-item path="name" label="Model Name">
-      <n-input v-model:value="model.name" type="text" placeholder="Unique Model Name" />
+      <n-input v-model:value="simulationConfig.name" type="text" placeholder="Unique Model Name" />
     </n-form-item>
+
+    <!-- Model Description -->
     <n-form-item path="description" label="Model Description">
-      <n-input v-model:value="model.description" type="textarea" placeholder="Model description (Metadata)" />
+      <n-input
+        v-model:value="simulationConfig.description"
+        type="textarea"
+        placeholder="Model description (Metadata)"
+      />
     </n-form-item>
 
-    <n-tabs type="line" animated>
-      <n-tab-pane name="coordinates" tab="Coordinates">
-        <n-grid cols="3" x-gap="12">
-          <n-grid-item span="1">
-            <n-form-item path="dimension.x" label="Dimension X">
-              <n-input-number v-model:value="model.dimension.x" :min="10" :max="10000" :step="10" />
-            </n-form-item>
-          </n-grid-item>
-          <n-grid-item span="1">
-            <n-form-item path="dimension.y" label="Dimension Y">
-              <n-input-number v-model:value="model.dimension.y" :min="10" :max="1000" :step="10" />
-            </n-form-item>
-          </n-grid-item>
-          <n-grid-item span="1">
-            <n-form-item path="dimension.z" label="Dimension Z">
-              <n-input-number v-model:value="model.dimension.z" :min="10" :max="10000" :step="10" />
-            </n-form-item>
-          </n-grid-item>
-        </n-grid>
-      </n-tab-pane>
-      <n-tab-pane name="map" tab="Map">
-        <map-selector @dimensionChange="setDimension" @map-change="(map) => (model.map = map)" />
-      </n-tab-pane>
-    </n-tabs>
+    <!-- Model Map -->
+    <map-selector />
 
+    <!-- Model Timesteps -->
     <n-form-item path="dimension.t" label="Timesteps">
-      <n-slider show-tooltip v-model:value="model.dimension.t" :min="10" :max="1000" :step="10" />
+      <n-slider show-tooltip v-model:value="simulationConfig.map.timesteps" :min="300" :max="4000" :step="10" />
     </n-form-item>
+
+    <!-- Model Allocator -->
+    <n-form-item path="allocator" label="Allocator">
+      <n-select
+        v-model:value="simulationConfig.allocator"
+        :options="simulationConfig.availableAllocatorsOptions"
+        placeholder="Select Allocator"
+      />
+    </n-form-item>
+
+    <!-- Model Owners -->
     <n-form-item path="owners" label="Owners">
-      <owner ref="ownerRef" />
+      <owner />
     </n-form-item>
   </n-form>
 
+  <!-- Upload and Download of configuration file -->
+  <n-grid cols="2" x-gap="10">
+    <n-grid-item>
+      <n-upload :custom-request="uploadConfiguration" accept="application/json" :on-preview="uploadConfiguration">
+        <n-button block tertiary :type="simulationConfig.isEmpty ? 'primary' : 'tertiary'">
+          Upload Simulation Configuration
+          <template #icon>
+            <n-icon>
+              <cloud-upload-outline />
+            </n-icon>
+          </template>
+        </n-button>
+      </n-upload>
+    </n-grid-item>
+    <n-grid-item>
+      <n-button
+        block
+        tertiary
+        :type="!simulationConfig.isEmpty ? 'primary' : 'tertiary'"
+        @click.stop="downloadConfiguration"
+      >
+        Download Simulation Configuration
+        <template #icon>
+          <n-icon>
+            <cloud-download-outline />
+          </n-icon>
+        </template>
+      </n-button>
+    </n-grid-item>
+  </n-grid>
+
+  <!-- Overwrite or recover existing simulations -->
   <n-popconfirm
-    v-if="canRecover"
+    v-if="canRecoverSimulation"
     negative-text="Download Cached"
     positive-text="Simulate & Overwrite"
     @positive-click="simulate"
-    @negative-click="() => api.downloadSimulation()"
+    @negative-click="() => downloadSimulation()"
   >
     <template #trigger>
-      <n-button ghost type="primary" :loading="loading">
+      <n-button type="primary" :loading="loading">
         {{ loading ? `Running Simulation... (${loadingForSeconds}s)` : "Simulate" }}
       </n-button>
     </template>
     You do have an old session in your browser cache. It will be overwritten!
   </n-popconfirm>
-  <n-button ghost type="primary" @click.stop="simulate" v-else :loading="loading">
+  <n-button type="primary" @click.stop="simulate" v-else :loading="loading">
     {{ loading ? `Running Simulation... (${loadingForSeconds}s)` : "Simulate" }}
   </n-button>
 
+  <!-- On finished simulation, download simulation file or go to simulation -->
   <n-grid cols="2" x-gap="10" v-if="finished">
     <n-grid-item>
-      <n-button ghost block icon-placement="right" type="primary" @click.stop="() => api.downloadSimulation()">
+      <n-button ghost block icon-placement="right" type="primary" @click.stop="() => downloadSimulation()">
         Download Simulation
         <template #icon>
           <n-icon>
@@ -80,54 +110,51 @@
       </n-button>
     </n-grid-item>
   </n-grid>
+
+  <!-- Generic error alert -->
   <n-alert v-if="errorText" title="Invalid Data" type="error">
     {{ errorText }}
   </n-alert>
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import { ref } from "vue";
 import { useMessage, useLoadingBar } from "naive-ui";
 import { useRouter } from "vue-router";
-import { CloudDownloadOutline, ArrowForwardOutline } from "@vicons/ionicons5";
+import { CloudDownloadOutline, ArrowForwardOutline, CloudUploadOutline } from "@vicons/ionicons5";
+import { saveAs } from "file-saver";
 
-import Owner from "./Owner.vue";
-import MapSelector from "./MapSelector.vue";
+import Owner from "./owner/Owner.vue";
+import MapSelector from "./map/MapSelector.vue";
 import Simulation from "../../SimulationObjects/Simulation.js";
-import api from "../../API/api.js";
+
+import { postSimulation, downloadSimulation } from "../../API/api.js";
 import {
   canRecoverSimulationSingleton,
   hasSimulationSingleton,
+  setSimulationConfig,
   setSimulationSingleton,
-} from "../../scripts/simulation.js";
+} from "@/scripts/simulation";
+import { useSimulationConfigStore } from "@/stores/simulationConfig";
+
+const simulationConfig = useSimulationConfigStore();
 
 const message = useMessage();
 const loadingBar = useLoadingBar();
 const router = useRouter();
 
+// Reference to NaiveUI Form for validation
 const formRef = ref(null);
-const ownerRef = ref(null);
+
+// Contains error text IFF error appeared
 const errorText = ref(null);
 
 const loading = ref(false);
 const loadingForSeconds = ref(0);
 const loadingInterval = ref(undefined);
 const finished = ref(false);
-const canRecover = ref(hasSimulationSingleton() || canRecoverSimulationSingleton());
 
-const model = reactive({
-  name: null,
-  description: null,
-  map: null,
-  dimension: {
-    x: 100,
-    y: 20,
-    z: 100,
-    t: 250,
-  },
-});
-
-const owners = ref([]);
+const canRecoverSimulation = ref(hasSimulationSingleton() || canRecoverSimulationSingleton());
 
 const rules = {
   name: [
@@ -138,16 +165,16 @@ const rules = {
   ],
 };
 
-const setDimension = (dimension) => {
-  model.dimension.x = dimension.x;
-  model.dimension.y = dimension.y;
-  model.dimension.z = dimension.z;
-};
-
+/**
+ * Route to simulation dashboard
+ */
 const goToSimulation = () => {
   router.push({ name: "dashboard" });
 };
 
+/**
+ * Start loading indication
+ */
 const startLoading = () => {
   loading.value = true;
   loadingBar.start();
@@ -156,38 +183,69 @@ const startLoading = () => {
   }, 1000);
 };
 
+/**
+ * Stop loading indications
+ */
 const stopLoading = () => {
   loading.value = false;
   loadingForSeconds.value = 0;
   clearInterval(loadingInterval.value);
 };
 
+/**
+ * Generate and download simulation configurations as JSON-File
+ */
+const downloadConfiguration = () => {
+  const fileToSave = new Blob([JSON.stringify(simulationConfig.generateConfigJson(), undefined, 2)], {
+    type: "application/json",
+  });
+
+  saveAs(fileToSave, `${simulationConfig.name}-config.json`);
+};
+
+/**
+ * Upload an existing simulation configuration File
+ * @param {UploadCustomRequestOptions} upload
+ */
+const uploadConfiguration = (upload) => {
+  const fileReader = new FileReader();
+  fileReader.onload = async (event) => {
+    const data = JSON.parse(event.target.result);
+    simulationConfig.overwrite(data);
+  };
+  fileReader.onerror = () => {
+    loadingBar.error();
+    message.error("Import failed!");
+    throw new Error("Import failed!");
+  };
+  fileReader.readAsText(upload.file.file);
+};
+
+/**
+ * Start simulation of new AirspaceAuction Simulation using simulation configurations
+ */
 const simulate = () => {
   errorText.value = null;
-  owners.value = ownerRef.value.owners;
   formRef.value?.validate((errors) => {
     if (!errors) {
       startLoading();
-      api
-        .postSimulation({
-          ...model,
-          owners: owners.value,
-        })
+      postSimulation(simulationConfig.generateConfigJson())
         .then((data) => {
           const simulation = new Simulation(data);
           return simulation.load();
         })
         .then((simulation) => {
           setSimulationSingleton(simulation);
+          setSimulationConfig(simulation);
           loadingBar.finish();
           message.success("Simulation Created!");
           finished.value = true;
         })
         .catch((e) => {
-          console.error(e);
           loadingBar.error();
           message.error(e.message);
           errorText.value = e.message;
+          throw new Error(e);
         })
         .finally(() => {
           stopLoading();

@@ -1,4 +1,6 @@
-import Agent from "./Agent";
+import PathAgent from "./PathAgent";
+import SpaceAgent from "./SpaceAgent";
+import { AgentType } from "../API/enums";
 
 export default class Owner {
   /**
@@ -17,13 +19,13 @@ export default class Owner {
     this.minBidValue = rawOwner.min_bid_value;
     this.bidQuantiles = rawOwner.bid_quantiles;
     this.bidOutliers = rawOwner.bid_outliers;
-    this.totalWelfare = rawOwner.total_welfare;
-    this.meanWelfare = rawOwner.mean_welfare;
-    this.medianWelfare = rawOwner.median_welfare;
-    this.minWelfare = rawOwner.max_welfare;
-    this.maxWelfare = rawOwner.min_welfare;
-    this.welfareQuantiles = rawOwner.welfare_quantiles;
-    this.welfareOutliers = rawOwner.welfare_outliers;
+    this.totalUtility = rawOwner.total_utility;
+    this.meanUtility = rawOwner.mean_utility;
+    this.medianUtility = rawOwner.median_utility;
+    this.minUtility = rawOwner.max_utility;
+    this.maxUtility = rawOwner.min_utility;
+    this.utilityQuantiles = rawOwner.utility_quantiles;
+    this.utilityOutliers = rawOwner.utility_outliers;
     this.numberOfAgents = rawOwner.number_of_agents;
     this.numberOfABAgents = rawOwner.number_of_ab_agents;
     this.numberOfABAAgents = rawOwner.number_of_aba_agents;
@@ -32,9 +34,18 @@ export default class Owner {
 
     /**
      * All agents belonging to this owner
-     * @type {Agent[]}
+     * @type {PathAgent|SpaceAgent[]}
      */
-    this.agents = rawOwner.agents.map((agent) => new Agent(agent, this, simulation));
+    this.agents = rawOwner.agents.map((agent) => {
+      switch (agent.agent_type) {
+        case AgentType.SPACE:
+          return new SpaceAgent(agent, this, simulation);
+        case AgentType.PATH:
+          return new PathAgent(agent, this, simulation);
+        default:
+          throw new Error("Invalid agent type!");
+      }
+    });
 
     this._simulation = simulation;
   }

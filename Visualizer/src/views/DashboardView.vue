@@ -11,7 +11,7 @@
     <div class="nav-margin">
       <n-grid cols="12">
         <!-- Left Part -->
-        <n-grid-item span="3">
+        <n-grid-item span="2">
           <n-grid cols="1">
             <n-grid-item>
               <agent-selector />
@@ -20,7 +20,7 @@
         </n-grid-item>
 
         <!-- Central Part -->
-        <n-grid-item span="6" id="drawer-target">
+        <n-grid-item span="8" id="drawer-target">
           <n-grid cols="1">
             <n-grid-item>
               <three-d-map />
@@ -29,7 +29,7 @@
         </n-grid-item>
 
         <!-- Right Part -->
-        <n-grid-item span="3">
+        <n-grid-item span="2">
           <n-grid cols="1">
             <n-grid-item>
               <welfare />
@@ -56,9 +56,6 @@
       <!-- Bottom Part -->
       <n-grid cols="1">
         <n-grid-item>
-          <!--        <data-table />-->
-        </n-grid-item>
-        <n-grid-item>
           <gantt />
         </n-grid-item>
       </n-grid>
@@ -70,6 +67,7 @@
       :width="250"
       placement="left"
       :trap-focus="false"
+      :block-scroll="false"
       :close-on-esc="false"
       :mask-closable="false"
       :on-update:show="(show) => show || simulation.focusOff()"
@@ -91,6 +89,7 @@
       :width="250"
       placement="right"
       :trap-focus="false"
+      :block-scroll="false"
       :close-on-esc="false"
       :mask-closable="false"
       :on-update:show="(show) => show || simulation.focusOff()"
@@ -113,7 +112,7 @@
 </template>
 
 <script setup>
-import { nextTick, onUnmounted, ref } from "vue";
+import { nextTick, onUnmounted, ref, shallowRef } from "vue";
 import { useRouter } from "vue-router";
 
 import loadingGif from "../assets/loading.gif";
@@ -127,7 +126,12 @@ import AgentInfo from "../components/dashboard/AgentInfo.vue";
 import OwnerInfo from "../components/dashboard/OwnerInfo.vue";
 import Timeline from "../components/dashboard/Timeline.vue";
 import { offAll } from "../scripts/emitter";
-import { hasSimulationSingleton, loadSimulationSingleton, useSimulationSingleton } from "../scripts/simulation";
+import {
+  hasSimulationSingleton,
+  loadSimulationConfig,
+  loadSimulationSingleton,
+  useSimulationSingleton,
+} from "../scripts/simulation";
 import { useSimulationStore } from "../stores/simulation";
 import { useLoadingBar, useMessage } from "naive-ui";
 
@@ -136,20 +140,21 @@ const message = useMessage();
 const loadingBar = useLoadingBar();
 
 const loading = ref(true);
-let simulation;
+const simulation = shallowRef({});
 
 const simulationStore = useSimulationStore();
 
 if (!hasSimulationSingleton()) {
   loadSimulationSingleton()
     .then((simulationSingleton) => {
+      loadSimulationConfig();
       message.success("Simulation recovered!");
-      simulation = simulationSingleton;
+      simulation.value = simulationSingleton;
     })
     .catch((e) => {
-      console.error(e);
       message.error(e.message);
       router.push("/");
+      throw new Error(e);
     })
     .finally(() => {
       nextTick(() => {
@@ -159,17 +164,16 @@ if (!hasSimulationSingleton()) {
     });
 } else {
   message.success("Simulation loaded!");
-  simulation = useSimulationSingleton();
+  simulation.value = useSimulationSingleton();
   loadingBar.finish();
   loading.value = false;
   const allAgentIds = [];
-  simulation.owners.forEach((owner) => {
+  simulation.value.owners.forEach((owner) => {
     allAgentIds.push(owner.id);
     owner.agents.forEach((agent) => {
       allAgentIds.push(agent.id);
     });
   });
-  console.log(allAgentIds);
   simulationStore.setSelectedAgentIDs(allAgentIds);
 }
 

@@ -27,16 +27,37 @@
     <template #avatar>
       <n-avatar :src="logo" color="transparent" />
     </template>
+
+    <template #extra>
+      <n-button icon-placement="right" style="margin-right: 15px" @click="downloadSimulation">
+        <template #icon>
+          <n-icon>
+            <cloud-download-outline />
+          </n-icon>
+        </template>
+        Download
+      </n-button>
+    </template>
   </n-page-header>
 </template>
 
 <script setup>
 import logo from "../../assets/drone.png";
-import { Cube, FingerPrint, Fish, HappyOutline, GitBranch, GitPullRequest } from "@vicons/ionicons5";
+import {
+  Cube,
+  FingerPrint,
+  Fish,
+  HappyOutline,
+  GitBranch,
+  GitPullRequest,
+  CloudDownloadOutline,
+} from "@vicons/ionicons5";
 
 import { computed } from "vue";
 import { useRouter } from "vue-router";
-import { useSimulationSingleton } from "../../scripts/simulation";
+
+import { downloadSimulation } from "@/API/api";
+import { useSimulationSingleton } from "@/scripts/simulation";
 
 const router = useRouter();
 const simulation = useSimulationSingleton();

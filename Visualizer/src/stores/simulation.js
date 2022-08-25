@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { useStorage } from "@vueuse/core";
-import { emitAgentsSelectedEvent, emitTickEvent } from "../scripts/emitter";
+import { emitAgentsSelectedEvent, emitTickEvent } from "@/scripts/emitter";
 
 export const useSimulationStore = defineStore({
   id: "simulation",
@@ -14,7 +14,6 @@ export const useSimulationStore = defineStore({
   actions: {
     updateTick(tick) {
       this.tick = tick;
-      console.log("UPDATE TICK");
       emitTickEvent(tick);
     },
     setSelectedAgentIDs(selectedIds) {
