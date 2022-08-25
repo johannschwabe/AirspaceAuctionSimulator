@@ -16,11 +16,11 @@ class AStar:
                  environment: "Environment",
                  max_iter: int = 100_000,
                  g_sum: float = 0.1,
-                 height_adjust: bool = True):
+                 height_adjust: float = 0.05):
         self.environment: "Environment" = environment
         self.max_iter: int = max_iter
         self.g_sum: float = g_sum
-        self.height_adjust: bool = height_adjust
+        self.height_adjust: float = height_adjust
 
     def valid_start(self,
                     start: "Coordinate4D",
@@ -68,7 +68,7 @@ class AStar:
 
         total_collisions = set()
 
-        while len(open_nodes) > 0 and steps < self.max_iter:
+        while len(open_nodes) > 0 and (self.max_iter > -1 and steps < self.max_iter):
             steps += 1
 
             current_node = heapq.heappop(heap)
@@ -104,8 +104,9 @@ class AStar:
                     neighbor.h = self.distance2(neighbor.position, end_node.position)
                     neighbor.f = neighbor.g + neighbor.h
 
-                    if self.height_adjust:
-                        neighbor.f -= neighbor.position.y / self.environment.dimension.y * 0.05 * neighbor.h
+                    if self.height_adjust > 0.:
+                        neighbor.f -= neighbor.position.y / self.environment.dimension.y * \
+                                      self.height_adjust * neighbor.h
 
                     if hash(neighbor) in open_nodes:
                         if open_nodes[hash(neighbor)].f > neighbor.f:
