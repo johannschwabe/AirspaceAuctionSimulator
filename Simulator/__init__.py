@@ -6,14 +6,11 @@ from .Agents.AgentType import AgentType
 from .Agents.PathAgent import PathAgent
 from .Agents.SpaceAgent import SpaceAgent
 # Allocations
+from .Allocations.Allocation import Allocation
 from .Allocations.AllocationReason import AllocationReason
-from .Allocations.PathAllocation import PathAllocation
-from .Allocations.SpaceAllocation import SpaceAllocation
-# Allocator
-from .Allocator.Allocator import Allocator
 # Bids
-from .Bids.PathBid import PathBid
-from .Bids.SpaceBid import SpaceBid
+from .Bids.Bid import Bid
+from .Bids.BiddingStrategy import BiddingStrategy
 # Blockers
 from .Blocker.BuildingBlocker import BuildingBlocker
 from .Blocker.StaticBlocker import StaticBlocker
@@ -32,6 +29,10 @@ from .Location.GridLocation import GridLocation
 from .Location.GridLocationType import GridLocationType
 from .Location.Heatmap import Heatmap
 from .Location.HeatmapType import HeatmapType
+# Mechanism
+from .Mechanism.Allocator import Allocator
+from .Mechanism.Mechanism import Mechanism
+from .Mechanism.PaymentRule import PaymentRule
 # Owners
 from .Owners.Owner import Owner
 from .Owners.PathOwner import PathOwner

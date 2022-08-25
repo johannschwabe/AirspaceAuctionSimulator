@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from .Allocations.Allocation import Allocation
     from .Agents.Agent import Agent
     from .Environment.Environment import Environment
-    from .Allocator.Allocator import Allocator
+    from Simulator.Mechanism.Allocator import Allocator
     from .Owners.Owner import Owner
 
 
@@ -46,7 +46,7 @@ class Simulator:
             self.history.add_new_agents(list(new_agents.values()), self.time_step)
             temporary_environment = self.environment.clone()
             temporary_allocations: List["Allocation"] = self.allocator.allocate(
-                list(new_agents.values()),
+                [agent.get_bid(self.time_step, temporary_environment) for agent in new_agents.values()],
                 temporary_environment,
                 self.time_step)
             real_allocations = self.environment.create_real_allocations(temporary_allocations, new_agents)

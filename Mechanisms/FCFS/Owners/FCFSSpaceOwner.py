@@ -1,5 +1,5 @@
-from Simulator import SpaceOwner, Coordinate4D
-from ..Agents.FCFSSpaceAgent import FCFSSpaceAgent
+from Simulator import SpaceOwner, Coordinate4D, SpaceAgent
+from ..BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
 
 
 class FCFSSpaceOwner(SpaceOwner):
@@ -11,4 +11,5 @@ class FCFSSpaceOwner(SpaceOwner):
 
     def initialize_agent(self, blocks):
         agent_id: str = self.get_agent_id()
-        return FCFSSpaceAgent(agent_id, blocks)
+        bidding_strategy: "FCFSSpaceBiddingStrategy" = FCFSSpaceBiddingStrategy()
+        return SpaceAgent(agent_id, bidding_strategy, blocks)

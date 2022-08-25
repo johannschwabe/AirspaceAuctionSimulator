@@ -25,18 +25,22 @@ class PathSegment(Segment):
         return same_index and same_end
 
     @property
-    def min(self):
+    def nr_voxels(self) -> int:
+        return len(self.coordinates)
+
+    @property
+    def min(self) -> "Coordinate4D":
         return self.coordinates[0]
 
     @property
-    def max(self):
+    def max(self) -> "Coordinate4D":
         return self.coordinates[-1]
 
     def clone(self):
         return PathSegment(self.start.clone(), self.end.clone(), self.index, [x.clone() for x in self.coordinates])
 
     def split_temporal(self, t: int) -> Tuple["PathSegment", "PathSegment"]:
-        t_index = t - self.coordinates[0].t
+        t_index = t - self.min.t
         first_segment = self.clone()
         first_segment.coordinates = first_segment.coordinates[:t_index + 1]
 

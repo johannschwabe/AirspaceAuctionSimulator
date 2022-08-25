@@ -1,7 +1,7 @@
-from Simulator import SpaceBid
+from Simulator import Bid
 
 
-class PrioritySpaceBid(SpaceBid):
-    def __init__(self, blocks, priority):
-        super().__init__(blocks)
+class PrioritySpaceBid(Bid):
+    def __init__(self, agent, priority):
+        super().__init__(agent)
         self.priority = priority

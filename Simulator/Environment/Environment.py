@@ -4,8 +4,6 @@ from rtree import index, Index
 
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
-from ..Allocations.PathAllocation import PathAllocation
-from ..Allocations.SpaceAllocation import SpaceAllocation
 from ..Blocker.BlockerType import BlockerType
 
 if TYPE_CHECKING:
@@ -177,14 +175,13 @@ class Environment:
         Only reallocates segments that are in the future.
         """
         for allocation in real_allocations:
-            if isinstance(allocation, SpaceAllocation):
-                agent: "SpaceAgent" = allocation.agent
+            agent: "Agent" = allocation.agent
+            if isinstance(agent, SpaceAgent):
                 segments: List["SpaceSegment"] = allocation.segments
                 self.register_agent(agent, time_step)
                 self.allocate_space_for_agent(agent, segments)
 
-            elif isinstance(allocation, PathAllocation):
-                agent: "PathAgent" = allocation.agent
+            elif isinstance(agent, PathAgent):
                 segments: List["PathSegment"] = allocation.segments
                 self.register_agent(agent, time_step)
                 self.allocate_path_for_agent(agent, segments)

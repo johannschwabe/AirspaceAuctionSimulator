@@ -1,13 +1,9 @@
 import json
+import math
 import random
 
-from Demos import \
-    FCFSAllocator, \
-    FCFSSpaceOwner, \
-    FCFSPathOwner, \
-    PriorityAllocator, \
-    PrioritySpaceOwner, \
-    PriorityPathOwner
+from Demos import PriorityAllocator, PrioritySpaceOwner, PriorityPathOwner
+from Mechanisms import FCFSAllocator, FCFSPathOwner, FCFSSpaceOwner
 from Simulator import \
     Simulator, \
     Coordinate4D, \
@@ -22,9 +18,9 @@ random.seed(3)
 
 
 def setup_empty(t):
-    dimensions = Coordinate4D(50, 20, 50, t)
-    blocker = StaticBlocker(Coordinate3D(5, 0, 5), Coordinate3D(40, 15, 40))
-    return Environment(dimensions, blockers=[blocker], allocation_period=20)
+    dimensions = Coordinate4D(40, 40, 40, t)
+    blocker = StaticBlocker(Coordinate3D(10, 0, 10), Coordinate3D(20, 20, 20))
+    return Environment(dimensions, blockers=[blocker], allocation_period=math.floor(t / 10))
 
 
 def simulateFCFS(env: Environment, t):
@@ -41,8 +37,8 @@ def simulateFCFS(env: Environment, t):
                        color_generator(),
                        [GridLocation(str(GridLocationType.RANDOM.value)),
                         GridLocation(str(GridLocationType.RANDOM.value))],
-                       [random.randint(0, 5) for _ in range(10)],
-                       Coordinate4D(25, 25, 25, 25))
+                       [random.randint(0, 10) for _ in range(10)],
+                       Coordinate4D(10, 10, 10, 10))
     ]
     simulator = Simulator(owners, allocator, env)
     while simulator.time_step < t:
@@ -89,9 +85,9 @@ def color_generator():
 
 
 if __name__ == "__main__":
-    max_t = 100
+    max_t = 1000
     environment = setup_empty(max_t)
-    simulatorAligator = simulatePriority(environment, max_t)
+    simulatorAligator = simulateFCFS(environment, max_t)
 
     res = build_json(simulatorAligator, 0)
     res["config"] = {"name": "test", "map": {"tiles": []}, "dimension": environment.dimension.to_dict(), "owners": []}

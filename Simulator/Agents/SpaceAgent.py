@@ -1,4 +1,3 @@
-from abc import ABC
 from typing import TYPE_CHECKING, List
 
 from .Agent import Agent
@@ -7,22 +6,28 @@ from .AgentType import AgentType
 if TYPE_CHECKING:
     from ..Segments.SpaceSegment import SpaceSegment
     from ..Coordinates.Coordinate4D import Coordinate4D
+    from ..Bids.BiddingStrategy import BiddingStrategy
 
 
-class SpaceAgent(Agent, ABC):
+class SpaceAgent(Agent):
     agent_type: str = AgentType.SPACE.value
 
     def __init__(self,
                  agent_id: str,
+                 bidding_strategy: "BiddingStrategy",
                  blocks: List[List["Coordinate4D"]],
                  _is_clone: bool = False):
-        super().__init__(agent_id, _is_clone=_is_clone)
+        super().__init__(agent_id, bidding_strategy, _is_clone=_is_clone)
 
         self.blocks: List[List["Coordinate4D"]] = blocks
         self.allocated_segments: List["SpaceSegment"] = []
 
     def add_allocated_segment(self, space_segment: "SpaceSegment"):
         self.allocated_segments.append(space_segment)
+
+    def initialize_clone(self):
+        clone = SpaceAgent(self.id, self.bidding_strategy, self.blocks, _is_clone=True)
+        return clone
 
     def value_for_segments(self, segments: List["SpaceSegment"]) -> float:
         sum_segments = 0.0

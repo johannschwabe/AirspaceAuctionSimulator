@@ -1,6 +1,7 @@
 from time import time_ns
 
-from Simulator import Allocator, PathSegment, AllocationReason, PathAllocation, SpaceSegment, SpaceAllocation, AgentType
+from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, AgentType, Allocation
+from Simulator.Allocations.AllocationStatistics import AllocationStatistics
 from ..AStar.PriorityAStar import PriorityAStar
 from ..Owners.PriorityPathOwner import PriorityPathOwner
 from ..Owners.PrioritySpaceOwner import PrioritySpaceOwner
@@ -53,10 +54,10 @@ class PriorityAllocator(Allocator):
                 collisions = collisions.union(intersections)
         return optimal_path_segments, collisions
 
-    def allocate_for_agents(self, agents, environment, tick):
+    def allocate(self, bids, environment, tick):
         astar = PriorityAStar(environment)
         allocations = []
-        to_add = set(agents)
+        to_add = bids
         while len(list(to_add)) > 0:
             start_time = time_ns()
             agent = max(to_add, key=lambda _agent: _agent.get_bid(tick).priority)
@@ -69,8 +70,9 @@ class PriorityAllocator(Allocator):
 
                 if optimal_path_segments is None:
                     allocations.append(
-                        PathAllocation(agent, [], str(AllocationReason.ALLOCATION_FAILED.value),
-                                       compute_time=time_ns() - start_time))
+                        Allocation(agent, [], bid,
+                                   AllocationStatistics(time_ns() - start_time,
+                                                        str(AllocationReason.ALLOCATION_FAILED.value))))
                     continue
 
                 # Deallocate collisions
@@ -81,14 +83,13 @@ class PriorityAllocator(Allocator):
 
                 # Allocate Agent
                 environment.allocate_path_for_agent(agent, optimal_path_segments)
-                allocation_reason = str(AllocationReason.FIRST_ALLOCATION.value) if agent in agents else str(
+                allocation_reason = str(AllocationReason.FIRST_ALLOCATION.value) if agent in bids else str(
                     AllocationReason.AGENT.value)
                 collision_ids = [collision.id for collision in collisions]
-                allocations.append(PathAllocation(agent,
-                                                  optimal_path_segments,
-                                                  allocation_reason,
-                                                  compute_time=time_ns() - start_time,
-                                                  colliding_agents_ids=collision_ids))
+                allocations.append(Allocation(agent, optimal_path_segments, bid,
+                                              AllocationStatistics(time_ns() - start_time,
+                                                                   allocation_reason,
+                                                                   colliding_agents_ids=collision_ids)))
 
             # Space Agents
             elif agent.agent_type == AgentType.SPACE.value:
@@ -102,14 +103,13 @@ class PriorityAllocator(Allocator):
 
                 # Allocate Agent
                 environment.allocate_space_for_agent(agent, optimal_space_segments)
-                allocation_reason = str(AllocationReason.FIRST_ALLOCATION.value) if agent in agents else str(
+                allocation_reason = str(AllocationReason.FIRST_ALLOCATION.value) if agent in bids else str(
                     AllocationReason.AGENT.value)
                 collision_ids = [collision.id for collision in collisions]
-                allocations.append(SpaceAllocation(agent,
-                                                   optimal_space_segments,
-                                                   allocation_reason,
-                                                   compute_time=time_ns() - start_time,
-                                                   colliding_agents_ids=collision_ids))
+                allocations.append(Allocation(agent, optimal_space_segments, bid,
+                                              AllocationStatistics(time_ns() - start_time,
+                                                                   allocation_reason,
+                                                                   colliding_agents_ids=collision_ids)))
 
             if hash(agent) not in environment.agents:
                 environment.add_agent(agent)

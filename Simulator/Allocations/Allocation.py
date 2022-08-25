@@ -1,5 +1,8 @@
-from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Optional
+from abc import ABC
+from typing import TYPE_CHECKING, List
+
+from .AllocationStatistics import AllocationStatistics
+from ..Bids.Bid import Bid
 
 if TYPE_CHECKING:
     from ..Agents.Agent import Agent
@@ -10,15 +13,20 @@ class Allocation(ABC):
     def __init__(self,
                  agent: "Agent",
                  segments: List["Segment"],
-                 reason: str,
-                 compute_time: int = 0,
-                 colliding_agents_ids: Optional[List[int]] = None):
+                 bid: Bid,
+                 statistics: AllocationStatistics):
         self.agent: "Agent" = agent
-        self.compute_time: int = compute_time
         self.segments: List["Segment"] = segments
-        self.reason: str = reason
-        self.colliding_agents_ids: Optional[List[int]] = colliding_agents_ids
+        self.bid: Bid = bid
+        self.statistics = statistics
+        self.payment = 0
 
-    @abstractmethod
     def get_real_allocation(self, agent: "Agent"):
-        pass
+        return Allocation(agent, self.segments, self.bid, self.statistics)
+
+    @property
+    def nr_voxels(self) -> int:
+        count = 0
+        for segment in self.segments:
+            count += segment.nr_voxels
+        return count

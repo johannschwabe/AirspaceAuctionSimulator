@@ -4,7 +4,7 @@ from .HistoryAgent import HistoryAgent
 
 if TYPE_CHECKING:
     from ..Environment.Environment import Environment
-    from ..Allocator.Allocator import Allocator
+    from Simulator.Mechanism.Allocator import Allocator
     from ..Agents.Agent import Agent
     from ..Owners.Owner import Owner
     from ..Allocations.Allocation import Allocation
@@ -29,4 +29,5 @@ class History:
         self.compute_times[time_step] = compute_time
         for allocation in new_allocations:
             history_agent = self.agents[allocation.agent]
-            history_agent.reallocation(allocation.segments, allocation.reason, time_step, allocation.compute_time)
+            history_agent.reallocation(allocation.segments, allocation.statistics.reason, time_step,
+                                       allocation.statistics.compute_time)
