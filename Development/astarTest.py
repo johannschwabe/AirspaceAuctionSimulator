@@ -42,7 +42,7 @@ def readCoords(filename: str):
 
 
 def writeCoords(environment: Environment, filename: str):
-    astar = AStar(environment, max_iter=100_000_000, g_sum=1., height_adjust=False)
+    astar = AStar(environment, max_iter=-1, g_sum=1., height_adjust=0.)
     f = open(filename, "w")
     nr_tests = 20
     for index in range(nr_tests):
@@ -59,7 +59,7 @@ def writeCoords(environment: Environment, filename: str):
 
 
 def testCoords(environment: Environment, g_sum, height_adjust):
-    astar = AStar(environment, max_iter=1_000_000, g_sum=g_sum, height_adjust=height_adjust)
+    astar = AStar(environment, max_iter=-1, g_sum=g_sum, height_adjust=height_adjust)
     nr_tests = 20
     nr_success = 0
     start_t = time_ns()
@@ -92,16 +92,22 @@ def write():
 def test():
     environment = setup()
     print("BASE")
-    testCoords(environment, 0.1, True)
+    testCoords(environment, 0.1, 0.05)
     print()
     print("VARIANT: g-sum: 0.05")
-    testCoords(environment, 0.05, True)
+    testCoords(environment, 0.05, 0.05)
     print()
     print("VARIANT: g-sum: 0.2")
-    testCoords(environment, 0.2, True)
+    testCoords(environment, 0.2, 0.05)
     print()
-    print("VARIANT: no height adjust")
-    testCoords(environment, 0.1, False)
+    print("VARIANT: height-adjust: 0.")
+    testCoords(environment, 0.1, 0.)
+    print()
+    print("VARIANT: height-adjust: 0.1")
+    testCoords(environment, 0.1, 0.1)
+    print()
+    print("VARIANT: height-adjust: 0.01")
+    testCoords(environment, 0.1, 0.01)
 
 
 if __name__ == "__main__":
