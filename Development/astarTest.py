@@ -1,3 +1,4 @@
+import math
 import random
 from time import time_ns
 
@@ -5,7 +6,8 @@ from API import APIWorldCoordinates, EnvironmentGen, MapTile, Area
 from Demos import FCFSPathAgent
 from Simulator import AStar, Coordinate4D, GridLocation, GridLocationType, PathOwner, Environment
 
-dimensions = Coordinate4D(831, 30, 831, 20000)
+map_height = 30
+time_steps = 20000
 
 
 def setup():
@@ -13,6 +15,12 @@ def setup():
     area = Area(APIWorldCoordinates(lat=47.3685943521338, long=8.536376953124991),
                 APIWorldCoordinates(lat=47.376034633497596, long=8.547363281249993),
                 1)
+    size = area.dimension
+    dimensions = Coordinate4D(math.floor(size[0]),
+                              math.floor(map_height / area.resolution),
+                              math.floor(size[1]),
+                              time_steps)
+    print(dimensions)
     environment = EnvironmentGen(dimensions, [MapTile([15, 17161, 11475], area)]).generate()
     return environment
 

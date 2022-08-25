@@ -148,8 +148,7 @@ def read_root(config: APISimulationConfig):
     allocator = allocators[0]()
 
     random.seed(2)
-    g = Generator(owners=config.owners, dimensions=dimensions,
-                  maptiles=maptiles, allocator=allocator, area=area)
+    g = Generator(config.owners, dimensions, maptiles, allocator, area)
     start_time = time.time_ns()
     g.simulate()
     end_time = time.time_ns()

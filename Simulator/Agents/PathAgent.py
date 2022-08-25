@@ -56,8 +56,8 @@ class PathAgent(Agent, ABC):
         max_t = other_coordinate.t + other_agent.speed
         for segment in self.allocated_segments:
             if segment.max.t >= min_t and segment.min.t <= max_t:
-                min_index = min(min_t - segment.min.t, 0)
-                max_index = max(max_t - segment.min.t, len(segment.coordinates) - 1)
+                min_index = max(min_t - segment.min.t, 0)
+                max_index = min(max_t - segment.min.t, len(segment.coordinates) - 1)
                 for coordinate in segment.coordinates[min_index:max_index]:
                     distance = coordinate.inter_temporal_distance(other_coordinate)
                     if distance == 0:

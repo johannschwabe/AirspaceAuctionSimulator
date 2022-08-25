@@ -3,10 +3,10 @@ from typing import List, TYPE_CHECKING
 import cloudscraper
 
 from Simulator import BuildingBlocker, Coordinate3D
+from ..LongLatCoordinate import LongLatCoordinate
 
 if TYPE_CHECKING:
     from ..Area import Area
-    from ..LongLatCoordinate import LongLatCoordinate
 
 
 class MapTile:

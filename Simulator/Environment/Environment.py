@@ -94,16 +94,28 @@ class Environment:
             if path_segment.max.t <= time_step:
                 new_segments.append(path_segment)
             else:
-                if path_segment.min.t < time_step:
-                    first, second = path_segment.split_temporal(time_step)
+                if path_segment.min.t <= time_step:
+                    first, _ = path_segment.split_temporal(time_step)
                     new_segments.append(first)
-                    for coordinate in second.coordinates:
-                        self.tree.delete(hash(agent), coordinate.tree_query_point_rep())
-                else:
-                    for coordinate in path_segment.coordinates:
-                        self.tree.delete(hash(agent), coordinate.tree_query_point_rep())
+                self.deallocate_path_segment_for_agent(agent, path_segment, time_step)
 
         agent.allocated_segments = new_segments
+
+    def deallocate_path_segment_for_agent(self, agent: "PathAgent", path_segment: "PathSegment", time_step: int):
+        """
+        Allocate a path segment.
+        """
+        min_index = max(time_step - path_segment.min.t, 0)
+        for coord in path_segment[min_index::agent.speed]:
+            intersections = self.tree.intersection(coord.tree_query_point_rep(), objects=True)
+            for intersection in intersections:
+                _index = intersection.id
+                bbox = intersection.bbox
+                if _index == hash(agent):
+                    self.tree.delete(hash(agent), bbox)
+                    if bbox[3] <= int(time_step):
+                        bbox[7] = int(time_step)
+                        self.tree.insert(hash(agent), bbox)
 
     def deallocate_space_agent(self, agent: "SpaceAgent", time_step: int):
         """
@@ -141,8 +153,14 @@ class Environment:
         Allocate a path segment.
         """
         agent.add_allocated_segment(path_segment)
+        inter_temporal_equal: List["Coordinate4D"] = []
         for coord in path_segment.coordinates:
-            self.tree.insert(hash(agent), coord.tree_query_point_rep())
+            if len(inter_temporal_equal) != 0 and not coord.inter_temporal_equal(inter_temporal_equal[-1]):
+                self.tree.insert(hash(agent), inter_temporal_equal[0].list_rep() + inter_temporal_equal[-1].list_rep())
+                inter_temporal_equal = []
+            inter_temporal_equal.append(coord)
+
+        self.tree.insert(hash(agent), inter_temporal_equal[0].list_rep() + inter_temporal_equal[-1].list_rep())
 
     def allocate_space_segment_for_agent(self, agent: "SpaceAgent", space_segment: "SpaceSegment"):
         """
