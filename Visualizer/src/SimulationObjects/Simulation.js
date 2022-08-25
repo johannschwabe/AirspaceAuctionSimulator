@@ -1,13 +1,13 @@
 import "../API/typedefs.js";
 
-import { useSimulationStore } from "@/stores/simulation";
+import { useSimulationStore } from "../stores/simulation";
 
 import Coordinate4D from "./Coordinate4D";
 import Statistics from "./Statistics";
 import Owner from "./Owner";
 import MapTile from "./MapTile";
-import { emitFocusOffAgent, emitFocusOnAgent, onAgentsSelected, onTick } from "@/scripts/emitter";
-import { BlockerType } from "@/API/enums";
+import { emitFocusOffAgent, emitFocusOnAgent, onAgentsSelected, onTick } from "../scripts/emitter";
+import { BlockerType } from "../API/enums";
 import StaticBlocker from "./StaticBlocker";
 import DynamicBlocker from "./DynamicBlocker";
 import PathAgent from "./PathAgent";
@@ -93,7 +93,7 @@ export default class Simulation {
     this.activeBlockers = [];
 
     /**
-     * Agent that is selected through the UI and is now in focus
+     * Agents that is selected through the UI and is now in focus
      * @type {PathAgent|null}
      */
     this.agentInFocus = null;
@@ -147,18 +147,6 @@ export default class Simulation {
     this.updateTimeline();
   }
 
-  registerCallbacks() {
-    onTick(() => {
-      this.updateActiveAgents();
-      this.updateActiveBlockers();
-    });
-    onAgentsSelected(() => {
-      this.updateSelectedAgents();
-      this.updateActiveAgents();
-      this.updateTimeline();
-    });
-  }
-
   get tick() {
     return this._simulationStore.tick;
   }
@@ -180,6 +168,32 @@ export default class Simulation {
    */
   get ownerInFocus() {
     return this.agentInFocus?.owner || null;
+  }
+
+  /**
+   * @returns {PathAgent[]}
+   */
+  get activePathAgents() {
+    return this.activeAgents.filter((agent) => agent instanceof PathAgent);
+  }
+
+  /**
+   * @returns {SpaceAgent[]}
+   */
+  get activeSpaceAgents() {
+    return this.activeAgents.filter((agent) => agent instanceof SpaceAgent);
+  }
+
+  registerCallbacks() {
+    onTick(() => {
+      this.updateActiveAgents();
+      this.updateActiveBlockers();
+    });
+    onAgentsSelected(() => {
+      this.updateSelectedAgents();
+      this.updateActiveAgents();
+      this.updateTimeline();
+    });
   }
 
   /**
@@ -279,19 +293,5 @@ export default class Simulation {
     const promises = this.mapTiles.map((maptile) => maptile.load());
     await Promise.all(promises);
     return this;
-  }
-
-  /**
-   * @returns {PathAgent[]}
-   */
-  get activePathAgents() {
-    return this.activeAgents.filter((agent) => agent instanceof PathAgent);
-  }
-
-  /**
-   * @returns {SpaceAgent[]}
-   */
-  get activeSpaceAgents() {
-    return this.activeAgents.filter((agent) => agent instanceof SpaceAgent);
   }
 }

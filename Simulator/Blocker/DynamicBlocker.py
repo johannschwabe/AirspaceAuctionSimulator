@@ -1,20 +1,23 @@
-from typing import List
+from typing import List, TYPE_CHECKING
 
-from rtree import Index
-
+from .Blocker import Blocker
 from .BlockerType import BlockerType
-from .. import Blocker
-from ..Coordinate import Coordinate4D, Coordinate3D
+
+if TYPE_CHECKING:
+    from ..Coordinates.Coordinate4D import Coordinate4D
+    from ..Coordinates.Coordinate3D import Coordinate3D
+    from rtree import Index
 
 
 class DynamicBlocker(Blocker):
     blocker_type: str = BlockerType.DYNAMIC.value
 
-    def __init__(self, locations: List[Coordinate4D], dimension: Coordinate3D):
+    def __init__(self, locations: List["Coordinate4D"], dimension: "Coordinate3D"):
         super().__init__(dimension)
         self.locations = locations
 
-    def add_to_tree(self, tree: Index, dimension: Coordinate4D):
+    def add_to_tree(self, tree: "Index", dimension: "Coordinate4D"):
+        assert self.id > -1
         idx = 0
         start = self.locations[idx]
         while idx < len(self.locations):

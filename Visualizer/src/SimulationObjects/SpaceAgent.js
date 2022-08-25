@@ -23,8 +23,12 @@ export default class SpaceAgent extends Agent {
      */
     this.combinedSpace = {};
     this.spaces.forEach((space) => {
-      for (let t = space.min.t; t < space.max.t; t++) {
-        this.combinedSpace[t] = space;
+      for (let t = space.min.t; t <= space.max.t; t++) {
+        if (this.combinedSpace[t] === undefined) {
+          this.combinedSpace[t] = [space];
+        } else {
+          this.combinedSpace[t].push(space);
+        }
       }
     });
   }

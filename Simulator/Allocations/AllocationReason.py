@@ -1,0 +1,10 @@
+from enum import Enum
+
+
+class AllocationReason(Enum):
+    FIRST_ALLOCATION = "FIRST_ALLOCATION"
+    AGENT = "AGENT"
+    BLOCKER = "BLOCKER"
+    OWNER = "OWNER"
+    NOT_IMPLEMENTED = "NOT_IMPLEMENTED"
+    ALLOCATION_FAILED = "ALLOCATION_FAILED"

@@ -46,7 +46,7 @@
  * @typedef {Object} RawAgent
  * @property {string} agent_type
  * @property {string} allocation_type
- * @property {int} id
+ * @property {string} id
  * @property {string} name
  * @property {int} speed
  * @property {int} near_radius
@@ -70,7 +70,7 @@
 /**
  * @typedef {Object} RawOwner
  * @property {string} name
- * @property {int} id
+ * @property {string} id
  * @property {string} color
  * @property {RawAgent[]} agents
  * @property {int} total_time_in_air
@@ -97,7 +97,7 @@
 
 /**
  * @typedef {Object} RawBlocker
- * @property {int} id
+ * @property {string} id
  * @property {string} blocker_type
  * @property {RawPath | undefined} [path]
  * @property {RawCoordinate | undefined} [location]
@@ -121,20 +121,9 @@
  */
 
 /**
- * @typedef {Object} RawMapTile
- * @property {int} x
- * @property {int} y
- * @property {int} z
- * @property {int} resolution
- * @property {{long: number, lat: number}} bottom_left_coordinate
- * @property {{long: number, lat: number}} top_right_coordinate
- */
-
-/**
  * @typedef {Object} RawEnvironment
  * @property {RawTimeCoordinate} dimensions
  * @property {RawBlocker[]} blockers
- * @property {RawMapTile[]} maptiles
  */
 
 /**

@@ -447,17 +447,17 @@ export function useDrones({ scene, droneCache, x, z, focusOnPathAgent, focusOnSp
 
   // Push new meshes for SPACE AGENTS
   simulation.activeSpaceAgents.forEach((agent) => {
-    const space = agent.spaces.find((s) => s.isActiveAtTick(simulation.tick));
-    const spaceIdx = agent.spaces.indexOf(space);
+    const spaces = agent.spaces.filter((s) => s.isActiveAtTick(simulation.tick));
+    const reservedSpaces = [];
 
-    if (agent.id in droneCache && droneCache[agent.id].spaceIdx !== spaceIdx) {
+    if (droneCache[agent.id]) {
       droneCache[agent.id].meshes.forEach((mesh) => {
         mesh.dispose();
       });
       delete droneCache[agent.id];
     }
 
-    if (!(agent.id in droneCache)) {
+    spaces.forEach((space) => {
       // Draw occupied field
       const agentReservedSpace = MeshBuilder.CreateBox(`space-agent-${agent.id}`, {
         height: space.dimensionY,
@@ -478,17 +478,16 @@ export function useDrones({ scene, droneCache, x, z, focusOnPathAgent, focusOnSp
         new ExecuteCodeAction(ActionManager.OnPickTrigger, () => focusOnSpaceAgent({ agent, space }))
       );
 
-      droneCache[agent.id] = {
-        meshes: [agentReservedSpace],
-        spaceIdx,
-      };
-    }
+      agentReservedSpace.position.x = space.originX - x / 2;
+      agentReservedSpace.position.y = space.originY;
+      agentReservedSpace.position.z = space.originZ - z / 2;
 
-    // Update space position
-    const storedAgentReservedSpace = droneCache[agent.id].meshes[0];
-    storedAgentReservedSpace.position.x = space.originX - x / 2;
-    storedAgentReservedSpace.position.y = space.originY;
-    storedAgentReservedSpace.position.z = space.originZ - z / 2;
+      reservedSpaces.push(agentReservedSpace);
+    });
+
+    droneCache[agent.id] = {
+      meshes: reservedSpaces,
+    };
   });
 
   // Push new meshes for PATH AGENTS

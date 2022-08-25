@@ -1,22 +1,22 @@
-import math
-from typing import List, TYPE_CHECKING, Set, Optional
 import heapq
+import math
+from typing import List, TYPE_CHECKING, Set, Optional, Tuple
 
-from Simulator.AStar.Node import Node
+from .Node import Node
 
 if TYPE_CHECKING:
-    from Simulator.Environment import Environment
-    from Simulator.Coordinate import Coordinate4D
-    from Simulator.Agent import PathAgent, Agent
+    from ..Environment.Environment import Environment
+    from ..Coordinates.Coordinate4D import Coordinate4D
+    from ..Agents.PathAgent import PathAgent
+    from ..Agents.Agent import Agent
 
 
 class AStar:
     def __init__(self,
                  environment: "Environment",
                  max_iter: int = 100_000,
-                 g_sum: float = 0.2,
+                 g_sum: float = 0.1,
                  height_adjust: bool = True):
-        self.node_class = Node
         self.environment: "Environment" = environment
         self.max_iter: int = max_iter
         self.g_sum: float = g_sum
@@ -32,7 +32,7 @@ class AStar:
             print("In air start is not valid")
             return None, set()
 
-        if not self.environment.can_be_valid_for_allocation(valid_start, agent):
+        if self.environment.is_blocked_forever(valid_start, agent.near_radius, agent.speed):
             print("Static Blocker at start")
             return None, set()
 
@@ -52,13 +52,13 @@ class AStar:
                    start: "Coordinate4D",
                    end: "Coordinate4D",
                    agent: "PathAgent",
-                   start_collisions: Set["PathAgent"]):
+                   start_collisions: Set["Agent"]):
         open_nodes = {}
         closed_nodes = {}
         heap = []
 
-        start_node = self.node_class(start, None, start_collisions)
-        end_node = self.node_class(end, None, set())
+        start_node = Node(start, None, start_collisions)
+        end_node = Node(end, None, set())
         open_nodes[hash(start_node)] = start_node
         heapq.heappush(heap, start_node)
 
@@ -85,12 +85,12 @@ class AStar:
                     current_node = current_node.parent
 
                 reverse_path.append(current_node.position)
-                total_collisions.union(current_node.collisions)
+                total_collisions = total_collisions.union(current_node.collisions)
                 path = reverse_path[::-1]
                 break
 
             # Find non-occupied neighbor
-            neighbors = current_node.adjacent_coordinates(self.environment.get_dim(), agent.speed)
+            neighbors = current_node.adjacent_coordinates(self.environment.dimension, agent.speed)
             for next_neighbor in neighbors:
                 valid, collisions = self.is_valid_for_allocation(next_neighbor, agent)
                 if valid and next_neighbor.t <= self.environment.dimension.t:
@@ -105,7 +105,7 @@ class AStar:
                     neighbor.f = neighbor.g + neighbor.h
 
                     if self.height_adjust:
-                        neighbor.f -= neighbor.position.y / self.environment.get_dim().y * 0.05 * neighbor.h
+                        neighbor.f -= neighbor.position.y / self.environment.dimension.y * 0.05 * neighbor.h
 
                     if hash(neighbor) in open_nodes:
                         if open_nodes[hash(neighbor)].f > neighbor.f:
@@ -117,7 +117,7 @@ class AStar:
 
     def complete_path(self, path: List["Coordinate4D"], steps: int, agent: "PathAgent"):
         if len(path) == 0:
-            print(f"ASTAR failed: {'MaxIter' if steps == self.max_iter else 'No valid Path'}")
+            print(f"ASTAR failed: {'MaxIter' if steps == self.max_iter else 'No valid Allocation'}")
 
         wait_coords: List["Coordinate4D"] = []
         for near_coord in path:
@@ -137,7 +137,13 @@ class AStar:
         end: "Coordinate4D",
         agent: "PathAgent",
         in_air: bool = False,
-    ):
+    ) -> Tuple[List["Coordinate4D"], set["Agent"]]:
+
+        distance = start.inter_temporal_distance(end)
+        time_left = self.environment.dimension.t - start.t
+
+        if distance > time_left:
+            return [], set()
 
         valid_start, start_collisions = self.valid_start(start, agent, in_air)
 
