@@ -52,13 +52,18 @@ class PathAgent(Agent, ABC):
         return [coord for path_segment in self.allocated_segments for coord in path_segment.coordinates]
 
     def does_collide(self, other_coordinate: "Coordinate4D", other_agent: "PathAgent"):
-        for coordinate in self.get_allocated_coords():
-            if other_coordinate.t <= coordinate.t <= other_coordinate.t + other_agent.speed:
-                distance = coordinate.inter_temporal_distance(other_coordinate)
-                if distance == 0:
-                    return True
-                if distance < self.near_radius or distance < other_agent.near_radius:
-                    return True
+        min_t = other_coordinate.t
+        max_t = other_coordinate.t + other_agent.speed
+        for segment in self.allocated_segments:
+            if segment.max.t >= min_t and segment.min.t <= max_t:
+                min_index = min(min_t - segment.min.t, 0)
+                max_index = max(max_t - segment.min.t, len(segment.coordinates) - 1)
+                for coordinate in segment.coordinates[min_index:max_index]:
+                    distance = coordinate.inter_temporal_distance(other_coordinate)
+                    if distance == 0:
+                        return True
+                    if distance < self.near_radius or distance < other_agent.near_radius:
+                        return True
         return False
 
     def value_for_segments(self, paths: List["PathSegment"]) -> float:
