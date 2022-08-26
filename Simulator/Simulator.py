@@ -7,19 +7,19 @@ if TYPE_CHECKING:
     from .Allocations.Allocation import Allocation
     from .Agents.Agent import Agent
     from .Environment.Environment import Environment
-    from Simulator.Mechanism.Allocator import Allocator
     from .Owners.Owner import Owner
+    from .Mechanism.Mechanism import Mechanism
 
 
 class Simulator:
     def __init__(self,
                  owners: List["Owner"],
-                 allocator: "Allocator",
+                 mechanism: "Mechanism",
                  environment: "Environment"):
         self.owners: List["Owner"] = owners
-        self.allocator: "Allocator" = allocator
+        self.mechanism: "Mechanism" = mechanism
         self.environment: "Environment" = environment
-        self.history: "History" = History(allocator, environment, owners)
+        self.history: "History" = History()
 
         self.time_step = 0
         self._agent_id = 0
@@ -49,7 +49,7 @@ class Simulator:
             self.history.add_new_agents(list(new_agents.values()), self.time_step)
             temporary_environment = self.environment.clone()
             temporary_agents = [agent.clone() for agent in new_agents.values()]
-            temporary_allocations: List["Allocation"] = self.allocator.allocate(
+            temporary_allocations: List["Allocation"] = self.mechanism.do(
                 temporary_agents,
                 temporary_environment,
                 self.time_step)

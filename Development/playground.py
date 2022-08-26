@@ -3,7 +3,9 @@ import math
 import random
 
 from Mechanisms.FCFS import FCFSAllocator, FCFSPathOwner, FCFSSpaceOwner
+from Mechanisms.FCFS.PaymentRule.FCFSPaymentRule import FCFSPaymentRule
 from Mechanisms.Priority import PriorityAllocator, PriorityPathOwner, PrioritySpaceOwner
+from Mechanisms.Priority.PaymentRule.PriorityPaymentRule import PriorityPaymentRule
 from Simulator import \
     Simulator, \
     Coordinate4D, \
@@ -13,6 +15,7 @@ from Simulator import \
     GridLocation, \
     GridLocationType, \
     build_json
+from Simulator.Mechanism.Mechanism import Mechanism
 
 random.seed(3)
 dimensions = Coordinate4D(40, 40, 40, 1000)
@@ -28,6 +31,8 @@ def setup_empty():
 
 def fcfsSimulation(env: Environment):
     allocator = FCFSAllocator()
+    payment_rule = FCFSPaymentRule()
+    mechanism = Mechanism(allocator, payment_rule)
     owners = [
         FCFSPathOwner("0",
                       "Schnabeltier",
@@ -43,11 +48,13 @@ def fcfsSimulation(env: Environment):
                        [random.randint(0, allocation_period) for _ in range(nr_agents)],
                        space_dimensions)
     ]
-    return Simulator(owners, allocator, env)
+    return Simulator(owners, mechanism, env)
 
 
 def prioritySimulation(env: Environment):
     allocator = PriorityAllocator()
+    payment_rule = PriorityPaymentRule()
+    mechanism = Mechanism(allocator, payment_rule)
     owners = [
         PriorityPathOwner("0",
                           "Schnabeltier",
@@ -65,7 +72,7 @@ def prioritySimulation(env: Environment):
                            space_dimensions,
                            priority=1.0)
     ]
-    return Simulator(owners, allocator, env)
+    return Simulator(owners, mechanism, env)
 
 
 def color_generator():
@@ -81,7 +88,7 @@ def color_generator():
 
 if __name__ == "__main__":
     environment = setup_empty()
-    simulatorAligator = fcfsSimulation(environment)
+    simulatorAligator = prioritySimulation(environment)
 
     while simulatorAligator.tick():
         pass

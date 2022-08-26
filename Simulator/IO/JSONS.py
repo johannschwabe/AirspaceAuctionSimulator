@@ -204,7 +204,7 @@ def build_json(simulator: "Simulator", total_compute_time: int):
     nr_collisions = 0
     json_env = JSONEnvironment(env.dimension, list(env.blocker_dict.values()))
     owners: List["JSONOwner"] = []
-    for owner in history.owners:
+    for owner in simulator.owners:
         agents: List["JSONAgent"] = []
         non_colliding_values = _calculate_non_colliding_values(owner.agents, stats)
         for agent in owner.agents:
