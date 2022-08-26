@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, List
 
+from Simulator.BidTracker.BidTracker import BidTracker
+
 if TYPE_CHECKING:
     from Simulator.Agents.Agent import Agent
     from Simulator.Allocations.Allocation import Allocation
@@ -9,6 +11,10 @@ if TYPE_CHECKING:
 
 class Allocator(ABC):
     def __init__(self):
+        pass
+
+    @abstractmethod
+    def get_bid_tracker(self) -> BidTracker:
         pass
 
     @abstractmethod

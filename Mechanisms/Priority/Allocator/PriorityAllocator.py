@@ -1,17 +1,24 @@
 from time import time_ns
+from typing import Dict, List
 
 from Mechanisms.Priority.AStar.PriorityAStar import PriorityAStar
+from Mechanisms.Priority.BidTracker.PriorityBidTracker import PriorityBidTracker
 from Mechanisms.Priority.Bids.PriorityPathBid import PriorityPathBid
 from Mechanisms.Priority.Bids.PrioritySpaceBid import PrioritySpaceBid
 from Mechanisms.Priority.Owners.PriorityPathOwner import PriorityPathOwner
 from Mechanisms.Priority.Owners.PrioritySpaceOwner import PrioritySpaceOwner
 from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation
+from Simulator.Agents.Agent import Agent
 from Simulator.Agents.PathAgent import PathAgent
 from Simulator.Agents.SpaceAgent import SpaceAgent
 from Simulator.Allocations.AllocationStatistics import AllocationStatistics
+from Simulator.Bids.Bid import Bid
 
 
 class PriorityAllocator(Allocator):
+    def __init__(self):
+        super().__init__()
+        self.bid_tracker = PriorityBidTracker()
     @staticmethod
     def compatible_owner():
         return [PriorityPathOwner, PrioritySpaceOwner]
@@ -32,11 +39,11 @@ class PriorityAllocator(Allocator):
             )
 
             if len(ab_path) == 0:
-                return None, set()
+                return [], set()
 
             time += ab_path[-1].t - ab_path[0].t
             if time > agent.battery:
-                return None, set()
+                return [], set()
 
             optimal_path_segments.append(
                 PathSegment(a.to_inter_temporal(), b.to_inter_temporal(), count, ab_path))
@@ -53,32 +60,29 @@ class PriorityAllocator(Allocator):
         for block in bid.agent.blocks:
             intersecting_agents = environment.other_agents_in_space(block[0], block[1], agent)
             intersections = [intersecting_agent for intersecting_agent in intersecting_agents if
-                             intersecting_agent.get_bid(tick, environment).priority < bid.priority]
+                             intersecting_agent.request_bid(tick, environment).priority < bid.priority]
             if len(intersections) == len(intersecting_agents):
                 optimal_path_segments.append(SpaceSegment(block[0], block[1]))
                 collisions = collisions.union(intersections)
         return optimal_path_segments, collisions
 
     def allocate(self, agents, environment, tick):
+        for agent in agents:
+            self.bid_tracker.request_bid(tick, agent, environment)
+
         astar = PriorityAStar(environment, tick)
         allocations = []
         agents_to_allocate = set(agents)
         while len(list(agents_to_allocate)) > 0:
             start_time = time_ns()
-            agent = max(agents_to_allocate, key=lambda _agent: _agent.get_bid(tick, environment).priority)
+            agent = max(agents_to_allocate,
+                        key=lambda _agent: self.bid_tracker.get_last_bid_for_tick(tick, agent, environment).priority)
             agents_to_allocate.remove(agent)
-            bid = agent.get_bid(tick, environment)
+            bid = self.bid_tracker.request_bid(tick, agent, environment)
 
             # Path Agents
             if isinstance(agent, PathAgent):
                 optimal_segments, collisions = self.allocate_path(agent, bid, astar)
-
-                if optimal_segments is None:
-                    allocations.append(
-                        Allocation(agent, [], bid,
-                                   AllocationStatistics(time_ns() - start_time,
-                                                        str(AllocationReason.ALLOCATION_FAILED.value))))
-                    continue
 
             # Space Agents
             elif isinstance(agent, SpaceAgent):

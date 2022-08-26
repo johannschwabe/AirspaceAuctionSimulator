@@ -43,19 +43,20 @@ class Simulator:
 
         new_agents: Dict[int, "Agent"] = self.generate_new_agents()
 
-        if len(new_agents) > 0:
-            start_time = time_ns()
+        start_time = time_ns()
 
-            self.history.add_new_agents(list(new_agents.values()), self.time_step)
-            temporary_environment = self.environment.clone()
-            temporary_agents = [agent.clone() for agent in new_agents.values()]
-            temporary_allocations: List["Allocation"] = self.mechanism.do(
-                temporary_agents,
-                temporary_environment,
-                self.time_step)
-            real_allocations = self.environment.create_real_allocations(temporary_allocations, new_agents)
-            self.environment.allocate_segments_for_agents(real_allocations, self.time_step)
-            self.history.update_allocations(real_allocations, self.time_step, time_ns() - start_time)
+        self.history.add_new_agents(list(new_agents.values()), self.time_step)
+        temporary_environment = self.environment.clone()
+        temporary_agents = [agent.clone() for agent in new_agents.values()]
+        temporary_allocations: List["Allocation"] = self.mechanism.do(
+            temporary_agents,
+            temporary_environment,
+            self.time_step)
+        real_allocations = self.environment.create_real_allocations(temporary_allocations, new_agents)
+        self.environment.allocate_segments_for_agents(real_allocations, self.time_step)
+        self.history.update_allocations(real_allocations, self.time_step, time_ns() - start_time)
+
+        if len(temporary_allocations) > 0:
             print(f"STEP: {self.time_step}")
             print("-------------")
 

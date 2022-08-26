@@ -3,8 +3,8 @@ import random
 from time import time_ns
 
 from API import APIWorldCoordinates, EnvironmentGen, MapTile, Area
-from Demos import FCFSPathAgent
 from Simulator import AStar, Coordinate4D, GridLocation, GridLocationType, PathOwner, Environment
+from Simulator.Agents.PathAgent import PathAgent
 
 map_height = 30
 time_steps = 20000
@@ -14,7 +14,7 @@ def setup():
     random.seed(0)
     area = Area(APIWorldCoordinates(lat=47.3685943521338, long=8.536376953124991),
                 APIWorldCoordinates(lat=47.376034633497596, long=8.547363281249993),
-                1)
+                2)
     size = area.dimension
     dimensions = Coordinate4D(math.floor(size[0]),
                               math.floor(map_height / area.resolution),
@@ -52,7 +52,7 @@ def writeCoords(environment: Environment, filename: str):
         end = PathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)),
                                                  environment,
                                                  0, 1, 1)
-        agent = FCFSPathAgent("agent-id", [start, end], [])
+        agent = PathAgent("agent-id", [start, end], [])
         res, _ = astar.astar(start, end, agent)
         f.write(f"{start.x},{start.y},{start.z},{start.t}-{end.x},{end.y},{end.z},{end.t}-{len(res)}\n")
     f.close()
@@ -70,7 +70,7 @@ def testCoords(environment: Environment, g_sum, height_adjust):
     for segment in segments:
         start = segment["start"]
         end = segment["end"]
-        agent = FCFSPathAgent("agent-id", [start, end], [])
+        agent = PathAgent("agent-id", [start, end], [])
         res, _ = astar.astar(segment["start"], segment["end"], agent)
         if len(res) > 0:
             nr_success += 1
@@ -86,7 +86,7 @@ def testCoords(environment: Environment, g_sum, height_adjust):
 
 def write():
     environment = setup()
-    writeCoords(environment, "Development/optimal_paths.txt")
+    writeCoords(environment, "optimal_paths.txt")
 
 
 def test():
@@ -111,4 +111,4 @@ def test():
 
 
 if __name__ == "__main__":
-    test()
+    write()
