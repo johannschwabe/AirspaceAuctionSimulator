@@ -2,8 +2,8 @@ import json
 import math
 import random
 
-from Demos import PriorityAllocator, PrioritySpaceOwner, PriorityPathOwner
-from Mechanisms import FCFSAllocator, FCFSPathOwner, FCFSSpaceOwner
+from Mechanisms.FCFS import FCFSAllocator, FCFSPathOwner, FCFSSpaceOwner
+from Mechanisms.Priority import PriorityAllocator, PriorityPathOwner, PrioritySpaceOwner
 from Simulator import \
     Simulator, \
     Coordinate4D, \
@@ -15,62 +15,57 @@ from Simulator import \
     build_json
 
 random.seed(3)
+dimensions = Coordinate4D(40, 40, 40, 1000)
+allocation_period = 40
+space_dimensions = Coordinate4D(10, 10, 10, 20)
+nr_agents = 10
 
 
-def setup_empty(t):
-    dimensions = Coordinate4D(40, 40, 40, t)
+def setup_empty():
     blocker = StaticBlocker(Coordinate3D(10, 0, 10), Coordinate3D(20, 20, 20))
-    return Environment(dimensions, blockers=[blocker], allocation_period=math.floor(t / 10))
+    return Environment(dimensions, blockers=[blocker], allocation_period=allocation_period)
 
 
-def simulateFCFS(env: Environment, t):
+def fcfsSimulation(env: Environment):
     allocator = FCFSAllocator()
     owners = [
-        FCFSPathOwner("owner-0",
+        FCFSPathOwner("0",
                       "Schnabeltier",
                       color_generator(),
                       [GridLocation(str(GridLocationType.RANDOM.value)),
                        GridLocation(str(GridLocationType.RANDOM.value))],
-                      [random.randint(0, 5) for _ in range(10)]),
-        FCFSSpaceOwner("owner-1",
+                      [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)]),
+        FCFSSpaceOwner("1",
                        "Ghettotier",
                        color_generator(),
                        [GridLocation(str(GridLocationType.RANDOM.value)),
                         GridLocation(str(GridLocationType.RANDOM.value))],
-                       [random.randint(0, 10) for _ in range(10)],
-                       Coordinate4D(10, 10, 10, 10))
+                       [random.randint(0, allocation_period) for _ in range(nr_agents)],
+                       space_dimensions)
     ]
-    simulator = Simulator(owners, allocator, env)
-    while simulator.time_step < t:
-        simulator.tick()
-
-    return simulator
+    return Simulator(owners, allocator, env)
 
 
-def simulatePriority(env: Environment, t):
+def prioritySimulation(env: Environment):
     allocator = PriorityAllocator()
     owners = [
-        PriorityPathOwner("owner-0",
+        PriorityPathOwner("0",
                           "Schnabeltier",
                           color_generator(),
                           [GridLocation(str(GridLocationType.RANDOM.value)),
                            GridLocation(str(GridLocationType.RANDOM.value))],
-                          [random.randint(0, 5) for _ in range(10)],
+                          [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)],
                           priority=0.5),
-        PrioritySpaceOwner("owner-1",
+        PrioritySpaceOwner("1",
                            "Ghettotier",
                            color_generator(),
                            [GridLocation(str(GridLocationType.RANDOM.value)),
                             GridLocation(str(GridLocationType.RANDOM.value))],
-                           [random.randint(0, 5) for _ in range(10)],
-                           Coordinate4D(25, 25, 25, 25),
+                           [random.randint(0, allocation_period) for _ in range(nr_agents)],
+                           space_dimensions,
                            priority=1.0)
     ]
-    simulator = Simulator(owners, allocator, env)
-    while simulator.time_step < t:
-        simulator.tick()
-
-    return simulator
+    return Simulator(owners, allocator, env)
 
 
 def color_generator():
@@ -85,9 +80,11 @@ def color_generator():
 
 
 if __name__ == "__main__":
-    max_t = 1000
-    environment = setup_empty(max_t)
-    simulatorAligator = simulateFCFS(environment, max_t)
+    environment = setup_empty()
+    simulatorAligator = fcfsSimulation(environment)
+
+    while simulatorAligator.tick():
+        pass
 
     res = build_json(simulatorAligator, 0)
     res["config"] = {"name": "test", "map": {"tiles": []}, "dimension": environment.dimension.to_dict(), "owners": []}

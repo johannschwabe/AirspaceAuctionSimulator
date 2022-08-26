@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, List
 
-from Simulator.Bids.Bid import Bid
-
 if TYPE_CHECKING:
+    from Simulator.Agents.Agent import Agent
     from Simulator.Allocations.Allocation import Allocation
     from Simulator.Environment.Environment import Environment
 
@@ -14,7 +13,7 @@ class Allocator(ABC):
 
     @abstractmethod
     def allocate(self,
-                 bids: List["Bid"],
+                 agents: List["Agent"],
                  env: "Environment",
                  tick: int) -> List["Allocation"]:
         pass

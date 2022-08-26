@@ -55,45 +55,35 @@ class FCFSAllocator(Allocator):
                 optimal_path_segments.append(SpaceSegment(block[0], block[1]))
         return optimal_path_segments
 
-    def allocate(self,
-                 bids,
-                 environment,
-                 tick):
+    def allocate(self, agents, environment, tick):
         astar = AStar(environment)
         allocations = []
-        for bid in bids:
+        for agent in agents:
             start_time = time_ns()
-            agent = bid.agent
+            bid = agent.get_bid(tick, environment)
 
             # Path Agents
             if isinstance(agent, PathAgent):
-                optimal_path_segments = self.allocate_path(agent, astar)
+                optimal_segments = self.allocate_path(agent, astar)
 
-                if optimal_path_segments is None:
+                if optimal_segments is None:
                     allocations.append(
                         Allocation(agent, [], bid,
                                    AllocationStatistics(time_ns() - start_time,
                                                         str(AllocationReason.ALLOCATION_FAILED.value))))
                     continue
 
-                environment.allocate_path_for_agent(agent, optimal_path_segments)
-                allocations.append(
-                    Allocation(agent, optimal_path_segments, bid,
-                               AllocationStatistics(time_ns() - start_time,
-                                                    str(AllocationReason.FIRST_ALLOCATION.value))))
-
             # Space Agents
             elif isinstance(agent, SpaceAgent):
-                optimal_space_segments = self.allocate_space(agent, environment)
-
-                environment.allocate_space_for_agent(agent, optimal_space_segments)
-                allocations.append(
-                    Allocation(agent, optimal_space_segments, bid,
-                               AllocationStatistics(time_ns() - start_time,
-                                                    str(AllocationReason.FIRST_ALLOCATION.value))))
+                optimal_segments = self.allocate_space(agent, environment)
 
             else:
                 raise Exception(f"Invalid Agent: {agent}")
 
-            environment.add_agent(agent)
+            new_allocation = Allocation(agent, optimal_segments, bid,
+                                        AllocationStatistics(time_ns() - start_time,
+                                                             str(AllocationReason.FIRST_ALLOCATION.value)))
+            allocations.append(new_allocation)
+            environment.allocate_segments_for_agents([new_allocation], tick)
+
         return allocations

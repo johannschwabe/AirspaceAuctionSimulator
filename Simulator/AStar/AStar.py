@@ -14,10 +14,12 @@ if TYPE_CHECKING:
 class AStar:
     def __init__(self,
                  environment: "Environment",
+                 tick: int = -1,
                  max_iter: int = 100_000,
                  g_sum: float = 0.1,
                  height_adjust: float = 0.05):
         self.environment: "Environment" = environment
+        self.tick: int = tick
         self.max_iter: int = max_iter
         self.g_sum: float = g_sum
         self.height_adjust: float = height_adjust
@@ -28,7 +30,9 @@ class AStar:
                     in_air: bool) -> tuple[Optional["Coordinate4D"], set["Agent"]]:
         valid_start: "Coordinate4D" = start.clone()
 
-        if in_air and not self.is_valid_for_allocation(valid_start, agent):
+        valid, collisions = self.is_valid_for_allocation(valid_start, agent)
+
+        if in_air and not valid:
             print("In air start is not valid")
             return None, set()
 
@@ -36,7 +40,6 @@ class AStar:
             print("Static Blocker at start")
             return None, set()
 
-        valid, collisions = self.is_valid_for_allocation(valid_start, agent)
         while not valid and valid_start.t < self.environment.dimension.t:
             valid_start.t += 1
             valid, collisions = self.is_valid_for_allocation(valid_start, agent)

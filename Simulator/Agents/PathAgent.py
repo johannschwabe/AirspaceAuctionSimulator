@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING, List
+from typing import Optional, TYPE_CHECKING, List, Dict
 
 from ..Agents.Agent import Agent
 from ..Agents.AgentType import AgentType
@@ -21,12 +21,13 @@ class PathAgent(Agent):
                  bidding_strategy: "BiddingStrategy",
                  locations: List["Coordinate4D"],
                  stays: List[int],
+                 config: Optional[Dict[str, object]] = None,
                  speed: Optional[int] = None,
                  battery: Optional[int] = None,
                  near_radius: Optional[int] = None,
                  _is_clone: bool = False):
 
-        super().__init__(agent_id, bidding_strategy, _is_clone=_is_clone)
+        super().__init__(agent_id, bidding_strategy, config, _is_clone=_is_clone)
 
         self.locations: List["Coordinate4D"] = locations
         self.stays: List[int] = stays
@@ -42,6 +43,7 @@ class PathAgent(Agent):
                           self.bidding_strategy,
                           self.locations,
                           self.stays,
+                          config=self.config,
                           speed=self.speed,
                           battery=self.battery,
                           near_radius=self.near_radius,

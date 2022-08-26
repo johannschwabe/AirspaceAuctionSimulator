@@ -37,7 +37,10 @@ class Simulator:
                 new_agents[hash(generated_agent)] = generated_agent
         return new_agents
 
-    def tick(self):
+    def tick(self) -> bool:
+        if self.time_step > self.environment.dimension.t:
+            return False
+
         new_agents: Dict[int, "Agent"] = self.generate_new_agents()
 
         if len(new_agents) > 0:
@@ -45,8 +48,9 @@ class Simulator:
 
             self.history.add_new_agents(list(new_agents.values()), self.time_step)
             temporary_environment = self.environment.clone()
+            temporary_agents = [agent.clone() for agent in new_agents.values()]
             temporary_allocations: List["Allocation"] = self.allocator.allocate(
-                [agent.get_bid(self.time_step, temporary_environment) for agent in new_agents.values()],
+                temporary_agents,
                 temporary_environment,
                 self.time_step)
             real_allocations = self.environment.create_real_allocations(temporary_allocations, new_agents)
@@ -56,3 +60,4 @@ class Simulator:
             print("-------------")
 
         self.time_step += 1
+        return True

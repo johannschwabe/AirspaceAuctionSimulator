@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Dict, Optional
 
 if TYPE_CHECKING:
     from ..Segments.Segment import Segment
@@ -11,9 +11,11 @@ if TYPE_CHECKING:
 class Agent(ABC):
     agent_type: str
 
-    def __init__(self, agent_id: str, bidding_strategy: "BiddingStrategy", _is_clone: bool = False):
+    def __init__(self, agent_id: str, bidding_strategy: "BiddingStrategy", config: Optional[Dict[str, object]] = None,
+                 _is_clone: bool = False):
         self.id: str = agent_id
         self.bidding_strategy: "BiddingStrategy" = bidding_strategy
+        self.config: Dict[str, object] = config if config is not None else {}
         self.is_clone: bool = _is_clone
         self.allocated_segments: List["Segment"] = []
 
@@ -25,7 +27,7 @@ class Agent(ABC):
         pass
 
     def get_bid(self, t: int, environment: "Environment") -> "Bid":
-        return self.bidding_strategy.generate_bid(self.clone(), environment, t)
+        return self.bidding_strategy.generate_bid(self, environment, t)
 
     @abstractmethod
     def initialize_clone(self) -> "Agent":

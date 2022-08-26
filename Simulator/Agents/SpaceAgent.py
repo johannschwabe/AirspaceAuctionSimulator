@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Dict, Optional
 
 from .Agent import Agent
 from .AgentType import AgentType
@@ -16,8 +16,9 @@ class SpaceAgent(Agent):
                  agent_id: str,
                  bidding_strategy: "BiddingStrategy",
                  blocks: List[List["Coordinate4D"]],
+                 config: Optional[Dict[str, object]] = None,
                  _is_clone: bool = False):
-        super().__init__(agent_id, bidding_strategy, _is_clone=_is_clone)
+        super().__init__(agent_id, bidding_strategy, config, _is_clone=_is_clone)
 
         self.blocks: List[List["Coordinate4D"]] = blocks
         self.allocated_segments: List["SpaceSegment"] = []
@@ -26,7 +27,7 @@ class SpaceAgent(Agent):
         self.allocated_segments.append(space_segment)
 
     def initialize_clone(self):
-        clone = SpaceAgent(self.id, self.bidding_strategy, self.blocks, _is_clone=True)
+        clone = SpaceAgent(self.id, self.bidding_strategy, self.blocks, config=self.config, _is_clone=True)
         return clone
 
     def value_for_segments(self, segments: List["SpaceSegment"]) -> float:

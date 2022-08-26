@@ -168,13 +168,13 @@ class Environment:
         self.tree.insert(hash(agent), space_segment.tree_rep())
 
     def allocate_segments_for_agents(self,
-                                     real_allocations: List["Allocation"],
+                                     allocations: List["Allocation"],
                                      time_step: int):
         """
         Allocate according to the given allocation.
         Only reallocates segments that are in the future.
         """
-        for allocation in real_allocations:
+        for allocation in allocations:
             agent: "Agent" = allocation.agent
             if isinstance(agent, SpaceAgent):
                 segments: List["SpaceSegment"] = allocation.segments
@@ -186,7 +186,7 @@ class Environment:
                 self.register_agent(agent, time_step)
                 self.allocate_path_for_agent(agent, segments)
             else:
-                raise Exception(f"Unknown allocation class {allocation.__class__}")
+                raise Exception(f"Unknown Agent: {agent}")
 
     def register_agent(self, agent: "Agent", time_step: int):
         """

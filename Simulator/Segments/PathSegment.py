@@ -15,14 +15,14 @@ class PathSegment(Segment):
         self.index: int = index
 
     def join(self, other: "PathSegment"):
+        assert other.min.t == self.max.t + 1
         self.coordinates.extend(other.coordinates)
 
     def same(self, other: "PathSegment"):
         same_index = self.index == other.index
-        same_end = self.end == other.end
-        if same_index and not same_end:
-            print(f"Same index ({self.index} == {other.index}) but not same end ({self.end} != {other.end})")
-        return same_index and same_end
+        if same_index:
+            assert self.end == other.end
+        return same_index
 
     @property
     def nr_voxels(self) -> int:
