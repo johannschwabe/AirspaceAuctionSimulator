@@ -72,7 +72,7 @@ class SpaceOwner(Owner, ABC):
         for _ in range(self.creation_ticks.count(t)):
             blocks = []
             for stop in self.stops:
-                bottom_left = self.generate_stop_coordinates(stop, environment, t)
+                bottom_left = self.generate_stop_coordinates(stop, environment, t + 1)
                 top_right = bottom_left + self.size
                 blocks.append([bottom_left, top_right])
             agent = self.initialize_agent(blocks)

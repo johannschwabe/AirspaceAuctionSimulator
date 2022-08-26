@@ -3,6 +3,7 @@ import math
 from typing import List, TYPE_CHECKING, Set, Optional, Tuple
 
 from .Node import Node
+from ..BidTracker.BidTracker import BidTracker
 
 if TYPE_CHECKING:
     from ..Environment.Environment import Environment
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
 class AStar:
     def __init__(self,
                  environment: "Environment",
+                 bid_tracker: BidTracker,
                  tick: int = -1,
                  max_iter: int = 100_000,
                  g_sum: float = 0.1,
@@ -23,6 +25,7 @@ class AStar:
         self.max_iter: int = max_iter
         self.g_sum: float = g_sum
         self.height_adjust: float = height_adjust
+        self.bid_tracker: BidTracker = bid_tracker
 
     def valid_start(self,
                     start: "Coordinate4D",

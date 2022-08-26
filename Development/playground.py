@@ -4,7 +4,8 @@ import random
 
 from Mechanisms.FCFS import FCFSAllocator, FCFSPathOwner, FCFSSpaceOwner
 from Mechanisms.FCFS.PaymentRule.FCFSPaymentRule import FCFSPaymentRule
-from Mechanisms.Priority import PriorityAllocator, PriorityPathOwner, PrioritySpaceOwner
+from Mechanisms.Priority import PriorityAllocator, PriorityPathOwner
+from Mechanisms.Priority.Owners.PrioritySpaceOwner import PrioritySpaceOwner
 from Mechanisms.Priority.PaymentRule.PriorityPaymentRule import PriorityPaymentRule
 from Simulator import \
     Simulator, \
@@ -17,11 +18,11 @@ from Simulator import \
     build_json
 from Simulator.Mechanism.Mechanism import Mechanism
 
-random.seed(3)
+random.seed(4)
 dimensions = Coordinate4D(40, 40, 40, 1000)
 allocation_period = 40
-space_dimensions = Coordinate4D(10, 10, 10, 20)
-nr_agents = 10
+space_dimensions = Coordinate4D(7, 7, 7, 10)
+nr_agents = 30
 
 
 def setup_empty():
@@ -63,6 +64,13 @@ def prioritySimulation(env: Environment):
                            GridLocation(str(GridLocationType.RANDOM.value))],
                           [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)],
                           priority=0.5),
+        PriorityPathOwner("Yo MAMA",
+                          "GhettoSalat",
+                          color_generator(),
+                          [GridLocation(str(GridLocationType.RANDOM.value)),
+                           GridLocation(str(GridLocationType.RANDOM.value))],
+                          [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)],
+                          priority=0.6),
         PrioritySpaceOwner("1",
                            "Ghettotier",
                            color_generator(),
@@ -95,6 +103,6 @@ if __name__ == "__main__":
 
     res = build_json(simulatorAligator, 0)
     res["config"] = {"name": "test", "map": {"tiles": []}, "dimension": environment.dimension.to_dict(), "owners": []}
-    f = open("Development/playground.json", "w")
+    f = open("playground.json", "w")
     f.write(json.dumps(res))
     f.close()

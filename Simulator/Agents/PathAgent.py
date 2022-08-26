@@ -38,6 +38,13 @@ class PathAgent(Agent):
 
         self.allocated_segments: List["PathSegment"] = []
 
+    def get_position_at_tick(self, tick: int):
+        for segment in self.allocated_segments:
+            if segment.max.t >= tick >= segment.min.t:
+                index = tick - segment.min.t
+                return segment.coordinates[index]
+        return None
+
     def initialize_clone(self):
         clone = PathAgent(self.id,
                           self.bidding_strategy,

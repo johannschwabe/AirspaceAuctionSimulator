@@ -1,5 +1,4 @@
 from time import time_ns
-from typing import Dict, List
 
 from Mechanisms.Priority.AStar.PriorityAStar import PriorityAStar
 from Mechanisms.Priority.BidTracker.PriorityBidTracker import PriorityBidTracker
@@ -8,17 +7,17 @@ from Mechanisms.Priority.Bids.PrioritySpaceBid import PrioritySpaceBid
 from Mechanisms.Priority.Owners.PriorityPathOwner import PriorityPathOwner
 from Mechanisms.Priority.Owners.PrioritySpaceOwner import PrioritySpaceOwner
 from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation
-from Simulator.Agents.Agent import Agent
 from Simulator.Agents.PathAgent import PathAgent
 from Simulator.Agents.SpaceAgent import SpaceAgent
 from Simulator.Allocations.AllocationStatistics import AllocationStatistics
-from Simulator.Bids.Bid import Bid
+from Simulator.BidTracker.BidTracker import BidTracker
 
 
 class PriorityAllocator(Allocator):
     def __init__(self):
         super().__init__()
         self.bid_tracker = PriorityBidTracker()
+
     @staticmethod
     def compatible_owner():
         return [PriorityPathOwner, PrioritySpaceOwner]
@@ -53,32 +52,31 @@ class PriorityAllocator(Allocator):
 
         return optimal_path_segments, collisions
 
-    @staticmethod
-    def allocate_space(agent, bid: PrioritySpaceBid, environment, tick):
+    def allocate_space(self, agent, bid: PrioritySpaceBid, environment, tick):
         optimal_path_segments = []
         collisions = set()
         for block in bid.agent.blocks:
+            if block[0].t <= tick:
+                continue
             intersecting_agents = environment.other_agents_in_space(block[0], block[1], agent)
             intersections = [intersecting_agent for intersecting_agent in intersecting_agents if
-                             intersecting_agent.request_bid(tick, environment).priority < bid.priority]
+                             self.bid_tracker.get_last_bid_for_tick(tick, intersecting_agent,
+                                                                    environment).priority < bid.priority]
             if len(intersections) == len(intersecting_agents):
                 optimal_path_segments.append(SpaceSegment(block[0], block[1]))
                 collisions = collisions.union(intersections)
         return optimal_path_segments, collisions
 
     def allocate(self, agents, environment, tick):
-        for agent in agents:
-            self.bid_tracker.request_bid(tick, agent, environment)
-
-        astar = PriorityAStar(environment, tick)
+        astar = PriorityAStar(environment, self.bid_tracker, tick)
         allocations = []
         agents_to_allocate = set(agents)
         while len(list(agents_to_allocate)) > 0:
             start_time = time_ns()
             agent = max(agents_to_allocate,
-                        key=lambda _agent: self.bid_tracker.get_last_bid_for_tick(tick, agent, environment).priority)
+                        key=lambda _agent: self.bid_tracker.get_last_bid_for_tick(tick, _agent, environment).priority)
             agents_to_allocate.remove(agent)
-            bid = self.bid_tracker.request_bid(tick, agent, environment)
+            bid = self.bid_tracker.get_last_bid_for_tick(tick, agent, environment)
 
             # Path Agents
             if isinstance(agent, PathAgent):
@@ -101,7 +99,7 @@ class PriorityAllocator(Allocator):
             allocation_reason = str(AllocationReason.FIRST_ALLOCATION.value) if agent in agents else str(
                 AllocationReason.AGENT.value)
             collision_ids = [collision.id for collision in collisions]
-            new_allocation = Allocation(agent, optimal_segments, bid,
+            new_allocation = Allocation(agent, optimal_segments,
                                         AllocationStatistics(time_ns() - start_time,
                                                              allocation_reason,
                                                              colliding_agents_ids=collision_ids))
@@ -109,3 +107,6 @@ class PriorityAllocator(Allocator):
             environment.allocate_segments_for_agents([new_allocation], tick)
 
         return allocations
+
+    def get_bid_tracker(self) -> BidTracker:
+        return self.bid_tracker
