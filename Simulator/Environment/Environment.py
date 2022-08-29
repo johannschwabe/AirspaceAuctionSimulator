@@ -128,7 +128,7 @@ class Environment:
                 if space_segment.min.t < time_step:
                     first, _ = space_segment.split_temporal(time_step)
                     new_segments.append(first)
-                    self.tree.insert(hash(agent), first)
+                    self.tree.insert(hash(agent), first.tree_rep())
 
         agent.allocated_segments = new_segments
 

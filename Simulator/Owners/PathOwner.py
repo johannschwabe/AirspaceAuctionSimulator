@@ -26,14 +26,11 @@ class PathOwner(Owner, ABC):
 
     @staticmethod
     def generate_stop_coordinate(stop: "GridLocation", env: "Environment", t: int, near_radius: int) -> "Coordinate4D":
-        coord = stop.generate_coordinates(env, t)
-        initial_y = coord.y
+        coord = stop.generate_coordinates(env, t + 1)
 
-        while env.is_blocked_forever(coord, near_radius):
+        while coord.y < env.min_height or env.is_blocked_forever(coord, near_radius):
             coord.y += 1
-            if coord.y >= env.dimension.y:
-                coord.y = env.min_height
-            elif coord.y == initial_y:
+            if coord.y > env.dimension.y:
                 print("BLOCKED")
                 break
 
