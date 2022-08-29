@@ -1,6 +1,6 @@
 from typing import List
 
-from Mechanisms.Priority.BidTracker.PriorityBidTracker import PriorityBidTracker
+from Demos.Priority.BidTracker.PriorityBidTracker import PriorityBidTracker
 from Simulator.Allocations.Allocation import Allocation
 from Simulator.Mechanism.PaymentRule import PaymentRule
 

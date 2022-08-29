@@ -1,7 +1,7 @@
 from time import time_ns
 
-from Mechanisms.FCFS.Owners.FCFSPathOwner import FCFSPathOwner
-from Mechanisms.FCFS.Owners.FCFSSpaceOwner import FCFSSpaceOwner
+from Demos.FCFS.Owners.FCFSPathOwner import FCFSPathOwner
+from Demos.FCFS.Owners.FCFSSpaceOwner import FCFSSpaceOwner
 from Simulator import \
     Allocator, \
     AStar, \

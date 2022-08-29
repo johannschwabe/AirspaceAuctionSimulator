@@ -1,4 +1,4 @@
-from Mechanisms.Priority.BidTracker.PriorityBidTracker import PriorityBidTracker
+from Demos.Priority.BidTracker.PriorityBidTracker import PriorityBidTracker
 from Simulator import AStar
 
 

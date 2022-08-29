@@ -1,4 +1,4 @@
-from Mechanisms.Priority.Bids.PriorityPathBid import PriorityPathBid
+from Demos.Priority.Bids.PriorityPathBid import PriorityPathBid
 from Simulator.Agents.PathAgent import PathAgent
 from Simulator.Bids.BiddingStrategy import BiddingStrategy
 from Simulator.Environment.Environment import Environment

@@ -1,4 +1,4 @@
-from Mechanisms.FCFS.Bids.FCFSSpaceBid import FCFSSpaceBid
+from Demos.FCFS.Bids.FCFSSpaceBid import FCFSSpaceBid
 from Simulator.Agents.SpaceAgent import SpaceAgent
 from Simulator.Bids.BiddingStrategy import BiddingStrategy
 from Simulator.Environment.Environment import Environment

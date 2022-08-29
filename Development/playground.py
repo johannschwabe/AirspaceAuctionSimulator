@@ -2,11 +2,8 @@ import json
 import math
 import random
 
-from Mechanisms.FCFS import FCFSAllocator, FCFSPathOwner, FCFSSpaceOwner
-from Mechanisms.FCFS.PaymentRule.FCFSPaymentRule import FCFSPaymentRule
-from Mechanisms.Priority import PriorityAllocator, PriorityPathOwner
-from Mechanisms.Priority.Owners.PrioritySpaceOwner import PrioritySpaceOwner
-from Mechanisms.Priority.PaymentRule.PriorityPaymentRule import PriorityPaymentRule
+from Demos.FCFS import FCFSAllocator, FCFSPathOwner, FCFSSpaceOwner, FCFSPaymentRule
+from Demos.Priority import PriorityAllocator, PriorityPathOwner, PrioritySpaceOwner, PriorityPaymentRule
 from Simulator import \
     Simulator, \
     Coordinate4D, \
@@ -15,8 +12,8 @@ from Simulator import \
     Environment, \
     GridLocation, \
     GridLocationType, \
-    build_json
-from Simulator.Mechanism.Mechanism import Mechanism
+    build_json, \
+    Mechanism
 
 random.seed(4)
 dimensions = Coordinate4D(40, 40, 40, 1000)

@@ -1,6 +1,6 @@
 import random
 
-from Mechanisms.Priority.BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStrategy
+from Demos.Priority.BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStrategy
 from Simulator import PathOwner
 from Simulator.Agents.PathAgent import PathAgent
 

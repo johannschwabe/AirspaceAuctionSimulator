@@ -1,11 +1,11 @@
 from time import time_ns
 
-from Mechanisms.Priority.AStar.PriorityAStar import PriorityAStar
-from Mechanisms.Priority.BidTracker.PriorityBidTracker import PriorityBidTracker
-from Mechanisms.Priority.Bids.PriorityPathBid import PriorityPathBid
-from Mechanisms.Priority.Bids.PrioritySpaceBid import PrioritySpaceBid
-from Mechanisms.Priority.Owners.PriorityPathOwner import PriorityPathOwner
-from Mechanisms.Priority.Owners.PrioritySpaceOwner import PrioritySpaceOwner
+from Demos.Priority.AStar.PriorityAStar import PriorityAStar
+from Demos.Priority.BidTracker.PriorityBidTracker import PriorityBidTracker
+from Demos.Priority.Bids.PriorityPathBid import PriorityPathBid
+from Demos.Priority.Bids.PrioritySpaceBid import PrioritySpaceBid
+from Demos.Priority.Owners.PriorityPathOwner import PriorityPathOwner
+from Demos.Priority.Owners.PrioritySpaceOwner import PrioritySpaceOwner
 from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation
 from Simulator.Agents.PathAgent import PathAgent
 from Simulator.Agents.SpaceAgent import SpaceAgent

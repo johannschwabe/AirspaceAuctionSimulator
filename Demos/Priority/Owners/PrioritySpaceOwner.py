@@ -1,6 +1,6 @@
 import random
 
-from Mechanisms.Priority.BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
+from Demos.Priority.BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
 from Simulator import SpaceOwner, Coordinate4D
 from Simulator.Agents.SpaceAgent import SpaceAgent
 

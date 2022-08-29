@@ -1,4 +1,4 @@
-from Mechanisms.Priority.Bids.PrioritySpaceBid import PrioritySpaceBid
+from Demos.Priority.Bids.PrioritySpaceBid import PrioritySpaceBid
 from Simulator.Agents.SpaceAgent import SpaceAgent
 from Simulator.Bids.BiddingStrategy import BiddingStrategy
 from Simulator.Environment.Environment import Environment
