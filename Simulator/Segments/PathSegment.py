@@ -15,8 +15,13 @@ class PathSegment(Segment):
         self.index: int = index
 
     def join(self, other: "PathSegment"):
-        assert other.min.t == self.max.t + 1
-        self.coordinates.extend(other.coordinates)
+        join_index = 0
+        if other.min == self.max:
+            join_index = 1
+        else:
+            assert other.min.t == self.max.t + 1
+
+        self.coordinates.extend(other.coordinates[join_index:])
 
     def same(self, other: "PathSegment"):
         same_index = self.index == other.index

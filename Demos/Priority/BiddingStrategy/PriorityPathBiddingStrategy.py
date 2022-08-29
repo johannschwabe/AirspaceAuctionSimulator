@@ -1,5 +1,7 @@
 import random
 
+from typing import Optional
+
 from Demos.Priority.Bids.PriorityPathBid import PriorityPathBid
 from Simulator.Agents.AgentType import AgentType
 from Simulator.Agents.PathAgent import PathAgent
@@ -21,7 +23,7 @@ class PriorityPathBiddingStrategy(BiddingStrategy):
     }]  # Todo integrate into the frontend
     allocation_type = AgentType.PATH.value
 
-    def generate_bid(self, agent: PathAgent, _environment: Environment, time_step: int) -> PriorityPathBid:
+    def generate_bid(self, agent: PathAgent, _environment: Environment, time_step: int) -> Optional[PriorityPathBid]:
         flying = False
         locations = agent.locations
         battery = agent.battery
@@ -32,17 +34,18 @@ class PriorityPathBiddingStrategy(BiddingStrategy):
             for i, segment in enumerate(agent.allocated_segments):
                 if segment.max.t >= time_step:
                     index = i
-                    if segment.min.t < time_step:
+                    if segment.min.t <= time_step:
                         flying = True
                         for coordinate in segment.coordinates:
                             if coordinate.t == time_step:
                                 start = coordinate.clone()
                     else:
-                        start = agent.allocated_segments[i - 1].max.clone()
-                        start.t += agent.stays[i - 1]
+                        start = agent.locations[i].clone()
+                        start.t = max(start.t, agent.allocated_segments[i - 1].max.t) + agent.stays[i - 1]
                     break
             if start is None:
-                raise Exception(f"Invalid segments allocated at tick {time_step}: {agent.allocated_segments}")
+                print(f"Agent {agent} crashed.")
+                return None
 
             locations = agent.locations[index + 1:]
             locations.insert(0, start)

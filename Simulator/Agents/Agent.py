@@ -30,7 +30,7 @@ class Agent(ABC):
     def value_for_segments(self, segments: List["Segment"]) -> float:
         return self.value_function.value_for_segments(segments, self)
 
-    def get_bid(self, t: int, environment: "Environment") -> "Bid":
+    def get_bid(self, t: int, environment: "Environment") -> Optional["Bid"]:
         return self.bidding_strategy.generate_bid(self, environment, t)
 
     @abstractmethod

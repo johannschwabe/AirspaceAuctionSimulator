@@ -1,5 +1,7 @@
 from typing import List, TYPE_CHECKING
 
+from Demos.FCFS.BidTracker.FCFSBidTracker import FCFSBidTracker
+from Simulator.Allocations.Allocation import Allocation
 from Simulator.Mechanism.PaymentRule import PaymentRule
 
 if TYPE_CHECKING:
@@ -13,12 +15,12 @@ class FCFSPaymentRule(PaymentRule):
     def __init__(self, voxel_multiplier: float = 1.):
         self.voxel_cost = voxel_multiplier
 
-    def calculate_preliminary_payments(self, allocations: List["Allocation"], _=None):
+    def calculate_preliminary_payments(self, allocations: List[Allocation], bid_tracker: FCFSBidTracker):
         for allocation in allocations:
             for segment in allocation.segments:
                 allocation.preliminary_payment += segment.nr_voxels * self.voxel_cost
 
-    def calculate_final_payments(self, environment: "Environment", _):
+    def calculate_final_payments(self, environment: "Environment", bid_tracker: FCFSBidTracker):
         res = {}
         for agent in environment.agents.values():
             for segment in agent.allocated_segments:

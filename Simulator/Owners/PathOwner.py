@@ -32,16 +32,13 @@ class PathOwner(Owner):
         self.stops = stops
 
     @staticmethod
-    def generate_stop_coordinate(stop: "GridLocation", env: "Environment", t: int, near_radius: int,
-                                 speed: int) -> "Coordinate4D":
-        coord = stop.generate_coordinates(env, t)
-        initial_y = coord.y
+    def generate_stop_coordinate(stop: "GridLocation", env: "Environment", t: int, near_radius: int) -> "Coordinate4D":
+        coord = stop.generate_coordinates(env, t + 1)
 
-        while env.is_blocked_forever(coord, near_radius, speed):
+        while coord.y < env.min_height or env.is_blocked_forever(coord, near_radius):
             coord.y += 1
-            if coord.y >= env.dimension.y:
+            if coord.y > env.dimension.y:
                 coord.y = env.min_height
-            elif coord.y == initial_y:
                 print("BLOCKED")
                 break
 
@@ -64,13 +61,13 @@ class PathOwner(Owner):
         for _ in range(self.creation_ticks.count(t)):
             speed = 1
             near_radius = 1
-            start = self.generate_stop_coordinate(self.stops[0], environment, t, near_radius, speed)
+            start = self.generate_stop_coordinate(self.stops[0], environment, t, near_radius)
 
             stays: List[int] = []
             locations: List["Coordinate4D"] = [start]
             total_travel_time: int = 0
             for stop in self.stops[1:]:
-                next_location = self.generate_stop_coordinate(stop, environment, t, near_radius, speed)
+                next_location = self.generate_stop_coordinate(stop, environment, t, near_radius)
 
                 stay = random.randint(0, 100)
                 stays.append(stay)
@@ -84,7 +81,7 @@ class PathOwner(Owner):
             battery = total_travel_time * 4
             agent = self.initialize_agent(locations, stays, speed, battery, near_radius)
             res.append(agent)
-            print(f"Path {agent}: {' -> '.join([str(loc) for loc in locations])}")
+            print(f"{agent} {' -> '.join([str(loc) for loc in locations])}")
 
         self.agents += res
         return res

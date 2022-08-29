@@ -128,7 +128,7 @@ class Environment:
                 if space_segment.min.t < time_step:
                     first, _ = space_segment.split_temporal(time_step)
                     new_segments.append(first)
-                    self.tree.insert(hash(agent), first)
+                    self.tree.insert(hash(agent), first.tree_rep())
 
         agent.allocated_segments = new_segments
 
@@ -232,13 +232,12 @@ class Environment:
                 return True
         return False
 
-    def is_blocked_forever(self, coordinate: "Coordinate4D", radius: int, speed: int) -> bool:
+    def is_blocked_forever(self, coordinate: "Coordinate4D", radius: int) -> bool:
         """
         Returns True if there is a static blocker at the given coordinate or in its radius.
-        All time steps from coordinate.t to coordinate.t + speed are considered.
         The radius is abstracted by a qube around the given coordinate with size 2 * radius.
         """
-        for blocker_id in self.get_blockers(coordinate, radius, speed):
+        for blocker_id in self.get_blockers(coordinate, radius, 0):
             blocker = self.blocker_dict[blocker_id]
             if blocker.blocker_type == BlockerType.STATIC.value and blocker.is_blocking(coordinate, radius):
                 return True

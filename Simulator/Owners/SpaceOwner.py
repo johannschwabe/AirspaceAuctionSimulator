@@ -29,7 +29,7 @@ class SpaceOwner(Owner):
 
     @staticmethod
     def generate_stop_coordinates(stop: "GridLocation", env: "Environment", t: int) -> "Coordinate4D":
-        coord = stop.generate_coordinates(env, t)
+        coord = stop.generate_coordinates(env, t + 1)
         return coord
 
     def initialize_agent(self, blocks: List[List["Coordinate4D"]]) -> "SpaceAgent":
@@ -41,12 +41,15 @@ class SpaceOwner(Owner):
         for _ in range(self.creation_ticks.count(t)):
             blocks = []
             for stop in self.stops:
-                bottom_left = self.generate_stop_coordinates(stop, environment, t + 1)
+                center = self.generate_stop_coordinates(stop, environment, t)
+                bottom_left = center.clone()
+                bottom_left.x -= round(self.size.x / 2)
+                bottom_left.z -= round(self.size.z / 2)
                 top_right = bottom_left + self.size
                 blocks.append([bottom_left, top_right])
             agent = self.initialize_agent(blocks)
             res.append(agent)
-            print(f"Space {agent}: {', '.join([str(block) for block in blocks])}")
+            print(f"{agent} {', '.join([str(block) for block in blocks])}")
 
         self.agents += res
         return res

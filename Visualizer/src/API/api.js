@@ -1,5 +1,6 @@
 import axios from "axios";
 import { saveAs } from "file-saver";
+import { compress, decompress } from "compress-json";
 
 /**
  * @typedef {Object} ApiOwnerType
@@ -131,7 +132,8 @@ export async function getPaymentRulesSupportedByAllocator(allocator) {
  */
 export function persistSimulation(data) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    const compressed = compress(data);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(compressed));
   } catch (e) {
     throw new Error(e);
   }
@@ -147,7 +149,7 @@ export function canLoadSimulation() {
 export function loadSimulationData() {
   const data = localStorage.getItem(STORAGE_KEY);
   if (data) {
-    return JSON.parse(data);
+    return decompress(JSON.parse(data));
   }
   return null;
 }
