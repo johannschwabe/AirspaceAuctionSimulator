@@ -1,7 +1,8 @@
 from time import time_ns
 
-from Demos.FCFS.Owners.FCFSPathOwner import FCFSPathOwner
-from Demos.FCFS.Owners.FCFSSpaceOwner import FCFSSpaceOwner
+from Demos.FCFS.BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
+from Demos.FCFS.BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
+from Demos.FCFS.PaymentRule.FCFSPaymentRule import FCFSPaymentRule
 from Simulator import \
     Allocator, \
     AStar, \
@@ -12,12 +13,18 @@ from Simulator import \
     PathAgent, \
     SpaceAgent
 from Simulator.Allocations.AllocationStatistics import AllocationStatistics
+from Simulator.BidTracker.BidTracker import BidTracker
 
 
 class FCFSAllocator(Allocator):
+
     @staticmethod
-    def compatible_owner():
-        return [FCFSPathOwner, FCFSSpaceOwner]
+    def compatible_payment_functions():
+        return [FCFSPaymentRule]
+
+    @staticmethod
+    def compatible_bidding_strategies():
+        return [FCFSSpaceBiddingStrategy, FCFSPathBiddingStrategy]
 
     @staticmethod
     def allocate_path(agent, astar):
@@ -55,8 +62,11 @@ class FCFSAllocator(Allocator):
                 optimal_path_segments.append(SpaceSegment(block[0], block[1]))
         return optimal_path_segments
 
+    def get_bid_tracker(self) -> BidTracker | None:
+        return None
+
     def allocate(self, agents, environment, tick):
-        astar = AStar(environment)
+        astar = AStar(environment, self.get_bid_tracker())
         allocations = []
         for agent in agents:
             start_time = time_ns()
@@ -68,7 +78,7 @@ class FCFSAllocator(Allocator):
 
                 if optimal_segments is None:
                     allocations.append(
-                        Allocation(agent, [], bid,
+                        Allocation(agent, [],
                                    AllocationStatistics(time_ns() - start_time,
                                                         str(AllocationReason.ALLOCATION_FAILED.value))))
                     continue
@@ -80,7 +90,7 @@ class FCFSAllocator(Allocator):
             else:
                 raise Exception(f"Invalid Agent: {agent}")
 
-            new_allocation = Allocation(agent, optimal_segments, bid,
+            new_allocation = Allocation(agent, optimal_segments,
                                         AllocationStatistics(time_ns() - start_time,
                                                              str(AllocationReason.FIRST_ALLOCATION.value)))
             allocations.append(new_allocation)

@@ -1,6 +1,5 @@
 import math
 import random
-from abc import ABC, abstractmethod
 from typing import List, TYPE_CHECKING
 
 from ..Agents.AgentType import AgentType
@@ -11,16 +10,24 @@ if TYPE_CHECKING:
     from ..Environment.Environment import Environment
     from ..Coordinates.Coordinate4D import Coordinate4D
     from ..Agents.PathAgent import PathAgent
+    from ..Bids.BiddingStrategy import BiddingStrategy
+    from ..ValueFunction.ValueFunction import ValueFunction
 
 
-class PathOwner(Owner, ABC):
+class PathOwner(Owner):
     allocation_type: str = AgentType.PATH.value
     min_locations = 2
     max_locations = 100
     meta = []
 
-    def __init__(self, owner_id: str, name: str, color: str, stops: List["GridLocation"], creation_ticks: List[int]):
-        super().__init__(owner_id, name, color)
+    def __init__(self, owner_id: str,
+                 name: str,
+                 color: str,
+                 stops: List["GridLocation"],
+                 creation_ticks: List[int],
+                 bidding_strategy: "BiddingStrategy",
+                 value_function: "ValueFunction"):
+        super().__init__(owner_id, bidding_strategy, value_function, name, color)
         self.creation_ticks = creation_ticks
         self.stops = stops
 
@@ -40,14 +47,17 @@ class PathOwner(Owner, ABC):
 
         return coord
 
-    @abstractmethod
     def initialize_agent(self,
                          locations: List["Coordinate4D"],
                          stays: List[int],
                          speed: int,
                          battery: int,
                          near_radius: int) -> "PathAgent":
-        pass
+        agent_id: str = self.get_agent_id()
+        return PathAgent(agent_id, self.bidding_strategy, self.value_function, locations, stays,
+                         speed=speed,
+                         battery=battery,
+                         near_radius=near_radius)
 
     def generate_agents(self, t: int, environment: "Environment") -> List["PathAgent"]:
         res = []

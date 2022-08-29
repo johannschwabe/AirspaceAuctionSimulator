@@ -14,5 +14,8 @@ class Mechanism:
 
     def do(self, agents: List[Agent], environment: Environment, tick: int) -> List[Allocation]:
         allocations = self.allocator.allocate(agents, environment, tick)
-        self.payment_rule.calculate_payments(allocations, self.allocator.get_bid_tracker())
+        self.payment_rule.calculate_preliminary_payments(allocations, self.allocator.get_bid_tracker())
         return allocations
+
+    def calculate_final_payments(self, environment: Environment):
+        return self.payment_rule.calculate_final_payments(environment, self.allocator.get_bid_tracker())

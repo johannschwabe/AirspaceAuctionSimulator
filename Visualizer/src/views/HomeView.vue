@@ -1,7 +1,7 @@
 <template>
-  <n-grid cols="2" :x-gap="24">
+  <n-grid cols="4" :x-gap="24">
     <!-- LEFT PART: UPLOAD EXISTING SIMULATION -->
-    <n-grid-item span="1">
+    <n-grid-item :span="1">
       <div class="center">
         <section-text
           title="Upload Simulation"
@@ -13,7 +13,7 @@
     </n-grid-item>
 
     <!-- RIGHT PART: CONFIGURE NEW SIMULATION -->
-    <n-grid-item span="1">
+    <n-grid-item :span="3">
       <div class="center">
         <section-text
           title="Simulate Scenario"
@@ -66,7 +66,6 @@ const ignoreRecoverableSession = () => {
 <style>
 .center {
   width: 100%;
-  max-width: 750px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;

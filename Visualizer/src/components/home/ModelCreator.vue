@@ -31,6 +31,15 @@
       />
     </n-form-item>
 
+    <!-- Model Payment Rule -->
+    <n-form-item path="paymentRule" label="Payment Rule">
+      <n-select
+        v-model:value="simulationConfig.paymentRule"
+        :options="simulationConfig.availablePaymentRulesOptions"
+        placeholder="Select Payment Rule"
+      />
+    </n-form-item>
+
     <!-- Model Owners -->
     <n-form-item path="owners" label="Owners">
       <owner />
@@ -138,7 +147,8 @@ import {
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
 
 const simulationConfig = useSimulationConfigStore();
-
+simulationConfig.loadAvailableAllocators();
+simulationConfig.loadAvailableValueFunctions();
 const message = useMessage();
 const loadingBar = useLoadingBar();
 const router = useRouter();

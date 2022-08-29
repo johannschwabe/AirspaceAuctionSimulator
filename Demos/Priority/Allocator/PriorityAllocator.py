@@ -2,10 +2,11 @@ from time import time_ns
 
 from Demos.Priority.AStar.PriorityAStar import PriorityAStar
 from Demos.Priority.BidTracker.PriorityBidTracker import PriorityBidTracker
+from Demos.Priority.BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStrategy
+from Demos.Priority.BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
 from Demos.Priority.Bids.PriorityPathBid import PriorityPathBid
 from Demos.Priority.Bids.PrioritySpaceBid import PrioritySpaceBid
-from Demos.Priority.Owners.PriorityPathOwner import PriorityPathOwner
-from Demos.Priority.Owners.PrioritySpaceOwner import PrioritySpaceOwner
+from Demos.Priority.PaymentRule.PriorityPaymentRule import PriorityPaymentRule
 from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation
 from Simulator.Agents.PathAgent import PathAgent
 from Simulator.Agents.SpaceAgent import SpaceAgent
@@ -14,13 +15,18 @@ from Simulator.BidTracker.BidTracker import BidTracker
 
 
 class PriorityAllocator(Allocator):
+
     def __init__(self):
         super().__init__()
         self.bid_tracker = PriorityBidTracker()
 
     @staticmethod
-    def compatible_owner():
-        return [PriorityPathOwner, PrioritySpaceOwner]
+    def compatible_bidding_strategies():
+        return [PriorityPathBiddingStrategy, PrioritySpaceBiddingStrategy]
+
+    @staticmethod
+    def compatible_payment_functions():
+        return [PriorityPaymentRule]
 
     @staticmethod
     def allocate_path(agent, bid: PriorityPathBid, astar):

@@ -1,13 +1,18 @@
 import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
-from Simulator import GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator
+from Simulator import Coordinate4D, GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator
+from Simulator.Mechanism.Mechanism import Mechanism
+from Simulator.Mechanism.PaymentRule import PaymentRule
+from Simulator.Owners.PathOwner import PathOwner
+from Simulator.Owners.SpaceOwner import SpaceOwner
 from .EnvironmentGen import EnvironmentGen
 from ..Area import Area
+from ..config import available_value_functions
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
-    from Simulator import Allocator, Coordinate4D, Owner, Environment, History, Statistics
+    from Simulator import Allocator, Owner, Environment, History, Statistics
     from ..API import APIOwner
 
 
@@ -18,7 +23,8 @@ class Generator:
         dimensions: "Coordinate4D",
         maptiles: List["MapTile"],
         allocator: "Allocator",
-        area: "Area"
+        area: "Area",
+        payment_rule: "PaymentRule"
     ):
         self.apiOwners: List["APIOwner"] = owners
         self.dimensions: "Coordinate4D" = dimensions
@@ -30,6 +36,7 @@ class Generator:
         self.statistics: Optional["Statistics"] = None
         self.simulator: Optional["Simulator"] = None
         self.area = area
+        self.paymentRule = payment_rule
 
     def extract_owner_stops(self, owner: "APIOwner"):
         stops: List["GridLocation"] = []
@@ -57,21 +64,42 @@ class Generator:
         owner_id = 0
         for apiOwner in self.apiOwners:
             stops: List["GridLocation"] = self.extract_owner_stops(apiOwner)
-            owners = [_owner for _owner in self.allocator.compatible_owner() if _owner.__name__ == apiOwner.classname]
-            if len(owners) != 1:
-                print(f"Owner Type {apiOwner} not registered with allocator {self.allocator.__class__.__name__}")
-                continue
-            ownerClass = owners[0]
-            self.owners.append(ownerClass(owner_id,
-                                          apiOwner.name,
-                                          apiOwner.color,
-                                          stops,
-                                          self.creation_ticks(self.environment.allocation_period, apiOwner.agents)))
-            owner_id += 1
+            bidding_strategy = [bs for bs in self.allocator.compatible_bidding_strategies() if
+                                bs.__name__ == apiOwner.biddingStrategy.classname]
+            if len(bidding_strategy) != 1:
+                raise Exception(f"{len(bidding_strategy)} bidding strategies found")
+            selected_bidding_strategy = bidding_strategy[0]()
 
+            value_functions = [vf for vf in available_value_functions if
+                               vf.__name__ == apiOwner.valueFunction]
+            if len(value_functions) != 1:
+                raise Exception(f"{len(value_functions)} bidding strategies found")
+            selected_value_functions = value_functions[0]()
+
+            if apiOwner.biddingStrategy.allocationType == "space":
+                newOwner = SpaceOwner(str(owner_id),
+                                      apiOwner.name,
+                                      apiOwner.color,
+                                      stops,
+                                      self.creation_ticks(self.environment.allocation_period, apiOwner.agents),
+                                      bidding_strategy=selected_bidding_strategy,
+                                      value_function=selected_value_functions,
+                                      size=Coordinate4D(15, 15, 15, 30))
+            else:
+                newOwner = PathOwner(str(owner_id),
+                                     apiOwner.name,
+                                     apiOwner.color,
+                                     stops,
+                                     self.creation_ticks(self.environment.allocation_period, apiOwner.agents),
+                                     bidding_strategy=selected_bidding_strategy,
+                                     value_function=selected_value_functions,
+                                     )
+            self.owners.append(newOwner)
+            owner_id += 1
+        mech = Mechanism(self.allocator, self.paymentRule)
         self.simulator = Simulator(
             self.owners,
-            self.allocator,
+            mech,
             self.environment,
         )
         while self.simulator.time_step <= self.dimensions.t:

@@ -1,11 +1,19 @@
 from abc import abstractmethod, ABC
-from typing import List
+from typing import List, TYPE_CHECKING
 
-from Simulator.Allocations.Allocation import Allocation
-from Simulator.BidTracker.BidTracker import BidTracker
+if TYPE_CHECKING:
+    from Simulator.Allocations.Allocation import Allocation
+    from Simulator.BidTracker.BidTracker import BidTracker
+    from Simulator.Environment.Environment import Environment
 
 
 class PaymentRule(ABC):
+    label: str
+
     @abstractmethod
-    def calculate_payments(self, allocations: List[Allocation], bid_tracker: BidTracker):
+    def calculate_preliminary_payments(self, allocations: List["Allocation"], bid_tracker: "BidTracker"):
+        pass
+
+    @abstractmethod
+    def calculate_final_payments(self, environment: "Environment", bid_tracker: "BidTracker"):
         pass

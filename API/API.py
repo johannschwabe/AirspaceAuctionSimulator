@@ -16,7 +16,7 @@ from Simulator import Coordinate4D, build_json
 from .Area import Area
 from .Generator.Generator import Generator
 from .Generator.MapTile import MapTile
-from .config import available_allocators
+from .config import available_allocators, available_value_functions
 
 app = FastAPI()
 
@@ -59,16 +59,20 @@ class APILocations(BaseModel):
     points: List[APIWeightedCoordinate]
 
 
+class APIBiddingStrategy(BaseModel):
+    minLocations: int
+    maxLocations: int
+    allocationType: str
+    classname: str
+
+
 class APIOwner(BaseModel):
     color: str
     name: str
     agents: int
-    minLocations: int
-    maxLocations: int
-    type: str
-    classname: str
-    allocator: str
+    biddingStrategy: APIBiddingStrategy
     locations: List[APILocations]
+    valueFunction: str
 
 
 class APIMap(BaseModel):
@@ -84,25 +88,13 @@ class APIMap(BaseModel):
     timesteps: int
 
 
-class APIAvailableOwner(BaseModel):
-    label: str
-    classname: str
-    description: str
-    ownerType: str
-    allocator: str
-    minLocations: int
-    maxLocations: int
-    meta: List[object]
-
-
 class APISimulationConfig(BaseModel):
     name: str
     description: str
     allocator: str
     map: APIMap
     owners: List[APIOwner]
-    availableAllocators: List[str]
-    availableOwnersForAllocator: List[APIAvailableOwner]
+    paymentRule: str
 
 
 @app.get("/allocators")
@@ -110,20 +102,26 @@ def get_allocators():
     return [_allocator.__name__ for _allocator in available_allocators]
 
 
-@app.get("/owners/{allocator_name}")
-def get_owners_for_allocator(allocator_name):
-    allocators = list(filter(lambda x: (x.__name__ == allocator_name), available_allocators))
+@app.get("/valueFunctions")
+def get_allocators():
+    return [vf.__name__ for vf in available_value_functions]
+
+
+@app.get("/compatible/{allocator}")
+def get_strategies_for_allocator(allocator):
+    print(available_allocators[0])
+    allocators = list(filter(lambda x: (x.__name__ == allocator), available_allocators))
     if len(allocators) != 1:
         return []
-    allocator = allocators[0]
-    return [{"classname": owner.__name__,
-             "label": owner.label,
-             "meta": owner.meta,
-             "description": owner.description,
-             "ownerType": owner.allocation_type,
-             "minLocations": owner.min_locations,
-             "maxLocations": owner.max_locations
-             } for owner in allocator.compatible_owner()]
+    selected_allocator = allocators[0]
+    compatible_bidding_strategies = selected_allocator.compatible_bidding_strategies()
+    return [{"classname": bidding_strategy.__name__,
+             "label": bidding_strategy.label,
+             "description": bidding_strategy.description,
+             "strategyType": bidding_strategy.allocation_type,
+             "minLocations": bidding_strategy.min_locations,
+             "maxLocations": bidding_strategy.max_locations
+             } for bidding_strategy in compatible_bidding_strategies]
 
 
 @app.post("/simulation")
@@ -147,8 +145,14 @@ def read_root(config: APISimulationConfig):
         raise HTTPException(status_code=404, detail="allocator not found")
     allocator = allocators[0]()
 
+    payment_rule = [pf for pf in allocator.compatible_payment_functions() if
+                    pf.__name__ == config.paymentRule]
+    if len(payment_rule) != 1:
+        raise Exception(f"{len(payment_rule)} payment functions found")
+    selected_payment_rule = payment_rule[0]()
+
     random.seed(2)
-    g = Generator(config.owners, dimensions, maptiles, allocator, area)
+    g = Generator(config.owners, dimensions, maptiles, allocator, area, selected_payment_rule)
     start_time = time.time_ns()
     g.simulate()
     end_time = time.time_ns()
@@ -157,3 +161,13 @@ def read_root(config: APISimulationConfig):
     json = build_json(g.simulator, duration)
     json["config"] = config
     return json
+
+
+@app.get("/paymentRules/{allocator}")
+def compatible_payment_rules(allocator):
+    allocators = list(filter(lambda x: (x.__name__ == allocator), available_allocators))
+    if len(allocators) != 1:
+        return []
+    selected_allocator = allocators[0]
+    return [{"classname": payment_function.__name__, "label": payment_function.label} for payment_function in
+            selected_allocator.compatible_payment_functions()]

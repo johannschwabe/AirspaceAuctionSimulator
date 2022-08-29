@@ -1,10 +1,18 @@
 from Demos.Priority.Bids.PriorityPathBid import PriorityPathBid
+from Simulator.Agents.AgentType import AgentType
 from Simulator.Agents.PathAgent import PathAgent
 from Simulator.Bids.BiddingStrategy import BiddingStrategy
 from Simulator.Environment.Environment import Environment
 
 
 class PriorityPathBiddingStrategy(BiddingStrategy):
+    label = "Priority Path Bidding Strategy"
+    description = "An Bidding Strategy for Priority Path Agents"
+    min_locations = 2
+    max_locations = 5
+    meta = []
+    allocation_type = AgentType.PATH.value
+
     def generate_bid(self, agent: PathAgent, _environment: Environment, time_step: int) -> PriorityPathBid:
         flying = False
         locations = agent.locations

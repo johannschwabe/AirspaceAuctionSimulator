@@ -6,6 +6,7 @@ from .AgentType import AgentType
 if TYPE_CHECKING:
     from ..Segments.SpaceSegment import SpaceSegment
     from ..Coordinates.Coordinate4D import Coordinate4D
+    from ..ValueFunction.ValueFunction import ValueFunction
     from ..Bids.BiddingStrategy import BiddingStrategy
 
 
@@ -15,10 +16,11 @@ class SpaceAgent(Agent):
     def __init__(self,
                  agent_id: str,
                  bidding_strategy: "BiddingStrategy",
+                 value_function: "ValueFunction",
                  blocks: List[List["Coordinate4D"]],
                  config: Optional[Dict[str, object]] = None,
                  _is_clone: bool = False):
-        super().__init__(agent_id, bidding_strategy, config, _is_clone=_is_clone)
+        super().__init__(agent_id, bidding_strategy, value_function, config, _is_clone=_is_clone)
 
         self.blocks: List[List["Coordinate4D"]] = blocks
         self.allocated_segments: List["SpaceSegment"] = []
@@ -27,21 +29,6 @@ class SpaceAgent(Agent):
         self.allocated_segments.append(space_segment)
 
     def initialize_clone(self):
-        clone = SpaceAgent(self.id, self.bidding_strategy, self.blocks, config=self.config, _is_clone=True)
+        clone = SpaceAgent(self.id, self.bidding_strategy, self.value_function, self.blocks,
+                           config=self.config, _is_clone=True)
         return clone
-
-    def value_for_segments(self, segments: List["SpaceSegment"]) -> float:
-        sum_segments = 0.0
-        for segment in segments:
-            sum_segments += (segment.max.x - segment.min.x) * \
-                            (segment.max.y - segment.min.y) * \
-                            (segment.max.z - segment.min.z) * \
-                            (segment.max.t - segment.min.t)
-        sum_blocks = 0.0
-        for block in self.blocks:
-            sum_blocks += (block[1].x - block[0].x) * \
-                          (block[1].y - block[0].y) * \
-                          (block[1].z - block[0].z) * \
-                          (block[1].t - block[0].t)
-
-        return sum_segments / sum_blocks
