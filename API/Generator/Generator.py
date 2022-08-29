@@ -1,7 +1,12 @@
 import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
+from Demos.FCFS.Allocator.FCFSAllocator import FCFSAllocator
+from Demos.FCFS.PaymentRule.FCFSPaymentRule import FCFSPaymentRule
+from Demos.Priority.Allocator.PriorityAllocator import PriorityAllocator
+from Demos.Priority.PaymentRule.PriorityPaymentRule import PriorityPaymentRule
 from Simulator import GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator
+from Simulator.Mechanism.Mechanism import Mechanism
 from .EnvironmentGen import EnvironmentGen
 from ..Area import Area
 
@@ -69,9 +74,17 @@ class Generator:
                                           self.creation_ticks(self.environment.allocation_period, apiOwner.agents)))
             owner_id += 1
 
+        if isinstance(self.allocator, FCFSAllocator):
+            mech = Mechanism(self.allocator, FCFSPaymentRule())
+
+        elif isinstance(self.allocator, PriorityAllocator):
+            mech = Mechanism(self.allocator, PriorityPaymentRule())
+        else:
+            raise Exception("Invalid allocator")
+
         self.simulator = Simulator(
             self.owners,
-            self.allocator,
+            mech,
             self.environment,
         )
         while self.simulator.time_step <= self.dimensions.t:

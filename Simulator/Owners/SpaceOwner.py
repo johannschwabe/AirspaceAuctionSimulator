@@ -80,7 +80,7 @@ class SpaceOwner(Owner, ABC):
                 blocks.append([bottom_left, top_right])
             agent = self.initialize_agent(blocks)
             res.append(agent)
-            print(f"Space {agent}: {', '.join([str(block) for block in blocks])}")
+            print(f"{agent} {', '.join([str(block) for block in blocks])}")
 
         self.agents += res
         return res

@@ -23,7 +23,7 @@ random.seed(4)
 dimensions = Coordinate4D(40, 40, 40, 1000)
 allocation_period = 100
 space_dimensions = Coordinate4D(7, 7, 7, 10)
-nr_agents = 334
+nr_agents = 10
 
 
 def setup_empty():
@@ -62,7 +62,7 @@ def fcfsSimulation(env: Environment):
                       color_generator(),
                       [GridLocation(str(GridLocationType.RANDOM.value)),
                        GridLocation(str(GridLocationType.RANDOM.value))],
-                      [random.randint(0, math.floor(allocation_period)) for _ in range(nr_agents)]),
+                      [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)]),
         FCFSSpaceOwner("1",
                        "Ghettotier",
                        color_generator(),
@@ -84,16 +84,16 @@ def prioritySimulation(env: Environment):
                           color_generator(),
                           [GridLocation(str(GridLocationType.RANDOM.value)),
                            GridLocation(str(GridLocationType.RANDOM.value))],
-                          [random.randint(0, math.floor(allocation_period)) for _ in range(nr_agents)],
+                          [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)],
                           priority=1.0),
-        PriorityPathOwner("Yo MAMA",
+        PriorityPathOwner("1",
                           "GhettoSalat",
                           color_generator(),
                           [GridLocation(str(GridLocationType.RANDOM.value)),
                            GridLocation(str(GridLocationType.RANDOM.value))],
-                          [random.randint(0, math.floor(allocation_period)) for _ in range(nr_agents)],
+                          [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)],
                           priority=0.1),
-        PrioritySpaceOwner("1",
+        PrioritySpaceOwner("2",
                            "Ghettotier",
                            color_generator(),
                            [GridLocation(str(GridLocationType.RANDOM.value)),
@@ -132,13 +132,9 @@ if __name__ == "__main__":
 
     res = build_json(simulatorAligator, sim_time)
     res["config"] = {"name": "test",
-                     "map": {"tiles": [[15, 17161, 11475]],
-                             "resolution": resolution,
-                             "bottomLeftCoordinate": bottom_left_coordinate.json(),
-                             "topRightCoordinate": top_right_coordinate.json(),
-                             "height": map_height,
-                             "timesteps": time_steps},
-                     "dimension": environment.dimension.to_dict(), "owners": []}
+                     "map": {"tiles": []},
+                     "dimension": environment.dimension.to_dict(),
+                     "owners": []}
 
     tot_time = time.time_ns() - start
     print()

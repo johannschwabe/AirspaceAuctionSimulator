@@ -18,7 +18,7 @@ class AStar:
                  bid_tracker: BidTracker,
                  tick: int = -1,
                  max_iter: int = 100_000,
-                 g_sum: float = 0.1,
+                 g_sum: float = 0.2,
                  height_adjust: float = 0.05):
         self.environment: "Environment" = environment
         self.tick: int = tick

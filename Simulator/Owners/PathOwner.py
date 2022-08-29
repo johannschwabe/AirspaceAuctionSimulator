@@ -31,6 +31,7 @@ class PathOwner(Owner, ABC):
         while coord.y < env.min_height or env.is_blocked_forever(coord, near_radius):
             coord.y += 1
             if coord.y > env.dimension.y:
+                coord.y = env.min_height
                 print("BLOCKED")
                 break
 
@@ -70,7 +71,7 @@ class PathOwner(Owner, ABC):
             battery = total_travel_time * 4
             agent = self.initialize_agent(locations, stays, speed, battery, near_radius)
             res.append(agent)
-            print(f"Path {agent}: {' -> '.join([str(loc) for loc in locations])}")
+            print(f"{agent} {' -> '.join([str(loc) for loc in locations])}")
 
         self.agents += res
         return res
