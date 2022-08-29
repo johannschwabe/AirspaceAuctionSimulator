@@ -17,9 +17,9 @@ from Simulator import \
 
 random.seed(4)
 dimensions = Coordinate4D(40, 40, 40, 1000)
-allocation_period = 40
+allocation_period = 100
 space_dimensions = Coordinate4D(7, 7, 7, 10)
-nr_agents = 30
+nr_agents = 300
 
 
 def setup_empty():
@@ -60,14 +60,14 @@ def prioritySimulation(env: Environment):
                           [GridLocation(str(GridLocationType.RANDOM.value)),
                            GridLocation(str(GridLocationType.RANDOM.value))],
                           [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)],
-                          priority=0.5),
+                          priority=1.0),
         PriorityPathOwner("Yo MAMA",
                           "GhettoSalat",
                           color_generator(),
                           [GridLocation(str(GridLocationType.RANDOM.value)),
                            GridLocation(str(GridLocationType.RANDOM.value))],
                           [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)],
-                          priority=0.6),
+                          priority=0.1),
         PrioritySpaceOwner("1",
                            "Ghettotier",
                            color_generator(),
@@ -75,7 +75,7 @@ def prioritySimulation(env: Environment):
                             GridLocation(str(GridLocationType.RANDOM.value))],
                            [random.randint(0, allocation_period) for _ in range(nr_agents)],
                            space_dimensions,
-                           priority=1.0)
+                           priority=0.5)
     ]
     return Simulator(owners, mechanism, env)
 

@@ -9,3 +9,12 @@ class PrioritySpaceBid(Bid):
         self.agent: "SpaceAgent" = agent
         # priority in collisions
         self.priority = priority
+
+    def __gt__(self, other):
+        return self.priority > other.priority
+
+    def __lt__(self, other):
+        return self.priority < other.priority
+
+    def __eq__(self, other):
+        return self.priority == other.priority

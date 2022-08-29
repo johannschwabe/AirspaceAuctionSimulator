@@ -48,10 +48,10 @@ def writeCoords(environment: Environment, filename: str):
     for index in range(nr_tests):
         print(f"Test {index}")
         start = PathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)),
-                                                   environment, 0, 1, 1)
+                                                   environment, 0, 1)
         end = PathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)),
                                                  environment,
-                                                 0, 1, 1)
+                                                 0, 1)
         agent = PathAgent("agent-id", [start, end], [])
         res, _ = astar.astar(start, end, agent)
         f.write(f"{start.x},{start.y},{start.z},{start.t}-{end.x},{end.y},{end.z},{end.t}-{len(res)}\n")

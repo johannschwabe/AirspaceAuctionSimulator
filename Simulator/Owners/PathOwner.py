@@ -25,12 +25,11 @@ class PathOwner(Owner, ABC):
         self.stops = stops
 
     @staticmethod
-    def generate_stop_coordinate(stop: "GridLocation", env: "Environment", t: int, near_radius: int,
-                                 speed: int) -> "Coordinate4D":
+    def generate_stop_coordinate(stop: "GridLocation", env: "Environment", t: int, near_radius: int) -> "Coordinate4D":
         coord = stop.generate_coordinates(env, t)
         initial_y = coord.y
 
-        while env.is_blocked_forever(coord, near_radius, speed):
+        while env.is_blocked_forever(coord, near_radius):
             coord.y += 1
             if coord.y >= env.dimension.y:
                 coord.y = env.min_height
@@ -54,13 +53,13 @@ class PathOwner(Owner, ABC):
         for _ in range(self.creation_ticks.count(t)):
             speed = 1
             near_radius = 1
-            start = self.generate_stop_coordinate(self.stops[0], environment, t, near_radius, speed)
+            start = self.generate_stop_coordinate(self.stops[0], environment, t, near_radius)
 
             stays: List[int] = []
             locations: List["Coordinate4D"] = [start]
             total_travel_time: int = 0
             for stop in self.stops[1:]:
-                next_location = self.generate_stop_coordinate(stop, environment, t, near_radius, speed)
+                next_location = self.generate_stop_coordinate(stop, environment, t, near_radius)
 
                 stay = random.randint(0, 100)
                 stays.append(stay)
