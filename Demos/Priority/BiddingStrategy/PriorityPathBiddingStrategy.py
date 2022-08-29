@@ -1,3 +1,5 @@
+import random
+
 from Demos.Priority.Bids.PriorityPathBid import PriorityPathBid
 from Simulator.Agents.AgentType import AgentType
 from Simulator.Agents.PathAgent import PathAgent
@@ -10,7 +12,13 @@ class PriorityPathBiddingStrategy(BiddingStrategy):
     description = "An Bidding Strategy for Priority Path Agents"
     min_locations = 2
     max_locations = 5
-    meta = []
+    meta = [{
+        "key": "priority",
+        "label": "Priority",
+        "description": "Priority of the agents",
+        "type": "float",
+        "value": random.random(),
+    }]  # Todo integrate into the frontend
     allocation_type = AgentType.PATH.value
 
     def generate_bid(self, agent: PathAgent, _environment: Environment, time_step: int) -> PriorityPathBid:
