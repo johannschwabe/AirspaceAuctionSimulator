@@ -1,13 +1,12 @@
 from typing import Optional
 
-from Demos.Priority.Bids.PriorityPathBid import PriorityPathBid
-from Simulator.Agents.PathAgent import PathAgent
-from Simulator.Bids.BiddingStrategy import BiddingStrategy
-from Simulator.Environment.Environment import Environment
+from Demos.Priority import PriorityPathBid
+from Simulator import BiddingStrategy, PathAgent, Environment
 
 
 class PriorityPathBiddingStrategy(BiddingStrategy):
-    def generate_bid(self, agent: PathAgent, _environment: Environment, time_step: int) -> Optional[PriorityPathBid]:
+    def generate_bid(self, agent: "PathAgent", _environment: "Environment",
+                     time_step: int) -> Optional["PriorityPathBid"]:
         flying = False
         locations = agent.locations
         battery = agent.battery

@@ -1,9 +1,7 @@
-from Demos.FCFS.Bids.FCFSPathBid import FCFSPathBid
-from Simulator.Agents.PathAgent import PathAgent
-from Simulator.Bids.BiddingStrategy import BiddingStrategy
-from Simulator.Environment.Environment import Environment
+from Demos.FCFS import FCFSPathBid
+from Simulator import BiddingStrategy, PathAgent, Environment
 
 
 class FCFSPathBiddingStrategy(BiddingStrategy):
-    def generate_bid(self, agent: PathAgent, _environment: Environment, _time_step: int) -> FCFSPathBid:
-        return FCFSPathBid(agent)
+    def generate_bid(self, agent: "PathAgent", _environment: "Environment", _time_step: int) -> "FCFSPathBid":
+        return FCFSPathBid(agent, agent.locations, agent.stays, agent.battery)

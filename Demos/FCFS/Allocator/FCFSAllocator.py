@@ -1,19 +1,9 @@
 from time import time_ns
+from typing import List
 
-from Demos.FCFS.BidTracker.FCFSBidTracker import FCFSBidTracker
-from Demos.FCFS.Owners.FCFSPathOwner import FCFSPathOwner
-from Demos.FCFS.Owners.FCFSSpaceOwner import FCFSSpaceOwner
-from Simulator import \
-    Allocator, \
-    AStar, \
-    PathSegment, \
-    SpaceSegment, \
-    Allocation, \
-    AllocationReason, \
-    PathAgent, \
-    SpaceAgent
-from Simulator.Allocations.AllocationStatistics import AllocationStatistics
-from Simulator.Environment.Environment import Environment
+from Demos.FCFS import FCFSBidTracker, FCFSPathOwner, FCFSSpaceOwner, FCFSPathBid, FCFSSpaceBid
+from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, Environment, \
+    AllocationStatistics, Agent
 
 
 class FCFSAllocator(Allocator):
@@ -26,8 +16,8 @@ class FCFSAllocator(Allocator):
         return [FCFSPathOwner, FCFSSpaceOwner]
 
     @staticmethod
-    def allocate_path(agent, environment: "Environment", astar, tick: int):
-        a = agent.locations[0]
+    def allocate_path(bid: "FCFSPathBid", environment: "Environment", astar: "AStar", tick: int):
+        a = bid.locations[0]
         start = a.to_inter_temporal()
         a = a.clone()
 
@@ -35,30 +25,31 @@ class FCFSAllocator(Allocator):
         count = 0
         optimal_path_segments = []
 
-        for b, stay in zip(agent.locations[1:], agent.stays):
+        for b, stay in zip(bid.locations[1:], bid.stays):
+
             end = b.to_inter_temporal()
             b = b.clone()
 
-            if environment.is_blocked_forever(a, agent.near_radius):
+            if environment.is_blocked_forever(a, bid.agent.near_radius):
                 print(f"Static blocker at start {a}.")
                 return None
 
-            if environment.is_blocked_forever(b, agent.near_radius):
+            if environment.is_blocked_forever(b, bid.agent.near_radius):
                 print(f"Static blocker at target {b}.")
                 return None
 
-            valid, _ = astar.is_valid_for_allocation(a, agent)
+            valid, _ = astar.is_valid_for_allocation(a, bid.agent)
             while a.t <= tick or not valid:
                 a.t += 1
                 if a.t > environment.dimension.t:
                     print(f"Start {a} is invalid until max tick {environment.dimension.t}.")
                     return None
-                valid, _ = astar.is_valid_for_allocation(a, agent)
+                valid, _ = astar.is_valid_for_allocation(a, bid.agent)
 
             ab_path, _ = astar.astar(
                 a,
                 b,
-                agent,
+                bid.agent,
             )
 
             if len(ab_path) == 0:
@@ -66,7 +57,7 @@ class FCFSAllocator(Allocator):
                 return None
 
             time += ab_path[-1].t - ab_path[0].t
-            if time > agent.battery:
+            if time > bid.battery:
                 print(f"Not enough battery left for path {a} -> {b}.")
                 return None
 
@@ -83,24 +74,41 @@ class FCFSAllocator(Allocator):
         return optimal_path_segments
 
     @staticmethod
-    def allocate_space(agent, environment):
+    def allocate_space(bid: "FCFSSpaceBid", environment: "Environment", tick: int):
         optimal_path_segments = []
-        for block in agent.blocks:
-            intersecting_agents = environment.other_agents_in_space(block[0], block[1], agent)
+        for block in bid.blocks:
+            lower = block[0].clone()
+            upper = block[1].clone()
+
+            while lower.t <= tick:
+                lower.t += 1
+                if lower.t > environment.dimension.t or lower.t > upper.t:
+                    print(f"Lower {lower} is invalid until tick {min(environment.dimension.t, upper.t)}.")
+                    return None
+
+            intersecting_agents = environment.other_agents_in_space(lower, upper, bid.agent)
             if len(intersecting_agents) == 0:
-                optimal_path_segments.append(SpaceSegment(block[0], block[1]))
+                optimal_path_segments.append(SpaceSegment(lower, upper))
         return optimal_path_segments
 
-    def allocate(self, agents, environment, tick):
+    def allocate(self, agents: List["Agent"], environment: "Environment", tick: int):
         astar = AStar(environment, self.bid_tracker, tick)
         allocations = []
 
         for agent in agents:
             start_time = time_ns()
+            bid = self.bid_tracker.request_new_bid(tick, agent, environment)
+
+            if bid is None:
+                allocations.append(
+                    Allocation(agent, [],
+                               AllocationStatistics(time_ns() - start_time,
+                                                    str(AllocationReason.CRASH.value))))
+                continue
 
             # Path Agents
-            if isinstance(agent, PathAgent):
-                optimal_segments = self.allocate_path(agent, environment, astar, tick)
+            if isinstance(bid, FCFSPathBid):
+                optimal_segments = self.allocate_path(bid, environment, astar, tick)
 
                 if optimal_segments is None:
                     allocations.append(
@@ -110,8 +118,8 @@ class FCFSAllocator(Allocator):
                     continue
 
             # Space Agents
-            elif isinstance(agent, SpaceAgent):
-                optimal_segments = self.allocate_space(agent, environment)
+            elif isinstance(bid, FCFSSpaceBid):
+                optimal_segments = self.allocate_space(bid, environment, tick)
 
             else:
                 raise Exception(f"Invalid Agent: {agent}")

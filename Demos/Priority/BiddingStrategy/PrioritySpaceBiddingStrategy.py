@@ -1,9 +1,7 @@
-from Demos.Priority.Bids.PrioritySpaceBid import PrioritySpaceBid
-from Simulator.Agents.SpaceAgent import SpaceAgent
-from Simulator.Bids.BiddingStrategy import BiddingStrategy
-from Simulator.Environment.Environment import Environment
+from Demos.Priority import PrioritySpaceBid
+from Simulator import BiddingStrategy, SpaceAgent, Environment
 
 
 class PrioritySpaceBiddingStrategy(BiddingStrategy):
-    def generate_bid(self, agent: SpaceAgent, _environment: Environment, _time_step: int) -> PrioritySpaceBid:
-        return PrioritySpaceBid(agent, agent.config["priority"])
+    def generate_bid(self, agent: "SpaceAgent", _environment: "Environment", _time_step: int) -> "PrioritySpaceBid":
+        return PrioritySpaceBid(agent, agent.blocks, agent.config["priority"])

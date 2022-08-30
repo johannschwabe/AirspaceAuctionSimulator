@@ -1,9 +1,7 @@
-from Demos.FCFS.Bids.FCFSSpaceBid import FCFSSpaceBid
-from Simulator.Agents.SpaceAgent import SpaceAgent
-from Simulator.Bids.BiddingStrategy import BiddingStrategy
-from Simulator.Environment.Environment import Environment
+from Demos.FCFS import FCFSSpaceBid
+from Simulator import BiddingStrategy, SpaceAgent, Environment
 
 
 class FCFSSpaceBiddingStrategy(BiddingStrategy):
-    def generate_bid(self, agent: SpaceAgent, _environment: Environment, _time_step: int) -> FCFSSpaceBid:
-        return FCFSSpaceBid(agent)
+    def generate_bid(self, agent: "SpaceAgent", _environment: "Environment", _time_step: int) -> "FCFSSpaceBid":
+        return FCFSSpaceBid(agent, agent.blocks)
