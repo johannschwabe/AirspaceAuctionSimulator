@@ -1,7 +1,7 @@
 <template>
-  <n-grid cols="4" :x-gap="24">
+  <n-grid cols="5" :x-gap="24">
     <!-- LEFT PART: UPLOAD EXISTING SIMULATION -->
-    <n-grid-item :span="1">
+    <n-grid-item :span="2">
       <div class="center">
         <section-text
           title="Upload Simulation"

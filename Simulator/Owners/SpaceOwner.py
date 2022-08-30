@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Dict, Any
 
 from .Owner import Owner
 from ..Agents.SpaceAgent import SpaceAgent
@@ -20,9 +20,10 @@ class SpaceOwner(Owner):
                  creation_ticks: List[int],
                  size: "Coordinate4D",
                  bidding_strategy: "BiddingStrategy",
-                 value_function: "ValueFunction"
+                 value_function: "ValueFunction",
+                 meta: Dict[str, Any] = None
                  ):
-        super().__init__(owner_id, bidding_strategy, value_function, name, color)
+        super().__init__(owner_id, bidding_strategy, value_function, name, color, meta if meta else {})
         self.stops = stops
         self.creation_ticks = creation_ticks
         self.size: "Coordinate4D" = size
@@ -34,7 +35,7 @@ class SpaceOwner(Owner):
 
     def initialize_agent(self, blocks: List[List["Coordinate4D"]]) -> "SpaceAgent":
         agent_id: str = self.get_agent_id()
-        return SpaceAgent(agent_id, self.bidding_strategy, self.value_function, blocks)
+        return SpaceAgent(agent_id, self.bidding_strategy, self.value_function, blocks, config=self.config)
 
     def generate_agents(self, t: int, environment: "Environment") -> List["SpaceAgent"]:
         res = []

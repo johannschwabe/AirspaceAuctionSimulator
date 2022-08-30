@@ -1,5 +1,4 @@
 import random
-
 from typing import Optional
 
 from Demos.Priority.Bids.PriorityPathBid import PriorityPathBid
@@ -19,8 +18,8 @@ class PriorityPathBiddingStrategy(BiddingStrategy):
         "label": "Priority",
         "description": "Priority of the agents",
         "type": "float",
-        "value": random.random(),
-    }]  # Todo integrate into the frontend
+        "value": round(random.random(), 2),
+    }]
     allocation_type = AgentType.PATH.value
 
     def generate_bid(self, agent: PathAgent, _environment: Environment, time_step: int) -> Optional[PriorityPathBid]:

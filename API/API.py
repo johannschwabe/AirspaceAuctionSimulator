@@ -5,7 +5,7 @@ App runs on 'https://localhost:8000/'
 import math
 import random
 import time
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 from fastapi import HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -64,6 +64,7 @@ class APIBiddingStrategy(BaseModel):
     maxLocations: int
     allocationType: str
     classname: str
+    meta: List[Dict[str, Any]]
 
 
 class APIOwner(BaseModel):
@@ -103,7 +104,7 @@ def get_allocators():
 
 
 @app.get("/valueFunctions")
-def get_allocators():
+def get_value_functions():
     return [vf.__name__ for vf in available_value_functions]
 
 
@@ -120,7 +121,8 @@ def get_strategies_for_allocator(allocator):
              "description": bidding_strategy.description,
              "strategyType": bidding_strategy.allocation_type,
              "minLocations": bidding_strategy.min_locations,
-             "maxLocations": bidding_strategy.max_locations
+             "maxLocations": bidding_strategy.max_locations,
+             "meta": bidding_strategy.meta
              } for bidding_strategy in compatible_bidding_strategies]
 
 

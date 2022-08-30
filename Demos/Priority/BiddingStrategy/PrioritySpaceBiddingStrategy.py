@@ -1,3 +1,5 @@
+import random
+
 from Demos.Priority.Bids.PrioritySpaceBid import PrioritySpaceBid
 from Simulator.Agents.AgentType import AgentType
 from Simulator.Agents.SpaceAgent import SpaceAgent
@@ -10,7 +12,13 @@ class PrioritySpaceBiddingStrategy(BiddingStrategy):
     description = "An Bidding Strategy for Priority Space Agents"
     min_locations = 1
     max_locations = 4
-    meta = []
+    meta = [{
+        "key": "priority",
+        "label": "Priority",
+        "description": "Priority of the agents",
+        "type": "float",
+        "value": round(random.random(), 2),
+    }]
     allocation_type = AgentType.SPACE.value
 
     def generate_bid(self, agent: SpaceAgent, _environment: Environment, _time_step: int) -> PrioritySpaceBid:

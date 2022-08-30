@@ -77,6 +77,17 @@ class Generator:
             selected_value_functions = value_functions[0]()
 
             if apiOwner.biddingStrategy.allocationType == "space":
+                dim_x = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if
+                         meta_config["key"] == "size_x"][0]
+                dim_y = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if
+                         meta_config["key"] == "size_y"][0]
+                dim_z = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if
+                         meta_config["key"] == "size_z"][0]
+                dim_t = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if
+                         meta_config["key"] == "size_t"][0]
+                other_meta_config = {meta_config["key"]: meta_config["value"] for meta_config in
+                                     apiOwner.biddingStrategy.meta if
+                                     meta_config["key"] not in ["size_x", "size_y", "size_z", "size_t"]}
                 newOwner = SpaceOwner(str(owner_id),
                                       apiOwner.name,
                                       apiOwner.color,
@@ -84,8 +95,18 @@ class Generator:
                                       self.creation_ticks(self.environment.allocation_period, apiOwner.agents),
                                       bidding_strategy=selected_bidding_strategy,
                                       value_function=selected_value_functions,
-                                      size=Coordinate4D(15, 15, 15, 30))
+                                      size=Coordinate4D(dim_x, dim_y, dim_z, dim_t),
+                                      meta=other_meta_config)
             else:
+                near_field = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if
+                              meta_config["key"] == "near_field"][0]
+                battery = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if
+                           meta_config["key"] == "battery"][0]
+                speed = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if
+                         meta_config["key"] == "speed"][0]
+                other_meta_config = {meta_config["key"]: meta_config["value"] for meta_config in
+                                     apiOwner.biddingStrategy.meta if
+                                     meta_config["key"] not in ["near_field", "speed", "battery"]}
                 newOwner = PathOwner(str(owner_id),
                                      apiOwner.name,
                                      apiOwner.color,
@@ -93,6 +114,10 @@ class Generator:
                                      self.creation_ticks(self.environment.allocation_period, apiOwner.agents),
                                      bidding_strategy=selected_bidding_strategy,
                                      value_function=selected_value_functions,
+                                     near_radius=near_field,
+                                     battery=battery,
+                                     speed=speed,
+                                     meta=other_meta_config
                                      )
             self.owners.append(newOwner)
             owner_id += 1

@@ -48,46 +48,6 @@ const simulationConfig = useSimulationConfigStore();
 
 const owner = computed(() => simulationConfig.owners[props.ownerIndex]);
 
-const path_meta = [
-  {
-    key: "near_field",
-    label: "Near field size",
-    description: "Radius of reserved field ",
-    type: "int",
-    value: Math.ceil(Math.random() * 4),
-  },
-];
-const space_meta = [
-  {
-    key: "size_x",
-    label: "Field Size X",
-    description: "Size of reserved field in X-Dimension",
-    type: "int",
-    value: Math.ceil(Math.random() * 100),
-  },
-  {
-    key: "size_y",
-    label: "Field Size Y",
-    description: "Size of reserved field in Y-Dimension",
-    type: "int",
-    value: Math.ceil(Math.random() * 100),
-  },
-  {
-    key: "size_z",
-    label: "Field Size Z",
-    description: "Size of reserved field in Z-Dimension",
-    type: "int",
-    value: Math.ceil(Math.random() * 100),
-  },
-  {
-    key: "size_t",
-    label: "Reservation Duration",
-    description: "Number of ticks field should be reserved",
-    type: "int",
-    value: Math.ceil(Math.random() * 100),
-  },
-];
-
 // /**
 //  * Returns config of owner of fitting type
 //  * @type {ComputedRef<OwnerConfig>}
@@ -99,7 +59,7 @@ const space_meta = [
 /**
  * @type {ComputedRef<RawMeta>}
  */
-const meta = computed(() => (owner.value.biddingStrategy.allocation_type === "space" ? space_meta : path_meta));
+const meta = computed(() => owner.value.biddingStrategy.meta);
 
 const metaInputResolver = {
   int: {

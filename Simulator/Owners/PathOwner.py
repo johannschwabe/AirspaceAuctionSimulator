@@ -1,15 +1,15 @@
 import math
 import random
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Dict, Any
 
 from ..Agents.AgentType import AgentType
+from ..Agents.PathAgent import PathAgent
 from ..Owners.Owner import Owner
 
 if TYPE_CHECKING:
     from ..Location.GridLocation import GridLocation
     from ..Environment.Environment import Environment
     from ..Coordinates.Coordinate4D import Coordinate4D
-    from ..Agents.PathAgent import PathAgent
     from ..Bids.BiddingStrategy import BiddingStrategy
     from ..ValueFunction.ValueFunction import ValueFunction
 
@@ -26,10 +26,17 @@ class PathOwner(Owner):
                  stops: List["GridLocation"],
                  creation_ticks: List[int],
                  bidding_strategy: "BiddingStrategy",
-                 value_function: "ValueFunction"):
-        super().__init__(owner_id, bidding_strategy, value_function, name, color)
+                 value_function: "ValueFunction",
+                 near_radius: int,
+                 battery: int,
+                 speed: int,
+                 meta: Dict[str, Any] = None):
+        super().__init__(owner_id, bidding_strategy, value_function, name, color, meta if meta else {})
         self.creation_ticks = creation_ticks
         self.stops = stops
+        self.near_radius = near_radius
+        self.battery = battery
+        self.speed = speed
 
     @staticmethod
     def generate_stop_coordinate(stop: "GridLocation", env: "Environment", t: int, near_radius: int) -> "Coordinate4D":
@@ -46,15 +53,13 @@ class PathOwner(Owner):
 
     def initialize_agent(self,
                          locations: List["Coordinate4D"],
-                         stays: List[int],
-                         speed: int,
-                         battery: int,
-                         near_radius: int) -> "PathAgent":
+                         stays: List[int]) -> "PathAgent":
         agent_id: str = self.get_agent_id()
         return PathAgent(agent_id, self.bidding_strategy, self.value_function, locations, stays,
-                         speed=speed,
-                         battery=battery,
-                         near_radius=near_radius)
+                         speed=self.speed,
+                         battery=self.battery,
+                         near_radius=self.near_radius,
+                         config=self.config)
 
     def generate_agents(self, t: int, environment: "Environment") -> List["PathAgent"]:
         res = []
@@ -79,7 +84,7 @@ class PathOwner(Owner):
                 locations.append(next_location)
 
             battery = total_travel_time * 4
-            agent = self.initialize_agent(locations, stays, speed, battery, near_radius)
+            agent = self.initialize_agent(locations, stays)
             res.append(agent)
             print(f"{agent} {' -> '.join([str(loc) for loc in locations])}")
 

@@ -50,6 +50,7 @@ class PathAgent(Agent):
     def initialize_clone(self):
         clone = PathAgent(self.id,
                           self.bidding_strategy,
+                          self.value_function,
                           self.locations,
                           self.stays,
                           config=self.config,
