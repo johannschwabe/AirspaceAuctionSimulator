@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class Agent(ABC):
     agent_type: str
 
-    def __init__(self, agent_id: str, bidding_strategy: "BiddingStrategy", config: Optional[Dict[str, object]] = None,
+    def __init__(self, agent_id: str, bidding_strategy: "BiddingStrategy", config: Optional[Dict[str, Any]] = None,
                  _is_clone: bool = False):
         self.id: str = agent_id
         self.bidding_strategy: "BiddingStrategy" = bidding_strategy
