@@ -3,9 +3,7 @@ import math
 import random
 import time
 
-from API import Area, APIWorldCoordinates
-from API.Generator.EnvironmentGen import EnvironmentGen
-from API.Generator.MapTile import MapTile
+from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile
 from Demos.FCFS import FCFSAllocator, FCFSPathOwner, FCFSSpaceOwner, FCFSPaymentRule
 from Demos.Priority import PriorityAllocator, PriorityPathOwner, PrioritySpaceOwner, PriorityPaymentRule
 from Simulator import \
