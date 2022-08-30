@@ -122,7 +122,7 @@ class FCFSAllocator(Allocator):
                 optimal_segments = self.allocate_space(bid, environment, tick)
 
             else:
-                raise Exception(f"Invalid Agent: {agent}")
+                raise Exception(f"Invalid Bid: {bid}")
 
             new_allocation = Allocation(agent, optimal_segments,
                                         AllocationStatistics(time_ns() - start_time,
