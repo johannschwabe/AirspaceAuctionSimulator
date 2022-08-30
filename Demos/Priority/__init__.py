@@ -1,5 +1,7 @@
 from .Allocator.PriorityAllocator import PriorityAllocator
 from .BidTracker.PriorityBidTracker import PriorityBidTracker
+from .BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStrategy
+from .BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
 from .Bids.PriorityPathBid import PriorityPathBid
 from .Bids.PrioritySpaceBid import PrioritySpaceBid
 from .Owners.PriorityPathOwner import PriorityPathOwner

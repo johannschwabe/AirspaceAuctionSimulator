@@ -1,5 +1,7 @@
 from .Allocator.FCFSAllocator import FCFSAllocator
 from .BidTracker.FCFSBidTracker import FCFSBidTracker
+from .BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
+from .BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
 from .Bids.FCFSPathBid import FCFSPathBid
 from .Bids.FCFSSpaceBid import FCFSSpaceBid
 from .Owners.FCFSPathOwner import FCFSPathOwner

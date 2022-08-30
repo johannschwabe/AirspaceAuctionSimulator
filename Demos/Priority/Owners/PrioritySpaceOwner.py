@@ -1,16 +1,14 @@
 import random
 
-from Demos.Priority.BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
-from Simulator import SpaceOwner, Coordinate4D
-from Simulator.Agents.SpaceAgent import SpaceAgent
+from Simulator import SpaceOwner, SpaceAgent
+from ..BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
 
 
 class PrioritySpaceOwner(SpaceOwner):
     label = "Priority Space Owner"
     description = "Priority Space Owner"
 
-    def __init__(self, owner_id, name, color, stops, creation_ticks, size=Coordinate4D(20, 20, 20, 200),
-                 priority=random.random()):
+    def __init__(self, owner_id, name, color, stops, creation_ticks, size, priority=random.random()):
         super().__init__(owner_id, name, color, stops, creation_ticks, size)
         self.priority = priority
 
