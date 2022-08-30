@@ -21,11 +21,14 @@ class PriorityPathBiddingStrategy(BiddingStrategy):
                         flying = True
                         for coordinate in segment.coordinates:
                             if coordinate.t == time_step:
+                                battery -= coordinate.t - segment.min.t
                                 start = coordinate.clone()
                     else:
                         start = agent.locations[i].clone()
                         start.t = max(start.t, agent.allocated_segments[i - 1].max.t) + agent.stays[i - 1]
                     break
+                else:
+                    battery -= segment.max.t - segment.min.t
             if start is None:
                 print(f"Agent {agent} crashed.")
                 return None
