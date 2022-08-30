@@ -64,26 +64,24 @@ class PathOwner(Owner):
     def generate_agents(self, t: int, environment: "Environment") -> List["PathAgent"]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
-            speed = 1
-            near_radius = 1
-            start = self.generate_stop_coordinate(self.stops[0], environment, t, near_radius)
+
+            start = self.generate_stop_coordinate(self.stops[0], environment, t, self.near_radius)
 
             stays: List[int] = []
             locations: List["Coordinate4D"] = [start]
             total_travel_time: int = 0
             for stop in self.stops[1:]:
-                next_location = self.generate_stop_coordinate(stop, environment, t, near_radius)
+                next_location = self.generate_stop_coordinate(stop, environment, t, self.near_radius)
 
                 stay = random.randint(0, 100)
                 stays.append(stay)
                 distance = locations[-1].inter_temporal_distance(next_location)
-                travel_time = math.ceil(distance) * speed
+                travel_time = math.ceil(distance) * self.speed
                 total_travel_time += travel_time
                 next_location.t = min(locations[-1].t + travel_time + stay + random.randint(0, 100),
                                       environment.dimension.t)
                 locations.append(next_location)
 
-            battery = total_travel_time * 4
             agent = self.initialize_agent(locations, stays)
             res.append(agent)
             print(f"{agent} {' -> '.join([str(loc) for loc in locations])}")

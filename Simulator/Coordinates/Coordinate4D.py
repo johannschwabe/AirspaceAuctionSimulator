@@ -37,7 +37,7 @@ class Coordinate4D(Coordinate3D):
         list_rep = self.list_rep()
         return list_rep + list_rep
 
-    def tree_query_qube_rep(self, radius: int, speed: int) -> List[int]:
+    def tree_query_cube_rep(self, radius: int, speed: int) -> List[int]:
         min_corner = [self.x - radius, self.y - radius, self.z - radius, self.t]
         max_corner = [self.x + radius, self.y + radius, self.z + radius, self.t + speed]
         return min_corner + max_corner
