@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Dict, Optional
+from typing import TYPE_CHECKING, List, Dict, Optional, Any
 
 from .Agent import Agent
 from .AgentType import AgentType
@@ -16,7 +16,7 @@ class SpaceAgent(Agent):
                  agent_id: str,
                  bidding_strategy: "BiddingStrategy",
                  blocks: List[List["Coordinate4D"]],
-                 config: Optional[Dict[str, object]] = None,
+                 config: Optional[Dict[str, Any]] = None,
                  _is_clone: bool = False):
         super().__init__(agent_id, bidding_strategy, config, _is_clone=_is_clone)
 

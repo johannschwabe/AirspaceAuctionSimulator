@@ -1,7 +1,7 @@
-from typing import Optional, TYPE_CHECKING, List, Dict
+from typing import TYPE_CHECKING, List, Dict, Optional, Any
 
-from ..Agents.Agent import Agent
-from ..Agents.AgentType import AgentType
+from .Agent import Agent
+from .AgentType import AgentType
 
 if TYPE_CHECKING:
     from ..Segments.PathSegment import PathSegment
@@ -21,7 +21,7 @@ class PathAgent(Agent):
                  bidding_strategy: "BiddingStrategy",
                  locations: List["Coordinate4D"],
                  stays: List[int],
-                 config: Optional[Dict[str, object]] = None,
+                 config: Optional[Dict[str, Any]] = None,
                  speed: Optional[int] = None,
                  battery: Optional[int] = None,
                  near_radius: Optional[int] = None,
