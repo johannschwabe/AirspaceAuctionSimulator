@@ -8,22 +8,21 @@ from ..Segments.PathSegment import PathSegment
 if TYPE_CHECKING:
     from ..Coordinates.Coordinate4D import Coordinate4D
     from ..Simulator import Simulator
-    from ..History.History import History
     from ..Agents.Agent import Agent
 
 
 class Statistics:
     def __init__(self, sim: "Simulator"):
-        self.history: "History" = sim.history
+        self.sim: "Simulator" = sim
 
     def non_colliding_value(self, agent: "Agent"):
         local_agent = agent.initialize_clone()
-        local_env = self.history.env.new_clear()
-        paths = self.history.allocator.allocate_for_agents([local_agent], local_env, 0)[0]
+        local_env = self.sim.environment.new_clear()
+        paths = self.sim.mechanism.do([local_agent], local_env, 0)[0]
         return local_agent.value_for_segments(paths.segments)
 
     def non_colliding_values(self):
-        for agent in self.history.env.agents.values():
+        for agent in self.sim.environment.agents.values():
             print(f"{agent}'s non colliding value: {self.non_colliding_value(agent)}, "
                   f"achieved value: {agent.get_allocated_value()}")
 
@@ -33,7 +32,7 @@ class Statistics:
 
     def total_agents_welfare(self):
         summed_welfare = 0
-        for agent in self.history.env.agents.values():
+        for agent in self.sim.environment.agents.values():
             summed_welfare += Statistics.agents_welfare(agent)
         return summed_welfare
 
@@ -46,10 +45,10 @@ class Statistics:
 
     def average_owners_welfare(self):
         summed_welfare = 0
-        for owner in self.history.owners:
+        for owner in self.sim.owners:
             summed_welfare += Statistics.owners_welfare(owner)
-        print(f"AOW: {summed_welfare / len(self.history.owners)}")
-        return summed_welfare / len(self.history.owners)
+        print(f"AOW: {summed_welfare / len(self.sim.owners)}")
+        return summed_welfare / len(self.sim.owners)
 
     @staticmethod
     def path_statistics(path: List["Coordinate4D"]):
@@ -84,12 +83,12 @@ class Statistics:
 
     def close_encounters(self):
         res = {}
-        near_radi = [_agent.near_radius for _agent in self.history.env.agents.values() if
+        near_radi = [_agent.near_radius for _agent in self.sim.environment.agents.values() if
                      isinstance(_agent, PathAgent)]
         near_radi.append(0)
         max_near_radi = max(near_radi)
 
-        for agent in self.history.env.agents.values():
+        for agent in self.sim.environment.agents.values():
             res[agent.id] = {
                 "near_field_violations": {},
                 "near_field_intersection": {},
@@ -120,7 +119,7 @@ class Statistics:
                position.y + radi,
                position.z + radi,
                position.t + agent.speed - 1]
-        collisions = self.history.env.tree.intersection(box, objects=True)
+        collisions = self.sim.environment.tree.intersection(box, objects=True)
         real_collisions = filter(lambda col: col.id != agent.id, collisions)
         count = 0
         for real_collision in real_collisions:
@@ -131,7 +130,7 @@ class Statistics:
 
     def intersections(self, position: "Coordinate4D", agent: "Agent", max_near_radi):
         near_intersections = 0
-        real_agent: "Agent" = self.history.env.agents[hash(agent)]
+        real_agent: "Agent" = self.sim.environment.agents[hash(agent)]
         if isinstance(real_agent, PathAgent):
             box = [position.x - max_near_radi,
                    position.y - max_near_radi,
@@ -141,11 +140,11 @@ class Statistics:
                    position.y + max_near_radi,
                    position.z + max_near_radi,
                    position.t + real_agent.speed]
-            collisions = self.history.env.tree.intersection(box, objects=True)
+            collisions = self.sim.environment.tree.intersection(box, objects=True)
             real_collisions = filter(lambda col: col.id != hash(agent), collisions)
 
             for collision in real_collisions:
-                colliding_agent = self.history.env.agents[collision.id]
+                colliding_agent = self.sim.environment.agents[collision.id]
                 distance_x = abs(collision.bbox[0] - position.x)
                 distance_y = abs(collision.bbox[1] - position.y)
                 distance_z = abs(collision.bbox[2] - position.z)

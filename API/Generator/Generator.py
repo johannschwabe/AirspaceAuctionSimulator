@@ -1,14 +1,16 @@
 import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
-from Simulator import GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator
+from Demos.FCFS import FCFSAllocator, FCFSPaymentRule
+from Demos.Priority import PriorityAllocator, PriorityPaymentRule
+from Simulator import GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism
 from .EnvironmentGen import EnvironmentGen
-from ..Area import Area
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
     from Simulator import Allocator, Coordinate4D, Owner, Environment, History, Statistics
     from ..API import APIOwner
+    from ..Area import Area
 
 
 class Generator:
@@ -69,13 +71,21 @@ class Generator:
                                           self.creation_ticks(self.environment.allocation_period, apiOwner.agents)))
             owner_id += 1
 
+        if isinstance(self.allocator, FCFSAllocator):
+            mechanism = Mechanism(self.allocator, FCFSPaymentRule())
+
+        elif isinstance(self.allocator, PriorityAllocator):
+            mechanism = Mechanism(self.allocator, PriorityPaymentRule())
+        else:
+            raise Exception("Invalid allocator")
+
         self.simulator = Simulator(
             self.owners,
-            self.allocator,
+            mechanism,
             self.environment,
         )
-        while self.simulator.time_step <= self.dimensions.t:
-            self.simulator.tick()
+        while self.simulator.tick():
+            pass
 
         print(f"DONE!")
         print(f"STEP: {self.simulator.time_step}")

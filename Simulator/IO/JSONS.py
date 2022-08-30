@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from ..Blocker.Blocker import Blocker
     from ..History.HistoryAgent import HistoryAgent
     from ..Segments.PathSegment import PathSegment
+    from ..Segments.SpaceSegment import SpaceSegment
     from ..Simulator import Simulator
 
 
@@ -26,6 +27,12 @@ class JSONPath(Stringify):
 
         for coord in path.coordinates:
             self.t[str(int(coord.t))] = [coord.x, coord.y, coord.z]
+
+
+class JSONSpace(Stringify):
+    def __init__(self, space: "SpaceSegment"):
+        self.min = space.min
+        self.max = space.max
 
 
 class JSONCollision(Stringify):
@@ -72,7 +79,7 @@ class JSONSpaceAgent(JSONAgent, Stringify):
         owner_name: str,
     ):
         super().__init__(agent, non_colliding_utility, owner_id, owner_name)
-        self.spaces = agent.allocated_segments
+        self.spaces: List["JSONSpace"] = [JSONSpace(space) for space in agent.allocated_segments]
 
 
 class JSONPathAgent(JSONAgent, Stringify):
@@ -197,7 +204,7 @@ def build_json(simulator: "Simulator", total_compute_time: int):
     nr_collisions = 0
     json_env = JSONEnvironment(env.dimension, list(env.blocker_dict.values()))
     owners: List["JSONOwner"] = []
-    for owner in history.owners:
+    for owner in simulator.owners:
         agents: List["JSONAgent"] = []
         non_colliding_values = _calculate_non_colliding_values(owner.agents, stats)
         for agent in owner.agents:

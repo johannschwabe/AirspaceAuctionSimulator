@@ -4,8 +4,6 @@ from rtree import index, Index
 
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
-from ..Allocations.PathAllocation import PathAllocation
-from ..Allocations.SpaceAllocation import SpaceAllocation
 from ..Blocker.BlockerType import BlockerType
 
 if TYPE_CHECKING:
@@ -130,7 +128,7 @@ class Environment:
                 if space_segment.min.t < time_step:
                     first, _ = space_segment.split_temporal(time_step)
                     new_segments.append(first)
-                    self.tree.insert(hash(agent), first)
+                    self.tree.insert(hash(agent), first.tree_rep())
 
         agent.allocated_segments = new_segments
 
@@ -170,26 +168,25 @@ class Environment:
         self.tree.insert(hash(agent), space_segment.tree_rep())
 
     def allocate_segments_for_agents(self,
-                                     real_allocations: List["Allocation"],
+                                     allocations: List["Allocation"],
                                      time_step: int):
         """
         Allocate according to the given allocation.
         Only reallocates segments that are in the future.
         """
-        for allocation in real_allocations:
-            if isinstance(allocation, SpaceAllocation):
-                agent: "SpaceAgent" = allocation.agent
+        for allocation in allocations:
+            agent: "Agent" = allocation.agent
+            if isinstance(agent, SpaceAgent):
                 segments: List["SpaceSegment"] = allocation.segments
                 self.register_agent(agent, time_step)
                 self.allocate_space_for_agent(agent, segments)
 
-            elif isinstance(allocation, PathAllocation):
-                agent: "PathAgent" = allocation.agent
+            elif isinstance(agent, PathAgent):
                 segments: List["PathSegment"] = allocation.segments
                 self.register_agent(agent, time_step)
                 self.allocate_path_for_agent(agent, segments)
             else:
-                raise Exception(f"Unknown allocation class {allocation.__class__}")
+                raise Exception(f"Unknown Agent: {agent}")
 
     def register_agent(self, agent: "Agent", time_step: int):
         """
@@ -235,13 +232,12 @@ class Environment:
                 return True
         return False
 
-    def is_blocked_forever(self, coordinate: "Coordinate4D", radius: int, speed: int) -> bool:
+    def is_blocked_forever(self, coordinate: "Coordinate4D", radius: int) -> bool:
         """
         Returns True if there is a static blocker at the given coordinate or in its radius.
-        All time steps from coordinate.t to coordinate.t + speed are considered.
         The radius is abstracted by a qube around the given coordinate with size 2 * radius.
         """
-        for blocker_id in self.get_blockers(coordinate, radius, speed):
+        for blocker_id in self.get_blockers(coordinate, radius, 0):
             blocker = self.blocker_dict[blocker_id]
             if blocker.blocker_type == BlockerType.STATIC.value and blocker.is_blocking(coordinate, radius):
                 return True

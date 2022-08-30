@@ -1,15 +1,15 @@
-from abc import ABC
-from typing import Optional, TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Dict, Optional, Any
 
-from ..Agents.Agent import Agent
-from ..Agents.AgentType import AgentType
+from .Agent import Agent
+from .AgentType import AgentType
 
 if TYPE_CHECKING:
     from ..Segments.PathSegment import PathSegment
     from ..Coordinates.Coordinate4D import Coordinate4D
+    from ..Bids.BiddingStrategy import BiddingStrategy
 
 
-class PathAgent(Agent, ABC):
+class PathAgent(Agent):
     DEFAULT_NEAR_RADIUS = 1
     DEFAULT_SPEED = 1
     DEFAULT_BATTERY = 100_000
@@ -18,14 +18,16 @@ class PathAgent(Agent, ABC):
 
     def __init__(self,
                  agent_id: str,
+                 bidding_strategy: "BiddingStrategy",
                  locations: List["Coordinate4D"],
                  stays: List[int],
+                 config: Optional[Dict[str, Any]] = None,
                  speed: Optional[int] = None,
                  battery: Optional[int] = None,
                  near_radius: Optional[int] = None,
                  _is_clone: bool = False):
 
-        super().__init__(agent_id, _is_clone=_is_clone)
+        super().__init__(agent_id, bidding_strategy, config, _is_clone=_is_clone)
 
         self.locations: List["Coordinate4D"] = locations
         self.stays: List[int] = stays
@@ -35,6 +37,25 @@ class PathAgent(Agent, ABC):
         self.near_radius = near_radius if near_radius is not None else self.DEFAULT_NEAR_RADIUS
 
         self.allocated_segments: List["PathSegment"] = []
+
+    def get_position_at_tick(self, tick: int):
+        for segment in self.allocated_segments:
+            if segment.max.t >= tick >= segment.min.t:
+                index = tick - segment.min.t
+                return segment.coordinates[index]
+        return None
+
+    def initialize_clone(self):
+        clone = PathAgent(self.id,
+                          self.bidding_strategy,
+                          self.locations,
+                          self.stays,
+                          config=self.config,
+                          speed=self.speed,
+                          battery=self.battery,
+                          near_radius=self.near_radius,
+                          _is_clone=True)
+        return clone
 
     def get_airtime(self) -> int:
         airtime = 0

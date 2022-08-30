@@ -15,28 +15,37 @@ class PathSegment(Segment):
         self.index: int = index
 
     def join(self, other: "PathSegment"):
-        self.coordinates.extend(other.coordinates)
+        join_index = 0
+        if other.min == self.max:
+            join_index = 1
+        else:
+            assert other.min.t == self.max.t + 1
+
+        self.coordinates.extend(other.coordinates[join_index:])
 
     def same(self, other: "PathSegment"):
         same_index = self.index == other.index
-        same_end = self.end == other.end
-        if same_index and not same_end:
-            print(f"Same index ({self.index} == {other.index}) but not same end ({self.end} != {other.end})")
-        return same_index and same_end
+        if same_index:
+            assert self.end == other.end
+        return same_index
 
     @property
-    def min(self):
+    def nr_voxels(self) -> int:
+        return len(self.coordinates)
+
+    @property
+    def min(self) -> "Coordinate4D":
         return self.coordinates[0]
 
     @property
-    def max(self):
+    def max(self) -> "Coordinate4D":
         return self.coordinates[-1]
 
     def clone(self):
         return PathSegment(self.start.clone(), self.end.clone(), self.index, [x.clone() for x in self.coordinates])
 
     def split_temporal(self, t: int) -> Tuple["PathSegment", "PathSegment"]:
-        t_index = t - self.coordinates[0].t
+        t_index = t - self.min.t
         first_segment = self.clone()
         first_segment.coordinates = first_segment.coordinates[:t_index + 1]
 

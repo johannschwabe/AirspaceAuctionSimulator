@@ -1,80 +1,98 @@
 import json
+import math
 import random
+import time
 
-from Demos import \
-    FCFSAllocator, \
-    FCFSSpaceOwner, \
-    FCFSPathOwner, \
-    PriorityAllocator, \
-    PrioritySpaceOwner, \
-    PriorityPathOwner
-from Simulator import \
-    Simulator, \
-    Coordinate4D, \
-    StaticBlocker, \
-    Coordinate3D, \
-    Environment, \
-    GridLocation, \
-    GridLocationType, \
-    build_json
+from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile
+from Demos.FCFS import FCFSAllocator, FCFSPathOwner, FCFSSpaceOwner, FCFSPaymentRule
+from Demos.Priority import PriorityAllocator, PriorityPathOwner, PrioritySpaceOwner, PriorityPaymentRule
+from Simulator import Simulator, Coordinate4D, StaticBlocker, Coordinate3D, Environment, GridLocation, \
+    GridLocationType, build_json, Mechanism
 
-random.seed(3)
+random.seed(4)
+dimensions = Coordinate4D(40, 40, 40, 1000)
+allocation_period = 100
+space_dimensions = Coordinate4D(7, 7, 7, 10)
+nr_agents = 10
 
 
-def setup_empty(t):
-    dimensions = Coordinate4D(50, 20, 50, t)
-    blocker = StaticBlocker(Coordinate3D(5, 0, 5), Coordinate3D(40, 15, 40))
-    return Environment(dimensions, blockers=[blocker], allocation_period=20)
+def setup_empty():
+    blocker = StaticBlocker(Coordinate3D(10, 0, 10), Coordinate3D(20, 20, 20))
+    return Environment(dimensions, blockers=[blocker], allocation_period=allocation_period)
 
 
-def simulateFCFS(env: Environment, t):
+resolution = 2
+bottom_left_coordinate = APIWorldCoordinates(lat=47.3685943521338, long=8.536376953124991)
+top_right_coordinate = APIWorldCoordinates(lat=47.376034633497596, long=8.547363281249993)
+map_height = 40
+time_steps = 1000
+
+
+def setup_map():
+    random.seed(0)
+    area = Area(bottom_left_coordinate,
+                top_right_coordinate,
+                resolution)
+    size = area.dimension
+    map_dimensions = Coordinate4D(math.floor(size[0]),
+                                  math.floor(map_height / area.resolution),
+                                  math.floor(size[1]),
+                                  time_steps)
+    print(dimensions)
+    return EnvironmentGen(map_dimensions, [MapTile([15, 17161, 11475], area)]).generate()
+
+
+def fcfsSimulation(env: Environment):
     allocator = FCFSAllocator()
+    payment_rule = FCFSPaymentRule()
+    mechanism = Mechanism(allocator, payment_rule)
     owners = [
-        FCFSPathOwner("owner-0",
+        FCFSPathOwner("0",
                       "Schnabeltier",
                       color_generator(),
                       [GridLocation(str(GridLocationType.RANDOM.value)),
                        GridLocation(str(GridLocationType.RANDOM.value))],
-                      [random.randint(0, 5) for _ in range(10)]),
-        FCFSSpaceOwner("owner-1",
+                      [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)]),
+        FCFSSpaceOwner("1",
                        "Ghettotier",
                        color_generator(),
                        [GridLocation(str(GridLocationType.RANDOM.value)),
                         GridLocation(str(GridLocationType.RANDOM.value))],
-                       [random.randint(0, 5) for _ in range(10)],
-                       Coordinate4D(25, 25, 25, 25))
+                       [random.randint(0, allocation_period) for _ in range(nr_agents)],
+                       space_dimensions)
     ]
-    simulator = Simulator(owners, allocator, env)
-    while simulator.time_step < t:
-        simulator.tick()
-
-    return simulator
+    return Simulator(owners, mechanism, env)
 
 
-def simulatePriority(env: Environment, t):
+def prioritySimulation(env: Environment):
     allocator = PriorityAllocator()
+    payment_rule = PriorityPaymentRule()
+    mechanism = Mechanism(allocator, payment_rule)
     owners = [
-        PriorityPathOwner("owner-0",
+        PriorityPathOwner("0",
                           "Schnabeltier",
                           color_generator(),
                           [GridLocation(str(GridLocationType.RANDOM.value)),
                            GridLocation(str(GridLocationType.RANDOM.value))],
-                          [random.randint(0, 5) for _ in range(10)],
-                          priority=0.5),
-        PrioritySpaceOwner("owner-1",
+                          [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)],
+                          priority=1.0),
+        PriorityPathOwner("1",
+                          "GhettoSalat",
+                          color_generator(),
+                          [GridLocation(str(GridLocationType.RANDOM.value)),
+                           GridLocation(str(GridLocationType.RANDOM.value))],
+                          [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)],
+                          priority=0.1),
+        PrioritySpaceOwner("2",
                            "Ghettotier",
                            color_generator(),
                            [GridLocation(str(GridLocationType.RANDOM.value)),
                             GridLocation(str(GridLocationType.RANDOM.value))],
-                           [random.randint(0, 5) for _ in range(10)],
-                           Coordinate4D(25, 25, 25, 25),
-                           priority=1.0)
+                           [random.randint(0, allocation_period) for _ in range(nr_agents)],
+                           space_dimensions,
+                           priority=0.5)
     ]
-    simulator = Simulator(owners, allocator, env)
-    while simulator.time_step < t:
-        simulator.tick()
-
-    return simulator
+    return Simulator(owners, mechanism, env)
 
 
 def color_generator():
@@ -89,12 +107,29 @@ def color_generator():
 
 
 if __name__ == "__main__":
-    max_t = 100
-    environment = setup_empty(max_t)
-    simulatorAligator = simulatePriority(environment, max_t)
+    environment = setup_map()
+    simulatorAligator = prioritySimulation(environment)
 
-    res = build_json(simulatorAligator, 0)
-    res["config"] = {"name": "test", "map": {"tiles": []}, "dimension": environment.dimension.to_dict(), "owners": []}
-    f = open("Development/playground.json", "w")
+    start = time.time_ns()
+    while simulatorAligator.tick():
+        pass
+
+    sim_time = time.time_ns() - start
+
+    print()
+    print(f"SIM: {sim_time / 6e10:2.2f} min")
+    print()
+
+    res = build_json(simulatorAligator, sim_time)
+    res["config"] = {"name": "test",
+                     "map": {"tiles": []},
+                     "dimension": environment.dimension.to_dict(),
+                     "owners": []}
+
+    tot_time = time.time_ns() - start
+    print()
+    print(f"TOTAL: {tot_time / 6e10:2.2f} min")
+
+    f = open("playground.json", "w")
     f.write(json.dumps(res))
     f.close()

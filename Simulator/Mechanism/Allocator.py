@@ -2,9 +2,10 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
-    from ..Allocations.Allocation import Allocation
     from ..Agents.Agent import Agent
+    from ..Allocations.Allocation import Allocation
     from ..Environment.Environment import Environment
+    from ..BidTracker.BidTracker import BidTracker
 
 
 class Allocator(ABC):
@@ -12,18 +13,15 @@ class Allocator(ABC):
         pass
 
     @abstractmethod
-    def allocate_for_agents(self,
-                            agents: List["Agent"],
-                            env: "Environment",
-                            tick: int) -> List["Allocation"]:
+    def get_bid_tracker(self) -> "BidTracker":
         pass
 
+    @abstractmethod
     def allocate(self,
                  agents: List["Agent"],
                  env: "Environment",
                  tick: int) -> List["Allocation"]:
-        cloned_agents = [agent.clone() for agent in agents]
-        return self.allocate_for_agents(cloned_agents, env, tick)
+        pass
 
     @staticmethod
     def compatible_owner():

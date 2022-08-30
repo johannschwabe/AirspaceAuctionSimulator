@@ -3,19 +3,13 @@ from typing import List, Dict, TYPE_CHECKING
 from .HistoryAgent import HistoryAgent
 
 if TYPE_CHECKING:
-    from ..Environment.Environment import Environment
-    from ..Allocator.Allocator import Allocator
     from ..Agents.Agent import Agent
-    from ..Owners.Owner import Owner
     from ..Allocations.Allocation import Allocation
 
 
 class History:
-    def __init__(self, allocator: "Allocator", env: "Environment", owners: List["Owner"]):
+    def __init__(self):
         self.agents: Dict["Agent", "HistoryAgent"] = {}
-        self.owners: List["Owner"] = owners
-        self.allocator: "Allocator" = allocator
-        self.env: "Environment" = env
         self.compute_times: Dict[int, int] = {}
 
     def add_new_agents(self, agents: List["Agent"], time_step: int):
@@ -29,4 +23,5 @@ class History:
         self.compute_times[time_step] = compute_time
         for allocation in new_allocations:
             history_agent = self.agents[allocation.agent]
-            history_agent.reallocation(allocation.segments, allocation.reason, time_step, allocation.compute_time)
+            history_agent.reallocation(allocation.segments, allocation.statistics.reason, time_step,
+                                       allocation.statistics.compute_time)
