@@ -150,6 +150,7 @@ import {
   setSimulationSingleton,
 } from "@/scripts/simulation";
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import { emitConfigLoaded } from "../../scripts/emitter";
 
 const simulationConfig = useSimulationConfigStore();
 simulationConfig.loadAvailableAllocators();
@@ -226,6 +227,7 @@ const uploadConfiguration = (upload) => {
   fileReader.onload = async (event) => {
     const data = JSON.parse(event.target.result);
     simulationConfig.overwrite(data);
+    emitConfigLoaded();
   };
   fileReader.onerror = () => {
     loadingBar.error();

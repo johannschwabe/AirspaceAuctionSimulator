@@ -93,6 +93,8 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     },
     resolution: 2,
     height: 100,
+    minHeight: 0,
+    allocationPeriod: 60,
     timesteps: 1500,
     tiles: [],
   });
