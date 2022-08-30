@@ -6,16 +6,8 @@ import time
 from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile
 from Demos.FCFS import FCFSAllocator, FCFSPathOwner, FCFSSpaceOwner, FCFSPaymentRule
 from Demos.Priority import PriorityAllocator, PriorityPathOwner, PrioritySpaceOwner, PriorityPaymentRule
-from Simulator import \
-    Simulator, \
-    Coordinate4D, \
-    StaticBlocker, \
-    Coordinate3D, \
-    Environment, \
-    GridLocation, \
-    GridLocationType, \
-    build_json, \
-    Mechanism
+from Simulator import Simulator, Coordinate4D, StaticBlocker, Coordinate3D, Environment, GridLocation, \
+    GridLocationType, build_json, Mechanism
 
 random.seed(4)
 dimensions = Coordinate4D(40, 40, 40, 1000)
