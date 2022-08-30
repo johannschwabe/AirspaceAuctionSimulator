@@ -3,8 +3,8 @@ import random
 from time import time_ns
 
 from API import APIWorldCoordinates, EnvironmentGen, MapTile, Area
-from Simulator import AStar, Coordinate4D, GridLocation, GridLocationType, PathOwner, Environment
-from Simulator.Agents.PathAgent import PathAgent
+from Demos.FCFS import FCFSPathBiddingStrategy, FCFSBidTracker
+from Simulator import AStar, Coordinate4D, GridLocation, GridLocationType, PathOwner, Environment, PathAgent
 
 map_height = 30
 time_steps = 20000
@@ -42,7 +42,7 @@ def readCoords(filename: str):
 
 
 def writeCoords(environment: Environment, filename: str):
-    astar = AStar(environment, max_iter=-1, g_sum=1., height_adjust=0.)
+    astar = AStar(environment, FCFSBidTracker(), max_iter=-1, g_sum=1., height_adjust=0.)
     f = open(filename, "w")
     nr_tests = 20
     for index in range(nr_tests):
@@ -52,14 +52,14 @@ def writeCoords(environment: Environment, filename: str):
         end = PathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)),
                                                  environment,
                                                  0, 1)
-        agent = PathAgent("agent-id", [start, end], [])
+        agent = PathAgent("agent-id", FCFSPathBiddingStrategy(), [start, end], [])
         res, _ = astar.astar(start, end, agent)
         f.write(f"{start.x},{start.y},{start.z},{start.t}-{end.x},{end.y},{end.z},{end.t}-{len(res)}\n")
     f.close()
 
 
 def testCoords(environment: Environment, g_sum, height_adjust):
-    astar = AStar(environment, max_iter=-1, g_sum=g_sum, height_adjust=height_adjust)
+    astar = AStar(environment, FCFSBidTracker(), max_iter=-1, g_sum=g_sum, height_adjust=height_adjust)
     nr_tests = 20
     nr_success = 0
     start_t = time_ns()
@@ -70,7 +70,7 @@ def testCoords(environment: Environment, g_sum, height_adjust):
     for segment in segments:
         start = segment["start"]
         end = segment["end"]
-        agent = PathAgent("agent-id", [start, end], [])
+        agent = PathAgent("agent-id", FCFSPathBiddingStrategy(), [start, end], [])
         res, _ = astar.astar(segment["start"], segment["end"], agent)
         if len(res) > 0:
             nr_success += 1
