@@ -1,12 +1,17 @@
 from time import time_ns
-from typing import List
+from typing import List, TYPE_CHECKING
 
-from Demos.Priority.BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStrategy
-from Demos.Priority.BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
-from Demos.Priority.PaymentRule.PriorityPaymentRule import PriorityPaymentRule
-from Demos.Priority import PriorityBidTracker, PriorityPathBid, PrioritySpaceBid
-from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation, AStar, Agent, \
-    AllocationStatistics, Environment
+from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation, \
+    AllocationStatistics, AStar
+from ..BidTracker.PriorityBidTracker import PriorityBidTracker
+from ..BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStrategy
+from ..BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
+from ..Bids.PriorityPathBid import PriorityPathBid
+from ..Bids.PrioritySpaceBid import PrioritySpaceBid
+from ..PaymentRule.PriorityPaymentRule import PriorityPaymentRule
+
+if TYPE_CHECKING:
+    from Simulator import Environment, Agent
 
 
 class PriorityAllocator(Allocator):

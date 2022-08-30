@@ -18,5 +18,5 @@ class Mechanism:
         self.payment_rule.calculate_preliminary_payments(allocations, self.allocator.get_bid_tracker())
         return allocations
 
-    def calculate_final_payments(self, environment: Environment):
+    def calculate_final_payments(self, environment: "Environment"):
         return self.payment_rule.calculate_final_payments(environment, self.allocator.get_bid_tracker())

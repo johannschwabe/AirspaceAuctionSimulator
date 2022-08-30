@@ -11,8 +11,8 @@ class PrioritySpaceValueFunction(ValueFunction):
     label = "PrioSpace"
     description = "Magic"
 
-    def __init__(self):
-        super().__init__(None)
+    def __init__(self, config):
+        super().__init__(config)
 
     def value_for_segments(self, segments: List["Segment"], agent: "SpaceAgent"):
         sum_segments = 0.0

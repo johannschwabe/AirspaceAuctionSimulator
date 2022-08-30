@@ -1,7 +1,12 @@
-from Demos.FCFS import FCFSSpaceBid
-from Demos.FCFS.ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction
+from typing import TYPE_CHECKING
+
+from Simulator import BiddingStrategy
 from Simulator.Agents.AgentType import AgentType
-from Simulator import BiddingStrategy, SpaceAgent, Environment
+from ..Bids.FCFSSpaceBid import FCFSSpaceBid
+from ..ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction
+
+if TYPE_CHECKING:
+    from Simulator import SpaceAgent, Environment
 
 
 class FCFSSpaceBiddingStrategy(BiddingStrategy):

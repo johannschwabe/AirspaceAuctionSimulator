@@ -7,14 +7,14 @@ from Demos.FCFS.BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBidding
 from Demos.FCFS.Bids.FCFSPathBid import FCFSPathBid
 from Demos.FCFS.Bids.FCFSSpaceBid import FCFSSpaceBid
 from Demos.FCFS.PaymentRule.FCFSPaymentRule import FCFSPaymentRule
-from Simulator.Agents.Agent import Agent
 from Simulator import \
     Allocator, \
     AStar, \
     PathSegment, \
     SpaceSegment, \
     Allocation, \
-    AllocationReason, \
+    AllocationReason
+from Simulator.Agents.Agent import Agent
 from Simulator.Allocations.AllocationStatistics import AllocationStatistics
 from Simulator.BidTracker.BidTracker import BidTracker
 from Simulator.Environment.Environment import Environment
