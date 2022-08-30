@@ -57,7 +57,6 @@ class Simulator:
         if len(new_agents) > 0 or self.mechanism.allocator.wants_to_reallocate():
             start_time = time_ns()
 
-            self.history.add_new_agents(list(new_agents.values()), self.time_step)
             temporary_environment = self.environment.clone()
             temporary_agents = [agent.clone() for agent in new_agents.values()]
             temporary_allocations: Dict["Agent", "Allocation"] = self.mechanism.do(
@@ -67,7 +66,7 @@ class Simulator:
             real_allocations = self.environment.create_real_allocations(list(temporary_allocations.values()),
                                                                         new_agents)
             self.environment.allocate_segments_for_agents(real_allocations, self.time_step)
-            self.history.update_allocations(real_allocations, self.time_step, time_ns() - start_time)
+            self.history.update_history(temporary_allocations, self.time_step, time_ns() - start_time)
 
             print(f"STEP: {self.time_step}")
             print("-------------")

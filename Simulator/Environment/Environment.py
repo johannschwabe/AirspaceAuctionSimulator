@@ -208,9 +208,9 @@ class Environment:
         for temporary_allocation in temporary_allocations:
             agent_hash: int = hash(temporary_allocation.agent)
             if agent_hash in new_agents:
-                res.append(temporary_allocation.get_real_allocation(new_agents[agent_hash]))
+                res.append(temporary_allocation.get_allocation_with_agent(new_agents[agent_hash]))
             else:
-                res.append(temporary_allocation.get_real_allocation(self.agents[agent_hash]))
+                res.append(temporary_allocation.get_allocation_with_agent(self.agents[agent_hash]))
         return res
 
     def get_blockers(self, coord: "Coordinate4D", radius: int, speed: int) -> List[int]:

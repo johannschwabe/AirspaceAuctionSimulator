@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     from ..Allocations.AllocationReason import AllocationReason
     from ..Agents.Agent import Agent
     from ..Blocker.Blocker import Blocker
-    from ..History.HistoryAgent import HistoryAgent
     from ..Segments.PathSegment import PathSegment
     from ..Segments.SpaceSegment import SpaceSegment
     from ..Simulator import Simulator
@@ -85,7 +84,6 @@ class JSONSpaceAgent(JSONAgent, Stringify):
 class JSONPathAgent(JSONAgent, Stringify):
     def __init__(
         self,
-        history_agent: "HistoryAgent",
         agent: "PathAgent",
         non_colliding_utility: float,
         near_field_intersections: int,
@@ -197,6 +195,12 @@ class JSONSimulation(Stringify):
 
 
 def build_json(simulator: "Simulator", total_compute_time: int):
+    """
+    Build the JSON file of the simulation.
+    :param simulator:
+    :param total_compute_time:
+    :return:
+    """
     env = simulator.environment
     history = simulator.history
     stats = Statistics(simulator)
@@ -211,7 +215,6 @@ def build_json(simulator: "Simulator", total_compute_time: int):
             if isinstance(agent, PathAgent):
                 path_stats = stats.path_statistics(agent.get_allocated_coords())
                 agents.append(JSONPathAgent(
-                    history.agents[agent],
                     agent,
                     non_colliding_values[agent],
                     close_encounters[agent.id]["total_near_field_intersection"],
@@ -223,25 +226,31 @@ def build_json(simulator: "Simulator", total_compute_time: int):
             elif isinstance(agent, SpaceAgent):
                 agents.append(JSONSpaceAgent(
                     agent,
-                    stats.non_colliding_value(agent),
+                    non_colliding_values[agent],
                     owner.id,
                     owner.name,
                 ))
             nr_collisions += close_encounters[agent.id][
                 "total_near_field_violations"]  # todo different collision metric
         owners.append(JSONOwner(owner.name, owner.id, owner.color, agents))
-    json_stats = JSONStatistics(len(simulator.owners), len(env.agents), stats.total_agents_welfare(), nr_collisions,
+    json_stats = JSONStatistics(len(simulator.owners), len(env.agents), stats.get_total_value(), nr_collisions,
                                 0)  # TODO reallocations
     json_simulation = JSONSimulation(json_env, json_stats, owners, total_compute_time,
                                      history.compute_times)
     return json_simulation.as_dict()
 
 
-def _calculate_non_colliding_values(agents: List["Agent"], stats: "Statistics"):
+def _calculate_non_colliding_values(agents: List["Agent"], stats: "Statistics") -> Dict["Agent", float]:
+    """
+    Calculate the non-colliding values for all agents.
+    :param agents:
+    :param stats:
+    :return:
+    """
     res = {}
     non_colliding_values = []
     for agent in agents:
-        non_colliding_values.append(stats.non_colliding_value(agent))
+        non_colliding_values.append(stats.get_non_colliding_value_for_agent(agent))
     for agent, non_colliding_value in zip(agents, non_colliding_values):
         res[agent] = non_colliding_value
     return res

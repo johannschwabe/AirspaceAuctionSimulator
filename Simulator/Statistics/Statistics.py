@@ -1,5 +1,5 @@
 import statistics
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Dict
 
 from ..Agents.PathAgent import PathAgent
 from ..Owners.Owner import Owner
@@ -12,46 +12,83 @@ if TYPE_CHECKING:
 
 
 class Statistics:
+    """
+    Statistics class that generates statistics for a simulation.
+    """
+
     def __init__(self, sim: "Simulator"):
+        """
+        Simulation instance.
+        :param sim:
+        """
         self.sim: "Simulator" = sim
+        assert sim.time_step == sim.environment.dimension.t + 1
 
-    def non_colliding_value(self, agent: "Agent"):
-        local_agent = agent.initialize_clone()
-        local_env = self.sim.environment.new_clear()
-        paths = self.sim.mechanism.do([local_agent], local_env, 0)[0]
-        return local_agent.value_for_segments(paths.segments)
+        self.non_colliding_values: Dict["Agent", float] = {}
+        self.values: Dict[Agent, float] = {}
 
-    def non_colliding_values(self):
+    def get_non_colliding_value_for_agent(self, agent: "Agent"):
+        """
+        Calculate the value for an allocation on an empty map (no other agents).
+        :param agent:
+        :return:
+        """
+        if agent not in self.non_colliding_values:
+            local_agent = agent.initialize_clone()
+            local_env = self.sim.environment.new_clear()
+            allocation = self.sim.mechanism.do([local_agent], local_env, 0)[local_agent]
+            self.non_colliding_values[agent] = local_agent.value_for_segments(allocation.segments)
+        return self.non_colliding_values[agent]
+
+    def get_value_for_agent(self, agent: "Agent"):
+        """
+        Calculate the value for the allocated segments of an agent.
+        :param agent:
+        :return:
+        """
+        if agent not in self.values:
+            self.values[agent] = agent.get_allocated_value()
+        return self.values[agent]
+
+    def get_total_value(self):
+        """
+        Calculate the value for the allocations of all agents summed up
+        :return:
+        """
+        total_value = 0
         for agent in self.sim.environment.agents.values():
-            print(f"{agent}'s non colliding value: {self.non_colliding_value(agent)}, "
-                  f"achieved value: {agent.get_allocated_value()}")
+            total_value += self.get_value_for_agent(agent)
+        return total_value
 
-    @staticmethod
-    def agents_welfare(agent: "Agent"):
-        return agent.get_allocated_value()
-
-    def total_agents_welfare(self):
-        summed_welfare = 0
-        for agent in self.sim.environment.agents.values():
-            summed_welfare += Statistics.agents_welfare(agent)
-        return summed_welfare
-
-    @staticmethod
-    def owners_welfare(owner: "Owner"):
-        summed_welfare = 0
+    def get_total_value_for_owner(self, owner: "Owner"):
+        """
+        Calculate the value for the allocations of all agents of an owner summed up.
+        :param owner:
+        :return:
+        """
+        total_value = 0
         for agent in owner.agents:
-            summed_welfare += Statistics.agents_welfare(agent)
-        return summed_welfare
+            total_value += self.get_value_for_agent(agent)
+        return total_value
 
     def average_owners_welfare(self):
+        """
+        Calculate the average value for owners.
+        :return:
+        """
         summed_welfare = 0
         for owner in self.sim.owners:
-            summed_welfare += Statistics.owners_welfare(owner)
+            summed_welfare += Statistics.get_total_value_for_owner(owner)
         print(f"AOW: {summed_welfare / len(self.sim.owners)}")
         return summed_welfare / len(self.sim.owners)
 
     @staticmethod
     def path_statistics(path: List["Coordinate4D"]):
+        """
+        Create statistics for a path (list of coordinates).
+        :param path:
+        :return:
+        """
         ascended = 0
         descended = 0
         distance = 0
@@ -82,6 +119,10 @@ class Statistics:
         }
 
     def close_encounters(self):
+        """
+        Detect all close encounters.
+        :return:
+        """
         res = {}
         near_radi = [_agent.near_radius for _agent in self.sim.environment.agents.values() if
                      isinstance(_agent, PathAgent)]
@@ -111,6 +152,13 @@ class Statistics:
         return res
 
     def violations(self, position: "Coordinate4D", agent: "PathAgent", radi: int):
+        """
+        Detect all violations.
+        :param position:
+        :param agent:
+        :param radi:
+        :return:
+        """
         box = [position.x - radi,
                position.y - radi,
                position.z - radi,
@@ -129,6 +177,13 @@ class Statistics:
         return count
 
     def intersections(self, position: "Coordinate4D", agent: "Agent", max_near_radi):
+        """
+        Detect all intersections.
+        :param position:
+        :param agent:
+        :param max_near_radi:
+        :return:
+        """
         near_intersections = 0
         real_agent: "Agent" = self.sim.environment.agents[hash(agent)]
         if isinstance(real_agent, PathAgent):
