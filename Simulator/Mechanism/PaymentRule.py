@@ -1,11 +1,12 @@
 from abc import abstractmethod, ABC
-from typing import List
+from typing import List, TYPE_CHECKING
 
-from Simulator.Allocations.Allocation import Allocation
-from Simulator.BidTracker.BidTracker import BidTracker
+if TYPE_CHECKING:
+    from ..Allocations.Allocation import Allocation
+    from ..BidTracker.BidTracker import BidTracker
 
 
 class PaymentRule(ABC):
     @abstractmethod
-    def calculate_payments(self, allocations: List[Allocation], bid_tracker: BidTracker):
+    def calculate_payments(self, allocations: List["Allocation"], bid_tracker: "BidTracker"):
         pass
