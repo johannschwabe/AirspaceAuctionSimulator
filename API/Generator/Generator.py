@@ -6,13 +6,16 @@ from Simulator.Mechanism.Mechanism import Mechanism
 from Simulator.Mechanism.PaymentRule import PaymentRule
 from Simulator.Owners.PathOwner import PathOwner
 from Simulator.Owners.SpaceOwner import SpaceOwner
+from Demos.FCFS import FCFSAllocator, FCFSPaymentRule
+from Demos.Priority import PriorityAllocator, PriorityPaymentRule
+from Simulator import GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism
 from .EnvironmentGen import EnvironmentGen
-from ..Area import Area
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
     from Simulator import Allocator, Owner, Environment, History, Statistics
     from ..API import APIOwner
+    from ..Area import Area
 
 
 class Generator:
@@ -127,8 +130,8 @@ class Generator:
             mech,
             self.environment,
         )
-        while self.simulator.time_step <= self.dimensions.t:
-            self.simulator.tick()
+        while self.simulator.tick():
+            pass
 
         print(f"DONE!")
         print(f"STEP: {self.simulator.time_step}")

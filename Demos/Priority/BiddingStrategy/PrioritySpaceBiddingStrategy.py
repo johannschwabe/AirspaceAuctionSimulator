@@ -1,12 +1,10 @@
 import random
 
 from Demos.FCFS.ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction
-from Demos.Priority.Bids.PrioritySpaceBid import PrioritySpaceBid
+from Demos.Priority import PrioritySpaceBid
 from Demos.Priority.ValueFunction.PrioritySpaceValueFunction import PrioritySpaceValueFunction
 from Simulator.Agents.AgentType import AgentType
-from Simulator.Agents.SpaceAgent import SpaceAgent
-from Simulator.Bids.BiddingStrategy import BiddingStrategy
-from Simulator.Environment.Environment import Environment
+from Simulator import BiddingStrategy, SpaceAgent, Environment
 
 
 class PrioritySpaceBiddingStrategy(BiddingStrategy):
@@ -23,8 +21,8 @@ class PrioritySpaceBiddingStrategy(BiddingStrategy):
     }]
     allocation_type = AgentType.SPACE.value
 
-    def generate_bid(self, agent: SpaceAgent, _environment: Environment, _time_step: int) -> PrioritySpaceBid:
-        return PrioritySpaceBid(agent, agent.config["priority"])
+    def generate_bid(self, agent: "SpaceAgent", _environment: "Environment", _time_step: int) -> "PrioritySpaceBid":
+        return PrioritySpaceBid(agent, agent.blocks, agent.config["priority"])
 
     @staticmethod
     def compatible_value_functions():

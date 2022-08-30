@@ -2,8 +2,8 @@ from abc import abstractmethod, ABC
 from typing import List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from Simulator.Allocations.Allocation import Allocation
-    from Simulator.BidTracker.BidTracker import BidTracker
+    from ..Allocations.Allocation import Allocation
+    from ..BidTracker.BidTracker import BidTracker
     from Simulator.Environment.Environment import Environment
 
 

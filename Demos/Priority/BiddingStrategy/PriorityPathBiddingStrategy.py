@@ -2,12 +2,10 @@ import random
 from typing import Optional
 
 from Demos.FCFS.ValueFunction.FCFSPathValueFunction import FCFSPathValueFunction
-from Demos.Priority.Bids.PriorityPathBid import PriorityPathBid
+from Demos.Priority import PriorityPathBid
 from Demos.Priority.ValueFunction.PriorityPathValueFunction import PriorityPathValueFunction
 from Simulator.Agents.AgentType import AgentType
-from Simulator.Agents.PathAgent import PathAgent
-from Simulator.Bids.BiddingStrategy import BiddingStrategy
-from Simulator.Environment.Environment import Environment
+from Simulator import BiddingStrategy, PathAgent, Environment
 
 
 class PriorityPathBiddingStrategy(BiddingStrategy):
@@ -24,7 +22,8 @@ class PriorityPathBiddingStrategy(BiddingStrategy):
     }]
     allocation_type = AgentType.PATH.value
 
-    def generate_bid(self, agent: PathAgent, _environment: Environment, time_step: int) -> Optional[PriorityPathBid]:
+    def generate_bid(self, agent: "PathAgent", _environment: "Environment",
+                     time_step: int) -> Optional["PriorityPathBid"]:
         flying = False
         locations = agent.locations
         battery = agent.battery
@@ -39,11 +38,14 @@ class PriorityPathBiddingStrategy(BiddingStrategy):
                         flying = True
                         for coordinate in segment.coordinates:
                             if coordinate.t == time_step:
+                                battery -= coordinate.t - segment.min.t
                                 start = coordinate.clone()
                     else:
                         start = agent.locations[i].clone()
                         start.t = max(start.t, agent.allocated_segments[i - 1].max.t) + agent.stays[i - 1]
                     break
+                else:
+                    battery -= segment.max.t - segment.min.t
             if start is None:
                 print(f"Agent {agent} crashed.")
                 return None

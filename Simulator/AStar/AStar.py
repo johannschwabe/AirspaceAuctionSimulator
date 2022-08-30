@@ -25,7 +25,7 @@ class AStar:
         self.max_iter: int = max_iter
         self.g_sum: float = g_sum
         self.height_adjust: float = height_adjust
-        self.bid_tracker = bid_tracker
+        self.bid_tracker: "BidTracker" = bid_tracker
 
     # Implementation based on https://www.annytab.com/a-star-search-algorithm-in-python/
     def astar_loop(self,

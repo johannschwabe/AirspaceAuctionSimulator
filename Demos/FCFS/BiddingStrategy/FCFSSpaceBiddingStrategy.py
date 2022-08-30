@@ -1,9 +1,7 @@
-from Demos.FCFS.Bids.FCFSSpaceBid import FCFSSpaceBid
+from Demos.FCFS import FCFSSpaceBid
 from Demos.FCFS.ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction
 from Simulator.Agents.AgentType import AgentType
-from Simulator.Agents.SpaceAgent import SpaceAgent
-from Simulator.Bids.BiddingStrategy import BiddingStrategy
-from Simulator.Environment.Environment import Environment
+from Simulator import BiddingStrategy, SpaceAgent, Environment
 
 
 class FCFSSpaceBiddingStrategy(BiddingStrategy):
@@ -14,8 +12,8 @@ class FCFSSpaceBiddingStrategy(BiddingStrategy):
     meta = []
     allocation_type = AgentType.SPACE.value
 
-    def generate_bid(self, agent: SpaceAgent, _environment: Environment, _time_step: int) -> FCFSSpaceBid:
-        return FCFSSpaceBid(agent)
+    def generate_bid(self, agent: "SpaceAgent", _environment: "Environment", _time_step: int) -> "FCFSSpaceBid":
+        return FCFSSpaceBid(agent, agent.blocks)
 
     @staticmethod
     def compatible_value_functions():

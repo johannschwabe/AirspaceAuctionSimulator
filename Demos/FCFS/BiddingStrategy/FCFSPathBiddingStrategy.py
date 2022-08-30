@@ -1,9 +1,7 @@
-from Demos.FCFS.Bids.FCFSPathBid import FCFSPathBid
+from Demos.FCFS import FCFSPathBid
 from Demos.FCFS.ValueFunction.FCFSPathValueFunction import FCFSPathValueFunction
 from Simulator.Agents.AgentType import AgentType
-from Simulator.Agents.PathAgent import PathAgent
-from Simulator.Bids.BiddingStrategy import BiddingStrategy
-from Simulator.Environment.Environment import Environment
+from Simulator import BiddingStrategy, PathAgent, Environment
 
 
 class FCFSPathBiddingStrategy(BiddingStrategy):
@@ -14,8 +12,8 @@ class FCFSPathBiddingStrategy(BiddingStrategy):
     meta = []
     allocation_type = AgentType.PATH.value
 
-    def generate_bid(self, agent: PathAgent, _environment: Environment, _time_step: int) -> FCFSPathBid:
-        return FCFSPathBid(agent)
+    def generate_bid(self, agent: "PathAgent", _environment: "Environment", _time_step: int) -> "FCFSPathBid":
+        return FCFSPathBid(agent, agent.locations, agent.stays, agent.battery)
 
     @staticmethod
     def compatible_value_functions():
