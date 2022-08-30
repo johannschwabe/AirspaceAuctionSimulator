@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Tuple
+from typing import Tuple, TYPE_CHECKING
 
-from Simulator.Coordinates.Coordinate4D import Coordinate4D
+if TYPE_CHECKING:
+    from ..Coordinates.Coordinate4D import Coordinate4D
 
 
 class Segment(ABC):
