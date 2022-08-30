@@ -8,6 +8,9 @@ if TYPE_CHECKING:
 
 
 class PriorityPathValueFunction(ValueFunction):
+    label = "PrioPath"
+    description = "Magic"
+
     def __init__(self):
         super().__init__(None)
 

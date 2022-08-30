@@ -1,7 +1,9 @@
 import random
 from typing import Optional
 
+from Demos.FCFS.ValueFunction.FCFSPathValueFunction import FCFSPathValueFunction
 from Demos.Priority.Bids.PriorityPathBid import PriorityPathBid
+from Demos.Priority.ValueFunction.PriorityPathValueFunction import PriorityPathValueFunction
 from Simulator.Agents.AgentType import AgentType
 from Simulator.Agents.PathAgent import PathAgent
 from Simulator.Bids.BiddingStrategy import BiddingStrategy
@@ -52,3 +54,7 @@ class PriorityPathBiddingStrategy(BiddingStrategy):
             stays = agent.stays[index:] if index < len(agent.stays) else []
 
         return PriorityPathBid(agent, locations, stays, battery, agent.config["priority"], flying)
+
+    @staticmethod
+    def compatible_value_functions():
+        return [PriorityPathValueFunction, FCFSPathValueFunction]

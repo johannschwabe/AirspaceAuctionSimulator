@@ -8,6 +8,9 @@ if TYPE_CHECKING:
 
 
 class ValueFunction(ABC):
+    label: str = "Abstract Value Function"
+    description: str = "The description for a concrete value function"
+
     def __init__(self, config):
         self.config = config
 

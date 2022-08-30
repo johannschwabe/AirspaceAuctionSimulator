@@ -8,7 +8,6 @@ from Simulator.Owners.PathOwner import PathOwner
 from Simulator.Owners.SpaceOwner import SpaceOwner
 from .EnvironmentGen import EnvironmentGen
 from ..Area import Area
-from ..config import available_value_functions
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
@@ -70,11 +69,12 @@ class Generator:
                 raise Exception(f"{len(bidding_strategy)} bidding strategies found")
             selected_bidding_strategy = bidding_strategy[0]()
 
-            value_functions = [vf for vf in available_value_functions if
+            print(apiOwner.valueFunction)
+            value_functions = [vf for vf in selected_bidding_strategy.compatible_value_functions() if
                                vf.__name__ == apiOwner.valueFunction]
             if len(value_functions) != 1:
                 raise Exception(f"{len(value_functions)} bidding strategies found")
-            selected_value_functions = value_functions[0]()
+            selected_value_functions = value_functions[0]({})
 
             if apiOwner.biddingStrategy.allocationType == "space":
                 dim_x = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if

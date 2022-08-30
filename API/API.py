@@ -16,7 +16,7 @@ from Simulator import Coordinate4D, build_json
 from .Area import Area
 from .Generator.Generator import Generator
 from .Generator.MapTile import MapTile
-from .config import available_allocators, available_value_functions
+from .config import available_allocators
 
 app = FastAPI()
 
@@ -103,12 +103,24 @@ def get_allocators():
     return [_allocator.__name__ for _allocator in available_allocators]
 
 
-@app.get("/valueFunctions")
-def get_value_functions():
-    return [vf.__name__ for vf in available_value_functions]
+@app.get("/valueFunctions/{allocator}/{bidding_strategy}")
+def get_value_functions(allocator, bidding_strategy):
+    allocators = list(filter(lambda x: (x.__name__ == allocator), available_allocators))
+    if len(allocators) != 1:
+        return []
+    selected_allocator = allocators[0]
+    bidding_strategies = list(
+        filter(lambda x: (x.__name__ == bidding_strategy), selected_allocator.compatible_bidding_strategies()))
+    if len(bidding_strategies) != 1:
+        return []
+    selected_bidding_strategy = bidding_strategies[0]
+    return [{"classname": value_function.__name__,
+             "label": value_function.label,
+             "description": value_function.description} for value_function in
+            selected_bidding_strategy.compatible_value_functions()]
 
 
-@app.get("/compatible/{allocator}")
+@app.get("/biddingStrategies/{allocator}")
 def get_strategies_for_allocator(allocator):
     print(available_allocators[0])
     allocators = list(filter(lambda x: (x.__name__ == allocator), available_allocators))

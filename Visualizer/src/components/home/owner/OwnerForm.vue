@@ -11,16 +11,13 @@
     @update:value="updateLocationsForOwner"
   />
   <!-- Dropdown selection for owner type -->
-  <n-select
-    v-model:value="owner.valueFunction"
-    :options="simulationConfig.availableValueFunctionsOptions"
-    placeholder="Type"
-  />
+  <n-select v-model:value="owner.valueFunction" :options="compatibleValueFunctions" placeholder="Type" />
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref, watch, watchEffect } from "vue";
 import { useSimulationConfigStore } from "../../../stores/simulationConfig.js";
+import { getSupportedValueFunctions } from "../../../API/api";
 
 const props = defineProps({
   ownerIndex: {
@@ -32,7 +29,7 @@ const props = defineProps({
 const simulationConfig = useSimulationConfigStore();
 
 const owner = computed(() => simulationConfig.owners[props.ownerIndex]);
-
+loadCompatibleValueFunctions();
 /**
  * Whenever the selected ownerType changes, make sure the requirements for minimum
  * and maximum number of locations are met
@@ -48,6 +45,19 @@ const updateLocationsForOwner = () => {
   //   owner.value.locations.push(simulationConfig.randomLocation());
   // }
 };
+const compatibleValueFunctions = ref([]);
+watch(
+  () => owner.value.biddingStrategy.classname,
+  () => {
+    loadCompatibleValueFunctions();
+  }
+);
+function loadCompatibleValueFunctions() {
+  getSupportedValueFunctions(simulationConfig.allocator, owner.value.biddingStrategy.classname).then((res) => {
+    compatibleValueFunctions.value = res.map((a) => ({ label: a["label"], value: a["classname"] }));
+    owner.value.valueFunction = compatibleValueFunctions.value[0].value;
+  });
+}
 </script>
 
 <style scoped></style>

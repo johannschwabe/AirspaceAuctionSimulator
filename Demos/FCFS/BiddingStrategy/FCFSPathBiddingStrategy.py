@@ -1,4 +1,5 @@
 from Demos.FCFS.Bids.FCFSPathBid import FCFSPathBid
+from Demos.FCFS.ValueFunction.FCFSPathValueFunction import FCFSPathValueFunction
 from Simulator.Agents.AgentType import AgentType
 from Simulator.Agents.PathAgent import PathAgent
 from Simulator.Bids.BiddingStrategy import BiddingStrategy
@@ -15,3 +16,7 @@ class FCFSPathBiddingStrategy(BiddingStrategy):
 
     def generate_bid(self, agent: PathAgent, _environment: Environment, _time_step: int) -> FCFSPathBid:
         return FCFSPathBid(agent)
+
+    @staticmethod
+    def compatible_value_functions():
+        return [FCFSPathValueFunction]

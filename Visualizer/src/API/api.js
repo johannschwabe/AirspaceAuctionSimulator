@@ -73,11 +73,11 @@ export async function postSimulation(simulationConfig) {
 
 /**
  * Get all registered value functions from the backend
- * @returns {Promise<string[]>} - Names of allocators
+ * @returns {Promise<Object[]>} - Names of allocators
  */
-export async function getSupportedValueFunctions() {
+export async function getSupportedValueFunctions(allocator, bidding_strategy) {
   try {
-    const { data } = await apiServer.get("/valueFunctions");
+    const { data } = await apiServer.get(`/valueFunctions/${allocator}/${bidding_strategy}`);
     return data;
   } catch (e) {
     const details = apiPostErrorToString(e);
@@ -105,7 +105,7 @@ export async function getSupportedAllocators() {
  */
 export async function getBiddingStrategiesSupportedByAllocator(allocator) {
   try {
-    const { data } = await apiServer.get(`/compatible/${allocator}`);
+    const { data } = await apiServer.get(`/biddingStrategies/${allocator}`);
     return data;
   } catch (e) {
     const details = apiPostErrorToString(e);

@@ -153,7 +153,6 @@ import { useSimulationConfigStore } from "@/stores/simulationConfig";
 
 const simulationConfig = useSimulationConfigStore();
 simulationConfig.loadAvailableAllocators();
-simulationConfig.loadAvailableValueFunctions();
 const message = useMessage();
 const loadingBar = useLoadingBar();
 const router = useRouter();

@@ -5,7 +5,6 @@ import {
   getBiddingStrategiesSupportedByAllocator,
   getPaymentRulesSupportedByAllocator,
   getSupportedAllocators,
-  getSupportedValueFunctions,
 } from "../API/api";
 import { randomColor } from "../scripts/color";
 import { randomName } from "../scripts/names";
@@ -107,7 +106,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
    * @type {UnwrapNestedRefs<string[]>}
    */
   const availableAllocators = reactive([]);
-  const availableValueFunctions = reactive([]);
 
   /**
    * Loads available allocators from the backend API
@@ -120,29 +118,11 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
   };
 
   /**
-   * Loads available allocators from the backend API
-   */
-  const loadAvailableValueFunctions = () => {
-    getSupportedValueFunctions().then((valueFunctionNames) => {
-      availableValueFunctions.splice(0);
-      valueFunctionNames.forEach((allocatorName) => availableValueFunctions.push(allocatorName));
-    });
-  };
-
-  /**
    * List of available allocators, but computed in a format that is supported by the naive-ui selector
    * @type {ComputedRef<{label: string, value: string}>}
    */
   const availableAllocatorsOptions = computed(() => {
     return availableAllocators.map((a) => ({ label: a, value: a }));
-  });
-
-  /**
-   * List of available value functions, but computed in a format that is supported by the naive-ui selector
-   * @type {ComputedRef<{label: string, value: string}>}
-   */
-  const availableValueFunctionsOptions = computed(() => {
-    return availableValueFunctions.map((a) => ({ label: a, value: a }));
   });
 
   const path_meta = [
@@ -283,7 +263,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
    */
   const generateOwner = () => {
     const biddingStrategyTemplate = availableBiddingStrategiesForAllocator[0];
-    console.log(availableValueFunctions[0]);
     const locations = generateLocationsForOwner(biddingStrategyTemplate);
     return {
       color: randomColor(),
@@ -346,8 +325,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     map,
     owners,
     availableAllocators,
-    availableValueFunctions,
-    availableValueFunctionsOptions,
     availableAllocatorsOptions,
     availableBiddingStrategiesForAllocator,
     availablePaymentRulesOptions,
@@ -357,7 +334,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     generateConfigJson,
     overwrite,
     loadAvailableAllocators,
-    loadAvailableValueFunctions,
     setMapSubTile,
     paymentRule,
     availableBiddingStrategiesOptions,
