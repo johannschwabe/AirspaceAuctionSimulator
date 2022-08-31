@@ -1,14 +1,14 @@
 import random
 from typing import Optional, TYPE_CHECKING
 
-from Simulator import BiddingStrategy
 from Simulator.Agents.AgentType import AgentType
-from ..Bids.PriorityPathBid import PriorityPathBid
 from ..ValueFunction.PriorityPathValueFunction import PriorityPathValueFunction
 from ...FCFS.ValueFunction.FCFSPathValueFunction import FCFSPathValueFunction
 
 if TYPE_CHECKING:
     from Simulator import PathAgent, Environment
+from Simulator import BiddingStrategy, PathAgent, Environment
+from ..Bids.PriorityPathBid import PriorityPathBid
 
 
 class PriorityPathBiddingStrategy(BiddingStrategy):

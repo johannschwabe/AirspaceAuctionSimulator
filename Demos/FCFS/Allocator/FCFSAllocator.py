@@ -1,23 +1,18 @@
 from time import time_ns
 from typing import List
 
-from Demos.FCFS.BidTracker.FCFSBidTracker import FCFSBidTracker
-from Demos.FCFS.BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
-from Demos.FCFS.BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
-from Demos.FCFS.Bids.FCFSPathBid import FCFSPathBid
-from Demos.FCFS.Bids.FCFSSpaceBid import FCFSSpaceBid
-from Demos.FCFS.PaymentRule.FCFSPaymentRule import FCFSPaymentRule
-from Simulator import \
-    Allocator, \
-    AStar, \
-    PathSegment, \
-    SpaceSegment, \
-    Allocation, \
-    AllocationReason
-from Simulator.Agents.Agent import Agent
-from Simulator.Allocations.AllocationStatistics import AllocationStatistics
+from ..BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
+from ..BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
+
+from ..PaymentRule.FCFSPaymentRule import FCFSPaymentRule
+
 from Simulator.BidTracker.BidTracker import BidTracker
-from Simulator.Environment.Environment import Environment
+from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, Environment, \
+    AllocationStatistics, Agent
+from ..BidTracker.FCFSBidTracker import FCFSBidTracker
+from ..Bids.FCFSPathBid import FCFSPathBid
+from ..Bids.FCFSSpaceBid import FCFSSpaceBid
+
 
 
 class FCFSAllocator(Allocator):

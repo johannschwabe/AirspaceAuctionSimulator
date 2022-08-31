@@ -8,7 +8,8 @@ from Simulator.Owners.PathOwner import PathOwner
 from Simulator.Owners.SpaceOwner import SpaceOwner
 from Demos.FCFS import FCFSAllocator, FCFSPaymentRule
 from Demos.Priority import PriorityAllocator, PriorityPaymentRule
-from Simulator import GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism
+from Simulator import GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism, \
+    Coordinate4D
 from .EnvironmentGen import EnvironmentGen
 
 if TYPE_CHECKING:

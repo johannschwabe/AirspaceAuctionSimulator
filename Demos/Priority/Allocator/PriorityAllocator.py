@@ -1,6 +1,7 @@
 from time import time_ns
 from typing import List, TYPE_CHECKING
 
+from Simulator import Environment
 from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation, \
     AllocationStatistics, AStar
 from ..BidTracker.PriorityBidTracker import PriorityBidTracker

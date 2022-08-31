@@ -1,14 +1,14 @@
 import random
 from typing import TYPE_CHECKING
 
-from Simulator import BiddingStrategy
 from Simulator.Agents.AgentType import AgentType
-from ..Bids.PrioritySpaceBid import PrioritySpaceBid
 from ..ValueFunction.PrioritySpaceValueFunction import PrioritySpaceValueFunction
 from ...FCFS.ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction
 
 if TYPE_CHECKING:
     from Simulator import SpaceAgent, Environment
+from Simulator import BiddingStrategy, SpaceAgent, Environment
+from ..Bids.PrioritySpaceBid import PrioritySpaceBid
 
 
 class PrioritySpaceBiddingStrategy(BiddingStrategy):

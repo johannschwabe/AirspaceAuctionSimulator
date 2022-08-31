@@ -9,6 +9,8 @@ from .Agents.SpaceAgent import SpaceAgent
 from .Allocations.Allocation import Allocation
 from .Allocations.AllocationReason import AllocationReason
 from .Allocations.AllocationStatistics import AllocationStatistics
+# BidTracker
+from .BidTracker.BidTracker import BidTracker
 # Bids
 from .Bids.Bid import Bid
 from .Bids.BiddingStrategy import BiddingStrategy

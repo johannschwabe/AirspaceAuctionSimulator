@@ -1,8 +1,7 @@
 from typing import List, TYPE_CHECKING
 
-from Demos.FCFS.BidTracker.FCFSBidTracker import FCFSBidTracker
-from Simulator.Allocations.Allocation import Allocation
-from Simulator.Mechanism.PaymentRule import PaymentRule
+from Simulator import PaymentRule, Allocation
+from ..BidTracker.FCFSBidTracker import FCFSBidTracker
 
 if TYPE_CHECKING:
     from Simulator.Allocations.Allocation import Allocation
