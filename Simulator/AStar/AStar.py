@@ -146,6 +146,11 @@ class AStar:
         if self.environment.is_blocked(position, agent):
             return False, None
 
+        my_bid = self.bid_tracker.get_last_bid_for_tick(self.tick, agent, self.environment)
+
+        if my_bid is None:
+            return False, None
+
         colliding_agents = set()
 
         if position.t == self.tick:
@@ -155,15 +160,15 @@ class AStar:
             return False, None
 
         agent_hashes = self.environment.intersect(position, agent.near_radius, agent.speed)
-        my_bid = self.bid_tracker.get_last_bid_for_tick(self.tick, agent, self.environment)
-
-        if my_bid is None:
-            return False, None
 
         for agent_hash in agent_hashes:
             if agent_hash == hash(agent):
                 continue
             colliding_agent = self.environment.agents[agent_hash]
+            if isinstance(colliding_agent, PathAgent):
+                distance = position.inter_temporal_distance(colliding_agent.get_position_at_tick(position.t))
+                if distance > max(agent.near_radius, colliding_agent.near_radius):
+                    continue
             other_bid = self.bid_tracker.get_last_bid_for_tick(self.tick, colliding_agent, self.environment)
             if other_bid is None or my_bid > other_bid:
                 colliding_agents.add(colliding_agent)

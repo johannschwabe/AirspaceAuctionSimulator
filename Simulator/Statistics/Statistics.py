@@ -2,6 +2,7 @@ import statistics
 from typing import TYPE_CHECKING, List, Dict, Optional
 
 from ..Agents.PathAgent import PathAgent
+from ..Agents.SpaceAgent import SpaceAgent
 from ..Coordinates.Coordinate2D import Coordinate2D
 from ..Coordinates.Coordinate3D import Coordinate3D
 from ..Owners.Owner import Owner
@@ -17,7 +18,7 @@ class Statistics:
     """
     Statistics class that generates statistics for a simulation.
     """
-
+    # Path Statistics
     L1_DISTANCE = "l1_distance"
     L2_DISTANCE = "l2_distance"
     L1_GROUND_DISTANCE = "l1_ground_distance"
@@ -34,6 +35,16 @@ class Statistics:
     MEDIAN_HEIGHT = "median_height"
     DELTAS = "deltas"
     HEIGHTS = "heights"
+
+    # Path Encounters
+    ENCOUNTERS = "encounters"
+    INCOMING_VIOLATIONS = "incoming_violations"
+    OUTGOING_VIOLATIONS = "outgoing_violations"
+    SPACE_VIOLATIONS = "space_violations"
+    TOTAL_ENCOUNTERS = "total_encounters"
+    TOTAL_INCOMING_VIOLATIONS = "total_incoming_violations"
+    TOTAL_OUTGOING_VIOLATIONS = "total_outgoing_violations"
+    TOTAL_SPACE_VIOLATIONS = "total_space_violations"
 
     def __init__(self, sim: "Simulator"):
         """
@@ -132,26 +143,26 @@ class Statistics:
         l2_distance_traveled: int = 0
         l1_ground_distance_traveled: int = 0
         l2_ground_distance_traveled: int = 0
-        previous_coord: Optional["Coordinate4D"] = None
-        for coord in path_segment.coordinates:
-            if previous_coord is not None:
+        previous_coordinate: Optional["Coordinate4D"] = None
+        for coordinate in path_segment.coordinates:
+            if previous_coordinate is not None:
                 # height
-                delta_y = coord.y - previous_coord.y
+                delta_y = coordinate.y - previous_coordinate.y
                 if delta_y > 0:
                     ascent += delta_y
                 elif delta_y < 0:
                     descent += abs(delta_y)
                 # distance
-                delta = previous_coord - coord
+                delta = previous_coordinate - coordinate
                 deltas.append(delta)
                 l1_distance_traveled += delta.l1
                 l2_distance_traveled += delta.l2
-                l1_ground_distance_traveled += Coordinate2D.distance(previous_coord, coord)
-                l2_ground_distance_traveled += Coordinate2D.distance(previous_coord, coord, l2=True)
+                l1_ground_distance_traveled += Coordinate2D.distance(previous_coordinate, coordinate)
+                l2_ground_distance_traveled += Coordinate2D.distance(previous_coordinate, coordinate, l2=True)
             # heights
-            heights.append(coord.y)
+            heights.append(coordinate.y)
             # update previous for loop
-            previous_coord = coord
+            previous_coordinate = coordinate
 
         mean_height: float = statistics.mean(heights)
         median_height: int = statistics.median(heights)
@@ -229,103 +240,102 @@ class Statistics:
             Statistics.HEIGHTS: heights,
         }
 
-    def close_encounters(self):
+    def path_segment_encounters(self, path_agent: "PathAgent", path_segment: "PathSegment"):
         """
-        Detect all close encounters.
+        Tracks all encounters and violation for the given path-segment.
+        :param path_agent:
+        :param path_segment:
         :return:
         """
-        res = {}
-        near_radi = [_agent.near_radius for _agent in self.sim.environment.agents.values() if
-                     isinstance(_agent, PathAgent)]
-        near_radi.append(0)
-        max_near_radi = max(near_radi)
+        encounters: Dict["Coordinate4D", List["PathAgent"]] = {}
+        incoming_violations: Dict["Coordinate4D", List["PathAgent"]] = {}
+        outgoing_violations: Dict["Coordinate4D", List["PathAgent"]] = {}
+        space_violations: Dict["Coordinate4D", List["SpaceAgent"]] = {}
+        total_encounters: int = 0
+        total_incoming_violations: int = 0
+        total_outgoing_violations: int = 0
+        total_space_violations: int = 0
 
-        for agent in self.sim.environment.agents.values():
-            res[agent.id] = {
-                "near_field_violations": {},
-                "near_field_intersection": {},
-                "total_near_field_violations": 0,
-                "total_near_field_intersection": 0,
-            }
-            for segment in agent.allocated_segments:
-                if isinstance(segment, PathSegment) and isinstance(agent, PathAgent):
-                    for step in segment.coordinates[::agent.speed]:
-                        res[agent.id]["near_field_violations"][step.t] = self.violations(step, agent,
-                                                                                         agent.near_radius)
-                        near_intersections = \
-                            self.intersections(step, agent, max_near_radi)
-                        res[agent.id]["near_field_intersection"][step.t] = near_intersections
-                        res[agent.id]["total_near_field_violations"] += \
-                            res[agent.id]["near_field_violations"][step.t]
-                        res[agent.id]["total_near_field_intersection"] += \
-                            res[agent.id]["near_field_intersection"][
-                                step.t]
-        return res
+        for coordinate in path_segment.coordinates:
+            encountered_agents_hashes = self.sim.environment.intersect(coordinate, self.sim.environment.max_near_radius)
+            for encountered_agent_hash in encountered_agents_hashes:
+                encountered_agent = self.sim.environment.agents[encountered_agent_hash]
 
-    def violations(self, position: "Coordinate4D", agent: "PathAgent", radi: int):
+                if isinstance(encountered_agent, PathAgent):
+                    encountered_agent_position = encountered_agent.get_position_at_tick(coordinate.t)
+                    distance = coordinate.inter_temporal_distance(encountered_agent_position)
+                    if distance <= path_agent.near_radius + encountered_agent.near_radius:
+                        # add agent to encounters
+                        if coordinate not in encounters:
+                            encounters[coordinate] = []
+                        encounters[coordinate].append(encountered_agent)
+                        total_encounters += 1
+
+                        if distance <= path_agent.near_radius:
+                            # add agent to incoming violations
+                            if coordinate not in incoming_violations:
+                                incoming_violations[coordinate] = []
+                            incoming_violations[coordinate].append(encountered_agent)
+                            total_incoming_violations += 1
+
+                        if distance <= encountered_agent.near_radius:
+                            # add agent to outgoing violations
+                            if coordinate not in outgoing_violations:
+                                outgoing_violations[coordinate] = []
+                            outgoing_violations[coordinate].append(encountered_agent)
+                            total_outgoing_violations += 1
+
+                elif isinstance(encountered_agent, SpaceAgent):
+                    # add agent to space violations
+                    if coordinate not in space_violations:
+                        space_violations[coordinate] = []
+                    space_violations[coordinate].append(encountered_agent)
+                    total_space_violations += 1
+
+        return {
+            Statistics.ENCOUNTERS: encounters,
+            Statistics.INCOMING_VIOLATIONS: incoming_violations,
+            Statistics.OUTGOING_VIOLATIONS: outgoing_violations,
+            Statistics.SPACE_VIOLATIONS: space_violations,
+            Statistics.TOTAL_ENCOUNTERS: total_encounters,
+            Statistics.TOTAL_INCOMING_VIOLATIONS: total_incoming_violations,
+            Statistics.TOTAL_OUTGOING_VIOLATIONS: total_outgoing_violations,
+            Statistics.TOTAL_SPACE_VIOLATIONS: total_space_violations,
+        }
+
+    def path_agent_encounters(self, path_agent: "PathAgent"):
         """
-        Detect all violations.
-        :param position:
-        :param agent:
-        :param radi:
+        Tracks all encounters and violation for the given path-agent.
+        :param path_agent:
         :return:
         """
-        box = [position.x - radi,
-               position.y - radi,
-               position.z - radi,
-               position.t,
-               position.x + radi,
-               position.y + radi,
-               position.z + radi,
-               position.t + agent.speed - 1]
-        collisions = self.sim.environment.tree.intersection(box, objects=True)
-        real_collisions = filter(lambda col: col.id != agent.id, collisions)
-        count = 0
-        for real_collision in real_collisions:
-            start = max(real_collision.bbox[3], position.t)
-            end = min(real_collision.bbox[7], position.t + agent.speed - 1)
-            count += int(end) - int(start) + 1
-        return count
+        encounters: Dict["Coordinate4D", List["PathAgent"]] = {}
+        incoming_violations: Dict["Coordinate4D", List["PathAgent"]] = {}
+        outgoing_violations: Dict["Coordinate4D", List["PathAgent"]] = {}
+        space_violations: Dict["Coordinate4D", List["SpaceAgent"]] = {}
+        total_encounters: int = 0
+        total_incoming_violations: int = 0
+        total_outgoing_violations: int = 0
+        total_space_violations: int = 0
 
-    def intersections(self, position: "Coordinate4D", agent: "Agent", max_near_radi):
-        """
-        Detect all intersections.
-        :param position:
-        :param agent:
-        :param max_near_radi:
-        :return:
-        """
-        near_intersections = 0
-        real_agent: "Agent" = self.sim.environment.agents[hash(agent)]
-        if isinstance(real_agent, PathAgent):
-            box = [position.x - max_near_radi,
-                   position.y - max_near_radi,
-                   position.z - max_near_radi,
-                   position.t,
-                   position.x + max_near_radi,
-                   position.y + max_near_radi,
-                   position.z + max_near_radi,
-                   position.t + real_agent.speed]
-            collisions = self.sim.environment.tree.intersection(box, objects=True)
-            real_collisions = filter(lambda col: col.id != hash(agent), collisions)
+        for path_segment in path_agent.allocated_segments:
+            path_segment_encounters = self.path_segment_encounters(path_agent, path_segment)
+            encounters.update(path_segment_encounters[Statistics.ENCOUNTERS])
+            incoming_violations.update(path_segment_encounters[Statistics.INCOMING_VIOLATIONS])
+            outgoing_violations.update(path_segment_encounters[Statistics.OUTGOING_VIOLATIONS])
+            space_violations.update(path_segment_encounters[Statistics.SPACE_VIOLATIONS])
+            total_encounters += path_segment_encounters[Statistics.TOTAL_ENCOUNTERS]
+            total_incoming_violations += path_segment_encounters[Statistics.TOTAL_INCOMING_VIOLATIONS]
+            total_outgoing_violations += path_segment_encounters[Statistics.TOTAL_OUTGOING_VIOLATIONS]
+            total_space_violations += path_segment_encounters[Statistics.TOTAL_SPACE_VIOLATIONS]
 
-            for collision in real_collisions:
-                colliding_agent = self.sim.environment.agents[collision.id]
-                distance_x = abs(collision.bbox[0] - position.x)
-                distance_y = abs(collision.bbox[1] - position.y)
-                distance_z = abs(collision.bbox[2] - position.z)
-                col_start = max(collision.bbox[3], position.t)
-                col_end = min(collision.bbox[7], position.t + real_agent.speed)
-                col_time = int(col_end) - int(col_start) + 1
-
-                max_near_distance = real_agent.near_radius
-
-                if isinstance(colliding_agent, PathAgent):
-                    max_near_distance += colliding_agent.near_radius
-
-                if distance_x <= max_near_distance and \
-                    distance_y <= max_near_distance and \
-                    distance_z <= max_near_distance:
-                    near_intersections += col_time
-
-        return near_intersections
+        return {
+            Statistics.ENCOUNTERS: encounters,
+            Statistics.INCOMING_VIOLATIONS: incoming_violations,
+            Statistics.OUTGOING_VIOLATIONS: outgoing_violations,
+            Statistics.SPACE_VIOLATIONS: space_violations,
+            Statistics.TOTAL_ENCOUNTERS: total_encounters,
+            Statistics.TOTAL_INCOMING_VIOLATIONS: total_incoming_violations,
+            Statistics.TOTAL_OUTGOING_VIOLATIONS: total_outgoing_violations,
+            Statistics.TOTAL_SPACE_VIOLATIONS: total_space_violations,
+        }
