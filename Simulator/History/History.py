@@ -32,7 +32,7 @@ class History:
         :return:
         """
         self.compute_times[time_step] = compute_time
-        for agent, allocation in new_allocations:
+        for agent, allocation in new_allocations.items():
             if agent not in self.allocations:
                 self.registrations[agent] = time_step
                 self.allocations[agent] = {}

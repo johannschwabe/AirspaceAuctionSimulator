@@ -3,11 +3,11 @@ import math
 from typing import List, TYPE_CHECKING, Set, Tuple
 
 from .Node import Node
+from ..Agents.PathAgent import PathAgent
 
 if TYPE_CHECKING:
     from ..Environment.Environment import Environment
     from ..Coordinates.Coordinate4D import Coordinate4D
-    from ..Agents.PathAgent import PathAgent
     from ..Agents.Agent import Agent
     from ..BidTracker.BidTracker import BidTracker
 
