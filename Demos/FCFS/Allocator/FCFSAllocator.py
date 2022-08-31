@@ -1,9 +1,13 @@
 from time import time_ns
 from typing import List
 
-from Demos.FCFS import FCFSBidTracker, FCFSPathOwner, FCFSSpaceOwner, FCFSPathBid, FCFSSpaceBid
 from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, Environment, \
     AllocationStatistics, Agent
+from ..BidTracker.FCFSBidTracker import FCFSBidTracker
+from ..Bids.FCFSPathBid import FCFSPathBid
+from ..Bids.FCFSSpaceBid import FCFSSpaceBid
+from ..Owners.FCFSPathOwner import FCFSPathOwner
+from ..Owners.FCFSSpaceOwner import FCFSSpaceOwner
 
 
 class FCFSAllocator(Allocator):

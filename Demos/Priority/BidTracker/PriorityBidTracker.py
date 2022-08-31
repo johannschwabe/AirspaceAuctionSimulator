@@ -1,18 +1,15 @@
 from typing import Dict, List, Optional
 
-from Simulator.Agents.Agent import Agent
-from Simulator.BidTracker.BidTracker import BidTracker
-from Simulator.Bids.Bid import Bid
-from Simulator.Environment.Environment import Environment
+from Simulator import BidTracker, Agent, Bid, Environment
 
 
 class PriorityBidTracker(BidTracker):
     def __init__(self):
         super().__init__()
-        self.past_bids: Dict[int, Dict[Agent, List[Bid]]] = {}
-        self.max_bids: Dict[Agent, float] = {}
+        self.past_bids: Dict[int, Dict["Agent", List["Bid"]]] = {}
+        self.max_bids: Dict["Agent", float] = {}
 
-    def request_new_bid(self, tick: int, agent: Agent, environment: Environment) -> Optional[Bid]:
+    def request_new_bid(self, tick: int, agent: "Agent", environment: "Environment") -> Optional["Bid"]:
         if tick not in self.past_bids:
             self.past_bids[tick] = {}
         if agent not in self.past_bids[tick]:
@@ -24,7 +21,7 @@ class PriorityBidTracker(BidTracker):
         self.past_bids[tick][agent].append(new_bid)
         return new_bid
 
-    def get_last_bid_for_tick(self, tick: int, agent: Agent, environment: Environment) -> Optional[Bid]:
+    def get_last_bid_for_tick(self, tick: int, agent: "Agent", environment: "Environment") -> Optional["Bid"]:
         if tick not in self.past_bids:
             self.past_bids[tick] = {}
         if agent not in self.past_bids[tick]:
@@ -34,5 +31,5 @@ class PriorityBidTracker(BidTracker):
                 self.max_bids[agent] = new_bid.priority
         return self.past_bids[tick][agent][-1]
 
-    def max_prio(self, agent: Agent) -> float:
+    def max_prio(self, agent: "Agent") -> float:
         return self.max_bids[agent]

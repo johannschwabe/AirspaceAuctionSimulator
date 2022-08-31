@@ -1,5 +1,5 @@
-from Demos.FCFS import FCFSSpaceBid
 from Simulator import BiddingStrategy, SpaceAgent, Environment
+from ..Bids.FCFSSpaceBid import FCFSSpaceBid
 
 
 class FCFSSpaceBiddingStrategy(BiddingStrategy):
