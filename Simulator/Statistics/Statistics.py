@@ -1,7 +1,9 @@
 import statistics
-from typing import TYPE_CHECKING, List, Dict
+from typing import TYPE_CHECKING, List, Dict, Optional
 
 from ..Agents.PathAgent import PathAgent
+from ..Coordinates.Coordinate2D import Coordinate2D
+from ..Coordinates.Coordinate3D import Coordinate3D
 from ..Owners.Owner import Owner
 from ..Segments.PathSegment import PathSegment
 
@@ -15,6 +17,23 @@ class Statistics:
     """
     Statistics class that generates statistics for a simulation.
     """
+
+    L1_DISTANCE = "l1_distance"
+    L2_DISTANCE = "l2_distance"
+    L1_GROUND_DISTANCE = "l1_ground_distance"
+    L2_GROUND_DISTANCE = "l2_ground_distance"
+    HEIGHT_DIFFERENCE = "height_difference"
+    TIME_DIFFERENCE = "time_difference"
+    ASCENT = "ascent"
+    DESCENT = "descent"
+    L1_DISTANCE_TRAVELED = "l1_distance_traveled"
+    L2_DISTANCE_TRAVELED = "l2_distance_traveled"
+    L1_GROUND_DISTANCE_TRAVELED = "l1_ground_distance_traveled"
+    L2_GROUND_DISTANCE_TRAVELED = "l2_ground_distance_traveled"
+    MEAN_HEIGHT = "mean_height"
+    MEDIAN_HEIGHT = "median_height"
+    DELTAS = "deltas"
+    HEIGHTS = "heights"
 
     def __init__(self, sim: "Simulator"):
         """
@@ -50,14 +69,35 @@ class Statistics:
             self.values[agent] = agent.get_allocated_value()
         return self.values[agent]
 
+    def get_total_non_colliding_value(self):
+        """
+        Calculate the value for the allocations of all agents on an empty map summed up.
+        :return:
+        """
+        total_value = 0
+        for agent in self.sim.environment.agents.values():
+            total_value += self.get_non_colliding_value_for_agent(agent)
+        return total_value
+
     def get_total_value(self):
         """
-        Calculate the value for the allocations of all agents summed up
+        Calculate the value for the allocations of all agents summed up.
         :return:
         """
         total_value = 0
         for agent in self.sim.environment.agents.values():
             total_value += self.get_value_for_agent(agent)
+        return total_value
+
+    def get_total_non_colliding_value_for_owner(self, owner: "Owner"):
+        """
+        Calculate the value for the allocations of all agents of an owner on an empty map summed up.
+        :param owner:
+        :return:
+        """
+        total_value = 0
+        for agent in owner.agents:
+            total_value += self.get_non_colliding_value_for_agent(agent)
         return total_value
 
     def get_total_value_for_owner(self, owner: "Owner"):
@@ -71,51 +111,122 @@ class Statistics:
             total_value += self.get_value_for_agent(agent)
         return total_value
 
-    def average_owners_welfare(self):
+    @staticmethod
+    def path_segment_statistics(path_segment: "PathSegment"):
         """
-        Calculate the average value for owners.
+        Create statistics for a path-segment.
+        :param path_segment:
         :return:
         """
-        summed_welfare = 0
-        for owner in self.sim.owners:
-            summed_welfare += Statistics.get_total_value_for_owner(owner)
-        print(f"AOW: {summed_welfare / len(self.sim.owners)}")
-        return summed_welfare / len(self.sim.owners)
+        l1_distance: int = int(path_segment.min.inter_temporal_distance(path_segment.max))
+        l2_distance: float = path_segment.min.inter_temporal_distance(path_segment.max, l2=True)
+        l1_ground_distance: int = int(Coordinate2D.distance(path_segment.min, path_segment.max))
+        l2_ground_distance: float = Coordinate2D.distance(path_segment.min, path_segment.max, l2=True)
+        height_difference: int = path_segment.max.y - path_segment.min.y
+        time_difference: int = path_segment.max.t - path_segment.min.t
+        heights: List[int] = []
+        deltas: List["Coordinate3D"] = []
+        ascent: int = 0
+        descent: int = 0
+        l1_distance_traveled: int = 0
+        l2_distance_traveled: int = 0
+        l1_ground_distance_traveled: int = 0
+        l2_ground_distance_traveled: int = 0
+        previous_coord: Optional["Coordinate4D"] = None
+        for coord in path_segment.coordinates:
+            if previous_coord is not None:
+                # height
+                delta_y = coord.y - previous_coord.y
+                if delta_y > 0:
+                    ascent += delta_y
+                elif delta_y < 0:
+                    descent += abs(delta_y)
+                # distance
+                delta = previous_coord - coord
+                deltas.append(delta)
+                l1_distance_traveled += delta.l1
+                l2_distance_traveled += delta.l2
+                l1_ground_distance_traveled += Coordinate2D.distance(previous_coord, coord)
+                l2_ground_distance_traveled += Coordinate2D.distance(previous_coord, coord, l2=True)
+            # heights
+            heights.append(coord.y)
+            # update previous for loop
+            previous_coord = coord
+
+        mean_height: float = statistics.mean(heights)
+        median_height: int = statistics.median(heights)
+
+        return {
+            Statistics.L1_DISTANCE: l1_distance,
+            Statistics.L2_DISTANCE: l2_distance,
+            Statistics.L1_GROUND_DISTANCE: l1_ground_distance,
+            Statistics.L2_GROUND_DISTANCE: l2_ground_distance,
+            Statistics.HEIGHT_DIFFERENCE: height_difference,
+            Statistics.TIME_DIFFERENCE: time_difference,
+            Statistics.ASCENT: ascent,
+            Statistics.DESCENT: descent,
+            Statistics.L1_DISTANCE_TRAVELED: l1_distance_traveled,
+            Statistics.L2_DISTANCE_TRAVELED: l2_distance_traveled,
+            Statistics.L1_GROUND_DISTANCE_TRAVELED: l1_ground_distance_traveled,
+            Statistics.L2_GROUND_DISTANCE_TRAVELED: l2_ground_distance_traveled,
+            Statistics.MEAN_HEIGHT: mean_height,
+            Statistics.MEDIAN_HEIGHT: median_height,
+            Statistics.DELTAS: deltas,
+            Statistics.HEIGHTS: heights,
+        }
 
     @staticmethod
-    def path_statistics(path: List["Coordinate4D"]):
+    def path_statistics(path: List["PathSegment"]):
         """
-        Create statistics for a path (list of coordinates).
+        Create statistics for a path (list of path-segments).
         :param path:
         :return:
         """
-        ascended = 0
-        descended = 0
-        distance = 0
-        heights = []
-        median_height = -1
-        average_height = -1
-        if len(path) > 0:
-            last = path[0]
-            for coord in path:
-                if not coord.inter_temporal_equal(last):
-                    distance += abs(coord.x - last.x) + abs(coord.z - last.z)
-                    delta = coord.y - last.y
-                    if delta > 0:
-                        ascended += delta
-                    else:
-                        descended += delta
-                heights.append(coord.y)
-                last = coord
+        l1_distance: int = int(path[0].min.inter_temporal_distance(path[-1].max))
+        l2_distance: float = path[0].min.inter_temporal_distance(path[-1].max, l2=True)
+        l1_ground_distance: int = int(Coordinate2D.distance(path[0].min, path[-1].max))
+        l2_ground_distance: float = Coordinate2D.distance(path[0].min, path[-1].max, l2=True)
+        height_difference: int = path[-1].max.y - path[0].min.y
+        time_difference: int = path[-1].max.t - path[0].min.t
+        heights: List[int] = []
+        deltas: List["Coordinate3D"] = []
+        ascent: int = 0
+        descent: int = 0
+        l1_distance_traveled: int = 0
+        l2_distance_traveled: int = 0
+        l1_ground_distance_traveled: int = 0
+        l2_ground_distance_traveled: int = 0
+        for path_segment in path:
+            path_segment_statistics = Statistics.path_segment_statistics(path_segment)
+            heights.extend(path_segment_statistics[Statistics.HEIGHTS])
+            deltas.extend(path_segment_statistics[Statistics.DELTAS])
+            ascent += path_segment_statistics[Statistics.ASCENT]
+            descent += path_segment_statistics[Statistics.DESCENT]
+            l1_distance_traveled += path_segment_statistics[Statistics.L1_DISTANCE_TRAVELED]
+            l2_distance_traveled += path_segment_statistics[Statistics.L2_DISTANCE_TRAVELED]
+            l1_ground_distance_traveled += path_segment_statistics[Statistics.L1_GROUND_DISTANCE_TRAVELED]
+            l2_ground_distance_traveled += path_segment_statistics[Statistics.L2_GROUND_DISTANCE_TRAVELED]
 
-            median_height = statistics.median(heights)
-            average_height = statistics.mean(heights)
+        mean_height: float = statistics.mean(heights)
+        median_height: int = statistics.median(heights)
+
         return {
-            "asc": ascended,
-            "desc": descended,
-            "dist": distance,
-            "med_height": median_height,
-            "avg_height": average_height
+            Statistics.L1_DISTANCE: l1_distance,
+            Statistics.L2_DISTANCE: l2_distance,
+            Statistics.L1_GROUND_DISTANCE: l1_ground_distance,
+            Statistics.L2_GROUND_DISTANCE: l2_ground_distance,
+            Statistics.HEIGHT_DIFFERENCE: height_difference,
+            Statistics.TIME_DIFFERENCE: time_difference,
+            Statistics.ASCENT: ascent,
+            Statistics.DESCENT: descent,
+            Statistics.L1_DISTANCE_TRAVELED: l1_distance_traveled,
+            Statistics.L2_DISTANCE_TRAVELED: l2_distance_traveled,
+            Statistics.L1_GROUND_DISTANCE_TRAVELED: l1_ground_distance_traveled,
+            Statistics.L2_GROUND_DISTANCE_TRAVELED: l2_ground_distance_traveled,
+            Statistics.MEAN_HEIGHT: mean_height,
+            Statistics.MEDIAN_HEIGHT: median_height,
+            Statistics.DELTAS: deltas,
+            Statistics.HEIGHTS: heights,
         }
 
     def close_encounters(self):
