@@ -3,12 +3,13 @@ from typing import List, Optional, TYPE_CHECKING, Dict
 
 from Demos.FCFS import FCFSAllocator, FCFSPaymentRule
 from Demos.Priority import PriorityAllocator, PriorityPaymentRule
-from Simulator import GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism
+from Simulator import GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism, \
+    Coordinate4D
 from .EnvironmentGen import EnvironmentGen
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
-    from Simulator import Allocator, Coordinate4D, Owner, Environment, History, Statistics
+    from Simulator import Allocator, Owner, Environment, History, Statistics
     from ..API import APIOwner
     from ..Area import Area
 
@@ -64,12 +65,21 @@ class Generator:
                 print(f"Owner Type {apiOwner} not registered with allocator {self.allocator.__class__.__name__}")
                 continue
             ownerClass = owners[0]
-            self.owners.append(ownerClass(owner_id,
-                                          apiOwner.name,
-                                          apiOwner.color,
-                                          stops,
-                                          self.creation_ticks(self.environment.allocation_period, apiOwner.agents)))
-            owner_id += 1
+            try:
+                self.owners.append(ownerClass(owner_id,
+                                              apiOwner.name,
+                                              apiOwner.color,
+                                              stops,
+                                              self.creation_ticks(self.environment.allocation_period, apiOwner.agents)))
+            except TypeError:
+                self.owners.append(ownerClass(owner_id,
+                                              apiOwner.name,
+                                              apiOwner.color,
+                                              stops,
+                                              self.creation_ticks(self.environment.allocation_period, apiOwner.agents),
+                                              Coordinate4D(50, 50, 50, 50)))
+            finally:
+                owner_id += 1
 
         if isinstance(self.allocator, FCFSAllocator):
             mechanism = Mechanism(self.allocator, FCFSPaymentRule())

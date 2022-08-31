@@ -1,7 +1,7 @@
 from typing import Optional
 
-from Demos.Priority import PriorityPathBid
 from Simulator import BiddingStrategy, PathAgent, Environment
+from ..Bids.PriorityPathBid import PriorityPathBid
 
 
 class PriorityPathBiddingStrategy(BiddingStrategy):

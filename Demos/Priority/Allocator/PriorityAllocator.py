@@ -1,9 +1,13 @@
 from time import time_ns
 from typing import List, Tuple, Set, Optional, Dict
 
-from Demos.Priority import PriorityBidTracker, PriorityPathOwner, PrioritySpaceOwner, PriorityPathBid, PrioritySpaceBid
 from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation, AStar, Agent, \
     AllocationStatistics, Environment
+from ..BidTracker.PriorityBidTracker import PriorityBidTracker
+from ..Bids.PriorityPathBid import PriorityPathBid
+from ..Bids.PrioritySpaceBid import PrioritySpaceBid
+from ..Owners.PriorityPathOwner import PriorityPathOwner
+from ..Owners.PrioritySpaceOwner import PrioritySpaceOwner
 
 
 class PriorityAllocator(Allocator):

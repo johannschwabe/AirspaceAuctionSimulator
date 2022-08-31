@@ -14,7 +14,7 @@ class FCFSBidTracker(BidTracker):
         """
         Initialize dict of bids by tick and agent.
         """
-        self.past_bids: Dict[int, Dict[Agent, List[Union["FCFSPathBid", "FCFSSpaceBid"]]]] = {}
+        self.past_bids: Dict[int, Dict["Agent", List[Union["FCFSPathBid", "FCFSSpaceBid"]]]] = {}
 
     def request_new_bid(self, tick: int, agent: "Agent",
                         environment: "Environment") -> Optional[Union["FCFSPathBid", "FCFSSpaceBid"]]:

@@ -57,7 +57,7 @@ class PriorityBidTracker(BidTracker):
                 self.max_bids[agent] = new_bid.priority
         return self.past_bids[tick][agent][-1]
 
-    def max_prio(self, agent: Agent) -> float:
+    def max_prio(self, agent: "Agent") -> float:
         """
         Return the max prio of all bids of this agent.
         :param agent:

@@ -1,5 +1,5 @@
-from Demos.Priority import PrioritySpaceBid
 from Simulator import BiddingStrategy, SpaceAgent, Environment
+from ..Bids.PrioritySpaceBid import PrioritySpaceBid
 
 
 class PrioritySpaceBiddingStrategy(BiddingStrategy):

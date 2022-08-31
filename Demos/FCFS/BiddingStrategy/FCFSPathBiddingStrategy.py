@@ -1,5 +1,5 @@
-from Demos.FCFS import FCFSPathBid
 from Simulator import BiddingStrategy, PathAgent, Environment
+from ..Bids.FCFSPathBid import FCFSPathBid
 
 
 class FCFSPathBiddingStrategy(BiddingStrategy):
