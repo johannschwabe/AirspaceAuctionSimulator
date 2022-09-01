@@ -1,5 +1,6 @@
 import math
 import random
+from types import NoneType
 from typing import List, TYPE_CHECKING, Dict, Any
 
 from ..Agents.AgentType import AgentType
@@ -30,7 +31,7 @@ class PathOwner(Owner):
                  near_radius: int,
                  battery: int,
                  speed: int,
-                 meta: Dict[str, Any] = None):
+                 meta: Dict[str, Any] | NoneType = None):
         super().__init__(owner_id, bidding_strategy, value_function, name, color, meta if meta else {})
         self.creation_ticks = creation_ticks
         self.stops = stops
