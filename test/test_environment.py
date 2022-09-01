@@ -1,0 +1,134 @@
+import unittest
+
+from Simulator import Environment, Coordinate4D, SpaceSegment
+from test.EnvHelpers import generate_path_agent, generate_path_segment, generate_space_agent, \
+    generate_path_allocation, generate_space_allocation
+
+
+class EnvironmentTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.env = Environment(Coordinate4D(100, 100, 100, 1000))
+
+    def test_rtree_setup(self):
+        newRTree = Environment.setup_rtree()
+        self.assertTrue(newRTree.properties.dimension == 4)
+
+    def test_get_blocker_id(self):
+        self.assertTrue(self.env._blocker_id == 0)
+        new_blocker_id = self.env._get_blocker_id()
+        self.assertTrue(new_blocker_id == 0)
+        self.assertTrue(self.env._blocker_id == 1)
+
+    def test_allocate_path_segment_for_agent(self):
+        self.assertTrue(self.env.tree.properties.dimension == 4)
+
+        agi = generate_path_agent()
+        path_segment = generate_path_segment(Coordinate4D(1, 1, 1, 5))
+        self.env.allocate_path_segment_for_agent(agi, path_segment)
+        r_tree_whole_path = self.env.tree.intersection([0, 0, 0, 0, 5, 5, 5, 20])
+        r_tree_single_voxel = self.env.tree.intersection([2, 2, 3, 11, 2, 2, 3, 11])
+        r_tree_no_voxel = self.env.tree.intersection([2, 2, 3, 12, 2, 2, 3, 12])
+        r_tree_double_voxel = self.env.tree.intersection([1, 1, 3, 7, 1, 1, 3, 8])
+        r_tree_end_voxel = self.env.tree.intersection([4, 4, 4, 16, 4, 4, 4, 16], objects=True)
+        self.assertEqual(len(list(r_tree_whole_path)), 10)
+        self.assertEqual(len(list(r_tree_single_voxel)), 1)
+        self.assertEqual(len(list(r_tree_no_voxel)), 0)
+        self.assertEqual(len(list(r_tree_double_voxel)), 1)
+        rTreeObject = list(r_tree_end_voxel)
+        self.assertEqual(rTreeObject[0].id, hash(agi.id))
+
+    def test_allocate_space_segment_for_agent(self):
+        agi = generate_space_agent()
+        space_segment = SpaceSegment(Coordinate4D(40, 40, 40, 20), Coordinate4D(60, 60, 60, 70))
+        self.env.allocate_space_segment_for_agent(agi, space_segment)
+
+        whole_block = self.env.tree.intersection([0, 0, 0, 0, 80, 80, 80, 80])
+        sub_block = self.env.tree.intersection([50, 50, 50, 50, 55, 55, 55, 55])
+        block_obj = self.env.tree.intersection([30, 30, 30, 20, 41, 41, 41, 21], objects=True)
+        off_block = self.env.tree.intersection([30, 30, 30, 20, 39, 39, 39, 21], objects=True)
+        self.assertEqual(len(list(whole_block)), 1)
+        self.assertEqual(len(list(sub_block)), 1)
+        self.assertEqual(len(list(off_block)), 0)
+        rTreeObject = list(block_obj)
+        self.assertEqual(len(rTreeObject), 1)
+        self.assertEqual(rTreeObject[0].id, hash(agi.id))
+
+    def test_allocate_segments_for_agents(self):
+        allocation = generate_path_allocation()
+        self.env.allocate_segments_for_agents([allocation], 2)
+        self.assertIn(hash(allocation.agent), self.env.agents)
+        r_tree_whole_path = self.env.tree.intersection([0, 0, 0, 0, 20, 20, 20, 50])
+        r_tree_intersection_path = self.env.tree.intersection([4, 4, 4, 16, 4, 4, 4, 16])
+        self.assertEqual(len(list(r_tree_whole_path)), 19)
+        self.assertEqual(len(list(r_tree_intersection_path)), 1)
+
+    def test_allocate_segments_for_agents_2(self):
+        allocation = generate_space_allocation()
+        self.env.allocate_segments_for_agents([allocation], 3)
+        self.assertIn(hash(allocation.agent), self.env.agents)
+        sub_block = self.env.tree.intersection([5, 5, 5, 10, 7, 7, 7, 20])
+        double_block = self.env.tree.intersection([12, 12, 12, 10, 12, 12, 12, 12])
+        self.assertEqual(len(list(sub_block)), 1)
+        self.assertEqual(len(list(double_block)), 2)
+
+    def test_allocate_segments_for_agents_3(self):
+        allocation = generate_space_allocation()
+        allocation_2 = generate_path_allocation()
+        self.env.allocate_segments_for_agents([allocation, allocation_2], 3)
+        r_tree_intersection_path = self.env.tree.intersection([2, 2, 3, 10, 2, 2, 3, 10, ])
+        self.assertEqual(len(list(r_tree_intersection_path)), 1)
+        sub_block = self.env.tree.intersection([5, 5, 5, 10, 7, 7, 7, 20])
+        self.assertEqual(len(list(sub_block)), 1)
+        whole = self.env.tree.intersection([0, 0, 0, 0, 100, 100, 100, 100])
+        self.assertEqual(len(list(whole)), 22)
+
+    def test_register_agent(self):
+        agi = generate_space_agent()
+        self.env.register_agent(agi, 0)
+        self.assertIn(hash(agi.id), self.env.agents)
+
+    def test_deallocate_path_agent(self):
+        alloc = generate_path_allocation()
+        self.env.allocate_segments_for_agents([alloc], 0)
+        self.env.deallocate_path_agent(alloc.agent, 0)
+        allocations = self.env.tree.intersection([0, 0, 0, 0, 100, 100, 100, 100])
+        self.assertEqual(len(list(allocations)), 0)
+
+    def test_deallocate_space_agent(self):
+        alloc = generate_space_allocation()
+        self.env.allocate_segments_for_agents([alloc], 0)
+        self.env.deallocate_space_agent(alloc.agent, 0)
+        allocations = self.env.tree.intersection([0, 0, 0, 0, 100, 100, 100, 100])
+        self.assertEqual(len(list(allocations)), 0)
+
+    def test_deallocate_agent(self):
+        alloc = generate_path_allocation()
+        self.env.allocate_segments_for_agents([alloc], 0)
+        self.env.deallocate_agent(alloc.agent, 0)
+        allocations = self.env.tree.intersection([0, 0, 0, 0, 100, 100, 100, 100])
+        self.assertEqual(len(list(allocations)), 0)
+
+    def test_deallocate_agent_2(self):
+        alloc = generate_space_allocation()
+        self.env.allocate_segments_for_agents([alloc], 0)
+        self.env.deallocate_agent(alloc.agent, 0)
+        allocations = self.env.tree.intersection([0, 0, 0, 0, 100, 100, 100, 100])
+        self.assertEqual(len(list(allocations)), 0)
+
+    def test_create_real_allocations(self):
+        alloc_1 = generate_path_allocation()
+        real_agent_1 = alloc_1.agent
+        alloc_1.agent = real_agent_1.clone()
+        self.env.register_agent(real_agent_1, 0)
+        alloc_2 = generate_space_allocation()
+        real_agent_2 = alloc_2.agent
+        alloc_2.agent = real_agent_2.clone()
+
+        new_agents = {hash(real_agent_2.id): real_agent_2}
+        converted = self.env.create_real_allocations([alloc_1, alloc_2], new_agents)
+        self.assertFalse(converted[0].agent.is_clone)
+        self.assertFalse(converted[1].agent.is_clone)
+
+
+if __name__ == '__main__':
+    unittest.main()

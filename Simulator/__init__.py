@@ -16,6 +16,7 @@ from .Bids.Bid import Bid
 from .Bids.BiddingStrategy import BiddingStrategy
 # Blockers
 from .Blocker.BuildingBlocker import BuildingBlocker
+from .Blocker.DynamicBlocker import DynamicBlocker
 from .Blocker.StaticBlocker import StaticBlocker
 # Coordinates
 from .Coordinates.Coordinate2D import Coordinate2D
