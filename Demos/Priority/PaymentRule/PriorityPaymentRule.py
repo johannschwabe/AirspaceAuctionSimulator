@@ -1,11 +1,10 @@
 from typing import List, TYPE_CHECKING
 
+from Simulator import PaymentRule
+
 if TYPE_CHECKING:
-    from Demos.Priority.BidTracker.PriorityBidTracker import PriorityBidTracker
-    from Simulator.Allocations.Allocation import Allocation
-    from Simulator.Environment.Environment import Environment
-from Simulator import PaymentRule, Allocation
-from ..BidTracker.PriorityBidTracker import PriorityBidTracker
+    from ..BidTracker.PriorityBidTracker import PriorityBidTracker
+    from Simulator import Allocation, Environment
 
 
 class PriorityPaymentRule(PaymentRule):

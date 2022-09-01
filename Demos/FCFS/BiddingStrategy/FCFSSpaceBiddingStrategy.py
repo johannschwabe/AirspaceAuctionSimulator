@@ -1,12 +1,11 @@
 from typing import TYPE_CHECKING
 
-from Simulator.Agents.AgentType import AgentType
+from Simulator import AgentType, BiddingStrategy
+from ..Bids.FCFSSpaceBid import FCFSSpaceBid
 from ..ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction
 
 if TYPE_CHECKING:
     from Simulator import SpaceAgent, Environment
-from Simulator import BiddingStrategy, SpaceAgent, Environment
-from ..Bids.FCFSSpaceBid import FCFSSpaceBid
 
 
 class FCFSSpaceBiddingStrategy(BiddingStrategy):

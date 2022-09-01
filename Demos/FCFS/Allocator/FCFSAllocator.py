@@ -1,18 +1,17 @@
 from time import time_ns
-from typing import List
+from typing import List, TYPE_CHECKING
 
+from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, \
+    AllocationStatistics, Agent, BidTracker
+from ..BidTracker.FCFSBidTracker import FCFSBidTracker
 from ..BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
 from ..BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
-
-from ..PaymentRule.FCFSPaymentRule import FCFSPaymentRule
-
-from Simulator.BidTracker.BidTracker import BidTracker
-from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, Environment, \
-    AllocationStatistics, Agent
-from ..BidTracker.FCFSBidTracker import FCFSBidTracker
 from ..Bids.FCFSPathBid import FCFSPathBid
 from ..Bids.FCFSSpaceBid import FCFSSpaceBid
+from ..PaymentRule.FCFSPaymentRule import FCFSPaymentRule
 
+if TYPE_CHECKING:
+    from Simulator import Environment
 
 
 class FCFSAllocator(Allocator):
@@ -105,8 +104,8 @@ class FCFSAllocator(Allocator):
                 optimal_path_segments.append(SpaceSegment(lower, upper))
         return optimal_path_segments
 
-    def get_bid_tracker(self) -> BidTracker | None:
-        return None
+    def get_bid_tracker(self) -> BidTracker:
+        return self.bid_tracker
 
     def allocate(self, agents: List["Agent"], environment: "Environment", tick: int):
         astar = AStar(environment, self.bid_tracker, tick)

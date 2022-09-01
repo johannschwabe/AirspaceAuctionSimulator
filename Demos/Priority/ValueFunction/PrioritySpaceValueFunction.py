@@ -1,10 +1,9 @@
 from typing import List, TYPE_CHECKING
 
-from Simulator.ValueFunction.ValueFunction import ValueFunction
+from Simulator import ValueFunction
 
 if TYPE_CHECKING:
-    from Simulator.Agents.SpaceAgent import SpaceAgent
-    from Simulator.Segments.Segment import Segment
+    from Simulator import SpaceAgent, Segment
 
 
 class PrioritySpaceValueFunction(ValueFunction):

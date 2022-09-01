@@ -1,20 +1,13 @@
 import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
-from Simulator import Coordinate4D, GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator
-from Simulator.Mechanism.Mechanism import Mechanism
-from Simulator.Mechanism.PaymentRule import PaymentRule
-from Simulator.Owners.PathOwner import PathOwner
-from Simulator.Owners.SpaceOwner import SpaceOwner
-from Demos.FCFS import FCFSAllocator, FCFSPaymentRule
-from Demos.Priority import PriorityAllocator, PriorityPaymentRule
-from Simulator import GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism, \
+from Simulator import PathOwner, SpaceOwner, GridLocationType, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism, \
     Coordinate4D
 from .EnvironmentGen import EnvironmentGen
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
-    from Simulator import Allocator, Owner, Environment, History, Statistics
+    from Simulator import Allocator, Owner, Environment, History, Statistics, PaymentRule, Coordinate2D
     from ..API import APIOwner
     from ..Area import Area
 

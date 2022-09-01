@@ -4,7 +4,7 @@ from typing import List, TYPE_CHECKING
 if TYPE_CHECKING:
     from ..Allocations.Allocation import Allocation
     from ..BidTracker.BidTracker import BidTracker
-    from Simulator.Environment.Environment import Environment
+    from ..Environment.Environment import Environment
 
 
 class PaymentRule(ABC):

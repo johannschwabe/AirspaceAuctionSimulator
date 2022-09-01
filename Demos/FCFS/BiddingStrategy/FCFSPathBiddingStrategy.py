@@ -1,12 +1,11 @@
 from typing import TYPE_CHECKING
 
-from Simulator.Agents.AgentType import AgentType
+from Simulator import AgentType, BiddingStrategy
+from ..Bids.FCFSPathBid import FCFSPathBid
 from ..ValueFunction.FCFSPathValueFunction import FCFSPathValueFunction
 
 if TYPE_CHECKING:
     from Simulator import PathAgent, Environment
-from Simulator import BiddingStrategy, PathAgent, Environment
-from ..Bids.FCFSPathBid import FCFSPathBid
 
 
 class FCFSPathBiddingStrategy(BiddingStrategy):

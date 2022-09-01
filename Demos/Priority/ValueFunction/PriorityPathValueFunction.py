@@ -1,10 +1,9 @@
 from typing import List, TYPE_CHECKING
 
-from Simulator.ValueFunction.ValueFunction import ValueFunction
+from Simulator import ValueFunction
 
 if TYPE_CHECKING:
-    from Simulator.Agents.PathAgent import PathAgent
-    from Simulator.Segments.Segment import Segment
+    from Simulator import PathAgent, Segment
 
 
 class PriorityPathValueFunction(ValueFunction):
