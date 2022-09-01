@@ -1,6 +1,7 @@
 import unittest
 
-from Simulator import Environment, Coordinate4D, SpaceSegment
+from Simulator import Environment, Coordinate4D, SpaceSegment, StaticBlocker, Coordinate3D
+from Simulator.Blocker.DynamicBlocker import DynamicBlocker
 from test.EnvHelpers import generate_path_agent, generate_path_segment, generate_space_agent, \
     generate_path_allocation, generate_space_allocation
 
@@ -128,6 +129,42 @@ class EnvironmentTest(unittest.TestCase):
         converted = self.env.create_real_allocations([alloc_1, alloc_2], new_agents)
         self.assertFalse(converted[0].agent.is_clone)
         self.assertFalse(converted[1].agent.is_clone)
+
+    def test_get_blockers(self):
+        blocky = StaticBlocker(Coordinate3D(3, 3, 3), Coordinate3D(10, 10, 10))
+        blocky2 = StaticBlocker(Coordinate3D(5, 5, 5), Coordinate3D(10, 10, 10))
+        blocky.id = 11
+        blocky2.id = 22
+        blocky.add_to_tree(self.env.blocker_tree, self.env.dimension)
+        blocky2.add_to_tree(self.env.blocker_tree, self.env.dimension)
+        intersecting_blockers = self.env.get_blockers(Coordinate4D(6, 6, 6, 100), 1, 1)
+        intersecting_blockers_list = list(intersecting_blockers)
+        self.assertEqual(len(intersecting_blockers_list), 2)
+        self.assertIn(blocky.id, intersecting_blockers_list)
+        self.assertIn(blocky2.id, intersecting_blockers_list)
+
+    def test_is_blocked(self):
+        agi = generate_path_agent()
+        blocky = StaticBlocker(Coordinate3D(3, 3, 3), Coordinate3D(10, 10, 10))
+        blocky2 = DynamicBlocker([
+            Coordinate4D(0, 0, 0, 0),
+            Coordinate4D(1, 1, 1, 1),
+            Coordinate4D(2, 2, 2, 2),
+            Coordinate4D(3, 3, 3, 3),
+        ], dimension=Coordinate3D(2, 2, 2))
+        blocky.id = 11
+        blocky2.id = 22
+        self.env.blocker_dict[blocky.id] = blocky
+        self.env.blocker_dict[blocky2.id] = blocky2
+        blocky.add_to_tree(self.env.blocker_tree, self.env.dimension)
+        blocky2.add_to_tree(self.env.blocker_tree, self.env.dimension)
+        is_blocking = self.env.is_blocked(Coordinate4D(4, 4, 4, 10), agi)
+        self.assertTrue(is_blocking)
+
+        is_blocked_forever = self.env.is_blocked_forever(Coordinate4D(1, 1, 1, 1), 1)
+        is_blocked_forever_2 = self.env.is_blocked_forever(Coordinate4D(10, 10, 10, 1), 1)
+        self.assertFalse(is_blocked_forever)
+        self.assertTrue(is_blocked_forever_2)
 
 
 if __name__ == '__main__':

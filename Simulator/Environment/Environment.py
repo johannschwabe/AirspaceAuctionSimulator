@@ -246,7 +246,7 @@ class Environment:
     def have_intersections_collision(self, coord: "Coordinate4D", agent: "PathAgent", intersections: List[int],
                                      exclusions: List[int]) -> bool:
         """
-        Returns True if the the given intersections have any collisions with the agent.
+        Returns True if the given intersections have any collisions with the agent.
         The exclusions are not checked. They should be checked before.
         """
         for agent_hash in intersections:
