@@ -54,7 +54,7 @@ class Simulator:
 
         new_agents: Dict[int, "Agent"] = self.generate_new_agents()
 
-        if len(new_agents) > 0 or self.mechanism.allocator.wants_to_reallocate():
+        if len(new_agents) > 0 or self.mechanism.allocator.wants_to_reallocate(self.environment, self.time_step):
             start_time = time_ns()
 
             temporary_environment = self.environment.clone()

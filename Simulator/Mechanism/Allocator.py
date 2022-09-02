@@ -43,7 +43,7 @@ class Allocator(ABC):
         pass
 
     @staticmethod
-    def wants_to_reallocate():
+    def wants_to_reallocate(_environment: "Environment", _tick: int):
         """
         Returns `True` if the allocator wants to reallocate despite no new agents arrived.
         :return:
