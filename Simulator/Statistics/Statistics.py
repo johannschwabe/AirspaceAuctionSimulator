@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING, List, Dict, Optional
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
 from ..Coordinates.Coordinate2D import Coordinate2D
-from ..Coordinates.Coordinate3D import Coordinate3D
 from ..Owners.Owner import Owner
 from ..Segments.PathSegment import PathSegment
+from ..Segments.SpaceSegment import SpaceSegment
 
 if TYPE_CHECKING:
     from ..Coordinates.Coordinate4D import Coordinate4D
@@ -19,30 +19,46 @@ class Statistics:
     Statistics class that generates statistics for a simulation.
     """
     # Path Statistics
-    L1_DISTANCE = "l1_distance"
-    L2_DISTANCE = "l2_distance"
-    L1_GROUND_DISTANCE = "l1_ground_distance"
-    L2_GROUND_DISTANCE = "l2_ground_distance"
-    HEIGHT_DIFFERENCE = "height_difference"
-    TIME_DIFFERENCE = "time_difference"
-    ASCENT = "ascent"
-    DESCENT = "descent"
-    DISTANCE_TRAVELED = "distance_traveled"
-    GROUND_DISTANCE_TRAVELED = "ground_distance_traveled"
-    MEAN_HEIGHT = "mean_height"
-    MEDIAN_HEIGHT = "median_height"
-    DELTAS = "deltas"
-    HEIGHTS = "heights"
+    PATH_L1_DISTANCE = "l1_distance"
+    PATH_L2_DISTANCE = "l2_distance"
+    PATH_L1_GROUND_DISTANCE = "l1_ground_distance"
+    PATH_L2_GROUND_DISTANCE = "l2_ground_distance"
+    PATH_HEIGHT_DIFFERENCE = "height_difference"
+    PATH_TIME_DIFFERENCE = "time_difference"
+    PATH_ASCENT = "ascent"
+    PATH_DESCENT = "descent"
+    PATH_DISTANCE_TRAVELED = "distance_traveled"
+    PATH_GROUND_DISTANCE_TRAVELED = "ground_distance_traveled"
+    PATH_MEAN_HEIGHT = "mean_height"
+    PATH_MEDIAN_HEIGHT = "median_height"
+    PATH_HEIGHTS = "heights"
 
     # Path Encounters
-    ENCOUNTERS = "encounters"
-    INCOMING_VIOLATIONS = "incoming_violations"
-    OUTGOING_VIOLATIONS = "outgoing_violations"
-    SPACE_VIOLATIONS = "space_violations"
-    TOTAL_ENCOUNTERS = "total_encounters"
-    TOTAL_INCOMING_VIOLATIONS = "total_incoming_violations"
-    TOTAL_OUTGOING_VIOLATIONS = "total_outgoing_violations"
-    TOTAL_SPACE_VIOLATIONS = "total_space_violations"
+    PATH_ENCOUNTERS = "encounters"
+    PATH_INCOMING_VIOLATIONS = "incoming_violations"
+    PATH_OUTGOING_VIOLATIONS = "outgoing_violations"
+    PATH_SPACE_VIOLATIONS = "space_violations"
+    PATH_TOTAL_ENCOUNTERS = "total_encounters"
+    PATH_TOTAL_INCOMING_VIOLATIONS = "total_incoming_violations"
+    PATH_TOTAL_OUTGOING_VIOLATIONS = "total_outgoing_violations"
+    PATH_TOTAL_SPACE_VIOLATIONS = "total_space_violations"
+
+    # Space Statistics
+    SPACE_VOLUME = "volume"
+    SPACE_MEAN_VOLUME = "mean_volume"
+    SPACE_MEDIAN_VOLUME = "median_volume"
+    SPACE_HEIGHT = "height"
+    SPACE_MEAN_HEIGHT = "mean_height"
+    SPACE_MEDIAN_HEIGHT = "median_height"
+    SPACE_AREA = "area"
+    SPACE_MEAN_AREA = "mean_area"
+    SPACE_MEDIAN_AREA = "median_area"
+    SPACE_TIME = "time"
+    SPACE_MEAN_TIME = "mean_time"
+    SPACE_MEDIAN_TIME = "median_time"
+    SPACE_HEIGHT_ABOVE_GROUND = "height_above_ground"
+    SPACE_MEAN_HEIGHT_ABOVE_GROUND = "mean_height_above_ground"
+    SPACE_MEDIAN_HEIGHT_ABOVE_GROUND = "median_height_above_ground"
 
     def __init__(self, sim: "Simulator"):
         """
@@ -136,7 +152,6 @@ class Statistics:
         height_difference: int = path_segment.max.y - path_segment.min.y
         time_difference: int = path_segment.max.t - path_segment.min.t
         heights: List[int] = []
-        deltas: List["Coordinate3D"] = []
         ascent: int = 0
         descent: int = 0
         distance_traveled: int = 0
@@ -145,7 +160,6 @@ class Statistics:
         for coordinate in path_segment.coordinates:
             if previous_coordinate is not None:
                 delta = coordinate - previous_coordinate
-                deltas.append(delta)
                 # height
                 if delta.y > 0:
                     ascent += delta.y
@@ -163,20 +177,19 @@ class Statistics:
         median_height: int = statistics.median(heights)
 
         return {
-            Statistics.L1_DISTANCE: l1_distance,
-            Statistics.L2_DISTANCE: l2_distance,
-            Statistics.L1_GROUND_DISTANCE: l1_ground_distance,
-            Statistics.L2_GROUND_DISTANCE: l2_ground_distance,
-            Statistics.HEIGHT_DIFFERENCE: height_difference,
-            Statistics.TIME_DIFFERENCE: time_difference,
-            Statistics.ASCENT: ascent,
-            Statistics.DESCENT: descent,
-            Statistics.DISTANCE_TRAVELED: distance_traveled,
-            Statistics.GROUND_DISTANCE_TRAVELED: ground_distance_traveled,
-            Statistics.MEAN_HEIGHT: mean_height,
-            Statistics.MEDIAN_HEIGHT: median_height,
-            Statistics.DELTAS: deltas,
-            Statistics.HEIGHTS: heights,
+            Statistics.PATH_L1_DISTANCE: l1_distance,
+            Statistics.PATH_L2_DISTANCE: l2_distance,
+            Statistics.PATH_L1_GROUND_DISTANCE: l1_ground_distance,
+            Statistics.PATH_L2_GROUND_DISTANCE: l2_ground_distance,
+            Statistics.PATH_HEIGHT_DIFFERENCE: height_difference,
+            Statistics.PATH_TIME_DIFFERENCE: time_difference,
+            Statistics.PATH_ASCENT: ascent,
+            Statistics.PATH_DESCENT: descent,
+            Statistics.PATH_DISTANCE_TRAVELED: distance_traveled,
+            Statistics.PATH_GROUND_DISTANCE_TRAVELED: ground_distance_traveled,
+            Statistics.PATH_MEAN_HEIGHT: mean_height,
+            Statistics.PATH_MEDIAN_HEIGHT: median_height,
+            Statistics.PATH_HEIGHTS: heights,
         }
 
     @staticmethod
@@ -193,38 +206,35 @@ class Statistics:
         height_difference: int = path[-1].max.y - path[0].min.y
         time_difference: int = path[-1].max.t - path[0].min.t
         heights: List[int] = []
-        deltas: List["Coordinate3D"] = []
         ascent: int = 0
         descent: int = 0
         distance_traveled: int = 0
         ground_distance_traveled: int = 0
         for path_segment in path:
             path_segment_statistics = Statistics.path_segment_statistics(path_segment)
-            heights.extend(path_segment_statistics[Statistics.HEIGHTS])
-            deltas.extend(path_segment_statistics[Statistics.DELTAS])
-            ascent += path_segment_statistics[Statistics.ASCENT]
-            descent += path_segment_statistics[Statistics.DESCENT]
-            distance_traveled += path_segment_statistics[Statistics.DISTANCE_TRAVELED]
-            ground_distance_traveled += path_segment_statistics[Statistics.GROUND_DISTANCE_TRAVELED]
+            heights.extend(path_segment_statistics[Statistics.PATH_HEIGHTS])
+            ascent += path_segment_statistics[Statistics.PATH_ASCENT]
+            descent += path_segment_statistics[Statistics.PATH_DESCENT]
+            distance_traveled += path_segment_statistics[Statistics.PATH_DISTANCE_TRAVELED]
+            ground_distance_traveled += path_segment_statistics[Statistics.PATH_GROUND_DISTANCE_TRAVELED]
 
         mean_height: float = statistics.mean(heights)
         median_height: int = statistics.median(heights)
 
         return {
-            Statistics.L1_DISTANCE: l1_distance,
-            Statistics.L2_DISTANCE: l2_distance,
-            Statistics.L1_GROUND_DISTANCE: l1_ground_distance,
-            Statistics.L2_GROUND_DISTANCE: l2_ground_distance,
-            Statistics.HEIGHT_DIFFERENCE: height_difference,
-            Statistics.TIME_DIFFERENCE: time_difference,
-            Statistics.ASCENT: ascent,
-            Statistics.DESCENT: descent,
-            Statistics.DISTANCE_TRAVELED: distance_traveled,
-            Statistics.GROUND_DISTANCE_TRAVELED: ground_distance_traveled,
-            Statistics.MEAN_HEIGHT: mean_height,
-            Statistics.MEDIAN_HEIGHT: median_height,
-            Statistics.DELTAS: deltas,
-            Statistics.HEIGHTS: heights,
+            Statistics.PATH_L1_DISTANCE: l1_distance,
+            Statistics.PATH_L2_DISTANCE: l2_distance,
+            Statistics.PATH_L1_GROUND_DISTANCE: l1_ground_distance,
+            Statistics.PATH_L2_GROUND_DISTANCE: l2_ground_distance,
+            Statistics.PATH_HEIGHT_DIFFERENCE: height_difference,
+            Statistics.PATH_TIME_DIFFERENCE: time_difference,
+            Statistics.PATH_ASCENT: ascent,
+            Statistics.PATH_DESCENT: descent,
+            Statistics.PATH_DISTANCE_TRAVELED: distance_traveled,
+            Statistics.PATH_GROUND_DISTANCE_TRAVELED: ground_distance_traveled,
+            Statistics.PATH_MEAN_HEIGHT: mean_height,
+            Statistics.PATH_MEDIAN_HEIGHT: median_height,
+            Statistics.PATH_HEIGHTS: heights,
         }
 
     def path_segment_encounters(self, path_agent: "PathAgent", path_segment: "PathSegment"):
@@ -280,14 +290,14 @@ class Statistics:
                     total_space_violations += 1
 
         return {
-            Statistics.ENCOUNTERS: encounters,
-            Statistics.INCOMING_VIOLATIONS: incoming_violations,
-            Statistics.OUTGOING_VIOLATIONS: outgoing_violations,
-            Statistics.SPACE_VIOLATIONS: space_violations,
-            Statistics.TOTAL_ENCOUNTERS: total_encounters,
-            Statistics.TOTAL_INCOMING_VIOLATIONS: total_incoming_violations,
-            Statistics.TOTAL_OUTGOING_VIOLATIONS: total_outgoing_violations,
-            Statistics.TOTAL_SPACE_VIOLATIONS: total_space_violations,
+            Statistics.PATH_ENCOUNTERS: encounters,
+            Statistics.PATH_INCOMING_VIOLATIONS: incoming_violations,
+            Statistics.PATH_OUTGOING_VIOLATIONS: outgoing_violations,
+            Statistics.PATH_SPACE_VIOLATIONS: space_violations,
+            Statistics.PATH_TOTAL_ENCOUNTERS: total_encounters,
+            Statistics.PATH_TOTAL_INCOMING_VIOLATIONS: total_incoming_violations,
+            Statistics.PATH_TOTAL_OUTGOING_VIOLATIONS: total_outgoing_violations,
+            Statistics.PATH_TOTAL_SPACE_VIOLATIONS: total_space_violations,
         }
 
     def path_agent_encounters(self, path_agent: "PathAgent"):
@@ -307,22 +317,95 @@ class Statistics:
 
         for path_segment in path_agent.allocated_segments:
             path_segment_encounters = self.path_segment_encounters(path_agent, path_segment)
-            encounters.update(path_segment_encounters[Statistics.ENCOUNTERS])
-            incoming_violations.update(path_segment_encounters[Statistics.INCOMING_VIOLATIONS])
-            outgoing_violations.update(path_segment_encounters[Statistics.OUTGOING_VIOLATIONS])
-            space_violations.update(path_segment_encounters[Statistics.SPACE_VIOLATIONS])
-            total_encounters += path_segment_encounters[Statistics.TOTAL_ENCOUNTERS]
-            total_incoming_violations += path_segment_encounters[Statistics.TOTAL_INCOMING_VIOLATIONS]
-            total_outgoing_violations += path_segment_encounters[Statistics.TOTAL_OUTGOING_VIOLATIONS]
-            total_space_violations += path_segment_encounters[Statistics.TOTAL_SPACE_VIOLATIONS]
+            encounters.update(path_segment_encounters[Statistics.PATH_ENCOUNTERS])
+            incoming_violations.update(path_segment_encounters[Statistics.PATH_INCOMING_VIOLATIONS])
+            outgoing_violations.update(path_segment_encounters[Statistics.PATH_OUTGOING_VIOLATIONS])
+            space_violations.update(path_segment_encounters[Statistics.PATH_SPACE_VIOLATIONS])
+            total_encounters += path_segment_encounters[Statistics.PATH_TOTAL_ENCOUNTERS]
+            total_incoming_violations += path_segment_encounters[Statistics.PATH_TOTAL_INCOMING_VIOLATIONS]
+            total_outgoing_violations += path_segment_encounters[Statistics.PATH_TOTAL_OUTGOING_VIOLATIONS]
+            total_space_violations += path_segment_encounters[Statistics.PATH_TOTAL_SPACE_VIOLATIONS]
 
         return {
-            Statistics.ENCOUNTERS: encounters,
-            Statistics.INCOMING_VIOLATIONS: incoming_violations,
-            Statistics.OUTGOING_VIOLATIONS: outgoing_violations,
-            Statistics.SPACE_VIOLATIONS: space_violations,
-            Statistics.TOTAL_ENCOUNTERS: total_encounters,
-            Statistics.TOTAL_INCOMING_VIOLATIONS: total_incoming_violations,
-            Statistics.TOTAL_OUTGOING_VIOLATIONS: total_outgoing_violations,
-            Statistics.TOTAL_SPACE_VIOLATIONS: total_space_violations,
+            Statistics.PATH_ENCOUNTERS: encounters,
+            Statistics.PATH_INCOMING_VIOLATIONS: incoming_violations,
+            Statistics.PATH_OUTGOING_VIOLATIONS: outgoing_violations,
+            Statistics.PATH_SPACE_VIOLATIONS: space_violations,
+            Statistics.PATH_TOTAL_ENCOUNTERS: total_encounters,
+            Statistics.PATH_TOTAL_INCOMING_VIOLATIONS: total_incoming_violations,
+            Statistics.PATH_TOTAL_OUTGOING_VIOLATIONS: total_outgoing_violations,
+            Statistics.PATH_TOTAL_SPACE_VIOLATIONS: total_space_violations,
+        }
+
+    @staticmethod
+    def space_segment_statistics(space_segment: "SpaceSegment"):
+        """
+        Create statistics for a space-segment.
+        :param space_segment:
+        :return:
+        """
+        delta = space_segment.max - space_segment.min
+        volume = delta.x * delta.y * delta.z
+        area = delta.x * delta.z
+        height = delta.y
+        time = delta.t
+        height_above_ground = space_segment.min.y
+
+        return {
+            Statistics.SPACE_VOLUME: volume,
+            Statistics.SPACE_AREA: area,
+            Statistics.SPACE_HEIGHT: height,
+            Statistics.SPACE_TIME: time,
+            Statistics.SPACE_HEIGHT_ABOVE_GROUND: height_above_ground,
+        }
+
+    @staticmethod
+    def spaces_statistics(spaces: List["SpaceSegment"]):
+        """
+        Create statistics for spaces (list of space-segments).
+        :param spaces:
+        :return:
+        """
+        volume = 0
+        volumes = []
+        area = 0
+        areas = []
+        heights = []
+        times = []
+        heights_above_ground = []
+        
+        for space_segment in spaces:
+            space_segment_statistics = Statistics.space_segment_statistics(space_segment)
+            volume += space_segment_statistics[Statistics.SPACE_VOLUME]
+            volumes.append(space_segment_statistics[Statistics.SPACE_VOLUME])
+            area += space_segment_statistics[Statistics.SPACE_AREA]
+            areas.append(space_segment_statistics[Statistics.SPACE_AREA])
+            heights.append(space_segment_statistics[Statistics.SPACE_HEIGHT])
+            times.append(space_segment_statistics[Statistics.SPACE_TIME])
+            heights_above_ground.append(space_segment_statistics[Statistics.SPACE_HEIGHT_ABOVE_GROUND])
+
+        mean_volume = statistics.mean(volumes)
+        median_volume = statistics.median(volumes)
+        mean_area = statistics.mean(areas)
+        median_area = statistics.median(areas)
+        mean_height = statistics.mean(heights)
+        median_height = statistics.median(heights)
+        mean_time = statistics.mean(times)
+        median_time = statistics.median(times)
+        mean_height_above_ground = statistics.mean(heights_above_ground)
+        median_height_above_ground = statistics.median(heights_above_ground)
+
+        return {
+            Statistics.SPACE_VOLUME: volume,
+            Statistics.SPACE_MEAN_VOLUME: mean_volume,
+            Statistics.SPACE_MEDIAN_VOLUME: median_volume,
+            Statistics.SPACE_AREA: area,
+            Statistics.SPACE_MEAN_AREA: mean_area,
+            Statistics.SPACE_MEDIAN_AREA: median_area,
+            Statistics.SPACE_MEAN_HEIGHT: mean_height,
+            Statistics.SPACE_MEDIAN_HEIGHT: median_height,
+            Statistics.SPACE_MEAN_TIME: mean_time,
+            Statistics.SPACE_MEDIAN_TIME: median_time,
+            Statistics.SPACE_MEAN_HEIGHT_ABOVE_GROUND: mean_height_above_ground,
+            Statistics.SPACE_MEDIAN_HEIGHT_ABOVE_GROUND: median_height_above_ground,
         }
