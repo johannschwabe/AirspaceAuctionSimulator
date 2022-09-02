@@ -1,60 +1,29 @@
-import random
-from abc import ABC
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Dict, Any
 
 from .Owner import Owner
-from ..Agents.AgentType import AgentType
+from ..Agents.SpaceAgent import SpaceAgent
 
 if TYPE_CHECKING:
     from ..Location.GridLocation import GridLocation
     from ..Environment.Environment import Environment
     from ..Coordinates.Coordinate4D import Coordinate4D
-    from ..Agents.SpaceAgent import SpaceAgent
+    from ..Bids.BiddingStrategy import BiddingStrategy
+    from ..ValueFunction.ValueFunction import ValueFunction
 
 
-class SpaceOwner(Owner, ABC):
-    allocation_type: str = AgentType.SPACE.value
-    min_locations = 1
-    max_locations = 100
-    meta = [
-        {
-            "key": "size_x",
-            "label": "Field Size X",
-            "description": "Size of reserved field in X-Dimension",
-            "type": "int",
-            "value": random.randint(0, 100)
-        },
-        {
-            "key": "size_y",
-            "label": "Field Size Y",
-            "description": "Size of reserved field in Y-Dimension",
-            "type": "int",
-            "value": random.randint(0, 100)
-        },
-        {
-            "key": "size_z",
-            "label": "Field Size Z",
-            "description": "Size of reserved field in Z-Dimension",
-            "type": "int",
-            "value": random.randint(0, 100)
-        },
-        {
-            "key": "size_t",
-            "label": "Reservation Duration",
-            "description": "Number of ticks field should be reserved",
-            "type": "int",
-            "value": random.randint(0, 100)
-        }
-    ]
-
+class SpaceOwner(Owner):
     def __init__(self,
                  owner_id: str,
                  name: str,
                  color: str,
                  stops: List["GridLocation"],
                  creation_ticks: List[int],
-                 size: "Coordinate4D"):
-        super().__init__(owner_id, name, color)
+                 size: "Coordinate4D",
+                 bidding_strategy: "BiddingStrategy",
+                 value_function: "ValueFunction",
+                 meta: Dict[str, Any] = None
+                 ):
+        super().__init__(owner_id, bidding_strategy, value_function, name, color, meta if meta else {})
         self.stops = stops
         self.creation_ticks = creation_ticks
         self.size: "Coordinate4D" = size
@@ -65,7 +34,8 @@ class SpaceOwner(Owner, ABC):
         return coord
 
     def initialize_agent(self, blocks: List[List["Coordinate4D"]]) -> "SpaceAgent":
-        pass
+        agent_id: str = self.get_agent_id()
+        return SpaceAgent(agent_id, self.bidding_strategy, self.value_function, blocks, config=self.config)
 
     def generate_agents(self, t: int, environment: "Environment") -> List["SpaceAgent"]:
         res = []

@@ -4,6 +4,7 @@ from .Agent import Agent
 from .AgentType import AgentType
 
 if TYPE_CHECKING:
+    from ..ValueFunction.ValueFunction import ValueFunction
     from ..Segments.PathSegment import PathSegment
     from ..Coordinates.Coordinate4D import Coordinate4D
     from ..Bids.BiddingStrategy import BiddingStrategy
@@ -19,6 +20,7 @@ class PathAgent(Agent):
     def __init__(self,
                  agent_id: str,
                  bidding_strategy: "BiddingStrategy",
+                 value_function: "ValueFunction",
                  locations: List["Coordinate4D"],
                  stays: List[int],
                  config: Optional[Dict[str, Any]] = None,
@@ -27,7 +29,7 @@ class PathAgent(Agent):
                  near_radius: Optional[int] = None,
                  _is_clone: bool = False):
 
-        super().__init__(agent_id, bidding_strategy, config, _is_clone=_is_clone)
+        super().__init__(agent_id, bidding_strategy, value_function, config, _is_clone=_is_clone)
 
         self.locations: List["Coordinate4D"] = locations
         self.stays: List[int] = stays
@@ -48,6 +50,7 @@ class PathAgent(Agent):
     def initialize_clone(self):
         clone = PathAgent(self.id,
                           self.bidding_strategy,
+                          self.value_function,
                           self.locations,
                           self.stays,
                           config=self.config,
@@ -86,28 +89,3 @@ class PathAgent(Agent):
                     if distance < self.near_radius or distance < other_agent.near_radius:
                         return True
         return False
-
-    def value_for_segments(self, path_segments: List["PathSegment"]) -> float:
-        if len(path_segments) == 0:
-            return 0.
-
-        if len(path_segments) != len(self.locations) - 1:
-            print(f"Crash {self}: Not all locations reached")
-            return -1.
-
-        value = 1.
-        time = 0
-        for path, location in zip(path_segments, self.locations[1:]):
-            destination = path.max
-            if not destination.inter_temporal_equal(location):
-                print(f"Crash {self}: no further path found")
-                return -1.
-
-            time += destination.t - path.min.t
-            value -= max(destination.t - location.t, 0) / 100
-
-        if time > self.battery:
-            print(f"Crash {self}: empty battery")
-            return -1.
-
-        return round(max(0., value), 2)

@@ -1,10 +1,29 @@
-from typing import Optional
+import random
+from typing import Optional, TYPE_CHECKING
 
-from Simulator import BiddingStrategy, PathAgent, Environment
+from Simulator import AgentType, BiddingStrategy
 from ..Bids.PriorityPathBid import PriorityPathBid
+from ..ValueFunction.PriorityPathValueFunction import PriorityPathValueFunction
+from ...FCFS.ValueFunction.FCFSPathValueFunction import FCFSPathValueFunction
+
+if TYPE_CHECKING:
+    from Simulator import PathAgent, Environment
 
 
 class PriorityPathBiddingStrategy(BiddingStrategy):
+    label = "Priority Path Bidding Strategy"
+    description = "An Bidding Strategy for Priority Path Agents"
+    min_locations = 2
+    max_locations = 5
+    meta = [{
+        "key": "priority",
+        "label": "Priority",
+        "description": "Priority of the agents",
+        "type": "float",
+        "value": round(random.random(), 2),
+    }]
+    allocation_type = AgentType.PATH.value
+
     def generate_bid(self, agent: "PathAgent", _environment: "Environment",
                      time_step: int) -> Optional["PriorityPathBid"]:
         flying = False
@@ -39,3 +58,7 @@ class PriorityPathBiddingStrategy(BiddingStrategy):
             stays = agent.stays[index:] if index < len(agent.stays) else []
 
         return PriorityPathBid(agent, locations, stays, battery, agent.config["priority"], flying)
+
+    @staticmethod
+    def compatible_value_functions():
+        return [PriorityPathValueFunction, FCFSPathValueFunction]

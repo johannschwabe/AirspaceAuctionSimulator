@@ -16,7 +16,7 @@ class Allocation(ABC):
         self.agent: "Agent" = agent
         self.segments: List["Segment"] = segments
         self.statistics = statistics
-        self.payment = 0
+        self.preliminary_payment = 0
 
     def get_real_allocation(self, agent: "Agent"):
         return Allocation(agent, self.segments, self.statistics)

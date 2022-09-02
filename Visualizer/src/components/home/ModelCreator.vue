@@ -22,14 +22,28 @@
       <n-slider show-tooltip v-model:value="simulationConfig.map.timesteps" :min="300" :max="4000" :step="10" />
     </n-form-item>
 
-    <!-- Model Allocator -->
-    <n-form-item path="allocator" label="Allocator">
-      <n-select
-        v-model:value="simulationConfig.allocator"
-        :options="simulationConfig.availableAllocatorsOptions"
-        placeholder="Select Allocator"
-      />
-    </n-form-item>
+    <n-grid cols="2" x-gap="10">
+      <n-gi>
+        <!-- Model Allocator -->
+        <n-form-item path="allocator" label="Allocator">
+          <n-select
+            v-model:value="simulationConfig.allocator"
+            :options="simulationConfig.availableAllocatorsOptions"
+            placeholder="Select Allocator"
+          />
+        </n-form-item>
+      </n-gi>
+      <n-gi>
+        <!-- Model Payment Rule -->
+        <n-form-item path="paymentRule" label="Payment Rule">
+          <n-select
+            v-model:value="simulationConfig.paymentRule"
+            :options="simulationConfig.availablePaymentRulesOptions"
+            placeholder="Select Payment Rule"
+          />
+        </n-form-item>
+      </n-gi>
+    </n-grid>
 
     <!-- Model Owners -->
     <n-form-item path="owners" label="Owners">
@@ -136,9 +150,10 @@ import {
   setSimulationSingleton,
 } from "@/scripts/simulation";
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import { emitConfigLoaded } from "../../scripts/emitter";
 
 const simulationConfig = useSimulationConfigStore();
-
+simulationConfig.loadAvailableAllocators();
 const message = useMessage();
 const loadingBar = useLoadingBar();
 const router = useRouter();
@@ -212,6 +227,7 @@ const uploadConfiguration = (upload) => {
   fileReader.onload = async (event) => {
     const data = JSON.parse(event.target.result);
     simulationConfig.overwrite(data);
+    emitConfigLoaded();
   };
   fileReader.onerror = () => {
     loadingBar.error();

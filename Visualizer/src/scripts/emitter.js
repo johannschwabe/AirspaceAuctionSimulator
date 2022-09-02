@@ -8,7 +8,8 @@ const TICK_EVENT = "tick";
 const AGENTS_SELECTED_EVENT = "agents-selected";
 const AGENT_FOCUS_ON_EVENT = "focus-on-agent";
 const AGENT_FOCUS_OFF_EVENT = "focus-off-agent";
-const ALL_EVENTS = [AGENTS_SELECTED_EVENT, AGENT_FOCUS_ON_EVENT, AGENT_FOCUS_OFF_EVENT];
+const CONFIG_LOADED = "config-loaded";
+const ALL_EVENTS = [AGENTS_SELECTED_EVENT, AGENT_FOCUS_ON_EVENT, AGENT_FOCUS_OFF_EVENT, CONFIG_LOADED];
 
 export function emitTickEvent(tick) {
   emitter.emit(TICK_EVENT, tick);
@@ -56,6 +57,18 @@ export function offFocusOnAgent() {
 
 export function offFocusOffAgent() {
   emitter.off(AGENT_FOCUS_OFF_EVENT);
+}
+
+export function onConfigLoaded(callback) {
+  emitter.on(CONFIG_LOADED, callback);
+}
+
+export function offConfigLoaded() {
+  emitter.off(CONFIG_LOADED);
+}
+
+export function emitConfigLoaded() {
+  emitter.emit(CONFIG_LOADED);
 }
 
 export function offAll() {

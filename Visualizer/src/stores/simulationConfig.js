@@ -1,7 +1,11 @@
 import { ref, reactive, watchEffect, computed } from "vue";
 import { defineStore } from "pinia";
 import { cloneDeep } from "lodash-es";
-import { getOwnersSupportedByAllocator, getSupportedAllocators } from "../API/api";
+import {
+  getBiddingStrategiesSupportedByAllocator,
+  getPaymentRulesSupportedByAllocator,
+  getSupportedAllocators,
+} from "../API/api";
 import { randomColor } from "../scripts/color";
 import { randomName } from "../scripts/names";
 
@@ -69,6 +73,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
   const name = ref("");
   const description = ref("");
   const allocator = ref("FCFSAllocator");
+  const paymentRule = ref("FCFSPaymentRule");
 
   /**
    * @type {UnwrapNestedRefs<MapConfig>}
@@ -88,6 +93,8 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     },
     resolution: 2,
     height: 100,
+    minHeight: 0,
+    allocationPeriod: 60,
     timesteps: 1500,
     tiles: [],
   });
@@ -120,33 +127,120 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     return availableAllocators.map((a) => ({ label: a, value: a }));
   });
 
+  const path_meta = [
+    {
+      key: "near_field",
+      label: "Near field size",
+      description: "Radius of reserved field ",
+      type: "int",
+      value: Math.ceil(Math.random() * 4),
+    },
+    {
+      key: "battery",
+      label: "Battery capacity",
+      description: "Maximum flight time",
+      type: "int",
+      value: Math.ceil(Math.random() * 1000),
+    },
+    {
+      key: "speed",
+      label: "Ticks per voxel",
+      description: "Number ticks needed to traverse a voxel: 1 is the fastest",
+      type: "int",
+      value: Math.ceil(Math.random() * 5),
+    },
+  ];
+  const space_meta = [
+    {
+      key: "size_x",
+      label: "Field Size X",
+      description: "Size of reserved field in X-Dimension",
+      type: "int",
+      value: Math.ceil(Math.random() * 100),
+    },
+    {
+      key: "size_y",
+      label: "Field Size Y",
+      description: "Size of reserved field in Y-Dimension",
+      type: "int",
+      value: Math.ceil(Math.random() * 100),
+    },
+    {
+      key: "size_z",
+      label: "Field Size Z",
+      description: "Size of reserved field in Z-Dimension",
+      type: "int",
+      value: Math.ceil(Math.random() * 100),
+    },
+    {
+      key: "size_t",
+      label: "Reservation Duration",
+      description: "Number of ticks field should be reserved",
+      type: "int",
+      value: Math.ceil(Math.random() * 100),
+    },
+  ];
+
   /**
-   * List of all available owners given the selected allocator. Changes whenever the
+   * List of all available Bidding Strategies given the selected allocator. Changes whenever the
    * allocator changes.
    * @type {UnwrapNestedRefs<AvailableOwnerConfig[]>}
    */
-  const availableOwnersForAllocator = reactive([]);
+  const availableBiddingStrategiesForAllocator = reactive([]);
   watchEffect(async () => {
     const allocatorName = allocator.value;
-    await loadAvailableAllocators();
-    const ownersSupportedByAllocator = await getOwnersSupportedByAllocator(allocatorName);
-    availableOwnersForAllocator.splice(0);
-    ownersSupportedByAllocator.forEach((owner) => {
-      availableOwnersForAllocator.push({
-        label: owner.label,
-        meta: owner.meta,
-        classname: owner.classname,
-        description: owner.description,
-        ownerType: owner.ownerType,
-        allocator: allocator.value,
-        minLocations: owner.minLocations,
-        maxLocations: owner.maxLocations,
+    const biddingStrategiesSupportedByAllocator = await getBiddingStrategiesSupportedByAllocator(allocatorName);
+    availableBiddingStrategiesForAllocator.splice(0);
+    biddingStrategiesSupportedByAllocator.forEach((biddingStrategy) => {
+      availableBiddingStrategiesForAllocator.push({
+        label: biddingStrategy.label,
+        classname: biddingStrategy.classname,
+        description: biddingStrategy.description,
+        allocationType: biddingStrategy.strategyType,
+        minLocations: biddingStrategy.minLocations,
+        maxLocations: biddingStrategy.maxLocations,
+        meta: [...(biddingStrategy.strategyType === "space" ? space_meta : path_meta), ...biddingStrategy.meta],
       });
     });
-    if (owners.length === 0 || owners[0].allocator !== allocatorName) {
-      owners.splice(0);
-      owners.push(generateOwner());
+    owners.splice(0);
+    owners.push(generateOwner());
+  });
+
+  /**
+   * List of available biddingStrategies, but computed in a format that is supported by the naive-ui selector
+   * @type {ComputedRef<{label: string, value: string}>}
+   */
+  const availableBiddingStrategiesOptions = computed(() => {
+    return availableBiddingStrategiesForAllocator.map((a) => ({ label: a.label, value: a }));
+  });
+
+  /**
+   * List of all available Bidding Strategies given the selected allocator. Changes whenever the
+   * allocator changes.
+   * @type {UnwrapNestedRefs<AvailableOwnerConfig[]>}
+   */
+  const availablePaymentRules = reactive([]);
+  watchEffect(async () => {
+    const allocatorName = allocator.value;
+    const paymentRulesSupportedByAllocator = await getPaymentRulesSupportedByAllocator(allocatorName);
+    availablePaymentRules.splice(0);
+    paymentRulesSupportedByAllocator.forEach((paymentRule) => {
+      availablePaymentRules.push({
+        label: paymentRule.label,
+        classname: paymentRule.classname,
+      });
+    });
+    if (availablePaymentRules.length > 0) {
+      paymentRule.value = availablePaymentRules[0].classname;
     }
+  });
+
+  /**
+   * List of available paymentRules, but computed in a format that is supported by the naive-ui selector
+   * @type {ComputedRef<{label: string, value: string}>}
+   */
+  const availablePaymentRulesOptions = computed(() => {
+    return availablePaymentRules.map((a) => ({ label: a.label, value: a.classname }));
   });
 
   /**
@@ -170,19 +264,15 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
    * @returns {OwnerConfig}
    */
   const generateOwner = () => {
-    const ownerTemplate = availableOwnersForAllocator[0];
-    const locations = generateLocationsForOwner(ownerTemplate);
+    const biddingStrategyTemplate = availableBiddingStrategiesForAllocator[0];
+    const locations = generateLocationsForOwner(biddingStrategyTemplate);
     return {
       color: randomColor(),
       name: randomName(),
       agents: 20,
-      minLocations: ownerTemplate.minLocations,
-      maxLocations: ownerTemplate.maxLocations,
-      type: ownerTemplate.ownerType,
-      classname: ownerTemplate.classname,
-      allocator: allocator.value,
-      meta: ownerTemplate.meta,
+      biddingStrategy: biddingStrategyTemplate,
       locations,
+      valueFunction: "-",
     };
   };
 
@@ -194,10 +284,9 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
       name: name.value,
       description: description.value,
       allocator: allocator.value,
+      paymentRule: paymentRule.value,
       map,
       owners,
-      availableAllocators,
-      availableOwnersForAllocator,
     });
 
   /**
@@ -239,7 +328,8 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     owners,
     availableAllocators,
     availableAllocatorsOptions,
-    availableOwnersForAllocator,
+    availableBiddingStrategiesForAllocator,
+    availablePaymentRulesOptions,
     isEmpty,
     randomLocation,
     generateOwner,
@@ -247,5 +337,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     overwrite,
     loadAvailableAllocators,
     setMapSubTile,
+    paymentRule,
+    availableBiddingStrategiesOptions,
   };
 });

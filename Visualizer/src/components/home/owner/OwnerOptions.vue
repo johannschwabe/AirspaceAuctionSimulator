@@ -4,8 +4,8 @@
     :value="owner.locations"
     :on-create="onCreate"
     :on-remove="onRemove"
-    :min="owner.minLocations"
-    :max="owner.maxLocations"
+    :min="owner.biddingStrategy.minLocations"
+    :max="owner.biddingStrategy.maxLocations"
   >
     <template #default="{ index }">
       <owner-stop :ownerIndex="props.ownerIndex" :locationIndex="index" />
@@ -29,7 +29,7 @@
     </n-form-item>
   </n-form>
   <n-divider />
-  <p>{{ ownerProperties.label }}: {{ ownerProperties.description }}</p>
+  <p>{{ owner.biddingStrategy.label }}: {{ owner.biddingStrategy.description }}</p>
 </template>
 
 <script setup>
@@ -48,18 +48,18 @@ const simulationConfig = useSimulationConfigStore();
 
 const owner = computed(() => simulationConfig.owners[props.ownerIndex]);
 
-/**
- * Returns config of owner of fitting type
- * @type {ComputedRef<OwnerConfig>}
- */
-const ownerProperties = computed(() => {
-  return simulationConfig.availableOwnersForAllocator.find((o) => o.classname === owner.value.classname);
-});
+// /**
+//  * Returns config of owner of fitting type
+//  * @type {ComputedRef<OwnerConfig>}
+//  */
+// const ownerProperties = computed(() => {
+//   return simulationConfig.availableBiddingStrategiesForAllocator.find((o) => o.classname === owner.value.classname);
+// });
 
 /**
  * @type {ComputedRef<RawMeta>}
  */
-const meta = computed(() => owner.value.meta);
+const meta = computed(() => owner.value.biddingStrategy.meta);
 
 const metaInputResolver = {
   int: {
