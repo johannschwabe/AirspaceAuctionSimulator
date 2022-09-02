@@ -108,11 +108,7 @@ const updateState = () => {
           if (dim2 >= series.length || dim1 >= series[0].data.length || dim2 < 0 || dim1 < 0) {
             continue;
           }
-          if (series[dim2]) {
-            series[dim2].data[dim1] += 1;
-          } else {
-            console.log(series, dim2, dim1);
-          }
+          series[dim2].data[dim1] += 1;
         }
       }
     });

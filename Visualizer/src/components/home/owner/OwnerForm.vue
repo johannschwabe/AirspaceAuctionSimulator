@@ -29,35 +29,33 @@ const props = defineProps({
 const simulationConfig = useSimulationConfigStore();
 
 const owner = computed(() => simulationConfig.owners[props.ownerIndex]);
+
 loadCompatibleValueFunctions();
 /**
  * Whenever the selected ownerType changes, make sure the requirements for minimum
  * and maximum number of locations are met
  */
 const updateLocationsForOwner = () => {
-  // owner.value.meta = ownerProperties.value.meta;
-  // owner.value.minLocations = ownerProperties.value.minLocations;
-  // owner.value.maxLocations = ownerProperties.value.maxLocations;
-  // if (owner.value.locations.length > owner.value.maxLocations) {
-  //   owner.value.locations = owner.value.locations.slice(0, owner.value.maxLocations);
-  // }
-  // while (owner.value.locations.length < owner.value.minLocations) {
-  //   owner.value.locations.push(simulationConfig.randomLocation());
-  // }
+  if (owner.value.locations.length > owner.value.biddingStrategy.maxLocations) {
+    owner.value.locations = owner.value.locations.slice(0, owner.value.biddingStrategy.maxLocations);
+  }
+  while (owner.value.locations.length < owner.value.biddingStrategy.minLocations) {
+    owner.value.locations.push(simulationConfig.randomLocation());
+  }
 };
 const compatibleValueFunctions = ref([]);
-watch(
-  () => owner.value.biddingStrategy.classname,
-  () => {
-    loadCompatibleValueFunctions();
-  }
-);
 function loadCompatibleValueFunctions() {
   getSupportedValueFunctions(simulationConfig.allocator, owner.value.biddingStrategy.classname).then((res) => {
     compatibleValueFunctions.value = res.map((a) => ({ label: a["label"], value: a["classname"] }));
     owner.value.valueFunction = compatibleValueFunctions.value[0].value;
   });
 }
+watch(
+  () => owner.value.biddingStrategy.classname,
+  () => {
+    loadCompatibleValueFunctions();
+  }
+);
 </script>
 
 <style scoped></style>
