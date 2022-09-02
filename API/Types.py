@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 from pydantic import BaseModel
 from pydantic.fields import Field
@@ -24,16 +24,21 @@ class APILocations(BaseModel):
     points: List[APIWeightedCoordinate]
 
 
+class APIBiddingStrategy(BaseModel):
+    minLocations: int
+    maxLocations: int
+    allocationType: str
+    classname: str
+    meta: List[Dict[str, Any]]
+
+
 class APIOwner(BaseModel):
     color: str
     name: str
     agents: int
-    minLocations: int
-    maxLocations: int
-    type: str
-    classname: str
-    allocator: str
+    biddingStrategy: APIBiddingStrategy
     locations: List[APILocations]
+    valueFunction: str
 
 
 class APIMap(BaseModel):
@@ -42,22 +47,11 @@ class APIMap(BaseModel):
     neighbouringTiles: int
     bottomLeftCoordinate: APIWorldCoordinates
     topRightCoordinate: APIWorldCoordinates
-    subselection: APISubselection
+    subselection: Optional[APISubselection]
     resolution: int
     tiles: List[List[int]]
     height: int
     timesteps: int
-
-
-class APIAvailableOwner(BaseModel):
-    label: str
-    classname: str
-    description: str
-    ownerType: str
-    allocator: str
-    minLocations: int
-    maxLocations: int
-    meta: List[object]
 
 
 class APISimulationConfig(BaseModel):
@@ -66,5 +60,4 @@ class APISimulationConfig(BaseModel):
     allocator: str
     map: APIMap
     owners: List[APIOwner]
-    availableAllocators: Optional[List[str]]
-    availableOwnersForAllocator: Optional[List[APIAvailableOwner]]
+    paymentRule: str
