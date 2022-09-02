@@ -261,18 +261,18 @@ class Environment:
         """
         Returns True if the given coordinate is blocked for the given agent by any other agent.
         """
-        direct_collisions = self.intersect(coord, 0, agent.speed)
+        direct_collisions = self.intersect_path_coordinate(coord, 0, agent.speed)
         for agent_id in direct_collisions:
             if agent_id != agent.id:
                 return True
 
-        near_field_intersections = self.intersect(coord, agent.near_radius, agent.speed)
+        near_field_intersections = self.intersect_path_coordinate(coord, agent.near_radius, agent.speed)
         near_field_collision = self.have_intersections_collision(coord, agent, near_field_intersections,
                                                                  direct_collisions)
         if near_field_collision:
             return True
 
-        max_near_field_intersections = self.intersect(coord, self.max_near_radius, agent.speed)
+        max_near_field_intersections = self.intersect_path_coordinate(coord, self.max_near_radius, agent.speed)
         max_near_field_collision = self.have_intersections_collision(coord, agent, max_near_field_intersections,
                                                                      near_field_intersections)
         if max_near_field_collision:
@@ -328,7 +328,7 @@ class Environment:
         """
         return self.tree.intersection(bottom_left.list_rep() + top_right.list_rep())
 
-    def intersect(self, coords: "Coordinate4D", radius: int = 0, speed: int = 0) -> List[int]:
+    def intersect_path_coordinate(self, coords: "Coordinate4D", radius: int = 0, speed: int = 0) -> List[int]:
         """
         Return all agents intersecting with the given coordinate.
         All time steps from coordinate.t to coordinate.t + speed are considered.

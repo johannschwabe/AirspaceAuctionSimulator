@@ -62,6 +62,10 @@ class Statistics:
     SPACE_MEAN_HEIGHT_ABOVE_GROUND = "mean_height_above_ground"
     SPACE_MEDIAN_HEIGHT_ABOVE_GROUND = "median_height_above_ground"
 
+    # Space Encounters
+    SPACE_PATH_AGENT_ENCOUNTERS = "path_agent_encounters"
+    SPACE_SPACE_AGENT_ENCOUNTERS = "space_agent_encounters"
+
     def __init__(self, sim: "Simulator"):
         """
         Simulation instance.
@@ -256,7 +260,8 @@ class Statistics:
         total_space_violations: int = 0
 
         for coordinate in path_segment.coordinates:
-            encountered_agents_hashes = self.sim.environment.intersect(coordinate, self.sim.environment.max_near_radius)
+            encountered_agents_hashes = self.sim.environment.intersect_path_coordinate(coordinate,
+                                                                                       self.sim.environment.max_near_radius)
             for encountered_agent_hash in encountered_agents_hashes:
                 encountered_agent = self.sim.environment.agents[encountered_agent_hash]
 
@@ -290,6 +295,9 @@ class Statistics:
                         space_violations[coordinate] = []
                     space_violations[coordinate].append(encountered_agent)
                     total_space_violations += 1
+
+                else:
+                    raise Exception(f"Invalid agent {encountered_agent}")
 
         return {
             Statistics.PATH_ENCOUNTERS: encounters,
@@ -433,4 +441,47 @@ class Statistics:
             Statistics.SPACE_MEDIAN_TIME: median_time,
             Statistics.SPACE_MEAN_HEIGHT_ABOVE_GROUND: mean_height_above_ground,
             Statistics.SPACE_MEDIAN_HEIGHT_ABOVE_GROUND: median_height_above_ground,
+        }
+
+    def space_segment_encounters(self, space_segment: "SpaceSegment"):
+        """
+        Tracks all encounters and violation for the given space-segment.
+        :param space_segment:
+        :return:
+        """
+        path_agent_encounters: List["PathAgent"] = []
+        space_agent_encounters: List["SpaceAgent"] = []
+
+        encountered_agents = self.sim.environment.other_agents_in_space(space_segment.min, space_segment.max,
+                                                                        self.sim.environment.max_near_radius)
+        for encountered_agent in encountered_agents:
+            if isinstance(encountered_agent, PathAgent):
+                path_agent_encounters.append(encountered_agent)
+            elif isinstance(encountered_agent, SpaceAgent):
+                space_agent_encounters.append(encountered_agent)
+            else:
+                raise Exception(f"Invalid agent {encountered_agent}")
+
+        return {
+            Statistics.SPACE_PATH_AGENT_ENCOUNTERS: path_agent_encounters,
+            Statistics.SPACE_SPACE_AGENT_ENCOUNTERS: space_agent_encounters,
+        }
+
+    def space_agent_encounters(self, space_agent: "SpaceAgent"):
+        """
+        Tracks all encounters and violation for the given space-agent.
+        :param space_agent:
+        :return:
+        """
+        path_agent_encounters: List["PathAgent"] = []
+        space_agent_encounters: List["SpaceAgent"] = []
+
+        for space_segment in space_agent.allocated_segments:
+            space_segment_encounters = self.space_segment_encounters(space_segment)
+            path_agent_encounters.extend(space_segment_encounters[Statistics.SPACE_PATH_AGENT_ENCOUNTERS])
+            space_agent_encounters.extend(space_segment_encounters[Statistics.SPACE_SPACE_AGENT_ENCOUNTERS])
+
+        return {
+            Statistics.SPACE_PATH_AGENT_ENCOUNTERS: path_agent_encounters,
+            Statistics.SPACE_SPACE_AGENT_ENCOUNTERS: space_agent_encounters,
         }

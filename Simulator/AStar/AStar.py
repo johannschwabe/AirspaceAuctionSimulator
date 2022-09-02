@@ -159,7 +159,7 @@ class AStar:
                 return True, colliding_agents
             return False, None
 
-        agent_hashes = self.environment.intersect(position, agent.near_radius, agent.speed)
+        agent_hashes = self.environment.intersect_path_coordinate(position, agent.near_radius, agent.speed)
 
         for agent_hash in agent_hashes:
             if agent_hash == hash(agent):
