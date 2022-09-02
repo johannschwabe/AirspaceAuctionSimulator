@@ -1,5 +1,7 @@
 import statistics
-from typing import TYPE_CHECKING, List, Dict, Optional
+from typing import TYPE_CHECKING, List, Dict, Optional, Iterator
+
+from rtree import index, Index
 
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
@@ -345,8 +347,8 @@ class Statistics:
         :return:
         """
         delta = space_segment.max - space_segment.min
-        volume = delta.x * delta.y * delta.z
-        area = delta.x * delta.z
+        volume = delta.volume
+        area = delta.area
         height = delta.y
         time = delta.t
         height_above_ground = space_segment.min.y
@@ -360,32 +362,55 @@ class Statistics:
         }
 
     @staticmethod
+    def setup_rtree() -> Index:
+        """
+        Returns a rtree instance with 4 dimensions.
+        """
+        props = index.Property()
+        props.dimension = 4
+        return index.Rtree(properties=props)
+
+    @staticmethod
     def spaces_statistics(spaces: List["SpaceSegment"]):
         """
         Create statistics for spaces (list of space-segments).
         :param spaces:
         :return:
         """
-        volume = 0
+        summed_volume = 0
+        intersecting_volume = 0
         volumes = []
-        area = 0
+        summed_area = 0
+        intersecting_area = 0
         areas = []
         heights = []
         times = []
         heights_above_ground = []
-        
+
+        tree = Statistics.setup_rtree()
+
         for space_segment in spaces:
+            intersections: Iterator["SpaceSegment"] = tree.intersection(space_segment.tree_rep(), objects="raw")
+            for intersecting_space_segment in intersections:
+                intersecting_space = space_segment.intersect(intersecting_space_segment)
+                intersecting_volume += intersecting_space.volume
+                intersecting_area += intersecting_space.area
+
+            tree.insert(hash(space_segment), space_segment.tree_rep(), obj=space_segment)
+
             space_segment_statistics = Statistics.space_segment_statistics(space_segment)
-            volume += space_segment_statistics[Statistics.SPACE_VOLUME]
+            summed_volume += space_segment_statistics[Statistics.SPACE_VOLUME]
             volumes.append(space_segment_statistics[Statistics.SPACE_VOLUME])
-            area += space_segment_statistics[Statistics.SPACE_AREA]
+            summed_area += space_segment_statistics[Statistics.SPACE_AREA]
             areas.append(space_segment_statistics[Statistics.SPACE_AREA])
             heights.append(space_segment_statistics[Statistics.SPACE_HEIGHT])
             times.append(space_segment_statistics[Statistics.SPACE_TIME])
             heights_above_ground.append(space_segment_statistics[Statistics.SPACE_HEIGHT_ABOVE_GROUND])
 
+        volume = summed_volume - intersecting_volume
         mean_volume = statistics.mean(volumes)
         median_volume = statistics.median(volumes)
+        area = summed_area - intersecting_area
         mean_area = statistics.mean(areas)
         median_area = statistics.median(areas)
         mean_height = statistics.mean(heights)

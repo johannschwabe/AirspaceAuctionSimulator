@@ -36,5 +36,30 @@ class SpaceSegment(Segment):
     def max(self) -> "Coordinate4D":
         return self._max
 
+    @property
+    def dimension(self) -> "Coordinate4D":
+        return self.max - self.min
+
+    def intersect(self, other: "SpaceSegment"):
+        if self.max <= other.min or other.max <= self.min:
+            # no intersection
+            return Coordinate4D(0, 0, 0, 0)
+
+        if self.max <= other.max:
+            if self.min >= other.min:
+                # self contained in other
+                return self.dimension
+            else:
+                # self < other
+                return self.max - other.min
+
+        if self.max >= other.max:
+            if self.min <= other.min:
+                # self contains other
+                return other.dimension
+            else:
+                # self > other
+                return other.max - self.min
+
     def clone(self) -> "SpaceSegment":
         return SpaceSegment(self.min.clone(), self.max.clone())

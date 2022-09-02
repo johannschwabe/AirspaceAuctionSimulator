@@ -27,6 +27,30 @@ class Coordinate4D(Coordinate3D):
                self.z == other.z and \
                self.t == other.t
 
+    def __lt__(self, other) -> bool:
+        return self.x < other.x and \
+               self.y < other.y and \
+               self.z < other.z and \
+               self.t < other.t
+
+    def __gt__(self, other) -> bool:
+        return self.x > other.x and \
+               self.y > other.y and \
+               self.z > other.z and \
+               self.t > other.t
+
+    def __ge__(self, other) -> bool:
+        return self.x >= other.x and \
+               self.y >= other.y and \
+               self.z >= other.z and \
+               self.t >= other.t
+
+    def __le__(self, other) -> bool:
+        return self.x <= other.x and \
+               self.y <= other.y and \
+               self.z <= other.z and \
+               self.t <= other.t
+
     def __hash__(self) -> int:
         return hash(f"{self.x}:{self.y}:{self.z}:{self.t}")
 
