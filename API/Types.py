@@ -45,11 +45,8 @@ class APIMap(BaseModel):
     coordinates: APIWorldCoordinates
     locationName: str
     neighbouringTiles: int
-    bottomLeftCoordinate: APIWorldCoordinates
-    topRightCoordinate: APIWorldCoordinates
     subselection: Optional[APISubselection]
     resolution: int
-    tiles: List[List[int]]
     height: int
     timesteps: int
 

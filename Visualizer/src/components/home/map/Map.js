@@ -160,7 +160,7 @@ export const useMap = (mapRoot, layers, subselection = false) => {
    * @type {ComputedRef<number>}
    */
   const zoom = computed(() => {
-    return Math.floor(15 / Math.sqrt(simulationConfig.map.tiles.length));
+    return Math.floor(15 / (1 + 2 * simulationConfig.map.neighbouringTiles));
   });
 
   const size = computed(() => {

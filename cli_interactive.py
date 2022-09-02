@@ -26,11 +26,14 @@ parser.add_argument('-c', '--create', dest="create", action="store_true", help='
 parser.add_argument('-n', '--name', dest="name", type=str, help='Model name')
 parser.add_argument('-d', '--description', dest="description", type=str, help='Model description')
 parser.add_argument('--allocator', dest="allocator", type=str, help='Allocator')
+parser.add_argument('--payment-rule', dest="paymentRule", type=str, help='Payment Rule')
 parser.add_argument('--address', dest="addressQuery", type=str, help='Address Query')
 parser.add_argument('--neighbouring-tiles', dest="neighbouringTiles", type=int, choices=range(0, 3), help='Neighbouring Tiles for Map')
 parser.add_argument('--resolution', dest="resolution", type=int, choices=range(1, 20), help='Map resolution')
 parser.add_argument('--height', dest="height", type=int, choices=range(20, 1000), help='Map height')
+parser.add_argument('--min-height', dest="minHeight", type=int, choices=range(20, 999), help='Minimum Flight height')
 parser.add_argument('--timesteps', dest="timesteps", type=int, choices=range(300, 4000), help='Timesteps')
+parser.add_argument('--allocation-period', dest="allocationPeriod", type=int, choices=range(300, 4000), help='Allocation period')
 
 args = parser.parse_args()
 
@@ -77,6 +80,7 @@ if model is None:
         "name": args.name,
         "description": args.description,
         "allocator": args.allocator,
+        "paymentRule": args.paymentRule,
         "map": {
             "coordinages": {
                 "lat": -1.0,
@@ -94,7 +98,9 @@ if model is None:
             },
             "resolution": args.resolution,
             "height": args.height,
+            "minHeight": args.minHeight,
             "timesteps": args.timesteps,
+            "allocationPeriod": args.allocationPeriod,
         }
     }
     if not model_data['name']:
@@ -107,6 +113,13 @@ if model is None:
     if not model_data['allocator']:
         model_data['allocator'] = inquirer.select(
             message="Allocator:",
+            choices=[Choice(allocator.__name__) for allocator in available_allocators],
+            default=None,
+        ).execute()
+
+    if not model_data['paymentRule']:
+        model_data['paymentRule'] = inquirer.select(
+            message="Payment Rule:",
             choices=[Choice(allocator.__name__) for allocator in available_allocators],
             default=None,
         ).execute()
@@ -134,41 +147,53 @@ if model is None:
                 print(f"Found address '{model_data['map']['locationName']}'")
                 address_correct = inquirer.confirm(message="Location correct?", default=True).execute()
 
-    model_data["map"]["neighbouringTiles"] = inquirer.number(
-        message="Neighbouring Tiles:",
-        min_allowed=0,
-        max_allowed=3,
-        validate=EmptyInputValidator(),
-    ).execute()
+    if not model_data["map"]["neighbouringTiles"]:
+        model_data["map"]["neighbouringTiles"] = inquirer.number(
+            message="Neighbouring Tiles:",
+            min_allowed=0,
+            max_allowed=3,
+            validate=EmptyInputValidator(),
+        ).execute()
 
-    # TODO bottomLeftCoordinate
-    # TODO topRightCoordinate
-    # lat = float(model_data["map"]["coordinages"]["lat"])
-    # lon = float(model_data["map"]["coordinages"]["lon"])
-    # transform(Proj(init='epsg:4326'), Proj(init='epsg:3857'), lon, lat)
+    if not model_data["map"]["resolution"]:
+        model_data["map"]["resolution"] = inquirer.number(
+            message="Resolution:",
+            min_allowed=1,
+            max_allowed=20,
+            validate=EmptyInputValidator(),
+        ).execute()
 
-    model_data["map"]["resolution"] = inquirer.number(
-        message="Resolution:",
-        min_allowed=1,
-        max_allowed=20,
-        validate=EmptyInputValidator(),
-    ).execute()
+    if not model_data["map"]["height"]:
+        model_data["map"]["height"] = inquirer.number(
+            message="Height:",
+            min_allowed=20,
+            max_allowed=1000,
+            validate=EmptyInputValidator(),
+        ).execute()
 
-    # TODO tiles
+    if not model_data["map"]["minHeight"]:
+        model_data["map"]["minHeight"] = inquirer.number(
+            message="Height:",
+            min_allowed=20,
+            max_allowed=model_data["map"]["height"]-1,
+            validate=EmptyInputValidator(),
+        ).execute()
 
-    model_data["map"]["height"] = inquirer.number(
-        message="Height:",
-        min_allowed=20,
-        max_allowed=1000,
-        validate=EmptyInputValidator(),
-    ).execute()
+    if not model_data["map"]["timesteps"]:
+        model_data["map"]["timesteps"] = inquirer.number(
+            message="Timesteps:",
+            min_allowed=300,
+            max_allowed=4000,
+            validate=EmptyInputValidator(),
+        ).execute()
 
-    model_data["map"]["timesteps"] = inquirer.number(
-        message="Timesteps:",
-        min_allowed=300,
-        max_allowed=4000,
-        validate=EmptyInputValidator(),
-    ).execute()
+    if not model_data["map"]["allocationPeriod"]:
+        model_data["map"]["allocationPeriod"] = inquirer.number(
+            message="Allocation Period:",
+            min_allowed=1,
+            max_allowed=round(model_data["map"]["timesteps"] ** (1 / 3)),
+            validate=EmptyInputValidator(),
+        ).execute()
 
     model = APISimulationConfig(**model_data)
 

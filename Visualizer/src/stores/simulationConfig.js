@@ -12,12 +12,9 @@ import { randomName } from "../scripts/names";
 /**
  * @typedef {Object} MapConfig
  * @property {{long: number, lat: number}} coordinates
- * @property {{long: number, lat: number}} bottomLeftCoordinate
- * @property {{long: number, lat: number}} topRightCoordinate
  * @property {string} locationName
  * @property {number} neighbouringTiles
  * @property {{bottomLeft: {long: number, lat: number}, topRight: {long: number, lat: number}}} subselection
- * @property {number[]} tiles
  */
 
 /**
@@ -85,8 +82,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     },
     locationName: "",
     neighbouringTiles: 0,
-    bottomLeftCoordinate: undefined,
-    topRightCoordinate: undefined,
     subselection: {
       bottomLeft: undefined,
       topRight: undefined,
@@ -96,7 +91,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     minHeight: 0,
     allocationPeriod: 60,
     timesteps: 1500,
-    tiles: [],
   });
 
   /**
@@ -302,10 +296,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     map.coordinates = config.map.coordinates;
     map.locationName = config.map.locationName;
     map.neighbouringTiles = config.map.neighbouringTiles;
-    map.topRightCoordinate = config.map.topRightCoordinate;
-    map.bottomLeftCoordinate = config.map.bottomLeftCoordinate;
     map.subselection = config.map.subselection;
-    map.tiles = config.map.tiles;
     map.timesteps = config.map.timesteps;
     map.height = config.map.height;
 
