@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, watchEffect } from "vue";
+import { computed, ref, watch } from "vue";
 import { useSimulationConfigStore } from "../../../stores/simulationConfig.js";
 import { getSupportedValueFunctions } from "../../../API/api";
 
