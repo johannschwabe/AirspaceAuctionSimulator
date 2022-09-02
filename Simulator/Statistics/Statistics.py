@@ -27,10 +27,8 @@ class Statistics:
     TIME_DIFFERENCE = "time_difference"
     ASCENT = "ascent"
     DESCENT = "descent"
-    L1_DISTANCE_TRAVELED = "l1_distance_traveled"
-    L2_DISTANCE_TRAVELED = "l2_distance_traveled"
-    L1_GROUND_DISTANCE_TRAVELED = "l1_ground_distance_traveled"
-    L2_GROUND_DISTANCE_TRAVELED = "l2_ground_distance_traveled"
+    DISTANCE_TRAVELED = "distance_traveled"
+    GROUND_DISTANCE_TRAVELED = "ground_distance_traveled"
     MEAN_HEIGHT = "mean_height"
     MEDIAN_HEIGHT = "median_height"
     DELTAS = "deltas"
@@ -129,39 +127,36 @@ class Statistics:
         :param path_segment:
         :return:
         """
-        l1_distance: int = int(path_segment.min.inter_temporal_distance(path_segment.max))
-        l2_distance: float = path_segment.min.inter_temporal_distance(path_segment.max, l2=True)
-        l1_ground_distance: int = int(Coordinate2D.distance(path_segment.min, path_segment.max))
-        l2_ground_distance: float = Coordinate2D.distance(path_segment.min, path_segment.max, l2=True)
+        delta = path_segment.max - path_segment.min
+
+        l1_distance: int = delta.to_3D().l1
+        l2_distance: float = delta.to_3D().l2
+        l1_ground_distance: int = delta.to_2D().l1
+        l2_ground_distance: float = delta.to_2D().l2
         height_difference: int = path_segment.max.y - path_segment.min.y
         time_difference: int = path_segment.max.t - path_segment.min.t
         heights: List[int] = []
         deltas: List["Coordinate3D"] = []
         ascent: int = 0
         descent: int = 0
-        l1_distance_traveled: int = 0
-        l2_distance_traveled: int = 0
-        l1_ground_distance_traveled: int = 0
-        l2_ground_distance_traveled: int = 0
+        distance_traveled: int = 0
+        ground_distance_traveled: int = 0
         previous_coordinate: Optional["Coordinate4D"] = None
         for coordinate in path_segment.coordinates:
             if previous_coordinate is not None:
-                # height
-                delta_y = coordinate.y - previous_coordinate.y
-                if delta_y > 0:
-                    ascent += delta_y
-                elif delta_y < 0:
-                    descent += abs(delta_y)
-                # distance
-                delta = previous_coordinate - coordinate
+                delta = coordinate - previous_coordinate
                 deltas.append(delta)
-                l1_distance_traveled += delta.l1
-                l2_distance_traveled += delta.l2
-                l1_ground_distance_traveled += Coordinate2D.distance(previous_coordinate, coordinate)
-                l2_ground_distance_traveled += Coordinate2D.distance(previous_coordinate, coordinate, l2=True)
+                # height
+                if delta.y > 0:
+                    ascent += delta.y
+                elif delta.y < 0:
+                    descent += abs(delta.y)
+                # distance
+                distance_traveled += delta.l1
+                ground_distance_traveled += delta.to_2D().l1
             # heights
             heights.append(coordinate.y)
-            # update previous for loop
+            # update previous coordinate
             previous_coordinate = coordinate
 
         mean_height: float = statistics.mean(heights)
@@ -176,10 +171,8 @@ class Statistics:
             Statistics.TIME_DIFFERENCE: time_difference,
             Statistics.ASCENT: ascent,
             Statistics.DESCENT: descent,
-            Statistics.L1_DISTANCE_TRAVELED: l1_distance_traveled,
-            Statistics.L2_DISTANCE_TRAVELED: l2_distance_traveled,
-            Statistics.L1_GROUND_DISTANCE_TRAVELED: l1_ground_distance_traveled,
-            Statistics.L2_GROUND_DISTANCE_TRAVELED: l2_ground_distance_traveled,
+            Statistics.DISTANCE_TRAVELED: distance_traveled,
+            Statistics.GROUND_DISTANCE_TRAVELED: ground_distance_traveled,
             Statistics.MEAN_HEIGHT: mean_height,
             Statistics.MEDIAN_HEIGHT: median_height,
             Statistics.DELTAS: deltas,
@@ -203,20 +196,16 @@ class Statistics:
         deltas: List["Coordinate3D"] = []
         ascent: int = 0
         descent: int = 0
-        l1_distance_traveled: int = 0
-        l2_distance_traveled: int = 0
-        l1_ground_distance_traveled: int = 0
-        l2_ground_distance_traveled: int = 0
+        distance_traveled: int = 0
+        ground_distance_traveled: int = 0
         for path_segment in path:
             path_segment_statistics = Statistics.path_segment_statistics(path_segment)
             heights.extend(path_segment_statistics[Statistics.HEIGHTS])
             deltas.extend(path_segment_statistics[Statistics.DELTAS])
             ascent += path_segment_statistics[Statistics.ASCENT]
             descent += path_segment_statistics[Statistics.DESCENT]
-            l1_distance_traveled += path_segment_statistics[Statistics.L1_DISTANCE_TRAVELED]
-            l2_distance_traveled += path_segment_statistics[Statistics.L2_DISTANCE_TRAVELED]
-            l1_ground_distance_traveled += path_segment_statistics[Statistics.L1_GROUND_DISTANCE_TRAVELED]
-            l2_ground_distance_traveled += path_segment_statistics[Statistics.L2_GROUND_DISTANCE_TRAVELED]
+            distance_traveled += path_segment_statistics[Statistics.DISTANCE_TRAVELED]
+            ground_distance_traveled += path_segment_statistics[Statistics.GROUND_DISTANCE_TRAVELED]
 
         mean_height: float = statistics.mean(heights)
         median_height: int = statistics.median(heights)
@@ -230,10 +219,8 @@ class Statistics:
             Statistics.TIME_DIFFERENCE: time_difference,
             Statistics.ASCENT: ascent,
             Statistics.DESCENT: descent,
-            Statistics.L1_DISTANCE_TRAVELED: l1_distance_traveled,
-            Statistics.L2_DISTANCE_TRAVELED: l2_distance_traveled,
-            Statistics.L1_GROUND_DISTANCE_TRAVELED: l1_ground_distance_traveled,
-            Statistics.L2_GROUND_DISTANCE_TRAVELED: l2_ground_distance_traveled,
+            Statistics.DISTANCE_TRAVELED: distance_traveled,
+            Statistics.GROUND_DISTANCE_TRAVELED: ground_distance_traveled,
             Statistics.MEAN_HEIGHT: mean_height,
             Statistics.MEDIAN_HEIGHT: median_height,
             Statistics.DELTAS: deltas,

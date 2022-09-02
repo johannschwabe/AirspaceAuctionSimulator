@@ -43,7 +43,7 @@ class FCFSAllocator(Allocator):
         :return:
         """
         a = bid.locations[0]
-        start = a.to_inter_temporal()
+        start = a.to_3D()
         a = a.clone()
 
         time = 0
@@ -52,7 +52,7 @@ class FCFSAllocator(Allocator):
 
         for b, stay in zip(bid.locations[1:], bid.stays):
 
-            end = b.to_inter_temporal()
+            end = b.to_3D()
             b = b.clone()
 
             if environment.is_blocked_forever(a, bid.agent.near_radius):
@@ -92,7 +92,7 @@ class FCFSAllocator(Allocator):
             count += 1
 
             a = ab_path[-1]
-            start = a.to_inter_temporal()
+            start = a.to_3D()
             a = a.clone()
             a.t += stay
 

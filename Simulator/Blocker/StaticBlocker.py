@@ -19,7 +19,7 @@ class StaticBlocker(Blocker):
     def add_to_tree(self, tree: "Index", dimension: "Coordinate4D"):
         assert self.id > -1
         max_pos_3d = self.location + self.dimension
-        max_pos_4d = Coordinate4D.from_3d(max_pos_3d, dimension.t)
-        min_pos_4d = Coordinate4D.from_3d(self.location, 0)
+        max_pos_4d = Coordinate4D.from_3D(max_pos_3d, dimension.t)
+        min_pos_4d = Coordinate4D.from_3D(self.location, 0)
         tree_rep = min_pos_4d.list_rep() + max_pos_4d.list_rep()
         tree.insert(self.id, tree_rep)
