@@ -7,7 +7,7 @@ from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile
 from Demos.FCFS import FCFSAllocator, FCFSPathOwner, FCFSSpaceOwner, FCFSPaymentRule
 from Demos.Priority import PriorityAllocator, PriorityPathOwner, PrioritySpaceOwner, PriorityPaymentRule
 from Simulator import Simulator, Coordinate4D, StaticBlocker, Coordinate3D, Environment, GridLocation, \
-    GridLocationType, build_json, Mechanism
+    GridLocationType, Statistics, Mechanism
 
 random.seed(4)
 dimensions = Coordinate4D(40, 40, 40, 1000)
@@ -120,7 +120,8 @@ if __name__ == "__main__":
     print(f"SIM: {sim_time / 6e10:2.2f} min")
     print()
 
-    res = build_json(simulatorAligator, sim_time)
+    stats = Statistics(simulatorAligator)
+    res = stats.build_json(sim_time)
     res["config"] = {"name": "test",
                      "map": {"tiles": []},
                      "dimension": environment.dimension.to_dict(),

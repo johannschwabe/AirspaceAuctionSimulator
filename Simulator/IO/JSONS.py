@@ -1,7 +1,6 @@
 from abc import ABC
 from typing import Dict, List, TYPE_CHECKING, Optional
 
-from .Statistics import Statistics
 from .Stringify import Stringify
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
@@ -17,7 +16,6 @@ if TYPE_CHECKING:
     from ..Blocker.Blocker import Blocker
     from ..Segments.PathSegment import PathSegment
     from ..Segments.SpaceSegment import SpaceSegment
-    from ..Simulator import Simulator
     from ..Environment.Environment import Environment
 
 
@@ -186,15 +184,3 @@ class JSONSimulation(Stringify):
         self.owners: List["JSONOwner"] = owners
         self.compute_time: int = total_compute_time
         self.step_compute_time: Dict[int, int] = step_compute_time
-
-
-def build_json(simulator: "Simulator", total_compute_time: int):
-    """
-    Build the JSON file of the simulation.
-    :param simulator:
-    :param total_compute_time:
-    :return:
-    """
-    statistics = Statistics(simulator)
-    json_simulation = statistics.get_json_simulation(total_compute_time)
-    return json_simulation.as_dict()

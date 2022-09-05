@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pydantic.fields import Field
 
-from Simulator import Coordinate4D, build_json
+from Simulator import Coordinate4D, Statistics
 from .Area import Area
 from .Generator.Generator import Generator
 from .Generator.MapTile import MapTile
@@ -172,7 +172,8 @@ def read_root(config: APISimulationConfig):
     end_time = time.time_ns()
     duration = int((end_time - start_time) / 1e9)
     print("--Simulation Completed--")
-    json = build_json(g.simulator, duration)
+    stats = Statistics(g.simulator)
+    json = stats.build_json(duration)
     json["config"] = config
     return json
 

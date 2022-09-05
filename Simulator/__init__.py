@@ -25,8 +25,8 @@ from .Coordinates.Coordinate4D import Coordinate4D
 from .Environment.Environment import Environment
 # History
 from .History.History import History
-# JSON
-from .IO.JSONS import build_json
+# IO
+from .IO.Statistics import Statistics
 # Location
 from .Location.GridLocation import GridLocation
 from .Location.GridLocationType import GridLocationType
@@ -46,5 +46,5 @@ from .Segments.Segment import Segment
 from .Segments.SpaceSegment import SpaceSegment
 # Simulator
 from .Simulator import Simulator
-# Value Funktions
+# Value Functions
 from .ValueFunction.ValueFunction import ValueFunction

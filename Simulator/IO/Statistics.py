@@ -524,3 +524,12 @@ class Statistics:
         for agent in self.simulation.environment.agents.values():
             total_violations += self.get_agent_violations(agent).total_violations
         return total_violations
+
+    def build_json(self, total_compute_time: int):
+        """
+        Build the JSON file of the simulation.
+        :param total_compute_time:
+        :return:
+        """
+        json_simulation = self.get_json_simulation(total_compute_time)
+        return json_simulation.as_dict()
