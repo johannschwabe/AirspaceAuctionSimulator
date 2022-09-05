@@ -17,6 +17,7 @@ exclude_lines =
     if 0:
     if __name__ == .__main__.:
     if TYPE_CHECKING:
+    pass
 
     # Don't complain about abstract methods, they aren't run:
     @(abc\.)?abstractmethod

@@ -79,3 +79,47 @@ class OwnerTest(unittest.TestCase):
         self.assertEqual(len(agents), 1)
         self.assertEqual(len(agents[0].blocks), 1)
         self.assertEqual(agents[0].blocks[0][1] - agents[0].blocks[0][0], self.space_owner.size)
+
+    def test_tombola_inverse(self):
+        heatmap = Heatmap(heatmap_type=str(HeatmapType.INVERSE_SPARSE.value), inverse_sparse={
+            0.1: [Coordinate2D(1, 1), Coordinate2D(1, 2), Coordinate2D(2, 1), Coordinate2D(2, 2)],
+            0.2: [Coordinate2D(3, 3), Coordinate2D(3, 4), Coordinate2D(4, 3), Coordinate2D(4, 4)],
+            0.8: [Coordinate2D(8, 8), Coordinate2D(8, 9), Coordinate2D(9, 8), Coordinate2D(9, 9)]
+        })
+        tombola = heatmap.assemble_tombola()
+        self.assertEqual(tombola.count(Coordinate2D(1, 1)), 1)
+        self.assertEqual(tombola.count(Coordinate2D(2, 2)), 1)
+        self.assertEqual(tombola.count(Coordinate2D(3, 3)), 2)
+        self.assertEqual(tombola.count(Coordinate2D(4, 4)), 2)
+        self.assertEqual(tombola.count(Coordinate2D(8, 8)), 8)
+        self.assertEqual(tombola.count(Coordinate2D(9, 8)), 8)
+
+    def test_tombola_matrix(self):
+        matrix = [[min(i, j) / 10 for j in range(10)] for i in range(10)]
+        heatmap = Heatmap(heatmap_type=str(HeatmapType.MATRIX.value),
+                          matrix=matrix)
+        tombola = heatmap.assemble_tombola()
+        self.assertEqual(tombola.count(Coordinate2D(1, 1)), 1)
+        self.assertEqual(tombola.count(Coordinate2D(2, 2)), 2)
+        self.assertEqual(tombola.count(Coordinate2D(3, 3)), 3)
+        self.assertEqual(tombola.count(Coordinate2D(4, 4)), 4)
+        self.assertEqual(tombola.count(Coordinate2D(8, 8)), 8)
+        self.assertEqual(tombola.count(Coordinate2D(9, 8)), 8)
+
+    def test_tombola_sparse(self):
+        heatmap = Heatmap(heatmap_type=str(HeatmapType.SPARSE.value),
+                          sparse={
+                              Coordinate2D(1, 1): 0.1,
+                              Coordinate2D(2, 2): 0.2,
+                              Coordinate2D(3, 3): 0.3,
+                              Coordinate2D(4, 4): 0.4,
+                              Coordinate2D(8, 8): 0.8,
+                              Coordinate2D(9, 8): 0.8,
+                          })
+        tombola = heatmap.assemble_tombola()
+        self.assertEqual(tombola.count(Coordinate2D(1, 1)), 1)
+        self.assertEqual(tombola.count(Coordinate2D(2, 2)), 2)
+        self.assertEqual(tombola.count(Coordinate2D(3, 3)), 3)
+        self.assertEqual(tombola.count(Coordinate2D(4, 4)), 4)
+        self.assertEqual(tombola.count(Coordinate2D(8, 8)), 8)
+        self.assertEqual(tombola.count(Coordinate2D(9, 8)), 8)
