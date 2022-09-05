@@ -11,27 +11,14 @@
  */
 
 /**
- * @typedef {{t: RawArrayCoordinate}} RawTimeArrayCoordinate
- */
-
-/**
  * @typedef {Object} RawPath
- * @property {RawTimeArrayCoordinate} t
+ * @property {int: RawArrayCoordinate} positions
  */
 
 /**
- * @typedef {string} RawCollisionReason
- */
-
-/**
- * @typedef {string} RawReason
- */
-
-/**
- * @typedef {Object} RawCollision
- * @property {RawReason} reason
- * @property {int} agent_id
- * @property {int} blocker_id
+ * @typedef {Object} RawSpace
+ * @property {RawTimeCoordinate} min
+ * @property {RawTimeCoordinate} max
  */
 
 /**
@@ -39,32 +26,46 @@
  * @property {int} tick
  * @property {RawPath[]} paths
  * @property {float} value
- * @property {RawCollision} reason
+ * @property {string} reason
+ * @property {string[]} colliding_agent_ids
+ * @property {int} compute_time
+ */
+
+/**
+ * @typedef {Object} RawViolations
+ * @property {{string: RawTimeCoordinate}} violations
+ * @property {int} total_violations
  */
 
 /**
  * @typedef {Object} RawAgent
  * @property {string} agent_type
- * @property {string} allocation_type
  * @property {string} id
- * @property {string} name
- * @property {int} speed
- * @property {int} near_radius
- * @property {int} far_radius
- * @property {float} utility
- * @property {int} battery
- * @property {int} time_in_air
- * @property {float} non_colliding_utility
- * @property {int} near_field_intersections
- * @property {int} far_field_intersections
- * @property {int} near_field_violations
- * @property {int} far_field_violations
- * @property {int} bid
- * @property {int} owner_id
- * @property {string} owner_name
- * @property {RawPath[]} paths
- * @property {RawBranch[]} branches
- * @property {{min: RawTimeCoordinate, max: RawTimeCoordinate}[]} spaces
+ * @property {float} value
+ * @property {float} non_colliding_value
+ * @property {RawViolations} violations
+ * @property {int} total_reallocations
+ * Space-Agent:
+ * @property {RawSpace[]} [spaces]
+ * Path-Agent:
+ * @property {int} [speed]
+ * @property {int} [near_radius]
+ * @property {int} [battery]
+ * @property {int} [time_in_air]
+ * @property {RawPath[]} [paths]
+ * @property {RawBranch[]} [branches]
+ */
+
+/**
+ * @typedef {Object} RawValues
+ * @property {float[]} values
+ * @property {float} total
+ * @property {float} mean
+ * @property {float} median
+ * @property {float} max
+ * @property {float} min
+ * @property {float[]} quartiles
+ * @property {float[]} outliers
  */
 
 /**
@@ -74,34 +75,39 @@
  * @property {string} color
  * @property {RawAgent[]} agents
  * @property {int} total_time_in_air
- * @property {int} total_bid_value
- * @property {float} mean_bid_value
- * @property {float} median_bid_value
- * @property {float} max_bid_value
- * @property {float} min_bid_value
- * @property {float[]} bid_quantiles
- * @property {float[]} bid_outliers
- * @property {int} total_utility
- * @property {float} mean_utility
- * @property {float} median_utility
- * @property {float} max_utility
- * @property {float} min_utility
- * @property {float[]} utility_quantiles
- * @property {float[]} utility_outliers
+ * @property {RawValues} values
+ * @property {RawValues} non_colliding_values
  * @property {int} number_of_agents
- * @property {int} number_of_ab_agents
- * @property {int} number_of_aba_agents
- * @property {int} number_of_abc_agents
- * @property {int} number_of_stationary_agents
+ * @property {{string: int}} number_per_type
  */
 
 /**
  * @typedef {Object} RawBlocker
  * @property {string} id
  * @property {string} blocker_type
- * @property {RawPath | undefined} [path]
- * @property {RawCoordinate | undefined} [location]
+ * @property {RawTimeCoordinate[]} [locations]
+ * @property {RawCoordinate} [location]
  * @property {RawCoordinate} dimension
+ */
+
+/**
+ * @typedef {Object} RawEnvironment
+ * @property {RawTimeCoordinate} dimensions
+ * @property {RawBlocker[]} blockers
+ */
+
+/**
+ * @typedef {Object} RawStatistics
+ * @property {int} total_number_of_owners
+ * @property {int} total_number_of_agents
+ * @property {float} total_value
+ * @property {float} total_non_colliding_value
+ * @property {int} total_number_of_collisions
+ * @property {int} total_number_of_reallocations
+ */
+
+/*
+ * Config
  */
 
 /**
@@ -118,21 +124,6 @@
  * @property {int} resolution
  * @property {RawSimpleCoordinate} bottomLeftCoordinate
  * @property {int[][]} tiles
- */
-
-/**
- * @typedef {Object} RawEnvironment
- * @property {RawTimeCoordinate} dimensions
- * @property {RawBlocker[]} blockers
- */
-
-/**
- * @typedef {Object} RawStatistics
- * @property {int} total_number_of_owners
- * @property {int} total_number_of_agents
- * @property {int} total_achieved_welfare
- * @property {int} total_number_of_collisions
- * @property {int} total_number_of_reallocations
  */
 
 /**
