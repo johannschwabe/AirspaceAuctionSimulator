@@ -1,4 +1,4 @@
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from ..Agents.Agent import Agent
@@ -23,7 +23,7 @@ class History:
         self.total_reallocations = 0
 
     def update_history(self,
-                       new_allocations: Dict["Agent", "Allocation"],
+                       new_allocations: List["Allocation"],
                        time_step: int,
                        compute_time: int):
         """
@@ -34,7 +34,8 @@ class History:
         :return:
         """
         self.compute_times[time_step] = compute_time
-        for agent, allocation in new_allocations.items():
+        for allocation in new_allocations:
+            agent = allocation.agent
             if agent not in self.allocations:
                 self.registrations[agent] = time_step
                 self.allocations[agent] = {}

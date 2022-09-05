@@ -90,14 +90,14 @@ class Statistics:
     def get_json_owners(self):
         json_owners: List["JSONOwner"] = []
         for owner in self.simulation.owners:
-            agents: List["JSONAgent"] = []
+            json_agents: List["JSONAgent"] = []
             for agent in owner.agents:
                 agent_value = self.get_value_for_agent(agent)
                 non_colliding_agent_value = self.get_non_colliding_value_for_agent(agent)
                 violations = self.get_agent_violations(agent)
                 total_reallocations: int = self.simulation.history.reallocations[agent]
                 if isinstance(agent, PathAgent):
-                    agents.append(JSONPathAgent(
+                    json_agents.append(JSONPathAgent(
                         agent,
                         agent_value,
                         non_colliding_agent_value,
@@ -107,7 +107,7 @@ class Statistics:
                     ))
 
                 elif isinstance(agent, SpaceAgent):
-                    agents.append(JSONSpaceAgent(
+                    json_agents.append(JSONSpaceAgent(
                         agent,
                         agent_value,
                         non_colliding_agent_value,
@@ -119,7 +119,7 @@ class Statistics:
                     raise Exception(f"Invalid Agent: {agent}")
 
             json_owners.append(JSONOwner(owner,
-                                         agents,
+                                         json_agents,
                                          self.get_values_for_owner(owner),
                                          self.get_non_colliding_values_for_owner(owner)))
 

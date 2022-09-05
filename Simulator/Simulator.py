@@ -66,7 +66,7 @@ class Simulator:
             real_allocations = self.environment.create_real_allocations(list(temporary_allocations.values()),
                                                                         new_agents)
             self.environment.allocate_segments_for_agents(real_allocations, self.time_step)
-            self.history.update_history(temporary_allocations, self.time_step, time_ns() - start_time)
+            self.history.update_history(real_allocations, self.time_step, time_ns() - start_time)
 
             print(f"STEP: {self.time_step}")
             print("-------------")
