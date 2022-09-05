@@ -6,11 +6,13 @@ if TYPE_CHECKING:
 
 
 class Segment(ABC):
-    def __init__(self):
-        self.coordinates: List[Coordinate4D] = []
-
     @abstractmethod
     def clone(self):
+        pass
+
+    @property
+    @abstractmethod
+    def coordinates(self) -> List["Coordinate4D"]:
         pass
 
     @abstractmethod

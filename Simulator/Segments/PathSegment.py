@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 class PathSegment(Segment):
     def __init__(self, start: "Coordinate3D", end: "Coordinate3D", index: int, coordinates: List["Coordinate4D"]):
         super().__init__()
-        self.coordinates: List["Coordinate4D"] = coordinates
+        self._coordinates: List["Coordinate4D"] = coordinates
         self.start: "Coordinate3D" = start
         self.end: "Coordinate3D" = end
         self.index: int = index
@@ -29,6 +29,10 @@ class PathSegment(Segment):
         if same_index:
             assert self.end == other.end
         return same_index
+
+    @property
+    def coordinates(self) -> List["Coordinate4D"]:
+        return self._coordinates
 
     @property
     def nr_voxels(self) -> int:
