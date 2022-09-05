@@ -187,7 +187,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
    * @type {UnwrapNestedRefs<AvailableOwnerConfig[]>}
    */
   const availableBiddingStrategiesForAllocator = reactive([]);
-  watchEffect(async () => {
+  const updateSupportedBiddingStrategies = async () => {
     const allocatorName = allocator.value;
     const biddingStrategiesSupportedByAllocator = await getBiddingStrategiesSupportedByAllocator(allocatorName);
     availableBiddingStrategiesForAllocator.splice(0);
@@ -204,14 +204,15 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     });
     owners.splice(0);
     owners.push(generateOwner());
-  });
+  };
+  void updateSupportedBiddingStrategies();
 
   /**
    * List of available biddingStrategies, but computed in a format that is supported by the naive-ui selector
    * @type {ComputedRef<{label: string, value: string}>}
    */
   const availableBiddingStrategiesOptions = computed(() => {
-    return availableBiddingStrategiesForAllocator.map((a) => ({ label: a.label, value: a }));
+    return availableBiddingStrategiesForAllocator.map((a) => ({ label: a.label, value: a.classname }));
   });
 
   /**
@@ -308,6 +309,9 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     map.tiles = config.map.tiles;
     map.timesteps = config.map.timesteps;
     map.height = config.map.height;
+    map.minHeight = config.map.minHeight;
+    map.resolution = config.map.resolution;
+    map.allocationPeriod = config.map.allocationPeriod;
 
     owners.splice(0);
     config.owners.forEach((owner) => owners.push(owner));
@@ -336,6 +340,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     generateConfigJson,
     overwrite,
     loadAvailableAllocators,
+    updateSupportedBiddingStrategies,
     setMapSubTile,
     paymentRule,
     availableBiddingStrategiesOptions,

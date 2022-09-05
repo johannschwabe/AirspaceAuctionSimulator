@@ -110,7 +110,6 @@ export const useMap = (mapRoot, layers, subselection = false) => {
    */
   const extent = computed(() => {
     if (subselection && simulationConfig.map.subselection?.bottomLeft && simulationConfig.map.subselection?.topRight) {
-      console.log([simulationConfig.map.subselection.bottomLeft]);
       return boundingExtent([
         fromLonLat([
           simulationConfig.map.subselection.bottomLeft.long,
