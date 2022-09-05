@@ -40,7 +40,7 @@ const biddingStrategy = ref(owner.value.biddingStrategy.classname);
 const compatibleValueFunctions = ref([]);
 function loadCompatibleValueFunctions() {
   getSupportedValueFunctions(simulationConfig.allocator, owner.value.biddingStrategy.classname).then((res) => {
-    compatibleValueFunctions.value = res.map((a) => ({ label: a["label"], value: a["classname"] }));
+    compatibleValueFunctions.value = res.map((a) => ({ label: a.label, value: a.classname }));
     const compatible = compatibleValueFunctions.value.find((comp) => {
       return comp.value === owner.value.valueFunction;
     });
