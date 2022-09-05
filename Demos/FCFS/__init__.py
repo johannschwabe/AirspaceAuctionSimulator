@@ -4,6 +4,6 @@ from .BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
 from .BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
 from .Bids.FCFSPathBid import FCFSPathBid
 from .Bids.FCFSSpaceBid import FCFSSpaceBid
-from .Owners.FCFSPathOwner import FCFSPathOwner
-from .Owners.FCFSSpaceOwner import FCFSSpaceOwner
 from .PaymentRule.FCFSPaymentRule import FCFSPaymentRule
+from .ValueFunction.FCFSPathValueFunction import FCFSPathValueFunction
+from .ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction

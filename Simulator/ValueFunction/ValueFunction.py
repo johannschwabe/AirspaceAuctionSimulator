@@ -11,9 +11,6 @@ class ValueFunction(ABC):
     label: str = "Abstract Value Function"
     description: str = "The description for a concrete value function"
 
-    def __init__(self, config):
-        self.config = config
-
     @abstractmethod
     def value_for_segments(self, segments: List["Segment"], agent: "Agent"):
         pass
