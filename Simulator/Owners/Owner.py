@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Dict, Any
 
 if TYPE_CHECKING:
     from ..Agents.Agent import Agent
     from ..Environment.Environment import Environment
+    from ..Bids.BiddingStrategy import BiddingStrategy
+    from ..ValueFunction.ValueFunction import ValueFunction
 
 
 class Owner(ABC):
@@ -14,7 +16,12 @@ class Owner(ABC):
     meta: []
     allocation_type: str
 
-    def __init__(self, owner_id: str, name: str, color: str):
+    def __init__(self, owner_id: str,
+                 bidding_strategy: "BiddingStrategy",
+                 value_function: "ValueFunction",
+                 name: str,
+                 color: str,
+                 meta: Dict[str, Any]):
         self.id: str = owner_id
         self.name: str = name
         self.color: str = color
@@ -23,6 +30,9 @@ class Owner(ABC):
         self.total_optimal_welfare: float = 0.
         self.total_costs: float = 0.
         self._agent_id: int = 0
+        self.bidding_strategy = bidding_strategy
+        self.value_function = value_function
+        self.config = meta
 
     def get_agent_id(self):
         agent_id = self._agent_id

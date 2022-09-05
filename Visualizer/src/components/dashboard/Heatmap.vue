@@ -105,7 +105,7 @@ const updateState = () => {
         for (let y = min[props.dimY]; y <= max[props.dimY]; y++) {
           const dim1 = Math.floor(x / dimXlength);
           const dim2 = Math.floor(y / dimYlength);
-          if (dim2 >= series.length || dim1 >= series[0].data.length) {
+          if (dim2 >= series.length || dim1 >= series[0].data.length || dim2 < 0 || dim1 < 0) {
             continue;
           }
           series[dim2].data[dim1] += 1;

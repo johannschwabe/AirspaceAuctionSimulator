@@ -1,23 +1,32 @@
 from time import time_ns
-from typing import List
+from typing import List, TYPE_CHECKING
 
-from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, Environment, \
-    AllocationStatistics, Agent
+from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, \
+    AllocationStatistics, Agent, BidTracker
 from ..BidTracker.FCFSBidTracker import FCFSBidTracker
+from ..BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
+from ..BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
 from ..Bids.FCFSPathBid import FCFSPathBid
 from ..Bids.FCFSSpaceBid import FCFSSpaceBid
-from ..Owners.FCFSPathOwner import FCFSPathOwner
-from ..Owners.FCFSSpaceOwner import FCFSSpaceOwner
+from ..PaymentRule.FCFSPaymentRule import FCFSPaymentRule
+
+if TYPE_CHECKING:
+    from Simulator import Environment
 
 
 class FCFSAllocator(Allocator):
+
+    @staticmethod
+    def compatible_payment_functions():
+        return [FCFSPaymentRule]
+
     def __init__(self):
         super().__init__()
         self.bid_tracker = FCFSBidTracker()
 
     @staticmethod
-    def compatible_owner():
-        return [FCFSPathOwner, FCFSSpaceOwner]
+    def compatible_bidding_strategies():
+        return [FCFSSpaceBiddingStrategy, FCFSPathBiddingStrategy]
 
     @staticmethod
     def allocate_path(bid: "FCFSPathBid", environment: "Environment", astar: "AStar", tick: int):
@@ -94,6 +103,9 @@ class FCFSAllocator(Allocator):
             if len(intersecting_agents) == 0:
                 optimal_path_segments.append(SpaceSegment(lower, upper))
         return optimal_path_segments
+
+    def get_bid_tracker(self) -> BidTracker:
+        return self.bid_tracker
 
     def allocate(self, agents: List["Agent"], environment: "Environment", tick: int):
         astar = AStar(environment, self.bid_tracker, tick)

@@ -41,6 +41,26 @@
             <n-input-number v-model:value="simulationConfig.map.neighbouringTiles" clearable :min="0" :max="3" />
           </n-form-item>
         </n-grid-item>
+
+        <!-- Minimum flying height  -->
+        <n-grid-item span="1">
+          <n-form-item label="Min height">
+            <n-input-number v-model:value="simulationConfig.map.minHeight" clearable :min="0" :max="100" />
+          </n-form-item>
+        </n-grid-item>
+        <!--    Allocation Period    -->
+        <n-grid-item span="2">
+          <n-form-item label="Allocation Period">
+            <n-slider
+              v-model:value="allocationPeriod"
+              :max="Math.pow(simulationConfig.map.timesteps, 1 / 3)"
+              :min="1"
+              :step="0.01"
+              :format-tooltip="formatAllocationPeriodSlider"
+              v-on:mouseup="updateAllocationPeriod"
+            />
+          </n-form-item>
+        </n-grid-item>
       </n-grid>
     </n-grid-item>
 
@@ -54,7 +74,7 @@
 import OSM from "ol/source/OSM";
 import axios from "axios";
 
-import { ref, watchEffect } from "vue";
+import { onUnmounted, ref, watchEffect } from "vue";
 import { fromLonLat, get, transformExtent } from "ol/proj";
 import { NavigateCircleOutline } from "@vicons/ionicons5";
 import { useMessage } from "naive-ui";
@@ -62,9 +82,11 @@ import { useMessage } from "naive-ui";
 import ViewOnlyMap from "./ViewOnlyMap.vue";
 
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import { offConfigLoaded, onConfigLoaded } from "../../../scripts/emitter";
 
 const message = useMessage();
 const simulationConfig = useSimulationConfigStore();
+const allocationPeriod = ref(Math.pow(simulationConfig.map.allocationPeriod, 1 / 3));
 
 // OSM Source and grid definitions
 const source = new OSM();
@@ -72,6 +94,10 @@ const grid = source.getTileGrid();
 
 // Prefilled address query
 const addressQuery = ref("Zurich, Switzerland");
+
+onConfigLoaded(() => {
+  allocationPeriod.value = Math.pow(simulationConfig.map.allocationPeriod, 1 / 3);
+});
 
 // Watch change in map config (zoom, address, etc.) and recalculate tiles and topLeft/bottomRight coordinates
 watchEffect(() => {
@@ -119,6 +145,16 @@ const resolveAddress = async () => {
   simulationConfig.map.coordinates.lat = parseFloat(data[0].lat);
   simulationConfig.map.coordinates.long = parseFloat(data[0].lon);
 };
+
+function formatAllocationPeriodSlider(value) {
+  return `${Math.round(value ** 3, 0)}`;
+}
+function updateAllocationPeriod() {
+  simulationConfig.map.allocationPeriod = Math.round(allocationPeriod.value ** 3);
+}
+onUnmounted(() => {
+  offConfigLoaded();
+});
 </script>
 
 <style scoped></style>
