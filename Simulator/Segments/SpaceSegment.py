@@ -1,9 +1,7 @@
-from typing import TYPE_CHECKING, List, Tuple
+from typing import List, Tuple
 
 from .Segment import Segment
-
-if TYPE_CHECKING:
-    from ..Coordinates.Coordinate4D import Coordinate4D
+from ..Coordinates.Coordinate4D import Coordinate4D
 
 
 class SpaceSegment(Segment):
