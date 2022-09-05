@@ -1,5 +1,5 @@
 import statistics
-from typing import TYPE_CHECKING, List, Dict, Optional
+from typing import TYPE_CHECKING, List, Dict, Optional, Any
 
 from rtree import index, Index
 
@@ -525,7 +525,7 @@ class Statistics:
             total_violations += self.get_agent_violations(agent).total_violations
         return total_violations
 
-    def build_json(self, total_compute_time: int):
+    def build_json(self, total_compute_time: int) -> Dict[str, Any]:
         """
         Build the JSON file of the simulation.
         :param total_compute_time:
