@@ -102,8 +102,6 @@ class JSONPathAgent(JSONAgent, Stringify):
         self.paths: List["JSONPath"] = [JSONPath(path) for path in agent.allocated_segments]
         self.branches = branches
 
-        self.nr_reallocations = len(self.branches)
-
 
 class JSONOwner(Stringify):
     def __init__(self,
