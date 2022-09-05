@@ -23,10 +23,10 @@ if TYPE_CHECKING:
 
 class JSONPath(Stringify):
     def __init__(self, path: "PathSegment"):
-        self.t: Dict[str, List[int, int, int]] = {}
+        self.positions: Dict[int, List[int, int, int]] = {}
 
         for coord in path.coordinates:
-            self.t[str(int(coord.t))] = [coord.x, coord.y, coord.z]
+            self.positions[coord.t] = [coord.x, coord.y, coord.z]
 
 
 class JSONSpace(Stringify):
