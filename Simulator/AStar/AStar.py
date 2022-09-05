@@ -74,7 +74,7 @@ class AStar:
             for next_neighbor in neighbors:
                 valid, collisions = self.is_valid_for_allocation(next_neighbor, agent)
                 if valid and next_neighbor.t <= self.environment.dimension.t:
-                    neighbor = Node(next_neighbor, current_node, set())
+                    neighbor = Node(next_neighbor, current_node, collisions)
 
                     # Closed node
                     if hash(neighbor) in closed_nodes:

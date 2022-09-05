@@ -27,3 +27,4 @@ omit =
     test/*
     Visualizer/*
     API/*
+    Simulator/Statistics/*

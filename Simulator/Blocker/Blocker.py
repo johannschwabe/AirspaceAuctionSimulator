@@ -6,11 +6,16 @@ if TYPE_CHECKING:
     from ..Coordinates.Coordinate3D import Coordinate3D
     from rtree import Index
 
+EPSION = 0.001
+
 
 class Blocker(ABC):
     blocker_type: str
 
     def __init__(self, dimension: "Coordinate3D"):
+        assert dimension.x > 0
+        assert dimension.y > 0
+        assert dimension.z > 0
         self.dimension: Coordinate3D = dimension
         self.id: int = -1
 

@@ -1,6 +1,6 @@
 from typing import List, TYPE_CHECKING
 
-from .Blocker import Blocker
+from .Blocker import Blocker, EPSION
 from .BlockerType import BlockerType
 
 if TYPE_CHECKING:
@@ -28,6 +28,9 @@ class DynamicBlocker(Blocker):
                 end = self.locations[idx]
             if end is not None:
                 max_pos = start + self.dimension
+                max_pos.x -= EPSION
+                max_pos.y -= EPSION
+                max_pos.z -= EPSION
                 max_pos.t = end.t
                 tree_rep = start.list_rep() + max_pos.list_rep()
                 tree.insert(self.id, tree_rep)
