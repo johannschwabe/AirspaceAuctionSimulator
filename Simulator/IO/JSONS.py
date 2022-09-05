@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Dict, List, TYPE_CHECKING, Union, Optional
+from typing import Dict, List, TYPE_CHECKING, Optional
 
 from .Statistics import Statistics
 from .Stringify import Stringify
@@ -103,12 +103,32 @@ class JSONPathAgent(JSONAgent, Stringify):
         self.branches = branches
 
 
+class JSONValues(Stringify):
+    def __init__(self,
+                 values: List[float],
+                 total: float,
+                 mean: float,
+                 median: float,
+                 max_value: float,
+                 min_value: float,
+                 quartiles: List[float],
+                 outliers: List[float]):
+        self.values: List[float] = values
+        self.total: float = total
+        self.mean: float = mean
+        self.median: float = median
+        self.max: float = max_value
+        self.min: float = min_value
+        self.quartiles: List[float] = quartiles
+        self.outliers: List[float] = outliers
+
+
 class JSONOwner(Stringify):
     def __init__(self,
                  owner: "Owner",
                  agents: List["JSONAgent"],
-                 values: Dict[str, Union[float, List[float]]],
-                 non_colliding_values: Dict[str, Union[float, List[float]]]):
+                 values: JSONValues,
+                 non_colliding_values: JSONValues):
         self.name: str = owner.name
         self.id: str = owner.id
         self.color: str = owner.color

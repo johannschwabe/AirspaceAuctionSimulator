@@ -1,10 +1,10 @@
 import statistics
-from typing import TYPE_CHECKING, List, Dict, Optional, Union
+from typing import TYPE_CHECKING, List, Dict, Optional
 
 from rtree import index, Index
 
 from .JSONS import JSONBranch, JSONPath, JSONStatistics, JSONEnvironment, JSONSimulation, JSONSpaceAgent, \
-    JSONPathAgent, JSONAgent, JSONOwner, JSONViolations
+    JSONPathAgent, JSONAgent, JSONOwner, JSONViolations, JSONValues
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
 from ..Coordinates.Coordinate2D import Coordinate2D
@@ -22,15 +22,6 @@ class Statistics:
     """
     Statistics class that generates statistics for a simulation.
     """
-    # Owner Statistics
-    TOTAL_VALUE = "total_value"
-    MEAN_VALUE = "mean_value"
-    MEDIAN_VALUE = "median_value"
-    MAX_VALUE = "max_value"
-    MIN_VALUE = "min_value"
-    VALUE_QUARTILES = "value_quartiles"
-    VALUE_OUTLIERS = "value_outliers"
-
     # Path Statistics
     PATH_L1_DISTANCE = "l1_distance"
     PATH_L2_DISTANCE = "l2_distance"
@@ -196,7 +187,7 @@ class Statistics:
         return total_value
 
     @staticmethod
-    def _get_value_statistics(values: List[float]) -> Dict[str, Union[float, List[float]]]:
+    def _get_value_statistics(values: List[float]) -> "JSONValues":
         """
         Calculate statistics for a list of values
         :param values:
@@ -213,17 +204,16 @@ class Statistics:
             value_quartiles = statistics.quantiles(values)
             value_outliers = [value for value in values if
                               value < value_quartiles[0] or value > value_quartiles[-1]]
-        return {
-            Statistics.TOTAL_VALUE: total_value,
-            Statistics.MEAN_VALUE: mean_value,
-            Statistics.MEDIAN_VALUE: median_value,
-            Statistics.MAX_VALUE: max_value,
-            Statistics.MIN_VALUE: min_value,
-            Statistics.VALUE_QUARTILES: value_quartiles,
-            Statistics.VALUE_OUTLIERS: value_outliers,
-        }
+        return JSONValues(values,
+                          total_value,
+                          mean_value,
+                          median_value,
+                          max_value,
+                          min_value,
+                          value_quartiles,
+                          value_outliers)
 
-    def get_non_colliding_values_for_owner(self, owner: "Owner") -> Dict[str, Union[float, List[float]]]:
+    def get_non_colliding_values_for_owner(self, owner: "Owner") -> "JSONValues":
         """
         Calculate the value for the allocations of all agents of an owner on an empty map summed up.
         :param owner:
@@ -232,7 +222,7 @@ class Statistics:
         values = [self.get_non_colliding_value_for_agent(agent) for agent in owner.agents]
         return self._get_value_statistics(values)
 
-    def get_values_for_owner(self, owner: "Owner") -> Dict[str, Union[float, List[float]]]:
+    def get_values_for_owner(self, owner: "Owner") -> "JSONValues":
         """
         Calculate the value for the allocations of all agents of an owner summed up.
         :param owner:
