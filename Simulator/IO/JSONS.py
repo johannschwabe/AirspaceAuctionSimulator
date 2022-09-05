@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from ..Environment.Environment import Environment
 
 
-class JSONPathSegment(Stringify):
+class JSONPath(Stringify):
     def __init__(self, path: "PathSegment"):
         self.t: Dict[str, List[int, int, int]] = {}
 
@@ -29,17 +29,17 @@ class JSONPathSegment(Stringify):
             self.t[str(int(coord.t))] = [coord.x, coord.y, coord.z]
 
 
-class JSONSpaceSegment(Stringify):
+class JSONSpace(Stringify):
     def __init__(self, space: "SpaceSegment"):
         self.min = space.min
         self.max = space.max
 
 
-class JSONAllocation(Stringify):
-    def __init__(self, tick: int, paths: List["JSONPathSegment"], value: float, compute_time: int, reason: str,
+class JSONBranch(Stringify):
+    def __init__(self, tick: int, paths: List["JSONPath"], value: float, compute_time: int, reason: str,
                  colliding_agent_ids: Optional[List[str]]):
         self.tick: int = tick
-        self.paths: List["JSONPathSegment"] = paths
+        self.paths: List["JSONPath"] = paths
         self.value: float = value
         self.reason: str = reason
         self.colliding_agent_ids: Optional[List[str]] = colliding_agent_ids
@@ -68,7 +68,7 @@ class JSONSpaceAgent(JSONAgent, Stringify):
         non_colliding_value: float,
     ):
         super().__init__(agent, value, non_colliding_value)
-        self.spaces: List["JSONSpaceSegment"] = [JSONSpaceSegment(space) for space in agent.allocated_segments]
+        self.spaces: List["JSONSpace"] = [JSONSpace(space) for space in agent.allocated_segments]
 
 
 class JSONPathAgent(JSONAgent, Stringify):
@@ -77,7 +77,7 @@ class JSONPathAgent(JSONAgent, Stringify):
         agent: "PathAgent",
         value: float,
         non_colliding_value: float,
-        branches: List["JSONAllocation"]
+        branches: List["JSONBranch"]
     ):
         super().__init__(agent, value, non_colliding_value)
         self.speed: int = agent.speed
@@ -85,7 +85,7 @@ class JSONPathAgent(JSONAgent, Stringify):
         self.battery: int = agent.battery
         self.time_in_air: int = agent.get_airtime()
 
-        self.path: List["JSONPathSegment"] = [JSONPathSegment(path) for path in agent.allocated_segments]
+        self.path: List["JSONPath"] = [JSONPath(path) for path in agent.allocated_segments]
         self.branches = branches
 
         self.nr_reallocations = len(self.branches)

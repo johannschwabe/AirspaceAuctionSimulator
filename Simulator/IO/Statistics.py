@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List, Dict, Optional, Union
 
 from rtree import index, Index
 
-from .JSONS import JSONAllocation, JSONPathSegment, JSONStatistics, JSONEnvironment, JSONSimulation, JSONSpaceAgent, \
+from .JSONS import JSONBranch, JSONPath, JSONStatistics, JSONEnvironment, JSONSimulation, JSONSpaceAgent, \
     JSONPathAgent, JSONAgent, JSONOwner
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
@@ -135,15 +135,15 @@ class Statistics:
 
         return json_owners
 
-    def get_json_allocations_for_path_agent(self, path_agent: "PathAgent") -> List["JSONAllocation"]:
-        json_allocations: List["JSONAllocation"] = []
+    def get_json_allocations_for_path_agent(self, path_agent: "PathAgent") -> List["JSONBranch"]:
+        json_allocations: List["JSONBranch"] = []
         for tick, allocation in self.simulation.history.allocations[path_agent].items():
-            json_path_segments: List["JSONPathSegment"] = []
+            json_path_segments: List["JSONPath"] = []
             for path_segment in allocation.segments:
                 assert isinstance(path_segment, PathSegment)
-                json_path_segments.append(JSONPathSegment(path_segment))
+                json_path_segments.append(JSONPath(path_segment))
 
-            json_allocations.append(JSONAllocation(
+            json_allocations.append(JSONBranch(
                 tick,
                 json_path_segments,
                 path_agent.value_for_segments(allocation.segments),
