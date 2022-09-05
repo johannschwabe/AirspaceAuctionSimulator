@@ -30,6 +30,7 @@
             v-model:value="simulationConfig.allocator"
             :options="simulationConfig.availableAllocatorsOptions"
             placeholder="Select Allocator"
+            v-on:update:value="emitAllocatorSwitched"
           />
         </n-form-item>
       </n-gi>
@@ -132,7 +133,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { nextTick, onUnmounted, ref } from "vue";
 import { useMessage, useLoadingBar } from "naive-ui";
 import { useRouter } from "vue-router";
 import { CloudDownloadOutline, ArrowForwardOutline, CloudUploadOutline } from "@vicons/ionicons5";
@@ -150,7 +151,12 @@ import {
   setSimulationSingleton,
 } from "@/scripts/simulation";
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
-import { emitConfigLoaded } from "../../scripts/emitter";
+import {
+  emitConfigLoaded,
+  onAllocatorSwitched,
+  offAllocatorSwitched,
+  emitAllocatorSwitched,
+} from "../../scripts/emitter";
 
 const simulationConfig = useSimulationConfigStore();
 simulationConfig.loadAvailableAllocators();
@@ -217,7 +223,14 @@ const downloadConfiguration = () => {
 
   saveAs(fileToSave, `${simulationConfig.name}-config.json`);
 };
-
+onAllocatorSwitched(() => {
+  nextTick(() => {
+    simulationConfig.updateSupportedBiddingStrategies();
+  });
+});
+onUnmounted(() => {
+  offAllocatorSwitched();
+});
 /**
  * Upload an existing simulation configuration File
  * @param {UploadCustomRequestOptions} upload

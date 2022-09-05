@@ -9,6 +9,7 @@ const AGENTS_SELECTED_EVENT = "agents-selected";
 const AGENT_FOCUS_ON_EVENT = "focus-on-agent";
 const AGENT_FOCUS_OFF_EVENT = "focus-off-agent";
 const CONFIG_LOADED = "config-loaded";
+const ALLOCATOR_SWITCHED = "allocator-switched";
 const ALL_EVENTS = [AGENTS_SELECTED_EVENT, AGENT_FOCUS_ON_EVENT, AGENT_FOCUS_OFF_EVENT, CONFIG_LOADED];
 
 export function emitTickEvent(tick) {
@@ -69,6 +70,18 @@ export function offConfigLoaded() {
 
 export function emitConfigLoaded() {
   emitter.emit(CONFIG_LOADED);
+}
+
+export function onAllocatorSwitched(callback) {
+  emitter.on(ALLOCATOR_SWITCHED, callback);
+}
+
+export function offAllocatorSwitched() {
+  emitter.off(ALLOCATOR_SWITCHED);
+}
+
+export function emitAllocatorSwitched() {
+  emitter.emit(ALLOCATOR_SWITCHED);
 }
 
 export function offAll() {

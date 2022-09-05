@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import { useBaseLayer, useMap, usePositionLayer } from "./Map";
 import { createBox } from "ol/interaction/Draw";
 import { Draw } from "ol/interaction";
@@ -11,6 +11,7 @@ import { Collection, Feature } from "ol";
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
 import { fromLonLat, toLonLat } from "ol/proj";
 import { fromExtent } from "ol/geom/Polygon";
+import { offConfigLoaded, onConfigLoaded } from "../../../scripts/emitter";
 
 const simulationConfig = useSimulationConfigStore();
 defineProps({
@@ -53,13 +54,8 @@ onMounted(() => {
   });
   map.value.addInteraction(rectangleInteraction);
 });
-watch(
-  () => simulationConfig.map.subselection,
-  () => {
-    console.log("Triggered");
-    fromConfig();
-  }
-);
+onConfigLoaded(fromConfig);
+onUnmounted(offConfigLoaded);
 
 function fromConfig() {
   if (!simulationConfig.map.subselection?.bottomLeft || !simulationConfig.map.subselection?.topRight) {
