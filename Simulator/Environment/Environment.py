@@ -1,4 +1,4 @@
-from typing import List, Dict, TYPE_CHECKING, Optional, Set, Iterator, Tuple
+from typing import List, Dict, TYPE_CHECKING, Optional, Set, Iterator
 
 from rtree import Index
 from rtree.index import Item, Rtree, Property
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from ..Allocations.Allocation import Allocation
     from ..Segments.PathSegment import PathSegment
     from ..Segments.SpaceSegment import SpaceSegment
+    from ..Segments.Segment import Segment
 
 
 class Environment:
@@ -329,28 +330,21 @@ class Environment:
     def intersect_space_segment(
         self,
         space_segment: "SpaceSegment"
-    ) -> Tuple[Dict["SpaceAgent", List["SpaceSegment"]], Dict["PathAgent", List["PathSegment"]]]:
+    ) -> Dict["Agent", List["Segment"]]:
         """
         Returns copies of the segments (sorted by agent) intersecting with the given space.
         """
-        space_segments: Dict["SpaceAgent", List["SpaceSegment"]] = {}
-        path_segments: Dict["PathAgent", List["PathSegment"]] = {}
+        segments: Dict["Agent", List["Segment"]] = {}
         intersections: Iterator["Item"] = self.tree.intersection(space_segment.tree_rep(), objects=True)
 
         for intersection in intersections:
             agent: "Agent" = self.agents[intersection.id]
-            if isinstance(agent, SpaceAgent):
-                if agent not in space_segments:
-                    space_segments[agent] = []
-                space_segments[agent].append(intersection.object)
-            elif isinstance(agent, PathAgent):
-                if agent not in path_segments:
-                    path_segments[agent] = []
-                path_segments[agent].append(intersection.object)
-            else:
-                raise Exception(f"Invalid agent: {agent}")
+            if agent not in segments:
+                segments[agent] = []
 
-        return space_segments, path_segments
+            segments[agent].append(intersection.object)
+
+        return segments
 
     def intersect_path_coordinate(self, coords: "Coordinate4D", radius: int = 0, speed: int = 0) -> List[int]:
         """

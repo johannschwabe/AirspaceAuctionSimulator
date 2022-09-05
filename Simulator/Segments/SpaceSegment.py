@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 
 class SpaceSegment(Segment):
     def __init__(self, min_coordinates: "Coordinate4D", max_coordinates: "Coordinate4D"):
+        super().__init__()
         self._min: "Coordinate4D" = min_coordinates
         self._max: "Coordinate4D" = max_coordinates
 
@@ -22,6 +23,16 @@ class SpaceSegment(Segment):
         second_segment.min.t = t + 1
 
         return first_segment, second_segment
+
+    @property
+    def coordinates(self) -> List["Coordinate4D"]:
+        coordinates: List["Coordinate4D"] = []
+        for x in range(self._min.x, self._max.x):
+            for y in range(self._min.y, self._max.y):
+                for z in range(self._min.z, self._max.z):
+                    for t in range(self._min.t, self._max.t):
+                        coordinates.append(Coordinate4D(x, y, z, t))
+        return coordinates
 
     @property
     def nr_voxels(self) -> int:

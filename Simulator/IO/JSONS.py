@@ -45,18 +45,29 @@ class JSONBranch(Stringify):
         self.compute_time: int = compute_time
 
 
+class JSONViolations(Stringify):
+    def __init__(self,
+                 violations: Dict[str, List["Coordinate4D"]],
+                 total_violations: int):
+        self.violations: Dict[str, List["Coordinate4D"]] = violations
+        self.total_violations: int = total_violations
+
+
 class JSONAgent(ABC):
     def __init__(
         self,
         agent: "Agent",
         value: float,
         non_colliding_value: float,
+        violations: JSONViolations,
+        total_reallocations: int,
     ):
         self.agent_type: str = agent.agent_type
         self.id: str = agent.id
         self.value: float = value
-
         self.non_colliding_value: float = non_colliding_value
+        self.violations = violations
+        self.total_reallocations = total_reallocations
 
 
 class JSONSpaceAgent(JSONAgent, Stringify):
@@ -65,8 +76,10 @@ class JSONSpaceAgent(JSONAgent, Stringify):
         agent: "SpaceAgent",
         value: float,
         non_colliding_value: float,
+        violations: JSONViolations,
+        total_reallocations: int,
     ):
-        super().__init__(agent, value, non_colliding_value)
+        super().__init__(agent, value, non_colliding_value, violations, total_reallocations)
         self.spaces: List["JSONSpace"] = [JSONSpace(space) for space in agent.allocated_segments]
 
 
@@ -76,9 +89,11 @@ class JSONPathAgent(JSONAgent, Stringify):
         agent: "PathAgent",
         value: float,
         non_colliding_value: float,
-        branches: List["JSONBranch"]
+        violations: JSONViolations,
+        total_reallocations: int,
+        branches: List["JSONBranch"],
     ):
-        super().__init__(agent, value, non_colliding_value)
+        super().__init__(agent, value, non_colliding_value, violations, total_reallocations)
         self.speed: int = agent.speed
         self.near_radius: int = agent.near_radius
         self.battery: int = agent.battery

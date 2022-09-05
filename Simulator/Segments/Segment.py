@@ -1,11 +1,14 @@
 from abc import ABC, abstractmethod
-from typing import Tuple, TYPE_CHECKING
+from typing import Tuple, TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from ..Coordinates.Coordinate4D import Coordinate4D
 
 
 class Segment(ABC):
+    def __init__(self):
+        self.coordinates: List[Coordinate4D] = []
+
     @abstractmethod
     def clone(self):
         pass
