@@ -40,7 +40,10 @@ class SpaceSegment(Segment):
     def dimension(self) -> "Coordinate4D":
         return self.max - self.min
 
-    def intersect(self, other: "SpaceSegment"):
+    def contains(self, coordinate: "Coordinate4D") -> bool:
+        return self.min <= coordinate < self.max
+
+    def intersect(self, other: "SpaceSegment") -> "Coordinate4D":
         if self.max <= other.min or other.max <= self.min:
             # no intersection
             return Coordinate4D(0, 0, 0, 0)

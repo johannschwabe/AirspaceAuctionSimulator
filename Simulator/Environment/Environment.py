@@ -1,6 +1,7 @@
-from typing import List, Dict, TYPE_CHECKING, Optional, Set
+from typing import List, Dict, TYPE_CHECKING, Optional, Set, Iterator, Tuple
 
-from rtree import index, Index
+from rtree import Index
+from rtree.index import Item, Rtree, Property
 
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
@@ -38,7 +39,7 @@ class Environment:
             self.blocker_dict[blocker.id] = blocker
 
         if _blocker_tree is None:
-            self.blocker_tree = self.setup_rtree()
+            self.blocker_tree = self._setup_rtree()
             for blocker in blockers:
                 blocker.add_to_tree(self.blocker_tree, self.dimension)
         else:
@@ -46,7 +47,7 @@ class Environment:
             self.blocker_tree = _blocker_tree
 
         if _tree is None:
-            self.tree = self.setup_rtree()
+            self.tree = self._setup_rtree()
         else:
             # Environment is a clone
             self.tree = _tree
@@ -56,13 +57,13 @@ class Environment:
         self.max_near_radius = 0
 
     @staticmethod
-    def setup_rtree() -> Index:
+    def _setup_rtree() -> Index:
         """
         Returns a rtree instance with 4 dimensions.
         """
-        props = index.Property()
+        props = Property()
         props.dimension = 4
-        return index.Rtree(properties=props)
+        return Rtree(properties=props)
 
     def _get_blocker_id(self) -> int:
         """
@@ -113,7 +114,7 @@ class Environment:
                     self.tree.delete(hash(agent), bbox)
                     if bbox[3] <= int(time_step):
                         bbox[7] = int(time_step)
-                        self.tree.insert(hash(agent), bbox)
+                        self.tree.insert(hash(agent), bbox, obj=intersection.object)
 
     def deallocate_space_agent(self, agent: "SpaceAgent", time_step: int):
         """
@@ -128,7 +129,7 @@ class Environment:
                 if space_segment.min.t < time_step:
                     first, _ = space_segment.split_temporal(time_step)
                     new_segments.append(first)
-                    self.tree.insert(hash(agent), first.tree_rep())
+                    self.tree.insert(hash(agent), first.tree_rep(), obj=first)
 
         agent.allocated_segments = new_segments
 
@@ -154,18 +155,20 @@ class Environment:
         inter_temporal_equal: List["Coordinate4D"] = []
         for coord in path_segment.coordinates:
             if len(inter_temporal_equal) != 0 and not coord.inter_temporal_equal(inter_temporal_equal[-1]):
-                self.tree.insert(hash(agent), inter_temporal_equal[0].list_rep() + inter_temporal_equal[-1].list_rep())
+                self.tree.insert(hash(agent), inter_temporal_equal[0].list_rep() + inter_temporal_equal[-1].list_rep(),
+                                 obj=path_segment)
                 inter_temporal_equal = []
             inter_temporal_equal.append(coord)
 
-        self.tree.insert(hash(agent), inter_temporal_equal[0].list_rep() + inter_temporal_equal[-1].list_rep())
+        self.tree.insert(hash(agent), inter_temporal_equal[0].list_rep() + inter_temporal_equal[-1].list_rep(),
+                         obj=path_segment)
 
     def allocate_space_segment_for_agent(self, agent: "SpaceAgent", space_segment: "SpaceSegment"):
         """
         Allocate a space segment.
         """
         agent.add_allocated_segment(space_segment)
-        self.tree.insert(hash(agent), space_segment.tree_rep())
+        self.tree.insert(hash(agent), space_segment.tree_rep(), obj=space_segment)
 
     def allocate_segments_for_agents(self,
                                      allocations: List["Allocation"],
@@ -175,18 +178,17 @@ class Environment:
         Only reallocates segments that are in the future.
         """
         for allocation in allocations:
-            agent: "Agent" = allocation.agent
+            agent = allocation.agent
+            segments = allocation.segments
+            self.register_agent(agent, time_step)
             if isinstance(agent, SpaceAgent):
-                segments: List["SpaceSegment"] = allocation.segments
-                self.register_agent(agent, time_step)
                 self.allocate_space_for_agent(agent, segments)
 
             elif isinstance(agent, PathAgent):
-                segments: List["PathSegment"] = allocation.segments
-                self.register_agent(agent, time_step)
                 self.allocate_path_for_agent(agent, segments)
+
             else:
-                raise Exception(f"Unknown Agent: {agent}")
+                raise Exception(f"Invalid Agent: {agent}")
 
     def register_agent(self, agent: "Agent", time_step: int):
         """
@@ -246,7 +248,7 @@ class Environment:
     def have_intersections_collision(self, coord: "Coordinate4D", agent: "PathAgent", intersections: List[int],
                                      exclusions: List[int]) -> bool:
         """
-        Returns True if the the given intersections have any collisions with the agent.
+        Returns True if the given intersections have any collisions with the agent.
         The exclusions are not checked. They should be checked before.
         """
         for agent_hash in intersections:
@@ -318,15 +320,37 @@ class Environment:
         """
         Returns a set of all agents in the given space that are not the given agent.
         """
-        intersections = self._intersect_space(bottom_left, top_right)
-        other_agents = [self.agents[agent_hash] for agent_hash in intersections if agent_hash != agent.id]
+        intersections: Iterator["Item"] = self.tree.intersection(bottom_left.list_rep() + top_right.list_rep(),
+                                                                 objects=True)
+        other_agents: List["Agent"] = [self.agents[intersection_item.id] for intersection_item in intersections if
+                                       intersection_item.id != hash(agent)]
         return set(other_agents)
 
-    def _intersect_space(self, bottom_left: "Coordinate4D", top_right: "Coordinate4D"):
+    def intersect_space_segment(
+        self,
+        space_segment: "SpaceSegment"
+    ) -> Tuple[Dict["SpaceAgent", List["SpaceSegment"]], Dict["PathAgent", List["PathSegment"]]]:
         """
-        Returns all agents intersecting with the given space.
+        Returns copies of the segments (sorted by agent) intersecting with the given space.
         """
-        return self.tree.intersection(bottom_left.list_rep() + top_right.list_rep())
+        space_segments: Dict["SpaceAgent", List["SpaceSegment"]] = {}
+        path_segments: Dict["PathAgent", List["PathSegment"]] = {}
+        intersections: Iterator["Item"] = self.tree.intersection(space_segment.tree_rep(), objects=True)
+
+        for intersection in intersections:
+            agent: "Agent" = self.agents[intersection.id]
+            if isinstance(agent, SpaceAgent):
+                if agent not in space_segments:
+                    space_segments[agent] = []
+                space_segments[agent].append(intersection.object)
+            elif isinstance(agent, PathAgent):
+                if agent not in path_segments:
+                    path_segments[agent] = []
+                path_segments[agent].append(intersection.object)
+            else:
+                raise Exception(f"Invalid agent: {agent}")
+
+        return space_segments, path_segments
 
     def intersect_path_coordinate(self, coords: "Coordinate4D", radius: int = 0, speed: int = 0) -> List[int]:
         """
@@ -351,11 +375,11 @@ class Environment:
         """
         Returns a clone of the environment with clones of all agents.
         """
-        cloned_tree: "Index" = self.setup_rtree()
+        cloned_tree: "Index" = self._setup_rtree()
         if len(self.tree) > 0:
             all_items = self.tree.intersection(self.tree.bounds, objects=True)
             for item in all_items:
-                cloned_tree.insert(item.id, item.bbox)
+                cloned_tree.insert(item.id, item.bbox, obj=item.object)
 
         cloned = Environment(self.dimension,
                              list(self.blocker_dict.values()),

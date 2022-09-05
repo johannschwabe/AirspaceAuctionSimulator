@@ -1,5 +1,5 @@
 import statistics
-from typing import TYPE_CHECKING, List, Dict, Optional, Iterator
+from typing import TYPE_CHECKING, List, Dict, Optional
 
 from rtree import index, Index
 
@@ -33,17 +33,6 @@ class Statistics:
     PATH_GROUND_DISTANCE_TRAVELED = "ground_distance_traveled"
     PATH_MEAN_HEIGHT = "mean_height"
     PATH_MEDIAN_HEIGHT = "median_height"
-    PATH_HEIGHTS = "heights"
-
-    # Path Encounters
-    PATH_ENCOUNTERS = "encounters"
-    PATH_INCOMING_VIOLATIONS = "incoming_violations"
-    PATH_OUTGOING_VIOLATIONS = "outgoing_violations"
-    PATH_SPACE_VIOLATIONS = "space_violations"
-    PATH_TOTAL_ENCOUNTERS = "total_encounters"
-    PATH_TOTAL_INCOMING_VIOLATIONS = "total_incoming_violations"
-    PATH_TOTAL_OUTGOING_VIOLATIONS = "total_outgoing_violations"
-    PATH_TOTAL_SPACE_VIOLATIONS = "total_space_violations"
 
     # Space Statistics
     SPACE_VOLUME = "volume"
@@ -61,10 +50,13 @@ class Statistics:
     SPACE_HEIGHT_ABOVE_GROUND = "height_above_ground"
     SPACE_MEAN_HEIGHT_ABOVE_GROUND = "mean_height_above_ground"
     SPACE_MEDIAN_HEIGHT_ABOVE_GROUND = "median_height_above_ground"
+    PATH_HEIGHTS = "heights"
 
-    # Space Encounters
-    SPACE_PATH_AGENT_ENCOUNTERS = "path_agent_encounters"
-    SPACE_SPACE_AGENT_ENCOUNTERS = "space_agent_encounters"
+    # Agent Violations
+    PATH_VIOLATIONS = "path_violations"
+    SPACE_VIOLATIONS = "space_violations"
+    TOTAL_PATH_VIOLATIONS = "total_path_violations"
+    TOTAL_SPACE_VIOLATIONS = "total_space_violations"
 
     def __init__(self, sim: "Simulator"):
         """
@@ -243,110 +235,6 @@ class Statistics:
             Statistics.PATH_HEIGHTS: heights,
         }
 
-    def path_segment_encounters(self, path_agent: "PathAgent", path_segment: "PathSegment"):
-        """
-        Tracks all encounters and violation for the given path-segment.
-        :param path_agent:
-        :param path_segment:
-        :return:
-        """
-        encounters: Dict["Coordinate4D", List["PathAgent"]] = {}
-        incoming_violations: Dict["Coordinate4D", List["PathAgent"]] = {}
-        outgoing_violations: Dict["Coordinate4D", List["PathAgent"]] = {}
-        space_violations: Dict["Coordinate4D", List["SpaceAgent"]] = {}
-        total_encounters: int = 0
-        total_incoming_violations: int = 0
-        total_outgoing_violations: int = 0
-        total_space_violations: int = 0
-
-        for coordinate in path_segment.coordinates:
-            encountered_agents_hashes = self.sim.environment.intersect_path_coordinate(coordinate,
-                                                                                       self.sim.environment.max_near_radius)
-            for encountered_agent_hash in encountered_agents_hashes:
-                encountered_agent = self.sim.environment.agents[encountered_agent_hash]
-
-                if isinstance(encountered_agent, PathAgent):
-                    encountered_agent_position = encountered_agent.get_position_at_tick(coordinate.t)
-                    distance = coordinate.inter_temporal_distance(encountered_agent_position)
-                    if distance <= path_agent.near_radius + encountered_agent.near_radius:
-                        # add agent to encounters
-                        if coordinate not in encounters:
-                            encounters[coordinate] = []
-                        encounters[coordinate].append(encountered_agent)
-                        total_encounters += 1
-
-                        if distance <= path_agent.near_radius:
-                            # add agent to incoming violations
-                            if coordinate not in incoming_violations:
-                                incoming_violations[coordinate] = []
-                            incoming_violations[coordinate].append(encountered_agent)
-                            total_incoming_violations += 1
-
-                        if distance <= encountered_agent.near_radius:
-                            # add agent to outgoing violations
-                            if coordinate not in outgoing_violations:
-                                outgoing_violations[coordinate] = []
-                            outgoing_violations[coordinate].append(encountered_agent)
-                            total_outgoing_violations += 1
-
-                elif isinstance(encountered_agent, SpaceAgent):
-                    # add agent to space violations
-                    if coordinate not in space_violations:
-                        space_violations[coordinate] = []
-                    space_violations[coordinate].append(encountered_agent)
-                    total_space_violations += 1
-
-                else:
-                    raise Exception(f"Invalid agent {encountered_agent}")
-
-        return {
-            Statistics.PATH_ENCOUNTERS: encounters,
-            Statistics.PATH_INCOMING_VIOLATIONS: incoming_violations,
-            Statistics.PATH_OUTGOING_VIOLATIONS: outgoing_violations,
-            Statistics.PATH_SPACE_VIOLATIONS: space_violations,
-            Statistics.PATH_TOTAL_ENCOUNTERS: total_encounters,
-            Statistics.PATH_TOTAL_INCOMING_VIOLATIONS: total_incoming_violations,
-            Statistics.PATH_TOTAL_OUTGOING_VIOLATIONS: total_outgoing_violations,
-            Statistics.PATH_TOTAL_SPACE_VIOLATIONS: total_space_violations,
-        }
-
-    def path_agent_encounters(self, path_agent: "PathAgent"):
-        """
-        Tracks all encounters and violation for the given path-agent.
-        :param path_agent:
-        :return:
-        """
-        encounters: Dict["Coordinate4D", List["PathAgent"]] = {}
-        incoming_violations: Dict["Coordinate4D", List["PathAgent"]] = {}
-        outgoing_violations: Dict["Coordinate4D", List["PathAgent"]] = {}
-        space_violations: Dict["Coordinate4D", List["SpaceAgent"]] = {}
-        total_encounters: int = 0
-        total_incoming_violations: int = 0
-        total_outgoing_violations: int = 0
-        total_space_violations: int = 0
-
-        for path_segment in path_agent.allocated_segments:
-            path_segment_encounters = self.path_segment_encounters(path_agent, path_segment)
-            encounters.update(path_segment_encounters[Statistics.PATH_ENCOUNTERS])
-            incoming_violations.update(path_segment_encounters[Statistics.PATH_INCOMING_VIOLATIONS])
-            outgoing_violations.update(path_segment_encounters[Statistics.PATH_OUTGOING_VIOLATIONS])
-            space_violations.update(path_segment_encounters[Statistics.PATH_SPACE_VIOLATIONS])
-            total_encounters += path_segment_encounters[Statistics.PATH_TOTAL_ENCOUNTERS]
-            total_incoming_violations += path_segment_encounters[Statistics.PATH_TOTAL_INCOMING_VIOLATIONS]
-            total_outgoing_violations += path_segment_encounters[Statistics.PATH_TOTAL_OUTGOING_VIOLATIONS]
-            total_space_violations += path_segment_encounters[Statistics.PATH_TOTAL_SPACE_VIOLATIONS]
-
-        return {
-            Statistics.PATH_ENCOUNTERS: encounters,
-            Statistics.PATH_INCOMING_VIOLATIONS: incoming_violations,
-            Statistics.PATH_OUTGOING_VIOLATIONS: outgoing_violations,
-            Statistics.PATH_SPACE_VIOLATIONS: space_violations,
-            Statistics.PATH_TOTAL_ENCOUNTERS: total_encounters,
-            Statistics.PATH_TOTAL_INCOMING_VIOLATIONS: total_incoming_violations,
-            Statistics.PATH_TOTAL_OUTGOING_VIOLATIONS: total_outgoing_violations,
-            Statistics.PATH_TOTAL_SPACE_VIOLATIONS: total_space_violations,
-        }
-
     @staticmethod
     def space_segment_statistics(space_segment: "SpaceSegment"):
         """
@@ -370,7 +258,7 @@ class Statistics:
         }
 
     @staticmethod
-    def setup_rtree() -> Index:
+    def _setup_rtree() -> Index:
         """
         Returns a rtree instance with 4 dimensions.
         """
@@ -395,11 +283,12 @@ class Statistics:
         times = []
         heights_above_ground = []
 
-        tree = Statistics.setup_rtree()
+        tree = Statistics._setup_rtree()
 
         for space_segment in spaces:
-            intersections: Iterator["SpaceSegment"] = tree.intersection(space_segment.tree_rep(), objects="raw")
+            intersections = tree.intersection(space_segment.tree_rep(), objects="raw")
             for intersecting_space_segment in intersections:
+                assert isinstance(intersecting_space_segment, SpaceSegment)
                 intersecting_space = space_segment.intersect(intersecting_space_segment)
                 intersecting_volume += intersecting_space.volume
                 intersecting_area += intersecting_space.area
@@ -443,45 +332,115 @@ class Statistics:
             Statistics.SPACE_MEDIAN_HEIGHT_ABOVE_GROUND: median_height_above_ground,
         }
 
-    def space_segment_encounters(self, space_segment: "SpaceSegment"):
+    def agent_violations(self, agent: "Agent"):
         """
-        Tracks all encounters and violation for the given space-segment.
+        Tracks all violations for the given agent.
+        :param agent:
+        :return:
+        """
+        path_violations: Dict["PathAgent", List["Coordinate4D"]] = {}
+        space_violations: Dict["SpaceAgent", List["Coordinate4D"]] = {}
+        total_path_violations: int = 0
+        total_space_violations: int = 0
+
+        for segment in agent.allocated_segments:
+            if isinstance(segment, PathSegment):
+                assert isinstance(agent, PathAgent)
+                segment_encounters = self.path_segment_violations(agent, segment)
+
+            elif isinstance(segment, SpaceSegment):
+                segment_encounters = self.space_segment_violations(segment)
+
+            else:
+                raise Exception(f"Invalid Segment: {segment}")
+
+            path_violations.update(segment_encounters[Statistics.PATH_VIOLATIONS])
+            space_violations.update(segment_encounters[Statistics.SPACE_VIOLATIONS])
+            total_path_violations += segment_encounters[Statistics.TOTAL_PATH_VIOLATIONS]
+            total_space_violations += segment_encounters[Statistics.TOTAL_SPACE_VIOLATIONS]
+
+        return {
+            Statistics.PATH_VIOLATIONS: path_violations,
+            Statistics.SPACE_VIOLATIONS: space_violations,
+            Statistics.TOTAL_PATH_VIOLATIONS: total_path_violations,
+            Statistics.TOTAL_SPACE_VIOLATIONS: total_space_violations,
+        }
+
+    def path_segment_violations(self, path_agent: "PathAgent", path_segment: "PathSegment"):
+        """
+        Tracks all violations for the given path-segment.
+        :param path_agent:
+        :param path_segment:
+        :return:
+        """
+        path_violations: Dict["PathAgent", List["Coordinate4D"]] = {}
+        space_violations: Dict["SpaceAgent", List["Coordinate4D"]] = {}
+        total_path_violations: int = 0
+        total_space_violations: int = 0
+
+        for coordinate in path_segment.coordinates:
+            intersecting_agent_hashes = self.sim.environment.intersect_path_coordinate(coordinate,
+                                                                                       path_agent.near_radius)
+            for intersecting_agent_hash in intersecting_agent_hashes:
+                intersecting_agent = self.sim.environment.agents[intersecting_agent_hash]
+
+                if isinstance(intersecting_agent, PathAgent):
+                    encountered_agent_position = intersecting_agent.get_position_at_tick(coordinate.t)
+                    distance = coordinate.inter_temporal_distance(encountered_agent_position)
+                    if distance <= path_agent.near_radius:
+                        if intersecting_agent not in path_violations:
+                            path_violations[intersecting_agent] = []
+                        path_violations[intersecting_agent].append(coordinate)
+                        total_path_violations += 1
+
+                elif isinstance(intersecting_agent, SpaceAgent):
+                    if intersecting_agent not in space_violations:
+                        space_violations[intersecting_agent] = []
+                    space_violations[intersecting_agent].append(coordinate)
+                    total_space_violations += 1
+
+                else:
+                    raise Exception(f"Invalid agent {intersecting_agent}")
+
+        return {
+            Statistics.PATH_VIOLATIONS: path_violations,
+            Statistics.SPACE_VIOLATIONS: space_violations,
+            Statistics.TOTAL_PATH_VIOLATIONS: total_path_violations,
+            Statistics.TOTAL_SPACE_VIOLATIONS: total_space_violations,
+        }
+
+    def space_segment_violations(self, space_segment: "SpaceSegment"):
+        """
+        Tracks all violations for the given space-segment.
         :param space_segment:
         :return:
         """
-        path_agent_encounters: List["PathAgent"] = []
-        space_agent_encounters: List["SpaceAgent"] = []
+        path_violations: Dict["PathAgent", List["Coordinate4D"]] = {}
+        space_violations: Dict["SpaceAgent", List["Coordinate4D"]] = {}
+        total_path_violations: int = 0
+        total_space_violations: int = 0
 
-        encountered_agents = self.sim.environment.other_agents_in_space(space_segment.min, space_segment.max,
-                                                                        self.sim.environment.max_near_radius)
-        for encountered_agent in encountered_agents:
-            if isinstance(encountered_agent, PathAgent):
-                path_agent_encounters.append(encountered_agent)
-            elif isinstance(encountered_agent, SpaceAgent):
-                space_agent_encounters.append(encountered_agent)
-            else:
-                raise Exception(f"Invalid agent {encountered_agent}")
+        intersecting_space_segments, intersecting_path_segments = self.sim.environment.intersect_space_segment(
+            space_segment)
 
-        return {
-            Statistics.SPACE_PATH_AGENT_ENCOUNTERS: path_agent_encounters,
-            Statistics.SPACE_SPACE_AGENT_ENCOUNTERS: space_agent_encounters,
-        }
+        for intersecting_space_agent in intersecting_space_segments:
+            space_violations[intersecting_space_agent] = []
+            for intersecting_space_segment in intersecting_space_segments[intersecting_space_agent]:
+                space_violations[intersecting_space_agent].append(
+                    space_segment.intersect(intersecting_space_segment))
+                total_space_violations += 1
 
-    def space_agent_encounters(self, space_agent: "SpaceAgent"):
-        """
-        Tracks all encounters and violation for the given space-agent.
-        :param space_agent:
-        :return:
-        """
-        path_agent_encounters: List["PathAgent"] = []
-        space_agent_encounters: List["SpaceAgent"] = []
-
-        for space_segment in space_agent.allocated_segments:
-            space_segment_encounters = self.space_segment_encounters(space_segment)
-            path_agent_encounters.extend(space_segment_encounters[Statistics.SPACE_PATH_AGENT_ENCOUNTERS])
-            space_agent_encounters.extend(space_segment_encounters[Statistics.SPACE_SPACE_AGENT_ENCOUNTERS])
+        for intersecting_path_agent in intersecting_path_segments:
+            path_violations[intersecting_path_agent] = []
+            for intersecting_path_segment in intersecting_path_segments[intersecting_path_agent]:
+                for path_coordinate in intersecting_path_segment.coordinates:
+                    if space_segment.contains(path_coordinate):
+                        path_violations[intersecting_path_agent].append(path_coordinate)
+                        total_path_violations += 1
 
         return {
-            Statistics.SPACE_PATH_AGENT_ENCOUNTERS: path_agent_encounters,
-            Statistics.SPACE_SPACE_AGENT_ENCOUNTERS: space_agent_encounters,
+            Statistics.PATH_VIOLATIONS: path_violations,
+            Statistics.SPACE_VIOLATIONS: space_violations,
+            Statistics.TOTAL_PATH_VIOLATIONS: total_path_violations,
+            Statistics.TOTAL_SPACE_VIOLATIONS: total_space_violations,
         }
