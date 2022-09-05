@@ -219,7 +219,7 @@ class PriorityAllocator(Allocator):
             new_allocation = Allocation(agent, optimal_segments,
                                         AllocationStatistics(time_ns() - start_time,
                                                              allocation_reason,
-                                                             colliding_agents_ids=collision_ids))
+                                                             colliding_agent_ids=collision_ids))
             allocations[agent] = new_allocation
             environment.allocate_segments_for_agents([new_allocation], tick)
 

@@ -46,7 +46,5 @@ from .Segments.Segment import Segment
 from .Segments.SpaceSegment import SpaceSegment
 # Simulator
 from .Simulator import Simulator
-# Statistics
-from .Statistics.Statistics import Statistics
 # Value Funktions
 from .ValueFunction.ValueFunction import ValueFunction

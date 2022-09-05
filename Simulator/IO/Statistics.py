@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING, List, Dict, Optional, Union
 
 from rtree import index, Index
 
+from .JSONS import JSONAllocation, JSONPathSegment, JSONStatistics, JSONEnvironment, JSONSimulation, JSONSpaceAgent, \
+    JSONPathAgent, JSONAgent, JSONOwner
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
 from ..Coordinates.Coordinate2D import Coordinate2D
@@ -66,18 +68,90 @@ class Statistics:
     SPACE_VIOLATIONS = "space_violations"
     TOTAL_PATH_VIOLATIONS = "total_path_violations"
     TOTAL_SPACE_VIOLATIONS = "total_space_violations"
+    TOTAL_VIOLATIONS = "total_violations"
 
-    def __init__(self, sim: "Simulator"):
+    def __init__(self, simulation: "Simulator"):
         """
         Simulation instance.
-        :param sim:
+        :param simulation:
         """
-        self.sim: "Simulator" = sim
+        self.simulation: "Simulator" = simulation
         # Assert simulation is done
-        assert sim.time_step == sim.environment.dimension.t + 1
+        assert simulation.time_step == simulation.environment.dimension.t + 1
 
         self.non_colliding_values: Dict["Agent", float] = {}
         self.values: Dict[Agent, float] = {}
+        self.violations: Dict[Agent, Dict[str, Union[float, List[float]]]] = {}
+
+    def get_json_simulation(self, total_compute_time: int) -> "JSONSimulation":
+        json_environment = JSONEnvironment(self.simulation.environment)
+        json_statistics = self.get_json_statistics()
+        json_owners = self.get_json_owners()
+        return JSONSimulation(json_environment,
+                              json_statistics,
+                              json_owners,
+                              total_compute_time,
+                              self.simulation.history.compute_times)
+
+    def get_json_statistics(self) -> "JSONStatistics":
+        return JSONStatistics(
+            len(self.simulation.owners),
+            len(self.simulation.environment.agents),
+            self.get_total_value(),
+            self.get_total_non_colliding_value(),
+            self.get_total_violations(),
+            self.simulation.history.total_reallocations
+        )
+
+    def get_json_owners(self):
+        json_owners: List["JSONOwner"] = []
+        for owner in self.simulation.owners:
+            agents: List["JSONAgent"] = []
+            for agent in owner.agents:
+                agent_value = self.get_value_for_agent(agent)
+                non_colliding_agent_value = self.get_non_colliding_value_for_agent(agent)
+                if isinstance(agent, PathAgent):
+                    agents.append(JSONPathAgent(
+                        agent,
+                        agent_value,
+                        non_colliding_agent_value,
+                        self.get_json_allocations_for_path_agent(agent),
+                    ))
+
+                elif isinstance(agent, SpaceAgent):
+                    agents.append(JSONSpaceAgent(
+                        agent,
+                        agent_value,
+                        non_colliding_agent_value,
+                    ))
+
+                else:
+                    raise Exception(f"Invalid Agent: {agent}")
+
+            json_owners.append(JSONOwner(owner,
+                                         agents,
+                                         self.get_values_for_owner(owner),
+                                         self.get_non_colliding_values_for_owner(owner)))
+
+        return json_owners
+
+    def get_json_allocations_for_path_agent(self, path_agent: "PathAgent") -> List["JSONAllocation"]:
+        json_allocations: List["JSONAllocation"] = []
+        for tick, allocation in self.simulation.history.allocations[path_agent].items():
+            json_path_segments: List["JSONPathSegment"] = []
+            for path_segment in allocation.segments:
+                assert isinstance(path_segment, PathSegment)
+                json_path_segments.append(JSONPathSegment(path_segment))
+
+            json_allocations.append(JSONAllocation(
+                tick,
+                json_path_segments,
+                path_agent.value_for_segments(allocation.segments),
+                allocation.statistics.compute_time,
+                allocation.statistics.reason,
+                allocation.statistics.colliding_agent_ids,
+            ))
+        return json_allocations
 
     def get_non_colliding_value_for_agent(self, agent: "Agent"):
         """
@@ -87,8 +161,8 @@ class Statistics:
         """
         if agent not in self.non_colliding_values:
             local_agent = agent.initialize_clone()
-            local_env = self.sim.environment.new_clear()
-            allocation = self.sim.mechanism.do([local_agent], local_env, 0)[local_agent]
+            local_env = self.simulation.environment.new_clear()
+            allocation = self.simulation.mechanism.do([local_agent], local_env, 0)[local_agent]
             self.non_colliding_values[agent] = local_agent.value_for_segments(allocation.segments)
         return self.non_colliding_values[agent]
 
@@ -108,7 +182,7 @@ class Statistics:
         :return:
         """
         total_value = 0
-        for agent in self.sim.environment.agents.values():
+        for agent in self.simulation.environment.agents.values():
             total_value += self.get_non_colliding_value_for_agent(agent)
         return total_value
 
@@ -118,7 +192,7 @@ class Statistics:
         :return:
         """
         total_value = 0
-        for agent in self.sim.environment.agents.values():
+        for agent in self.simulation.environment.agents.values():
             total_value += self.get_value_for_agent(agent)
         return total_value
 
@@ -366,39 +440,47 @@ class Statistics:
             Statistics.SPACE_MEDIAN_HEIGHT_ABOVE_GROUND: median_height_above_ground,
         }
 
-    def agent_violations(self, agent: "Agent"):
+    def get_agent_violations(self, agent: "Agent"):
         """
         Tracks all violations for the given agent.
         :param agent:
         :return:
         """
-        path_violations: Dict["PathAgent", List["Coordinate4D"]] = {}
-        space_violations: Dict["SpaceAgent", List["Coordinate4D"]] = {}
-        total_path_violations: int = 0
-        total_space_violations: int = 0
+        if agent not in self.violations:
 
-        for segment in agent.allocated_segments:
-            if isinstance(segment, PathSegment):
-                assert isinstance(agent, PathAgent)
-                segment_encounters = self.path_segment_violations(agent, segment)
+            path_violations: Dict["PathAgent", List["Coordinate4D"]] = {}
+            space_violations: Dict["SpaceAgent", List["Coordinate4D"]] = {}
+            total_path_violations: int = 0
+            total_space_violations: int = 0
+            total_violations: int = 0
 
-            elif isinstance(segment, SpaceSegment):
-                segment_encounters = self.space_segment_violations(segment)
+            for segment in agent.allocated_segments:
+                if isinstance(segment, PathSegment):
+                    assert isinstance(agent, PathAgent)
+                    segment_violations = self.path_segment_violations(agent, segment)
 
-            else:
-                raise Exception(f"Invalid Segment: {segment}")
+                elif isinstance(segment, SpaceSegment):
+                    segment_violations = self.space_segment_violations(segment)
 
-            path_violations.update(segment_encounters[Statistics.PATH_VIOLATIONS])
-            space_violations.update(segment_encounters[Statistics.SPACE_VIOLATIONS])
-            total_path_violations += segment_encounters[Statistics.TOTAL_PATH_VIOLATIONS]
-            total_space_violations += segment_encounters[Statistics.TOTAL_SPACE_VIOLATIONS]
+                else:
+                    raise Exception(f"Invalid Segment: {segment}")
 
-        return {
-            Statistics.PATH_VIOLATIONS: path_violations,
-            Statistics.SPACE_VIOLATIONS: space_violations,
-            Statistics.TOTAL_PATH_VIOLATIONS: total_path_violations,
-            Statistics.TOTAL_SPACE_VIOLATIONS: total_space_violations,
-        }
+                path_violations.update(segment_violations[Statistics.PATH_VIOLATIONS])
+                space_violations.update(segment_violations[Statistics.SPACE_VIOLATIONS])
+                total_path_violations += segment_violations[Statistics.TOTAL_PATH_VIOLATIONS]
+                total_space_violations += segment_violations[Statistics.TOTAL_SPACE_VIOLATIONS]
+                total_violations += segment_violations[Statistics.TOTAL_VIOLATIONS]
+
+            agent_violations = {
+                Statistics.PATH_VIOLATIONS: path_violations,
+                Statistics.SPACE_VIOLATIONS: space_violations,
+                Statistics.TOTAL_PATH_VIOLATIONS: total_path_violations,
+                Statistics.TOTAL_SPACE_VIOLATIONS: total_space_violations,
+                Statistics.TOTAL_VIOLATIONS: total_violations,
+            }
+            self.violations[agent] = agent_violations
+
+        return self.violations[agent]
 
     def path_segment_violations(self, path_agent: "PathAgent", path_segment: "PathSegment"):
         """
@@ -413,10 +495,10 @@ class Statistics:
         total_space_violations: int = 0
 
         for coordinate in path_segment.coordinates:
-            intersecting_agent_hashes = self.sim.environment.intersect_path_coordinate(coordinate,
-                                                                                       path_agent.near_radius)
+            intersecting_agent_hashes = self.simulation.environment.intersect_path_coordinate(coordinate,
+                                                                                              path_agent.near_radius)
             for intersecting_agent_hash in intersecting_agent_hashes:
-                intersecting_agent = self.sim.environment.agents[intersecting_agent_hash]
+                intersecting_agent = self.simulation.environment.agents[intersecting_agent_hash]
 
                 if isinstance(intersecting_agent, PathAgent):
                     encountered_agent_position = intersecting_agent.get_position_at_tick(coordinate.t)
@@ -436,11 +518,13 @@ class Statistics:
                 else:
                     raise Exception(f"Invalid agent {intersecting_agent}")
 
+        total_violations: int = total_space_violations + total_path_violations
         return {
             Statistics.PATH_VIOLATIONS: path_violations,
             Statistics.SPACE_VIOLATIONS: space_violations,
             Statistics.TOTAL_PATH_VIOLATIONS: total_path_violations,
             Statistics.TOTAL_SPACE_VIOLATIONS: total_space_violations,
+            Statistics.TOTAL_VIOLATIONS: total_violations,
         }
 
     def space_segment_violations(self, space_segment: "SpaceSegment"):
@@ -454,7 +538,7 @@ class Statistics:
         total_path_violations: int = 0
         total_space_violations: int = 0
 
-        intersecting_space_segments, intersecting_path_segments = self.sim.environment.intersect_space_segment(
+        intersecting_space_segments, intersecting_path_segments = self.simulation.environment.intersect_space_segment(
             space_segment)
 
         for intersecting_space_agent in intersecting_space_segments:
@@ -472,9 +556,17 @@ class Statistics:
                         path_violations[intersecting_path_agent].append(path_coordinate)
                         total_path_violations += 1
 
+        total_violations: int = total_space_violations + total_path_violations
         return {
             Statistics.PATH_VIOLATIONS: path_violations,
             Statistics.SPACE_VIOLATIONS: space_violations,
             Statistics.TOTAL_PATH_VIOLATIONS: total_path_violations,
             Statistics.TOTAL_SPACE_VIOLATIONS: total_space_violations,
+            Statistics.TOTAL_VIOLATIONS: total_violations,
         }
+
+    def get_total_violations(self) -> int:
+        total_violations: int = 0
+        for agent in self.simulation.environment.agents.values():
+            total_violations += self.get_agent_violations(agent)[Statistics.TOTAL_VIOLATIONS]
+        return total_violations

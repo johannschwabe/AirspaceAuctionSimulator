@@ -19,6 +19,8 @@ class History:
         self.allocations: Dict["Agent", Dict[int, "Allocation"]] = {}
         self.compute_times: Dict[int, int] = {}
         self.registrations: Dict["Agent", int] = {}
+        self.reallocations: Dict["Agent", int] = {}
+        self.total_reallocations = 0
 
     def update_history(self,
                        new_allocations: Dict["Agent", "Allocation"],
@@ -36,4 +38,8 @@ class History:
             if agent not in self.allocations:
                 self.registrations[agent] = time_step
                 self.allocations[agent] = {}
+                self.reallocations[agent] = 0
+            else:
+                self.reallocations[agent] += 1
+                self.total_reallocations += 1
             self.allocations[agent][time_step] = allocation
