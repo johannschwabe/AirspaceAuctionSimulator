@@ -41,7 +41,7 @@ class JSONBranch(Stringify):
         self.paths: List["JSONPath"] = paths
         self.value: float = value
         self.reason: str = reason
-        self.colliding_agent_ids: Optional[List[str]] = colliding_agent_ids
+        self.colliding_agent_ids: List[str] = colliding_agent_ids if colliding_agent_ids is not None else []
         self.compute_time: int = compute_time
 
 
