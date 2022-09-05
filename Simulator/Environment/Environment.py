@@ -220,7 +220,7 @@ class Environment:
         Returns a list of all blocker IDs that intersect a qube around the given coordinate with size 2 * radius.
         All time steps from coordinate.t to coordinate.t + speed are considered.
         """
-        return list(self.blocker_tree.intersection(coord.tree_query_qube_rep(radius, speed)))
+        return list(self.blocker_tree.intersection(coord.tree_query_cube_rep(radius, speed)))
 
     def is_blocked(self, coord: "Coordinate4D", agent: "PathAgent") -> bool:
         """
@@ -358,7 +358,7 @@ class Environment:
         All time steps from coordinate.t to coordinate.t + speed are considered.
         The radius is abstracted by a qube around the given coordinate with size 2 * radius.
         """
-        return list(self.tree.intersection(coords.tree_query_qube_rep(radius, speed)))
+        return list(self.tree.intersection(coords.tree_query_cube_rep(radius, speed)))
 
     def new_clear(self):
         """

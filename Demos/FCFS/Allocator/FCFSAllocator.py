@@ -1,13 +1,17 @@
 from time import time_ns
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, TYPE_CHECKING
 
-from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, Environment, \
-    AllocationStatistics, Agent
+from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, \
+    AllocationStatistics, Agent, BidTracker
 from ..BidTracker.FCFSBidTracker import FCFSBidTracker
+from ..BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
+from ..BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
 from ..Bids.FCFSPathBid import FCFSPathBid
 from ..Bids.FCFSSpaceBid import FCFSSpaceBid
-from ..Owners.FCFSPathOwner import FCFSPathOwner
-from ..Owners.FCFSSpaceOwner import FCFSSpaceOwner
+from ..PaymentRule.FCFSPaymentRule import FCFSPaymentRule
+
+if TYPE_CHECKING:
+    from Simulator import Environment
 
 
 class FCFSAllocator(Allocator):
@@ -16,6 +20,11 @@ class FCFSAllocator(Allocator):
     There is no given order for agents arriving during same tick.
     """
 
+
+    @staticmethod
+    def compatible_payment_functions():
+        return [FCFSPaymentRule]
+
     def __init__(self):
         """
         Initialize the FCFS-bid-tracker.
@@ -23,12 +32,12 @@ class FCFSAllocator(Allocator):
         self.bid_tracker = FCFSBidTracker()
 
     @staticmethod
-    def compatible_owner():
+    def compatible_bidding_strategies():
         """
         Compatible owners are FCFS-[space|path]-owner.
         :return:
         """
-        return [FCFSPathOwner, FCFSSpaceOwner]
+        return [FCFSSpaceBiddingStrategy, FCFSPathBiddingStrategy]
 
     @staticmethod
     def allocate_path(bid: "FCFSPathBid", environment: "Environment", astar: "AStar",
@@ -128,6 +137,9 @@ class FCFSAllocator(Allocator):
             if len(intersecting_agents) == 0:
                 optimal_path_segments.append(SpaceSegment(lower, upper))
         return optimal_path_segments
+
+    def get_bid_tracker(self) -> BidTracker:
+        return self.bid_tracker
 
     def allocate(self, agents: List["Agent"], environment: "Environment", tick: int) -> Dict["Agent", "Allocation"]:
         astar = AStar(environment, self.bid_tracker, tick)

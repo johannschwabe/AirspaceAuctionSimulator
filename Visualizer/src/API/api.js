@@ -72,6 +72,20 @@ export async function postSimulation(simulationConfig) {
 }
 
 /**
+ * Get all registered value functions from the backend
+ * @returns {Promise<Object[]>} - Names of allocators
+ */
+export async function getSupportedValueFunctions(allocator, bidding_strategy) {
+  try {
+    const { data } = await apiServer.get(`/valueFunctions/${allocator}/${bidding_strategy}`);
+    return data;
+  } catch (e) {
+    const details = apiPostErrorToString(e);
+    throw new Error(details);
+  }
+}
+
+/**
  * Get all registered allocators from the backend
  * @returns {Promise<string[]>} - Names of allocators
  */
@@ -86,12 +100,26 @@ export async function getSupportedAllocators() {
 }
 
 /**
- * Get owners compatible with selected allocator
+ * Get bidding strategies compatible with selected allocator
  * @returns {Promise<Object[]>} - owners
  */
-export async function getOwnersSupportedByAllocator(allocator) {
+export async function getBiddingStrategiesSupportedByAllocator(allocator) {
   try {
-    const { data } = await apiServer.get(`/owners/${allocator}`);
+    const { data } = await apiServer.get(`/biddingStrategies/${allocator}`);
+    return data;
+  } catch (e) {
+    const details = apiPostErrorToString(e);
+    throw new Error(details);
+  }
+}
+
+/**
+ * Get payment rules compatible with selected allocator
+ * @returns {Promise<Object[]>} - owners
+ */
+export async function getPaymentRulesSupportedByAllocator(allocator) {
+  try {
+    const { data } = await apiServer.get(`/paymentRules/${allocator}`);
     return data;
   } catch (e) {
     const details = apiPostErrorToString(e);

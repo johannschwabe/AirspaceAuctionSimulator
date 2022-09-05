@@ -1,13 +1,17 @@
 from time import time_ns
-from typing import List, Tuple, Set, Optional, Dict
+from typing import List, Tuple, Set, Optional, Dict, TYPE_CHECKING
 
-from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation, AStar, Agent, \
-    AllocationStatistics, Environment
+from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation, \
+    AllocationStatistics, AStar
 from ..BidTracker.PriorityBidTracker import PriorityBidTracker
+from ..BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStrategy
+from ..BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
 from ..Bids.PriorityPathBid import PriorityPathBid
 from ..Bids.PrioritySpaceBid import PrioritySpaceBid
-from ..Owners.PriorityPathOwner import PriorityPathOwner
-from ..Owners.PrioritySpaceOwner import PrioritySpaceOwner
+from ..PaymentRule.PriorityPaymentRule import PriorityPaymentRule
+
+if TYPE_CHECKING:
+    from Simulator import Environment, Agent
 
 
 class PriorityAllocator(Allocator):
@@ -23,12 +27,12 @@ class PriorityAllocator(Allocator):
         self.bid_tracker = PriorityBidTracker()
 
     @staticmethod
-    def compatible_owner():
-        """
-        Compatible owners are priority-[space|path]-owner.
-        :return:
-        """
-        return [PriorityPathOwner, PrioritySpaceOwner]
+    def compatible_bidding_strategies():
+        return [PriorityPathBiddingStrategy, PrioritySpaceBiddingStrategy]
+
+    @staticmethod
+    def compatible_payment_functions():
+        return [PriorityPaymentRule]
 
     @staticmethod
     def allocate_path(bid: "PriorityPathBid", environment: "Environment", astar: "AStar",

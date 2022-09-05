@@ -23,7 +23,7 @@ class Allocation(ABC):
         self.agent: "Agent" = agent
         self.segments: List["Segment"] = segments
         self.statistics: "AllocationStatistics" = statistics
-        self.payment = 0
+        self.preliminary_payment = 0
 
     def get_allocation_with_agent(self, agent: "Agent") -> "Allocation":
         """

@@ -1,15 +1,13 @@
 import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
-from Demos.FCFS import FCFSAllocator, FCFSPaymentRule
-from Demos.Priority import PriorityAllocator, PriorityPaymentRule
-from Simulator import GridLocationType, Coordinate2D, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism, \
+from Simulator import PathOwner, SpaceOwner, GridLocationType, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism, \
     Coordinate4D
 from .EnvironmentGen import EnvironmentGen
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
-    from Simulator import Allocator, Owner, Environment, History, Statistics
+    from Simulator import Allocator, Owner, Environment, History, Statistics, PaymentRule, Coordinate2D
     from ..API import APIOwner
     from ..Area import Area
 
@@ -21,7 +19,8 @@ class Generator:
         dimensions: "Coordinate4D",
         maptiles: List["MapTile"],
         allocator: "Allocator",
-        area: "Area"
+        area: "Area",
+        payment_rule: "PaymentRule"
     ):
         self.apiOwners: List["APIOwner"] = owners
         self.dimensions: "Coordinate4D" = dimensions
@@ -33,6 +32,7 @@ class Generator:
         self.statistics: Optional["Statistics"] = None
         self.simulator: Optional["Simulator"] = None
         self.area = area
+        self.paymentRule = payment_rule
 
     def extract_owner_stops(self, owner: "APIOwner"):
         stops: List["GridLocation"] = []
@@ -60,38 +60,68 @@ class Generator:
         owner_id = 0
         for apiOwner in self.apiOwners:
             stops: List["GridLocation"] = self.extract_owner_stops(apiOwner)
-            owners = [_owner for _owner in self.allocator.compatible_owner() if _owner.__name__ == apiOwner.classname]
-            if len(owners) != 1:
-                print(f"Owner Type {apiOwner} not registered with allocator {self.allocator.__class__.__name__}")
-                continue
-            ownerClass = owners[0]
-            try:
-                self.owners.append(ownerClass(owner_id,
-                                              apiOwner.name,
-                                              apiOwner.color,
-                                              stops,
-                                              self.creation_ticks(self.environment.allocation_period, apiOwner.agents)))
-            except TypeError:
-                self.owners.append(ownerClass(owner_id,
-                                              apiOwner.name,
-                                              apiOwner.color,
-                                              stops,
-                                              self.creation_ticks(self.environment.allocation_period, apiOwner.agents),
-                                              Coordinate4D(50, 50, 50, 50)))
-            finally:
-                owner_id += 1
+            bidding_strategy = [bs for bs in self.allocator.compatible_bidding_strategies() if
+                                bs.__name__ == apiOwner.biddingStrategy.classname]
+            if len(bidding_strategy) != 1:
+                raise Exception(f"{len(bidding_strategy)} bidding strategies found")
+            selected_bidding_strategy = bidding_strategy[0]()
 
-        if isinstance(self.allocator, FCFSAllocator):
-            mechanism = Mechanism(self.allocator, FCFSPaymentRule())
+            print(apiOwner.valueFunction)
+            value_functions = [vf for vf in selected_bidding_strategy.compatible_value_functions() if
+                               vf.__name__ == apiOwner.valueFunction]
+            if len(value_functions) != 1:
+                raise Exception(f"{len(value_functions)} bidding strategies found")
+            selected_value_functions = value_functions[0]({})
 
-        elif isinstance(self.allocator, PriorityAllocator):
-            mechanism = Mechanism(self.allocator, PriorityPaymentRule())
-        else:
-            raise Exception("Invalid allocator")
-
+            if apiOwner.biddingStrategy.allocationType == "space":
+                dim_x = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if
+                         meta_config["key"] == "size_x"][0]
+                dim_y = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if
+                         meta_config["key"] == "size_y"][0]
+                dim_z = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if
+                         meta_config["key"] == "size_z"][0]
+                dim_t = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if
+                         meta_config["key"] == "size_t"][0]
+                other_meta_config = {meta_config["key"]: meta_config["value"] for meta_config in
+                                     apiOwner.biddingStrategy.meta if
+                                     meta_config["key"] not in ["size_x", "size_y", "size_z", "size_t"]}
+                newOwner = SpaceOwner(str(owner_id),
+                                      apiOwner.name,
+                                      apiOwner.color,
+                                      stops,
+                                      self.creation_ticks(self.environment.allocation_period, apiOwner.agents),
+                                      bidding_strategy=selected_bidding_strategy,
+                                      value_function=selected_value_functions,
+                                      size=Coordinate4D(dim_x, dim_y, dim_z, dim_t),
+                                      meta=other_meta_config)
+            else:
+                near_field = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if
+                              meta_config["key"] == "near_field"][0]
+                battery = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if
+                           meta_config["key"] == "battery"][0]
+                speed = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if
+                         meta_config["key"] == "speed"][0]
+                other_meta_config = {meta_config["key"]: meta_config["value"] for meta_config in
+                                     apiOwner.biddingStrategy.meta if
+                                     meta_config["key"] not in ["near_field", "speed", "battery"]}
+                newOwner = PathOwner(str(owner_id),
+                                     apiOwner.name,
+                                     apiOwner.color,
+                                     stops,
+                                     self.creation_ticks(self.environment.allocation_period, apiOwner.agents),
+                                     bidding_strategy=selected_bidding_strategy,
+                                     value_function=selected_value_functions,
+                                     near_radius=near_field,
+                                     battery=battery,
+                                     speed=speed,
+                                     meta=other_meta_config
+                                     )
+            self.owners.append(newOwner)
+            owner_id += 1
+        mech = Mechanism(self.allocator, self.paymentRule)
         self.simulator = Simulator(
             self.owners,
-            mechanism,
+            mech,
             self.environment,
         )
         while self.simulator.tick():

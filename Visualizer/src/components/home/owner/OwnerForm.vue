@@ -5,18 +5,19 @@
   <n-input-number v-model:value="owner.agents" :min="1" :max="100" style="min-width: 130px" placeholder="Nr. Agents" />
   <!-- Dropdown selection for owner type -->
   <n-select
-    v-model:value="owner.classname"
-    :options="simulationConfig.availableOwnersForAllocator"
-    label-field="label"
-    value-field="classname"
+    v-model:value="biddingStrategy"
+    :options="simulationConfig.availableBiddingStrategiesOptions"
     placeholder="Type"
-    @update:value="updateLocationsForOwner"
+    @on-update:value="biddingStrategySelected"
   />
+  <!-- Dropdown selection for owner type -->
+  <n-select v-model:value="owner.valueFunction" :options="compatibleValueFunctions" placeholder="Type" />
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { useSimulationConfigStore } from "../../../stores/simulationConfig.js";
+import { getSupportedValueFunctions } from "../../../API/api";
 
 const props = defineProps({
   ownerIndex: {
@@ -28,26 +29,44 @@ const props = defineProps({
 const simulationConfig = useSimulationConfigStore();
 
 const owner = computed(() => simulationConfig.owners[props.ownerIndex]);
+loadCompatibleValueFunctions();
 
-const ownerProperties = computed(() => {
-  return simulationConfig.availableOwnersForAllocator.find((o) => o.classname === owner.value.classname);
-});
-
+const biddingStrategy = ref(owner.value.biddingStrategy.classname);
 /**
  * Whenever the selected ownerType changes, make sure the requirements for minimum
  * and maximum number of locations are met
  */
-const updateLocationsForOwner = () => {
-  owner.value.meta = ownerProperties.value.meta;
-  owner.value.minLocations = ownerProperties.value.minLocations;
-  owner.value.maxLocations = ownerProperties.value.maxLocations;
-  if (owner.value.locations.length > owner.value.minLocations) {
-    owner.value.locations = owner.value.locations.slice(0, owner.value.minLocations);
+
+const compatibleValueFunctions = ref([]);
+function loadCompatibleValueFunctions() {
+  getSupportedValueFunctions(simulationConfig.allocator, owner.value.biddingStrategy.classname).then((res) => {
+    compatibleValueFunctions.value = res.map((a) => ({ label: a.label, value: a.classname }));
+    const compatible = compatibleValueFunctions.value.find((comp) => {
+      return comp.value === owner.value.valueFunction;
+    });
+    if (!compatible) {
+      owner.value.valueFunction = compatibleValueFunctions.value[0].value;
+    }
+  });
+}
+const biddingStrategySelected = () => {
+  if (owner.value.locations.length > owner.value.biddingStrategy.maxLocations) {
+    owner.value.locations = owner.value.locations.slice(0, owner.value.biddingStrategy.maxLocations);
   }
-  while (owner.value.locations.length < owner.value.minLocations) {
+  while (owner.value.locations.length < owner.value.biddingStrategy.minLocations) {
     owner.value.locations.push(simulationConfig.randomLocation());
   }
 };
+
+watch(
+  () => biddingStrategy.value,
+  () => {
+    owner.value.biddingStrategy = simulationConfig.availableBiddingStrategiesForAllocator.find(
+      (strat) => strat.classname === biddingStrategy.value
+    );
+    loadCompatibleValueFunctions();
+  }
+);
 </script>
 
 <style scoped></style>
