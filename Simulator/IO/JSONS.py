@@ -1,6 +1,5 @@
-import statistics
 from abc import ABC
-from typing import Dict, List, TYPE_CHECKING
+from typing import Dict, List, TYPE_CHECKING, Union
 
 from .Stringify import Stringify
 from ..Agents.PathAgent import PathAgent
@@ -8,6 +7,7 @@ from ..Agents.SpaceAgent import SpaceAgent
 from ..Blocker.BuildingBlocker import BuildingBlocker
 from ..Blocker.DynamicBlocker import DynamicBlocker
 from ..Blocker.StaticBlocker import StaticBlocker
+from ..Owners.Owner import Owner
 from ..Statistics.Statistics import Statistics
 
 if TYPE_CHECKING:
@@ -54,30 +54,24 @@ class JSONAgent(ABC):
     def __init__(
         self,
         agent: "Agent",
-        non_colliding_utility: float,
-        owner_id: str,
-        owner_name: str,
+        value: float,
+        non_colliding_value: float,
     ):
         self.agent_type: str = agent.agent_type
         self.id: str = agent.id
-        self.utility: float = agent.get_allocated_value()
+        self.value: float = value
 
-        self.non_colliding_utility: float = non_colliding_utility
-
-        self.owner_id: str = owner_id
-        self.owner_name: str = owner_name
-        self.name: str = f"{self.owner_name}-{self.agent_type}-{agent.id}"
+        self.non_colliding_value: float = non_colliding_value
 
 
 class JSONSpaceAgent(JSONAgent, Stringify):
     def __init__(
         self,
         agent: "SpaceAgent",
-        non_colliding_utility: float,
-        owner_id: str,
-        owner_name: str,
+        value: float,
+        non_colliding_value: float,
     ):
-        super().__init__(agent, non_colliding_utility, owner_id, owner_name)
+        super().__init__(agent, value, non_colliding_value)
         self.spaces: List["JSONSpace"] = [JSONSpace(space) for space in agent.allocated_segments]
 
 
@@ -85,11 +79,10 @@ class JSONPathAgent(JSONAgent, Stringify):
     def __init__(
         self,
         agent: "PathAgent",
-        non_colliding_utility: float,
-        owner_id: str,
-        owner_name: str,
+        value: float,
+        non_colliding_value: float,
     ):
-        super().__init__(agent, non_colliding_utility, owner_id, owner_name)
+        super().__init__(agent, value, non_colliding_value)
         self.speed: int = agent.speed
         self.near_radius: int = agent.near_radius
         self.battery: int = agent.battery
@@ -103,27 +96,20 @@ class JSONPathAgent(JSONAgent, Stringify):
 
 
 class JSONOwner(Stringify):
-    def __init__(self, name: str, owner_id: str, color: str, agents: List["JSONAgent"]):
-        self.name: str = name
-        self.id: str = owner_id
-        self.color: str = color
+    def __init__(self,
+                 owner: "Owner",
+                 agents: List["JSONAgent"],
+                 values: Dict[str, Union[float, List[float]]],
+                 non_colliding_values: Dict[str, Union[float, List[float]]]):
+        self.name: str = owner.name
+        self.id: str = owner.id
+        self.color: str = owner.color
         self.agents: List["JSONAgent"] = agents
         self.total_time_in_air: int = sum(
             [agent.time_in_air if isinstance(agent, JSONPathAgent) else 0 for agent in self.agents])
 
-        utility = [agent.utility for agent in self.agents]
-        self.total_utility: int = sum(utility)
-        self.mean_utility: float = statistics.mean(utility)
-        self.median_utility: float = statistics.median(utility)
-        self.max_utility: float = max(utility)
-        self.min_utility: float = min(utility)
-        if len(utility) < 2:
-            self.utility_quantiles = [0] * 4
-        else:
-            self.utility_quantiles: List[float] = statistics.quantiles(utility)
-        self.utility_outliers: List[float] = [w for w in utility if
-                                              w < self.utility_quantiles[0] or w > self.utility_quantiles[-1]]
-        self.bid_quantiles = [0] * 4
+        self.values = values
+        self.non_colliding_values = non_colliding_values
 
         self.number_of_agents: int = len(self.agents)
         self.number_per_type = {}
@@ -183,29 +169,28 @@ def build_json(simulator: "Simulator", total_compute_time: int):
     env = simulator.environment
     history = simulator.history
     stats = Statistics(simulator)
-    nr_collisions = 0
     json_env = JSONEnvironment(env.dimension, list(env.blocker_dict.values()))
     owners: List["JSONOwner"] = []
     for owner in simulator.owners:
         agents: List["JSONAgent"] = []
-        non_colliding_values = _calculate_non_colliding_values(owner.agents, stats)
         for agent in owner.agents:
             if isinstance(agent, PathAgent):
                 agents.append(JSONPathAgent(
                     agent,
-                    non_colliding_values[agent],
-                    owner.id,
-                    owner.name,
+                    stats.get_value_for_agent(agent),
+                    stats.get_non_colliding_value_for_agent(agent),
                 ))
             elif isinstance(agent, SpaceAgent):
                 agents.append(JSONSpaceAgent(
                     agent,
-                    non_colliding_values[agent],
-                    owner.id,
-                    owner.name,
+                    stats.get_value_for_agent(agent),
+                    stats.get_non_colliding_value_for_agent(agent),
                 ))
-        owners.append(JSONOwner(owner.name, owner.id, owner.color, agents))
-    json_stats = JSONStatistics(len(simulator.owners), len(env.agents), stats.get_total_value(), nr_collisions,
+        owners.append(JSONOwner(owner,
+                                agents,
+                                stats.get_values_for_owner(owner),
+                                stats.get_non_colliding_values_for_owner(owner)))
+    json_stats = JSONStatistics(len(simulator.owners), len(env.agents), stats.get_total_value(),
                                 0)
     json_simulation = JSONSimulation(json_env, json_stats, owners, total_compute_time,
                                      history.compute_times)

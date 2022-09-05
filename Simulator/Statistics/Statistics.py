@@ -1,5 +1,5 @@
 import statistics
-from typing import TYPE_CHECKING, List, Dict, Optional
+from typing import TYPE_CHECKING, List, Dict, Optional, Union
 
 from rtree import index, Index
 
@@ -20,6 +20,15 @@ class Statistics:
     """
     Statistics class that generates statistics for a simulation.
     """
+    # Owner Statistics
+    TOTAL_VALUE = "total_value"
+    MEAN_VALUE = "mean_value"
+    MEDIAN_VALUE = "median_value"
+    MAX_VALUE = "max_value"
+    MIN_VALUE = "min_value"
+    VALUE_QUARTILES = "value_quartiles"
+    VALUE_OUTLIERS = "value_outliers"
+
     # Path Statistics
     PATH_L1_DISTANCE = "l1_distance"
     PATH_L2_DISTANCE = "l2_distance"
@@ -64,6 +73,7 @@ class Statistics:
         :param sim:
         """
         self.sim: "Simulator" = sim
+        # Assert simulation is done
         assert sim.time_step == sim.environment.dimension.t + 1
 
         self.non_colliding_values: Dict["Agent", float] = {}
@@ -112,27 +122,51 @@ class Statistics:
             total_value += self.get_value_for_agent(agent)
         return total_value
 
-    def get_total_non_colliding_value_for_owner(self, owner: "Owner"):
+    @staticmethod
+    def _get_value_statistics(values: List[float]) -> Dict[str, Union[float, List[float]]]:
+        """
+        Calculate statistics for a list of values
+        :param values:
+        :return:
+        """
+        total_value: int = sum(values)
+        mean_value: float = statistics.mean(values)
+        median_value: float = statistics.median(values)
+        max_value: float = max(values)
+        min_value: float = min(values)
+        value_quartiles: List[float] = []
+        value_outliers: List[float] = []
+        if len(values) > 1:
+            value_quartiles = statistics.quantiles(values)
+            value_outliers = [value for value in values if
+                              value < value_quartiles[0] or value > value_quartiles[-1]]
+        return {
+            Statistics.TOTAL_VALUE: total_value,
+            Statistics.MEAN_VALUE: mean_value,
+            Statistics.MEDIAN_VALUE: median_value,
+            Statistics.MAX_VALUE: max_value,
+            Statistics.MIN_VALUE: min_value,
+            Statistics.VALUE_QUARTILES: value_quartiles,
+            Statistics.VALUE_OUTLIERS: value_outliers,
+        }
+
+    def get_non_colliding_values_for_owner(self, owner: "Owner") -> Dict[str, Union[float, List[float]]]:
         """
         Calculate the value for the allocations of all agents of an owner on an empty map summed up.
         :param owner:
         :return:
         """
-        total_value = 0
-        for agent in owner.agents:
-            total_value += self.get_non_colliding_value_for_agent(agent)
-        return total_value
+        values = [self.get_non_colliding_value_for_agent(agent) for agent in owner.agents]
+        return self._get_value_statistics(values)
 
-    def get_total_value_for_owner(self, owner: "Owner"):
+    def get_values_for_owner(self, owner: "Owner") -> Dict[str, Union[float, List[float]]]:
         """
         Calculate the value for the allocations of all agents of an owner summed up.
         :param owner:
         :return:
         """
-        total_value = 0
-        for agent in owner.agents:
-            total_value += self.get_value_for_agent(agent)
-        return total_value
+        values = [self.get_value_for_agent(agent) for agent in owner.agents]
+        return self._get_value_statistics(values)
 
     @staticmethod
     def path_segment_statistics(path_segment: "PathSegment"):
