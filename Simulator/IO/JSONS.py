@@ -85,7 +85,7 @@ class JSONPathAgent(JSONAgent, Stringify):
         self.battery: int = agent.battery
         self.time_in_air: int = agent.get_airtime()
 
-        self.path: List["JSONPath"] = [JSONPath(path) for path in agent.allocated_segments]
+        self.paths: List["JSONPath"] = [JSONPath(path) for path in agent.allocated_segments]
         self.branches = branches
 
         self.nr_reallocations = len(self.branches)
