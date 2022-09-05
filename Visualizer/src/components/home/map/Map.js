@@ -70,14 +70,12 @@ export const usePositionLayer = (features) => {
  */
 export const restoreHeatmapFeatures = (features, points) => {
   features.clear();
-  console.log(points);
   points
     .map((coord) => {
       return new Feature(new Point(fromLonLat([coord.long, coord.lat])));
     })
     .flat()
     .forEach((feat) => features.push(feat));
-  console.log(features);
 };
 
 /**
