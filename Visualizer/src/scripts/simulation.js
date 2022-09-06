@@ -2,7 +2,7 @@
  * @type {Simulation}
  */
 import { useSimulationStore } from "@/stores/simulation";
-import { canLoadSimulation, loadSimulationData } from "@/API/api";
+import { canLoadSimulation, loadConfigData, loadSimulationData, loadStatisticsData } from "@/API/api";
 import Simulation from "../SimulationObjects/Simulation";
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
 
@@ -23,28 +23,30 @@ export function canRecoverSimulationSingleton() {
 }
 
 export async function loadSimulationSingleton() {
-  const data = loadSimulationData();
-  if (!data) {
+  const simulation_data = await loadSimulationData();
+  const config_data = await loadConfigData();
+  const statistics_data = await loadStatisticsData();
+  if (!simulation_data) {
     throw new Error("Unable to recover last simulation!");
   }
-  const simulation = new Simulation(data);
+  const simulation = new Simulation(simulation_data, config_data, statistics_data);
   simulationSingleton = await simulation.load();
   return simulationSingleton;
 }
 
-export function setSimulationConfig(data) {
-  if (data.config) {
+export function setSimulationConfig(config) {
+  if (config) {
     const simulationConfig = useSimulationConfigStore();
-    simulationConfig.overwrite(data.config);
+    simulationConfig.overwrite(config);
   }
 }
 
-export function loadSimulationConfig() {
-  const data = loadSimulationData();
-  if (!data) {
+export async function loadSimulationConfig() {
+  const config_data = await loadConfigData();
+  if (!config_data) {
     throw new Error("Unable to recover last simulation!");
   }
-  setSimulationConfig(data);
+  setSimulationConfig(config_data);
 }
 
 export function useSimulationSingleton() {

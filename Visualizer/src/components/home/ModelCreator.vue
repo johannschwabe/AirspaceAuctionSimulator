@@ -260,12 +260,12 @@ const simulate = () => {
       startLoading();
       postSimulation(simulationConfig.generateConfigJson())
         .then((data) => {
-          const simulation = new Simulation(data);
+          const simulation = new Simulation(data.simulation);
+          setSimulationConfig(simulation.config);
           return simulation.load();
         })
         .then((simulation) => {
           setSimulationSingleton(simulation);
-          setSimulationConfig(simulation);
           loadingBar.finish();
           message.success("Simulation Created!");
           finished.value = true;

@@ -1,6 +1,5 @@
 import axios from "axios";
 import { saveAs } from "file-saver";
-import { compress, decompress } from "compress-json";
 
 /**
  * @typedef {Object} ApiOwnerType
@@ -43,7 +42,10 @@ const apiServer = axios.create({
   timeout: 60 * 60 * 1000, // 1h
 });
 
-const STORAGE_KEY = "simulation";
+const STORAGE_KEY = "simulation_db";
+const SIMULATION_STORAGE_KEY = "simulation";
+const STATISTICS_STORAGE_KEY = "statistics";
+const CONFIG_STORAGE_KEY = "config";
 
 /**
  * @param {Object} e
@@ -58,12 +60,12 @@ const apiPostErrorToString = (e) => {
 
 /**
  * @param {ApiSimulationConfigType} simulationConfig
- * @returns {Promise<RawSimulation>}
+ * @returns {Promise<JSONResponse>}
  */
 export async function postSimulation(simulationConfig) {
   try {
     const { data } = await apiServer.post("/simulation", simulationConfig);
-    persistSimulation(data);
+    await persistSimulation(data);
     return data;
   } catch (e) {
     const details = apiPostErrorToString(e);
@@ -127,31 +129,102 @@ export async function getPaymentRulesSupportedByAllocator(allocator) {
   }
 }
 
+async function openDB() {
+  console.log("OPEN");
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(STORAGE_KEY);
+    request.onerror = (event) => {
+      console.log("OPEN:", event);
+      reject(event.target.errorCode);
+    };
+    request.onsuccess = (event) => {
+      const db = event.target.result;
+      db.onerror = (error_event) => {
+        console.error(`Database error: ${error_event.target.errorCode}`);
+      };
+      db.onclose = (close_event) => {
+        console.log("DB CLOSED:", close_event.target);
+      };
+      db.onabort = (abort_event) => {
+        console.log("DB ABORTED:", abort_event.target);
+      };
+      resolve(db);
+    };
+    request.onupgradeneeded = async (event) => {
+      const db = event.target.result;
+      db.createObjectStore(SIMULATION_STORAGE_KEY);
+      db.createObjectStore(CONFIG_STORAGE_KEY);
+      db.createObjectStore(STATISTICS_STORAGE_KEY);
+    };
+  });
+}
+
+async function addToObjectStore(db, name, data) {
+  console.log("ADD");
+  return new Promise((resolve) => {
+    db.transaction([name], "readwrite").objectStore(name).add(data, name).onsuccess = (event) => {
+      console.log("ADD:", event);
+      resolve();
+    };
+  });
+}
+
+async function fetchFromObjectStore(db, name) {
+  console.log("FETCH");
+  return new Promise((resolve) => {
+    db.transaction([name]).objectStore(name).openCursor().onsuccess = (event) => {
+      console.log("FETCH:", event);
+      resolve(event.target.result?.value ?? null);
+    };
+  });
+}
+
 /**
- * @param {RawSimulation} data
+ * @param {JSONResponse} data
  */
-export function persistSimulation(data) {
+export async function persistSimulation(data) {
   try {
-    const compressed = compress(data);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(compressed));
+    const simulation = data.simulation;
+    const statistics = data.statistics;
+    const config = data.config;
+    const db = await openDB();
+    console.log("DB:", db);
+    await addToObjectStore(db, SIMULATION_STORAGE_KEY, simulation);
+    await addToObjectStore(db, STATISTICS_STORAGE_KEY, statistics);
+    await addToObjectStore(db, CONFIG_STORAGE_KEY, config);
   } catch (e) {
     throw new Error(e);
   }
 }
 
-export function canLoadSimulation() {
-  return !!localStorage.getItem(STORAGE_KEY);
+export async function canLoadSimulation() {
+  const db = await openDB();
+  const data = await fetchFromObjectStore(db, SIMULATION_STORAGE_KEY);
+  return !!data;
 }
 
 /**
- * @returns {null|RawSimulation}
+ * @returns {null|JSONSimulation}
  */
-export function loadSimulationData() {
-  const data = localStorage.getItem(STORAGE_KEY);
-  if (data) {
-    return decompress(JSON.parse(data));
-  }
-  return null;
+export async function loadSimulationData() {
+  const db = await openDB(STORAGE_KEY);
+  return fetchFromObjectStore(db, SIMULATION_STORAGE_KEY);
+}
+
+/**
+ * @returns {null|JSONConfig}
+ */
+export async function loadConfigData() {
+  const db = await openDB(STORAGE_KEY);
+  return fetchFromObjectStore(db, CONFIG_STORAGE_KEY);
+}
+
+/**
+ * @returns {null|JSONConfig}
+ */
+export async function loadStatisticsData() {
+  const db = await openDB(STORAGE_KEY);
+  return fetchFromObjectStore(db, STATISTICS_STORAGE_KEY);
 }
 
 export function downloadSimulation() {

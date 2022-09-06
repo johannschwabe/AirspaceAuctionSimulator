@@ -1,12 +1,12 @@
 export default class Statistics {
   /**
-   * @param {RawStatistics} rawStatistics
+   * @param {JSONStatistics} jsonStatistics
    */
-  constructor(rawStatistics) {
-    this.totalNumberOfOwners = rawStatistics.total_number_of_owners;
-    this.totalNumberOfAgents = rawStatistics.total_number_of_agents;
-    this.totalAchievedWelfare = rawStatistics.total_achieved_welfare;
-    this.totalNumberOfCollisions = rawStatistics.total_number_of_collisions;
-    this.totalNumberOfReallocations = rawStatistics.total_number_of_reallocations;
+  constructor(jsonStatistics) {
+    this.totalNumberOfOwners = jsonStatistics.total_number_of_owners;
+    this.totalNumberOfAgents = jsonStatistics.total_number_of_agents;
+    this.totalValue = jsonStatistics.total_value;
+    this.totalNumberOfCollisions = jsonStatistics.total_number_of_collisions;
+    this.totalNumberOfReallocations = jsonStatistics.total_number_of_reallocations;
   }
 }

@@ -91,7 +91,7 @@ const stats = computed(() => {
     },
     {
       label: "Welfare",
-      value: simulation.statistics.totalAchievedWelfare,
+      value: simulation.statistics.totalValue,
       icon: HappyOutline,
     },
     {
