@@ -15,7 +15,7 @@ class BuildingBlocker(StaticBlocker):
         self.points = vertices
         self.holes = holes
         self.polygon = Polygon(vertices, holes)
-
+        
     def is_blocking(self, coord: "Coordinate4D", radius: int = 0):
         point = Point(coord.x, coord.z)
         if radius == 0:

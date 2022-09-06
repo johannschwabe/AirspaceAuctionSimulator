@@ -8,9 +8,6 @@ class Coordinate2D:
         self.x: int = x
         self.z: int = z
 
-    def get_key(self) -> str:
-        return f"{self.x}_{self.z}"
-
     def to_dict(self) -> Dict[str, int]:
         return {"x": self.x, "z": self.z}
 
@@ -47,3 +44,6 @@ class Coordinate2D:
 
     def clone(self) -> "Coordinate2D":
         return Coordinate2D(self.x, self.z)
+
+    def __hash__(self):
+        return hash((self.x, self.z))

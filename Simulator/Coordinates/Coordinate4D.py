@@ -1,3 +1,4 @@
+import math
 from typing import List, Tuple, Dict
 
 from .Coordinate3D import Coordinate3D
@@ -11,9 +12,6 @@ class Coordinate4D(Coordinate3D):
     @staticmethod
     def from_3D(coord_3d: "Coordinate3D", t: int) -> "Coordinate4D":
         return Coordinate4D(coord_3d.x, coord_3d.y, coord_3d.z, t)
-
-    def get_key(self) -> str:
-        return f"{self.x}_{self.y}_{self.z}_{self.t}"
 
     def to_dict(self) -> Dict[str, int]:
         return {"x": self.x, "y": self.y, "z": self.z, "t": self.t}
@@ -89,6 +87,14 @@ class Coordinate4D(Coordinate3D):
         if isinstance(other, Coordinate4D):
             temp = abs(self.t - other.t)
         return super().distance(other, l2), temp
+
+    @property
+    def l1(self) -> int:
+        return abs(self.x) + abs(self.y) + abs(self.z) + abs(self.t)
+
+    @property
+    def l2(self) -> float:
+        return math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2 + self.t ** 2)
 
     def inter_temporal_distance(self, other: Coordinate3D, l2: bool = False) -> float:
         return super().distance(other, l2)

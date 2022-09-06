@@ -74,7 +74,7 @@ class AStar:
             for next_neighbor in neighbors:
                 valid, collisions = self.is_valid_for_allocation(next_neighbor, agent)
                 if valid and next_neighbor.t <= self.environment.dimension.t:
-                    neighbor = Node(next_neighbor, current_node, set())
+                    neighbor = Node(next_neighbor, current_node, collisions)
 
                     # Closed node
                     if hash(neighbor) in closed_nodes:
@@ -181,16 +181,5 @@ class AStar:
         return abs(start.x - end.x) + abs(start.y - end.y) + abs(start.z - end.z)
 
     @staticmethod
-    def distance15(start: "Coordinate4D", end: "Coordinate4D"):
-        return math.pow(abs(start.x - end.x) ** 2 + abs(start.y - end.y) ** 2 + abs(start.z - end.z) ** 2, 0.333)
-
-    @staticmethod
     def distance2(start: "Coordinate4D", end: "Coordinate4D"):
         return math.pow((start.x - end.x) ** 2 + (start.y - end.y) ** 2 + (start.z - end.z) ** 2, 0.5)
-
-    @staticmethod
-    def distance3(start: "Coordinate4D", end: "Coordinate4D"):
-        return math.pow((start.x - end.x) ** 4 + (start.y - end.y) ** 4 + (start.z - end.z) ** 4, 1 / 4)
-
-    def distance12(self, start: "Coordinate4D", end: "Coordinate4D"):
-        return (self.distance(start, end) + self.distance2(start, end)) / 2

@@ -10,9 +10,6 @@ class Coordinate3D(Coordinate2D):
         super().__init__(x, z)
         self.y: int = y
 
-    def get_key(self) -> str:
-        return f"{self.x}_{self.y}_{self.z}"
-
     def to_dict(self) -> Dict[str, int]:
         return {"x": self.x, "y": self.y, "z": self.z}
 
