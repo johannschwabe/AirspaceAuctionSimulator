@@ -3,13 +3,13 @@ import math
 import random
 import time
 
-from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile
+from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, APISimulationConfig, build_json
 from Demos.FCFS import FCFSAllocator, FCFSPaymentRule, FCFSPathBiddingStrategy, FCFSSpaceBiddingStrategy, \
     FCFSPathValueFunction, FCFSSpaceValueFunction
 from Demos.Priority import PriorityAllocator, PriorityPaymentRule, PriorityPathBiddingStrategy, \
     PriorityPathValueFunction, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
 from Simulator import Simulator, Coordinate4D, StaticBlocker, Coordinate3D, Environment, GridLocation, \
-    GridLocationType, Statistics, Mechanism, PathOwner, SpaceOwner
+    GridLocationType, Mechanism, PathOwner, SpaceOwner
 
 random.seed(4)
 dimensions = Coordinate4D(40, 40, 40, 1000)
@@ -128,7 +128,7 @@ def color_generator():
 
 
 if __name__ == "__main__":
-    environment = setup_map()
+    environment = setup_empty()
     simulatorAligator = prioritySimulation(environment)
 
     start = time.time_ns()
@@ -141,16 +141,16 @@ if __name__ == "__main__":
     print(f"SIM: {sim_time / 6e10:2.2f} min")
     print()
 
-    stats = Statistics(simulatorAligator)
-    res = stats.build_json(sim_time)
-    res["config"] = {"name": "test",
-                     "map": {"tiles": []},
-                     "dimension": environment.dimension.to_dict(),
-                     "owners": []}
+    config: APISimulationConfig = {"name": "test",
+                                   "map": {"tiles": []},
+                                   "dimension": environment.dimension.to_dict(),
+                                   "owners": []}
 
     tot_time = time.time_ns() - start
     print()
     print(f"TOTAL: {tot_time / 6e10:2.2f} min")
+
+    res = build_json(config, simulatorAligator, tot_time)
 
     f = open("playground.json", "w")
     f.write(json.dumps(res))

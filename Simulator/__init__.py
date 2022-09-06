@@ -27,7 +27,8 @@ from .Environment.Environment import Environment
 # History
 from .History.History import History
 # IO
-from .IO.Statistics import Statistics
+from .IO.JSONS import get_simulation_dict
+from .IO.Statistics import get_statistics_dict
 # Location
 from .Location.GridLocation import GridLocation
 from .Location.GridLocationType import GridLocationType

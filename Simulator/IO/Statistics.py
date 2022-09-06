@@ -1,11 +1,10 @@
 import statistics
+from abc import ABC
 from typing import TYPE_CHECKING, List, Dict, Optional, Any
 
 from rtree import index, Index
 
-from .JSONS import JSONBranch, JSONPath, JSONStatistics, JSONEnvironment, JSONSimulation, JSONSpaceAgent, \
-    JSONPathAgent, JSONAgent, JSONOwner, JSONViolations, JSONValues, PathStatistics, SpaceStatistics, \
-    SpaceSegmentStatistics
+from .Stringify import Stringify
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
 from ..Coordinates.Coordinate2D import Coordinate2D
@@ -35,83 +34,71 @@ class Statistics:
 
         self.non_colliding_values: Dict["Agent", float] = {}
         self.values: Dict[Agent, float] = {}
-        self.violations: Dict[Agent, JSONViolations] = {}
+        self.violations: Dict[Agent, ViolationStatistics] = {}
 
-    def get_json_simulation(self, total_compute_time: int) -> "JSONSimulation":
-        json_environment = JSONEnvironment(self.simulation.environment)
-        json_statistics = self.get_json_statistics()
-        json_owners = self.get_json_owners()
-        return JSONSimulation(json_environment,
-                              json_statistics,
-                              json_owners,
-                              total_compute_time,
-                              self.simulation.history.compute_times)
+    def build_statistics(self) -> "SimulationStatistics":
+        return SimulationStatistics(self.get_owner_statistics(),
+                                    len(self.simulation.owners),
+                                    len(self.simulation.environment.agents),
+                                    self.get_total_value(),
+                                    self.get_total_non_colliding_value(),
+                                    self.get_total_violations(),
+                                    self.simulation.history.total_reallocations,
+                                    self.simulation.history.compute_times)
 
-    def get_json_statistics(self) -> "JSONStatistics":
-        return JSONStatistics(
-            len(self.simulation.owners),
-            len(self.simulation.environment.agents),
-            self.get_total_value(),
-            self.get_total_non_colliding_value(),
-            self.get_total_violations(),
-            self.simulation.history.total_reallocations
-        )
-
-    def get_json_owners(self):
-        json_owners: List["JSONOwner"] = []
+    def get_owner_statistics(self) -> List["OwnerStatistics"]:
+        owner_statistics: List["OwnerStatistics"] = []
         for owner in self.simulation.owners:
-            json_agents: List["JSONAgent"] = []
+            agent_statistics: List["AgentStatistics"] = []
             for agent in owner.agents:
                 agent_value = self.get_value_for_agent(agent)
                 non_colliding_agent_value = self.get_non_colliding_value_for_agent(agent)
                 violations = self.get_agent_violations(agent)
                 total_reallocations: int = self.simulation.history.reallocations[agent]
                 if isinstance(agent, PathAgent):
-                    json_agents.append(JSONPathAgent(
+                    path_statistics = self.path_statistics(agent.allocated_segments)
+                    agent_statistics.append(PathAgentStatistics(
                         agent,
                         agent_value,
                         non_colliding_agent_value,
                         violations,
                         total_reallocations,
-                        self.get_json_allocations_for_path_agent(agent),
+                        path_statistics,
+                        self.get_allocation_statistics_for_agent(agent),
                     ))
 
                 elif isinstance(agent, SpaceAgent):
-                    json_agents.append(JSONSpaceAgent(
+                    space_statistics = self.spaces_statistics(agent.allocated_segments)
+                    agent_statistics.append(SpaceAgentStatistics(
                         agent,
                         agent_value,
                         non_colliding_agent_value,
                         violations,
                         total_reallocations,
+                        space_statistics,
                     ))
 
                 else:
                     raise Exception(f"Invalid Agent: {agent}")
 
-            json_owners.append(JSONOwner(owner,
-                                         json_agents,
-                                         self.get_values_for_owner(owner),
-                                         self.get_non_colliding_values_for_owner(owner)))
+            owner_statistics.append(OwnerStatistics(owner,
+                                                    agent_statistics,
+                                                    self.get_values_for_owner(owner),
+                                                    self.get_non_colliding_values_for_owner(owner)))
 
-        return json_owners
+        return owner_statistics
 
-    def get_json_allocations_for_path_agent(self, path_agent: "PathAgent") -> List["JSONBranch"]:
-        json_allocations: List["JSONBranch"] = []
+    def get_allocation_statistics_for_agent(self, path_agent: "PathAgent") -> List["AllocationStatistics"]:
+        allocation_statistics: List["AllocationStatistics"] = []
         for tick, allocation in self.simulation.history.allocations[path_agent].items():
-            json_path_segments: List["JSONPath"] = []
-            for path_segment in allocation.segments:
-                assert isinstance(path_segment, PathSegment)
-                json_path_segments.append(JSONPath(path_segment))
-
-            json_allocations.append(JSONBranch(
-                tick,
-                json_path_segments,
-                path_agent.value_for_segments(allocation.segments),
-                allocation.statistics.compute_time,
-                allocation.statistics.reason,
-                allocation.statistics.colliding_agent_ids,
-            ))
-        return json_allocations
+            path_statistics = self.path_statistics(allocation.segments)
+            allocation_statistics.append(AllocationStatistics(tick,
+                                                              path_agent.value_for_segments(allocation.segments),
+                                                              allocation.statistics.compute_time,
+                                                              allocation.statistics.reason,
+                                                              allocation.statistics.colliding_agent_ids,
+                                                              path_statistics))
+        return allocation_statistics
 
     def get_non_colliding_value_for_agent(self, agent: "Agent"):
         """
@@ -157,7 +144,7 @@ class Statistics:
         return total_value
 
     @staticmethod
-    def _get_value_statistics(values: List[float]) -> "JSONValues":
+    def _get_value_statistics(values: List[float]) -> "ValueStatistics":
         """
         Calculate statistics for a list of values
         :param values:
@@ -174,16 +161,16 @@ class Statistics:
             value_quartiles = statistics.quantiles(values)
             value_outliers = [value for value in values if
                               value < value_quartiles[0] or value > value_quartiles[-1]]
-        return JSONValues(values,
-                          total_value,
-                          mean_value,
-                          median_value,
-                          max_value,
-                          min_value,
-                          value_quartiles,
-                          value_outliers)
+        return ValueStatistics(values,
+                               total_value,
+                               mean_value,
+                               median_value,
+                               max_value,
+                               min_value,
+                               value_quartiles,
+                               value_outliers)
 
-    def get_non_colliding_values_for_owner(self, owner: "Owner") -> "JSONValues":
+    def get_non_colliding_values_for_owner(self, owner: "Owner") -> "ValueStatistics":
         """
         Calculate the value for the allocations of all agents of an owner on an empty map summed up.
         :param owner:
@@ -192,7 +179,7 @@ class Statistics:
         values = [self.get_non_colliding_value_for_agent(agent) for agent in owner.agents]
         return self._get_value_statistics(values)
 
-    def get_values_for_owner(self, owner: "Owner") -> "JSONValues":
+    def get_values_for_owner(self, owner: "Owner") -> "ValueStatistics":
         """
         Calculate the value for the allocations of all agents of an owner summed up.
         :param owner:
@@ -256,12 +243,15 @@ class Statistics:
                               heights)
 
     @staticmethod
-    def path_statistics(path: List["PathSegment"]):
+    def path_statistics(path: List["PathSegment"]) -> Optional["PathStatistics"]:
         """
         Create statistics for a path (list of path-segments).
         :param path:
         :return:
         """
+        if len(path) == 0:
+            return None
+
         l1_distance: int = int(path[0].min.inter_temporal_distance(path[-1].max))
         l2_distance: float = path[0].min.inter_temporal_distance(path[-1].max, l2=True)
         l1_ground_distance: int = int(Coordinate2D.distance(path[0].min, path[-1].max))
@@ -328,12 +318,15 @@ class Statistics:
         return index.Rtree(properties=props)
 
     @staticmethod
-    def spaces_statistics(spaces: List["SpaceSegment"]):
+    def spaces_statistics(spaces: List["SpaceSegment"]) -> Optional["SpaceStatistics"]:
         """
         Create statistics for spaces (list of space-segments).
         :param spaces:
         :return:
         """
+        if len(spaces) == 0:
+            return None
+
         summed_volume = 0
         intersecting_volume = 0
         volumes = []
@@ -391,7 +384,7 @@ class Statistics:
                                mean_height_above_ground,
                                median_height_above_ground)
 
-    def get_agent_violations(self, agent: "Agent") -> "JSONViolations":
+    def get_agent_violations(self, agent: "Agent") -> "ViolationStatistics":
         """
         Tracks all violations for the given agent.
         :param agent:
@@ -417,12 +410,12 @@ class Statistics:
             else:
                 raise Exception(f"Invalid Agent: {agent}")
 
-            agent_violations = JSONViolations(violations, total_violations)
+            agent_violations = ViolationStatistics(violations, total_violations)
             self.violations[agent] = agent_violations
 
         return self.violations[agent]
 
-    def path_segment_violations(self, path_agent: "PathAgent", path_segment: "PathSegment") -> "JSONViolations":
+    def path_segment_violations(self, path_agent: "PathAgent", path_segment: "PathSegment") -> "ViolationStatistics":
         """
         Tracks all violations for the given path-segment.
         :param path_agent:
@@ -457,9 +450,10 @@ class Statistics:
                     else:
                         raise Exception(f"Invalid agent {intersecting_agent}")
 
-        return JSONViolations(violations, total_violations)
+        return ViolationStatistics(violations, total_violations)
 
-    def space_segment_violations(self, space_agent: "SpaceAgent", space_segment: "SpaceSegment") -> "JSONViolations":
+    def space_segment_violations(self, space_agent: "SpaceAgent",
+                                 space_segment: "SpaceSegment") -> "ViolationStatistics":
         """
         Tracks all violations for the given space-segment.
         :param space_agent:
@@ -482,7 +476,7 @@ class Statistics:
                             violations[intersecting_agent.id].append(space_coordinate)
                             total_violations += 1
 
-        return JSONViolations(violations, total_violations)
+        return ViolationStatistics(violations, total_violations)
 
     def get_total_violations(self) -> int:
         total_violations: int = 0
@@ -490,11 +484,199 @@ class Statistics:
             total_violations += self.get_agent_violations(agent).total_violations
         return total_violations
 
-    def build_json(self, total_compute_time: int) -> Dict[str, Any]:
-        """
-        Build the JSON file of the simulation.
-        :param total_compute_time:
-        :return:
-        """
-        json_simulation = self.get_json_simulation(total_compute_time)
-        return json_simulation.as_dict()
+
+class PathStatistics(Stringify):
+    def __init__(self,
+                 l1_distance: int,
+                 l2_distance: float,
+                 l1_ground_distance: int,
+                 l2_ground_distance: float,
+                 height_difference: int,
+                 time_difference: int,
+                 ascent: int,
+                 descent: int,
+                 distance_traveled: int,
+                 ground_distance_traveled: int,
+                 mean_height: float,
+                 median_height: int,
+                 heights: List[int]):
+        self.l1_distance: int = l1_distance
+        self.l2_distance: float = l2_distance
+        self.l1_ground_distance: int = l1_ground_distance
+        self.l2_ground_distance: float = l2_ground_distance
+        self.height_difference: int = height_difference
+        self.time_difference: int = time_difference
+        self.ascent: int = ascent
+        self.descent: int = descent
+        self.distance_traveled: int = distance_traveled
+        self.ground_distance_traveled: int = ground_distance_traveled
+        self.mean_height: float = mean_height
+        self.median_height: int = median_height
+        self.heights: List[int] = heights
+
+
+class SpaceSegmentStatistics(Stringify):
+    def __init__(self,
+                 volume: int,
+                 height: int,
+                 area: int,
+                 time: int,
+                 height_above_ground: int):
+        self.volume: int = volume
+        self.height: int = height
+        self.area: int = area
+        self.time: int = time
+        self.height_above_ground: int = height_above_ground
+
+
+class SpaceStatistics(Stringify):
+    def __init__(self,
+                 volume: int,
+                 mean_volume: float,
+                 median_volume: int,
+                 mean_height: float,
+                 median_height: int,
+                 area: int,
+                 mean_area: float,
+                 median_area: int,
+                 mean_time: float,
+                 median_time: int,
+                 mean_height_above_ground: float,
+                 median_height_above_ground: int):
+        self.volume: int = volume
+        self.mean_volume: float = mean_volume
+        self.median_volume: int = median_volume
+        self.mean_height: float = mean_height
+        self.median_height: int = median_height
+        self.area: int = area
+        self.mean_area: float = mean_area
+        self.median_area: int = median_area
+        self.mean_time: float = mean_time
+        self.median_time: int = median_time
+        self.mean_height_above_ground: float = mean_height_above_ground
+        self.median_height_above_ground: int = median_height_above_ground
+
+
+class SimulationStatistics(Stringify):
+    def __init__(self,
+                 owners: List["OwnerStatistics"],
+                 nr_owners: int,
+                 nr_agents: int,
+                 value: float,
+                 non_colliding_value: float,
+                 nr_collisions: int,
+                 nr_reallocations: int,
+                 step_compute_time: Dict[int, int]):
+        self.owners = owners
+        self.total_number_of_owners = nr_owners
+        self.total_number_of_agents = nr_agents
+        self.total_value = value
+        self.total_non_colliding_value = non_colliding_value
+        self.total_number_of_collisions = nr_collisions
+        self.total_number_of_reallocations = nr_reallocations
+        self.step_compute_time: Dict[int, int] = step_compute_time
+
+
+class ValueStatistics(Stringify):
+    def __init__(self,
+                 values: List[float],
+                 total: float,
+                 mean: float,
+                 median: float,
+                 max_value: float,
+                 min_value: float,
+                 quartiles: List[float],
+                 outliers: List[float]):
+        self.values: List[float] = values
+        self.total: float = total
+        self.mean: float = mean
+        self.median: float = median
+        self.max: float = max_value
+        self.min: float = min_value
+        self.quartiles: List[float] = quartiles
+        self.outliers: List[float] = outliers
+
+
+class OwnerStatistics(Stringify):
+    def __init__(self,
+                 owner: "Owner",
+                 agent_statistics: List["AgentStatistics"],
+                 value_statistics: ValueStatistics,
+                 non_colliding_value_statistics: ValueStatistics):
+        self.id: str = owner.id
+        self.agents = agent_statistics
+        self.total_time_in_air: int = sum(
+            [agent.time_in_air if isinstance(agent, PathAgentStatistics) else 0 for agent in self.agents])
+        self.values = value_statistics
+        self.non_colliding_values = non_colliding_value_statistics
+        self.number_of_agents: int = len(self.agents)
+
+
+class AgentStatistics(ABC):
+    def __init__(self,
+                 agent: "Agent",
+                 value: float,
+                 non_colliding_value: float,
+                 violation_statistics: "ViolationStatistics",
+                 total_reallocations: int):
+        self.id: str = agent.id
+        self.value: float = value
+        self.non_colliding_value: float = non_colliding_value
+        self.violations = violation_statistics
+        self.total_reallocations = total_reallocations
+
+
+class SpaceAgentStatistics(AgentStatistics, Stringify):
+    def __init__(self,
+                 space_agent: "SpaceAgent",
+                 value: float,
+                 non_colliding_value: float,
+                 violation_statistics: "ViolationStatistics",
+                 total_reallocations: int,
+                 space_statistics: Optional["SpaceStatistics"]):
+        super().__init__(space_agent, value, non_colliding_value, violation_statistics, total_reallocations)
+        self.space: Optional["SpaceStatistics"] = space_statistics
+
+
+class PathAgentStatistics(AgentStatistics, Stringify):
+    def __init__(self,
+                 path_agent: "PathAgent",
+                 value: float,
+                 non_colliding_value: float,
+                 violation_statistics: "ViolationStatistics",
+                 total_reallocations: int,
+                 path_statistics: Optional["PathStatistics"],
+                 allocation_statistics: List["AllocationStatistics"]):
+        super().__init__(path_agent, value, non_colliding_value, violation_statistics, total_reallocations)
+        self.path: Optional["PathStatistics"] = path_statistics
+        self.time_in_air: int = path_agent.get_airtime()
+        self.allocations: List["AllocationStatistics"] = allocation_statistics
+
+
+class AllocationStatistics(Stringify):
+    def __init__(self,
+                 tick: int,
+                 value: float,
+                 compute_time: int,
+                 reason: str,
+                 colliding_agent_ids: Optional[List[str]],
+                 path_statistics: Optional["PathStatistics"]):
+        self.tick: int = tick
+        self.value: float = value
+        self.reason: str = reason
+        self.colliding_agent_ids: List[str] = colliding_agent_ids if colliding_agent_ids is not None else []
+        self.compute_time: int = compute_time
+        self.path: Optional["PathStatistics"] = path_statistics
+
+
+class ViolationStatistics(Stringify):
+    def __init__(self,
+                 violations: Dict[str, List["Coordinate4D"]],
+                 total_violations: int):
+        self.violations: Dict[str, List["Coordinate4D"]] = violations
+        self.total_violations: int = total_violations
+
+
+def get_statistics_dict(simulation: "Simulator") -> Dict[str, Any]:
+    stats: "Statistics" = Statistics(simulation)
+    return stats.build_statistics().as_dict()

@@ -12,7 +12,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pydantic.fields import Field
 
-from Simulator import Coordinate4D, Statistics
+from Simulator import Coordinate4D, Simulator
+from Simulator.IO.JSONS import get_simulation_dict
+from Simulator.IO.Statistics import get_statistics_dict
 from .Area import Area
 from .Generator.Generator import Generator
 from .Generator.MapTile import MapTile
@@ -98,6 +100,21 @@ class APISimulationConfig(BaseModel):
     paymentRule: str
 
 
+def build_json(config: APISimulationConfig, simulator: "Simulator", simulation_duration: int):
+    simulation_json = get_simulation_dict(simulator)
+    statistics_start_time = time.time_ns()
+    statistics = get_statistics_dict(simulator)
+    statistics_end_time = time.time_ns()
+    statistics_duration = statistics_end_time - statistics_start_time
+    statistics_compute_time = statistics_duration
+    simulation_compute_time = simulation_duration
+    return {"config": config,
+            "simulation": simulation_json,
+            "statistics": statistics,
+            "statistics_compute_time": statistics_compute_time,
+            "simulation_compute_time": simulation_compute_time}
+
+
 @app.get("/allocators")
 def get_allocators():
     return [_allocator.__name__ for _allocator in available_allocators]
@@ -167,15 +184,12 @@ def read_root(config: APISimulationConfig):
 
     random.seed(2)
     g = Generator(config.owners, dimensions, maptiles, allocator, area, selected_payment_rule)
-    start_time = time.time_ns()
+    simulation_start_time = time.time_ns()
     g.simulate()
-    end_time = time.time_ns()
-    duration = int((end_time - start_time) / 1e9)
+    simulation_end_time = time.time_ns()
+    simulation_duration = simulation_end_time - simulation_start_time
     print("--Simulation Completed--")
-    stats = Statistics(g.simulator)
-    json = stats.build_json(duration)
-    json["config"] = config
-    return json
+    return build_json(config, g.simulator, simulation_duration)
 
 
 @app.get("/paymentRules/{allocator}")
