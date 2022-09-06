@@ -128,8 +128,8 @@ def color_generator():
 
 
 if __name__ == "__main__":
-    environment = setup_empty()
-    simulatorAligator = prioritySimulation(environment)
+    environment = setup_map()
+    simulatorAligator = fcfsSimulation(environment)
 
     start = time.time_ns()
     while simulatorAligator.tick():
