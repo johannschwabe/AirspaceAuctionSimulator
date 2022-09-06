@@ -327,14 +327,11 @@ class Environment:
                                        intersection_item.id != hash(agent)]
         return set(other_agents)
 
-    def intersect_space_segment(
-        self,
-        space_segment: "SpaceSegment"
-    ) -> Dict["Agent", List["Segment"]]:
+    def intersect_space_segment(self,
+                                space_segment: "SpaceSegment") -> Dict["Agent", List["Segment"]]:
         """
         Returns copies of the segments (sorted by agent) intersecting with the given space.
         """
-        # TODO: do not return calling agent
         segments: Dict["Agent", List["Segment"]] = {}
         intersections: Iterator["Item"] = self.tree.intersection(space_segment.tree_rep(), objects=True)
 
@@ -353,7 +350,6 @@ class Environment:
         All time steps from coordinate.t to coordinate.t + speed are considered.
         The radius is abstracted by a qube around the given coordinate with size 2 * radius.
         """
-        # TODO: do not return calling agent
         return list(self.tree.intersection(coords.tree_query_cube_rep(radius, speed)))
 
     def new_clear(self):

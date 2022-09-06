@@ -448,7 +448,7 @@ class Statistics:
 
             elif isinstance(agent, SpaceAgent):
                 for segment in agent.allocated_segments:
-                    segment_violations = self.space_segment_violations(segment)
+                    segment_violations = self.space_segment_violations(agent, segment)
                     violations.update(segment_violations.violations)
                     total_violations += segment_violations.total_violations
 
@@ -476,29 +476,31 @@ class Statistics:
             for intersecting_agent_hash in intersecting_agent_hashes:
                 intersecting_agent = self.simulation.environment.agents[intersecting_agent_hash]
 
-                if isinstance(intersecting_agent, PathAgent):
-                    encountered_agent_position = intersecting_agent.get_position_at_tick(coordinate.t)
-                    distance = coordinate.inter_temporal_distance(encountered_agent_position)
-                    if distance <= path_agent.near_radius:
-                        if intersecting_agent.id not in violations:
+                if intersecting_agent != path_agent:
+                    if isinstance(intersecting_agent, PathAgent):
+                        encountered_agent_position = intersecting_agent.get_position_at_tick(coordinate.t)
+                        distance = coordinate.inter_temporal_distance(encountered_agent_position)
+                        if distance <= path_agent.near_radius:
+                            if intersecting_agent.id not in violations:
+                                violations[intersecting_agent.id] = []
+                            violations[intersecting_agent.id].append(coordinate)
+                            total_violations += 1
+
+                    elif isinstance(intersecting_agent, SpaceAgent):
+                        if intersecting_agent not in violations:
                             violations[intersecting_agent.id] = []
                         violations[intersecting_agent.id].append(coordinate)
                         total_violations += 1
 
-                elif isinstance(intersecting_agent, SpaceAgent):
-                    if intersecting_agent not in violations:
-                        violations[intersecting_agent.id] = []
-                    violations[intersecting_agent.id].append(coordinate)
-                    total_violations += 1
-
-                else:
-                    raise Exception(f"Invalid agent {intersecting_agent}")
+                    else:
+                        raise Exception(f"Invalid agent {intersecting_agent}")
 
         return JSONViolations(violations, total_violations)
 
-    def space_segment_violations(self, space_segment: "SpaceSegment") -> "JSONViolations":
+    def space_segment_violations(self, space_agent: "SpaceAgent", space_segment: "SpaceSegment") -> "JSONViolations":
         """
         Tracks all violations for the given space-segment.
+        :param space_agent:
         :param space_segment:
         :return:
         """
@@ -509,13 +511,14 @@ class Statistics:
             space_segment)
 
         for intersecting_agent in intersecting_segments:
-            if intersecting_agent.id not in violations:
-                violations[intersecting_agent.id] = []
-            for intersecting_space_segment in intersecting_segments[intersecting_agent]:
-                for space_coordinate in intersecting_space_segment.coordinates:
-                    if space_segment.contains(space_coordinate):
-                        violations[intersecting_agent.id].append(space_coordinate)
-                        total_violations += 1
+            if intersecting_agent != space_agent:
+                if intersecting_agent.id not in violations:
+                    violations[intersecting_agent.id] = []
+                for intersecting_space_segment in intersecting_segments[intersecting_agent]:
+                    for space_coordinate in intersecting_space_segment.coordinates:
+                        if space_segment.contains(space_coordinate):
+                            violations[intersecting_agent.id].append(space_coordinate)
+                            total_violations += 1
 
         return JSONViolations(violations, total_violations)
 
