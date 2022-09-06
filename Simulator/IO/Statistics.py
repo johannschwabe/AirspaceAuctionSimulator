@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING, List, Dict, Optional, Any
 from rtree import index, Index
 
 from .JSONS import JSONBranch, JSONPath, JSONStatistics, JSONEnvironment, JSONSimulation, JSONSpaceAgent, \
-    JSONPathAgent, JSONAgent, JSONOwner, JSONViolations, JSONValues
+    JSONPathAgent, JSONAgent, JSONOwner, JSONViolations, JSONValues, PathStatistics, SpaceStatistics, \
+    SpaceSegmentStatistics
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
 from ..Coordinates.Coordinate2D import Coordinate2D
@@ -22,37 +23,6 @@ class Statistics:
     """
     Statistics class that generates statistics for a simulation.
     """
-    # Path Statistics
-    PATH_L1_DISTANCE = "l1_distance"
-    PATH_L2_DISTANCE = "l2_distance"
-    PATH_L1_GROUND_DISTANCE = "l1_ground_distance"
-    PATH_L2_GROUND_DISTANCE = "l2_ground_distance"
-    PATH_HEIGHT_DIFFERENCE = "height_difference"
-    PATH_TIME_DIFFERENCE = "time_difference"
-    PATH_ASCENT = "ascent"
-    PATH_DESCENT = "descent"
-    PATH_DISTANCE_TRAVELED = "distance_traveled"
-    PATH_GROUND_DISTANCE_TRAVELED = "ground_distance_traveled"
-    PATH_MEAN_HEIGHT = "mean_height"
-    PATH_MEDIAN_HEIGHT = "median_height"
-
-    # Space Statistics
-    SPACE_VOLUME = "volume"
-    SPACE_MEAN_VOLUME = "mean_volume"
-    SPACE_MEDIAN_VOLUME = "median_volume"
-    SPACE_HEIGHT = "height"
-    SPACE_MEAN_HEIGHT = "mean_height"
-    SPACE_MEDIAN_HEIGHT = "median_height"
-    SPACE_AREA = "area"
-    SPACE_MEAN_AREA = "mean_area"
-    SPACE_MEDIAN_AREA = "median_area"
-    SPACE_TIME = "time"
-    SPACE_MEAN_TIME = "mean_time"
-    SPACE_MEDIAN_TIME = "median_time"
-    SPACE_HEIGHT_ABOVE_GROUND = "height_above_ground"
-    SPACE_MEAN_HEIGHT_ABOVE_GROUND = "mean_height_above_ground"
-    SPACE_MEDIAN_HEIGHT_ABOVE_GROUND = "median_height_above_ground"
-    PATH_HEIGHTS = "heights"
 
     def __init__(self, simulation: "Simulator"):
         """
@@ -271,21 +241,19 @@ class Statistics:
         mean_height: float = statistics.mean(heights)
         median_height: int = statistics.median(heights)
 
-        return {
-            Statistics.PATH_L1_DISTANCE: l1_distance,
-            Statistics.PATH_L2_DISTANCE: l2_distance,
-            Statistics.PATH_L1_GROUND_DISTANCE: l1_ground_distance,
-            Statistics.PATH_L2_GROUND_DISTANCE: l2_ground_distance,
-            Statistics.PATH_HEIGHT_DIFFERENCE: height_difference,
-            Statistics.PATH_TIME_DIFFERENCE: time_difference,
-            Statistics.PATH_ASCENT: ascent,
-            Statistics.PATH_DESCENT: descent,
-            Statistics.PATH_DISTANCE_TRAVELED: distance_traveled,
-            Statistics.PATH_GROUND_DISTANCE_TRAVELED: ground_distance_traveled,
-            Statistics.PATH_MEAN_HEIGHT: mean_height,
-            Statistics.PATH_MEDIAN_HEIGHT: median_height,
-            Statistics.PATH_HEIGHTS: heights,
-        }
+        return PathStatistics(l1_distance,
+                              l2_distance,
+                              l1_ground_distance,
+                              l2_ground_distance,
+                              height_difference,
+                              time_difference,
+                              ascent,
+                              descent,
+                              distance_traveled,
+                              ground_distance_traveled,
+                              mean_height,
+                              median_height,
+                              heights)
 
     @staticmethod
     def path_statistics(path: List["PathSegment"]):
@@ -307,30 +275,28 @@ class Statistics:
         ground_distance_traveled: int = 0
         for path_segment in path:
             path_segment_statistics = Statistics.path_segment_statistics(path_segment)
-            heights.extend(path_segment_statistics[Statistics.PATH_HEIGHTS])
-            ascent += path_segment_statistics[Statistics.PATH_ASCENT]
-            descent += path_segment_statistics[Statistics.PATH_DESCENT]
-            distance_traveled += path_segment_statistics[Statistics.PATH_DISTANCE_TRAVELED]
-            ground_distance_traveled += path_segment_statistics[Statistics.PATH_GROUND_DISTANCE_TRAVELED]
+            heights.extend(path_segment_statistics.heights)
+            ascent += path_segment_statistics.ascent
+            descent += path_segment_statistics.descent
+            distance_traveled += path_segment_statistics.distance_traveled
+            ground_distance_traveled += path_segment_statistics.ground_distance_traveled
 
         mean_height: float = statistics.mean(heights)
         median_height: int = statistics.median(heights)
 
-        return {
-            Statistics.PATH_L1_DISTANCE: l1_distance,
-            Statistics.PATH_L2_DISTANCE: l2_distance,
-            Statistics.PATH_L1_GROUND_DISTANCE: l1_ground_distance,
-            Statistics.PATH_L2_GROUND_DISTANCE: l2_ground_distance,
-            Statistics.PATH_HEIGHT_DIFFERENCE: height_difference,
-            Statistics.PATH_TIME_DIFFERENCE: time_difference,
-            Statistics.PATH_ASCENT: ascent,
-            Statistics.PATH_DESCENT: descent,
-            Statistics.PATH_DISTANCE_TRAVELED: distance_traveled,
-            Statistics.PATH_GROUND_DISTANCE_TRAVELED: ground_distance_traveled,
-            Statistics.PATH_MEAN_HEIGHT: mean_height,
-            Statistics.PATH_MEDIAN_HEIGHT: median_height,
-            Statistics.PATH_HEIGHTS: heights,
-        }
+        return PathStatistics(l1_distance,
+                              l2_distance,
+                              l1_ground_distance,
+                              l2_ground_distance,
+                              height_difference,
+                              time_difference,
+                              ascent,
+                              descent,
+                              distance_traveled,
+                              ground_distance_traveled,
+                              mean_height,
+                              median_height,
+                              heights)
 
     @staticmethod
     def space_segment_statistics(space_segment: "SpaceSegment"):
@@ -346,13 +312,11 @@ class Statistics:
         time = delta.t
         height_above_ground = space_segment.min.y
 
-        return {
-            Statistics.SPACE_VOLUME: volume,
-            Statistics.SPACE_AREA: area,
-            Statistics.SPACE_HEIGHT: height,
-            Statistics.SPACE_TIME: time,
-            Statistics.SPACE_HEIGHT_ABOVE_GROUND: height_above_ground,
-        }
+        return SpaceSegmentStatistics(volume,
+                                      height,
+                                      area,
+                                      time,
+                                      height_above_ground)
 
     @staticmethod
     def _setup_rtree() -> Index:
@@ -393,13 +357,13 @@ class Statistics:
             tree.insert(hash(space_segment), space_segment.tree_rep(), obj=space_segment)
 
             space_segment_statistics = Statistics.space_segment_statistics(space_segment)
-            summed_volume += space_segment_statistics[Statistics.SPACE_VOLUME]
-            volumes.append(space_segment_statistics[Statistics.SPACE_VOLUME])
-            summed_area += space_segment_statistics[Statistics.SPACE_AREA]
-            areas.append(space_segment_statistics[Statistics.SPACE_AREA])
-            heights.append(space_segment_statistics[Statistics.SPACE_HEIGHT])
-            times.append(space_segment_statistics[Statistics.SPACE_TIME])
-            heights_above_ground.append(space_segment_statistics[Statistics.SPACE_HEIGHT_ABOVE_GROUND])
+            summed_volume += space_segment_statistics.volume
+            volumes.append(space_segment_statistics.volume)
+            summed_area += space_segment_statistics.area
+            areas.append(space_segment_statistics.area)
+            heights.append(space_segment_statistics.height)
+            times.append(space_segment_statistics.time)
+            heights_above_ground.append(space_segment_statistics.height_above_ground)
 
         volume = summed_volume - intersecting_volume
         mean_volume = statistics.mean(volumes)
@@ -414,20 +378,18 @@ class Statistics:
         mean_height_above_ground = statistics.mean(heights_above_ground)
         median_height_above_ground = statistics.median(heights_above_ground)
 
-        return {
-            Statistics.SPACE_VOLUME: volume,
-            Statistics.SPACE_MEAN_VOLUME: mean_volume,
-            Statistics.SPACE_MEDIAN_VOLUME: median_volume,
-            Statistics.SPACE_AREA: area,
-            Statistics.SPACE_MEAN_AREA: mean_area,
-            Statistics.SPACE_MEDIAN_AREA: median_area,
-            Statistics.SPACE_MEAN_HEIGHT: mean_height,
-            Statistics.SPACE_MEDIAN_HEIGHT: median_height,
-            Statistics.SPACE_MEAN_TIME: mean_time,
-            Statistics.SPACE_MEDIAN_TIME: median_time,
-            Statistics.SPACE_MEAN_HEIGHT_ABOVE_GROUND: mean_height_above_ground,
-            Statistics.SPACE_MEDIAN_HEIGHT_ABOVE_GROUND: median_height_above_ground,
-        }
+        return SpaceStatistics(volume,
+                               mean_volume,
+                               median_volume,
+                               mean_height,
+                               median_height,
+                               area,
+                               mean_area,
+                               median_area,
+                               mean_time,
+                               median_time,
+                               mean_height_above_ground,
+                               median_height_above_ground)
 
     def get_agent_violations(self, agent: "Agent") -> "JSONViolations":
         """

@@ -19,6 +19,78 @@ if TYPE_CHECKING:
     from ..Environment.Environment import Environment
 
 
+class PathStatistics(Stringify):
+    def __init__(self,
+                 l1_distance: int,
+                 l2_distance: float,
+                 l1_ground_distance: int,
+                 l2_ground_distance: float,
+                 height_difference: int,
+                 time_difference: int,
+                 ascent: int,
+                 descent: int,
+                 distance_traveled: int,
+                 ground_distance_traveled: int,
+                 mean_height: float,
+                 median_height: int,
+                 heights: List[int]):
+        self.l1_distance: int = l1_distance
+        self.l2_distance: float = l2_distance
+        self.l1_ground_distance: int = l1_ground_distance
+        self.l2_ground_distance: float = l2_ground_distance
+        self.height_difference: int = height_difference
+        self.time_difference: int = time_difference
+        self.ascent: int = ascent
+        self.descent: int = descent
+        self.distance_traveled: int = distance_traveled
+        self.ground_distance_traveled: int = ground_distance_traveled
+        self.mean_height: float = mean_height
+        self.median_height: int = median_height
+        self.heights: List[int] = heights
+
+
+class SpaceSegmentStatistics(Stringify):
+    def __init__(self,
+                 volume: int,
+                 height: int,
+                 area: int,
+                 time: int,
+                 height_above_ground: int):
+        self.volume: int = volume
+        self.height: int = height
+        self.area: int = area
+        self.time: int = time
+        self.height_above_ground: int = height_above_ground
+
+
+class SpaceStatistics(Stringify):
+    def __init__(self,
+                 volume: int,
+                 mean_volume: float,
+                 median_volume: int,
+                 mean_height: float,
+                 median_height: int,
+                 area: int,
+                 mean_area: float,
+                 median_area: int,
+                 mean_time: float,
+                 median_time: int,
+                 mean_height_above_ground: float,
+                 median_height_above_ground: int):
+        self.volume: int = volume
+        self.mean_volume: float = mean_volume
+        self.median_volume: int = median_volume
+        self.mean_height: float = mean_height
+        self.median_height: int = median_height
+        self.area: int = area
+        self.mean_area: float = mean_area
+        self.median_area: int = median_area
+        self.mean_time: float = mean_time
+        self.median_time: int = median_time
+        self.mean_height_above_ground: float = mean_height_above_ground
+        self.median_height_above_ground: int = median_height_above_ground
+
+
 class JSONPath(Stringify):
     def __init__(self, path_segment: "PathSegment"):
         self.positions: Dict[int, List[int, int, int]] = {}
