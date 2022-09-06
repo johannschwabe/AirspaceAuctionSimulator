@@ -246,7 +246,7 @@ class Environment:
     def have_intersections_collision(self, coord: "Coordinate4D", agent: "PathAgent", intersections: List[int],
                                      exclusions: List[int]) -> bool:
         """
-        Returns True if the the given intersections have any collisions with the agent.
+        Returns True if the given intersections have any collisions with the agent.
         The exclusions are not checked. They should be checked before.
         """
         for agent_hash in intersections:
@@ -341,10 +341,12 @@ class Environment:
         Returns a new environment without any allocated agents.
         """
         new_env = Environment(self.dimension,
-                              list(self.blocker_dict.values()),
+                              None,
                               min_height=self.min_height,
                               allocation_period=self.allocation_period,
                               _blocker_tree=self.blocker_tree)
+        new_env.blocker_dict = self.blocker_dict
+        new_env._blocker_id = self._blocker_id
         return new_env
 
     def clone(self):
@@ -358,12 +360,13 @@ class Environment:
                 cloned_tree.insert(item.id, item.bbox)
 
         cloned = Environment(self.dimension,
-                             list(self.blocker_dict.values()),
+                             None,
                              min_height=self.min_height,
                              allocation_period=self.allocation_period,
                              _tree=cloned_tree,
                              _blocker_tree=self.blocker_tree)
-
+        cloned.blocker_dict = self.blocker_dict
+        cloned._blocker_id = self._blocker_id
         for agent in self.agents.values():
             cloned.add_agent(agent.clone())
 

@@ -22,14 +22,6 @@ class Simulator:
         self.history: "History" = History()
 
         self.time_step = 0
-        self._agent_id = 0
-
-        self.allocated_last_tick = False
-
-    def get_agent_id(self) -> int:
-        agent_id = self._agent_id
-        self._agent_id += 1
-        return agent_id
 
     def generate_new_agents(self) -> Dict[int, "Agent"]:
         new_agents: Dict[int, "Agent"] = {}
@@ -45,7 +37,7 @@ class Simulator:
 
         new_agents: Dict[int, "Agent"] = self.generate_new_agents()
 
-        if len(new_agents) > 0 or self.allocated_last_tick:
+        if len(new_agents) > 0:
             start_time = time_ns()
 
             self.history.add_new_agents(list(new_agents.values()), self.time_step)
@@ -60,11 +52,8 @@ class Simulator:
             self.history.update_allocations(real_allocations, self.time_step, time_ns() - start_time)
 
             if len(temporary_allocations) > 0:
-                self.allocated_last_tick = True
                 print(f"STEP: {self.time_step}")
                 print("-------------")
-            else:
-                self.allocated_last_tick = False
 
         self.time_step += 1
         return True

@@ -62,8 +62,12 @@ class PathAgent(Agent):
 
     def get_airtime(self) -> int:
         airtime = 0
+        prev_max = None
         for path_segment in self.allocated_segments:
             airtime += path_segment.max.t - path_segment.min.t
+            if prev_max is None or prev_max != path_segment.min:
+                airtime += 1  # Start tick if not already counted in last segment.
+            prev_max = path_segment.max
         return airtime
 
     def add_allocated_segment(self, path_segment: "PathSegment"):
@@ -86,6 +90,6 @@ class PathAgent(Agent):
                     distance = coordinate.inter_temporal_distance(other_coordinate)
                     if distance == 0:
                         return True
-                    if distance < self.near_radius or distance < other_agent.near_radius:
+                    if distance <= self.near_radius or distance <= other_agent.near_radius:
                         return True
         return False
