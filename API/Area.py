@@ -21,6 +21,9 @@ class Area:
         self.top_right = LongLatCoordinate(top_right_ll.long, top_right_ll.lat)
         self.resolution = resolution
 
+    def __repr__(self):
+        return f"Area<tr={self.top_right}, bl={self.bottom_left}, r={self.resolution}>"
+
     @property
     def dimension(self):
         return self.lon_lat_to_grid(self.top_right)

@@ -6,3 +6,6 @@ class LongLatCoordinate:
     def __init__(self, long: float, lat: float):
         self.long = long
         self.lat = lat
+
+    def __repr__(self):
+        return f"Coord<long={self.long}, lat={self.lat}>"

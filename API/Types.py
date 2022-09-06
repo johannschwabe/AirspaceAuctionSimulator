@@ -49,6 +49,9 @@ class APIMap(BaseModel):
     resolution: int
     height: int
     timesteps: int
+    bottomLeftCoordinate: Optional[APIWorldCoordinates]
+    topRightCoordinate: Optional[APIWorldCoordinates]
+    tiles: Optional[List[List[int]]]
 
 
 class APISimulationConfig(BaseModel):

@@ -3,6 +3,7 @@ Run server using >>> uvicorn API:app --reload
 App runs on 'https://localhost:8000/'
 """
 import random
+import traceback
 
 from fastapi import HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -77,6 +78,7 @@ def simulate(config: APISimulationConfig):
     try:
         generator, duration = run_from_config(config)
     except ValueError as e:
+        traceback.print_exc()
         raise HTTPException(status_code=404, detail=str(e))
     print("--Simulation Completed--")
     json = build_json(generator.simulator, duration)

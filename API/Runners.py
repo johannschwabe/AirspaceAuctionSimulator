@@ -8,6 +8,7 @@ import mpmath as mp
 from Simulator import Coordinate4D
 
 from .API import APISimulationConfig
+from .LongLatCoordinate import LongLatCoordinate
 from .Area import Area
 from .Types import APIWorldCoordinates
 from .Generator.Generator import Generator
@@ -25,31 +26,31 @@ def tile2lat(z, x, y):
     return float((180 / mp.pi) * (mp.atan(0.5 * (mp.exp(n) - mp.exp(-n)))))
 
 
-def tile_bbox(z, x, y) -> Tuple[APIWorldCoordinates, APIWorldCoordinates]:
-    bottom_left_lat = tile2lat(z, x, y)
-    bottom_left_lon = tile2lon(z, x, y)
+def tile_bbox(z, x, y) -> Tuple[LongLatCoordinate, LongLatCoordinate]:
+    bottom_left_lat = tile2lat(z, x + 1, y)
+    bottom_left_lon = tile2lon(z, x + 1, y)
 
-    top_right_lat = tile2lat(z, x + 1, y + 1)
-    top_right_lon = tile2lon(z, x + 1, y + 1)
+    top_right_lat = tile2lat(z, x, y + 1)
+    top_right_lon = tile2lon(z, x, y + 1)
 
-    bottom_left = APIWorldCoordinates(lat=bottom_left_lat, long=bottom_left_lon)
-    top_right = APIWorldCoordinates(lat=top_right_lat, long=top_right_lon)
+    bottom_left = LongLatCoordinate(lat=bottom_left_lat, long=bottom_left_lon)
+    top_right = LongLatCoordinate(lat=top_right_lat, long=top_right_lon)
 
     return bottom_left, top_right
 
 
-def resolve_border_coordinates(tiles: List[List[int]]) -> Tuple[APIWorldCoordinates, APIWorldCoordinates]:
+def resolve_border_coordinates(tiles: List[List[int]]) -> Tuple[LongLatCoordinate, LongLatCoordinate]:
     n = len(tiles)
-    top_right_tile_index = int(math.sqrt(n) - 1)
+    top_right_tile_index = int(n - math.sqrt(n))
     top_right_tile = tiles[top_right_tile_index]
 
-    bottom_left_tile_index = int(n - math.sqrt(n))
+    bottom_left_tile_index = int(math.sqrt(n) - 1)
     bottom_left_tile = tiles[bottom_left_tile_index]
 
     top_righ_bb = tile_bbox(*top_right_tile)
     bottom_left_bb = tile_bbox(*bottom_left_tile)
 
-    return bottom_left_bb[0], top_righ_bb[1]
+    return bottom_left_bb[1], top_righ_bb[0]
 
 
 def resolve_tiles(coordinates: APIWorldCoordinates, neighbouring_tiles: int) -> List[List[int]]:
@@ -68,12 +69,17 @@ def resolve_tiles(coordinates: APIWorldCoordinates, neighbouring_tiles: int) -> 
 
 def run_from_config(config: APISimulationConfig):
     tiles = resolve_tiles(config.map.coordinates, config.map.neighbouringTiles)
+    config.map.tiles = tiles
+
     if config.map.subselection is not None and config.map.subselection.bottomLeft and config.map.subselection.topRight:
         area = Area(config.map.subselection.bottomLeft, config.map.subselection.topRight, config.map.resolution)
     else:
         bottom_left_coordinate, top_right_coordinate = resolve_border_coordinates(tiles)
+        config.map.bottomLeftCoordinate = bottom_left_coordinate
+        config.map.topRightCoordinate = top_right_coordinate
         area = Area(bottom_left_coordinate, top_right_coordinate, config.map.resolution)
 
+    print(area)
     size = area.dimension
 
     dimensions = Coordinate4D(math.floor(size[0]),
