@@ -53,25 +53,21 @@ class SpaceSegment(Segment):
         return self.min <= coordinate < self.max
 
     def intersect(self, other: "SpaceSegment") -> "Coordinate4D":
-        if self.max <= other.min or other.max <= self.min:
-            # no intersection
+        if not (self.min < other.max and other.min < self.max):
             return Coordinate4D(0, 0, 0, 0)
-
-        if self.max <= other.max:
-            if self.min >= other.min:
-                # self contained in other
-                return self.dimension
-            else:
-                # self < other
-                return self.max - other.min
-
-        if self.max >= other.max:
-            if self.min <= other.min:
-                # self contains other
-                return other.dimension
-            else:
-                # self > other
-                return other.max - self.min
+        min_x = self.min.x if self.min.x > other.min.x else other.min.x
+        max_x = self.max.x if self.max.x < other.max.x else other.max.x
+        x = max_x - min_x
+        min_y = self.min.y if self.min.y > other.min.y else other.min.y
+        max_y = self.max.y if self.max.y < other.max.y else other.max.y
+        y = max_y - min_y
+        min_z = self.min.z if self.min.z > other.min.z else other.min.z
+        max_z = self.max.z if self.max.z < other.max.z else other.max.z
+        z = max_z - min_z
+        min_t = self.min.t if self.min.t > other.min.t else other.min.t
+        max_t = self.max.t if self.max.t < other.max.t else other.max.t
+        t = max_t - min_t
+        return Coordinate4D(x, y, z, t)
 
     def clone(self) -> "SpaceSegment":
         return SpaceSegment(self.min.clone(), self.max.clone())

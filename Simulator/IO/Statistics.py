@@ -343,7 +343,7 @@ class Statistics:
             intersections = tree.intersection(space_segment.tree_rep(), objects="raw")
             for intersecting_space_segment in intersections:
                 assert isinstance(intersecting_space_segment, SpaceSegment)
-                intersecting_space = space_segment.intersect(intersecting_space_segment)
+                intersecting_space: "Coordinate4D" = space_segment.intersect(intersecting_space_segment)
                 intersecting_volume += intersecting_space.volume
                 intersecting_area += intersecting_space.area
 
