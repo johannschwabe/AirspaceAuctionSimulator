@@ -130,11 +130,9 @@ export async function getPaymentRulesSupportedByAllocator(allocator) {
 }
 
 async function openDB() {
-  console.log("OPEN");
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(STORAGE_KEY);
     request.onerror = (event) => {
-      console.log("OPEN:", event);
       reject(event.target.errorCode);
     };
     request.onsuccess = (event) => {
