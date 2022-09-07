@@ -75,7 +75,6 @@ def get_strategies_for_allocator(allocator):
 
 @app.post("/simulation")
 def simulate(config: APISimulationConfig):
-    print(config)
     try:
         generator, duration = run_from_config(config)
     except ValueError as e:

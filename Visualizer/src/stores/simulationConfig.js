@@ -211,7 +211,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
    * @returns {OwnerConfig}
    */
   const generateOwner = () => {
-    const biddingStrategyTemplate = availableBiddingStrategiesForAllocator[0];
+    const biddingStrategyTemplate = cloneDeep(availableBiddingStrategiesForAllocator[0]);
     const locations = generateLocationsForOwner(biddingStrategyTemplate);
     return {
       color: randomColor(),
