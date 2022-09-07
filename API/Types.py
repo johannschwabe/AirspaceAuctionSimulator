@@ -3,6 +3,7 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 from pydantic.fields import Field
 
+
 class APIWorldCoordinates(BaseModel):
     long: float
     lat: float
@@ -52,6 +53,8 @@ class APIMap(BaseModel):
     bottomLeftCoordinate: Optional[APIWorldCoordinates]
     topRightCoordinate: Optional[APIWorldCoordinates]
     tiles: Optional[List[List[int]]]
+    minHeight: int
+    allocationPeriod: int
 
 
 class APISimulationConfig(BaseModel):
