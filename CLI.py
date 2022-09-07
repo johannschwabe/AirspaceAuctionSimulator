@@ -111,7 +111,7 @@ def available_allocator_names() -> List[str]:
     """
     return [allocator.__name__ for allocator in available_allocators]
 
-def all_payment_rule_names() -> List[tr]:
+def all_payment_rule_names() -> List[str]:
     """
     Returns a list of all payment rule names
     :return: Payment Rules
