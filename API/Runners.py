@@ -29,7 +29,6 @@ def run_from_config(config: APISimulationConfig) -> Tuple[Generator, int]:
         config.map.topRightCoordinate = top_right_coordinate.as_dict()
         area = Area(bottom_left_coordinate, top_right_coordinate, config.map.resolution)
 
-    print(area)
     size = area.dimension
 
     dimensions = Coordinate4D(math.floor(size[0]),

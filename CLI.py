@@ -234,7 +234,7 @@ parser.add_argument('--resolution', dest="resolution", type=int, choices=range(1
                          'drastically.')
 parser.add_argument('--height', dest="height", type=int, choices=range(20, 1000), metavar="[20, 1000]",
                     help='The maximum height your agents are allowed to fly')
-parser.add_argument('--min-height', dest="minHeight", type=int, choices=range(20, 999), metavar="[20, 999]",
+parser.add_argument('--min-height', dest="minHeight", type=int, choices=range(0, 999), metavar="[20, 999]",
                     help='The minimum height your agents must fly up to before navigating the map. Your agents will '
                          'appear at this height. Usually, this height is set to be slightly higher than the average '
                          'building in your city, since we want to prevent agents to fly accross balconies.')
@@ -411,7 +411,7 @@ if model_config is None:
     if model_data["map"]["minHeight"] is None:
         model_data["map"]["minHeight"] = int(inquirer.number(
             message="Minimum flight height:",
-            min_allowed=20,
+            min_allowed=0,
             max_allowed=model_data["map"]["height"] - 1,
             validate=EmptyInputValidator(),
         ).execute())
