@@ -188,7 +188,7 @@ class MapTile:
         tiles = []
         for i in range(-neighbouring_tiles, neighbouring_tiles + 1):
             for j in range(-neighbouring_tiles, neighbouring_tiles + 1):
-                z, x, y = 15, xtile + i, ytile + j
+                z, x, y = 15, xtile + j, ytile + i
                 tile_ids = [z, x, y]
                 bottom_left, top_right = MapTile.bounding_box_from_zxy(z, x, y)
                 area = Area(bottom_left, top_right, resolution)
@@ -205,11 +205,11 @@ class MapTile:
         :param y: vertical index
         :return: Bottom-Left LongLatCoordinate, Top-Right LongLatCoordinate
         """
-        bottom_left_lat = MapTile.zxy2lat(z, x + 1, y)
-        bottom_left_lon = MapTile.zxy2lon(z, x + 1, y)
+        bottom_left_lat = MapTile.zxy2lat(z, x, y + 1)
+        bottom_left_lon = MapTile.zxy2lon(z, x, y + 1)
 
-        top_right_lat = MapTile.zxy2lat(z, x, y + 1)
-        top_right_lon = MapTile.zxy2lon(z, x, y + 1)
+        top_right_lat = MapTile.zxy2lat(z, x + 1, y)
+        top_right_lon = MapTile.zxy2lon(z, x + 1, y)
 
         bottom_left = LongLatCoordinate(lat=bottom_left_lat, long=bottom_left_lon)
         top_right = LongLatCoordinate(lat=top_right_lat, long=top_right_lon)
@@ -227,10 +227,10 @@ class MapTile:
         :return: Bottom-Left LongLatCoordinate, Top-Right LongLatCoordinate
         """
         n = len(maptiles)
-        top_right_tile_index = int(n - mp.sqrt(n))
+        top_right_tile_index = int(mp.sqrt(n) - 1)
         top_right_tile = maptiles[top_right_tile_index]
 
-        bottom_left_tile_index = int(mp.sqrt(n) - 1)
+        bottom_left_tile_index = int(n - mp.sqrt(n))
         bottom_left_tile = maptiles[bottom_left_tile_index]
 
         return bottom_left_tile.bottom_left_coordinate, top_right_tile.top_right_coordinate

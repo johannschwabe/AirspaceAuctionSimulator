@@ -1,6 +1,6 @@
 """
 Some examples of calling the CLI without any interaction:
-python CLI.py --create --name "testmodel" --description "This is a description" --allocator "PriorityAllocator" --payment-rule "PriorityPaymentRule" --address "Zurich" --neighbouring-tiles 0 --resolution 2 --height 200 --min-height 50 --timesteps 1000 --allocation-period 500 --owner OwnerA 20 PriorityPathBiddingStrategy PriorityPathValueFunction --summary --skip-save-config --skip-save-simulation
+python CLI.py --create --name "testmodel" --description "This is a description" --allocator "PriorityAllocator" --payment-rule "PriorityPaymentRule" --address "Zurich" --neighbouring-tiles 0 --resolution 2 --height 200 --min-height 50 --timesteps 1000 --allocation-period 500 --owner OwnerA 20 PriorityPathBiddingStrategy PriorityPathValueFunction --summary --skip-save-config --skip-save-simulation --simulate
 """
 
 from typing import Type, List
