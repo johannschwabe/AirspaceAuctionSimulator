@@ -6,7 +6,6 @@ from ..Coordinates.Coordinate4D import Coordinate4D
 
 class SpaceSegment(Segment):
     def __init__(self, min_coordinates: "Coordinate4D", max_coordinates: "Coordinate4D"):
-        super().__init__()
         self._min: "Coordinate4D" = min_coordinates
         self._max: "Coordinate4D" = max_coordinates
 

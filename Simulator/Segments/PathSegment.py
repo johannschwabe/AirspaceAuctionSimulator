@@ -9,7 +9,6 @@ if TYPE_CHECKING:
 
 class PathSegment(Segment):
     def __init__(self, start: "Coordinate3D", end: "Coordinate3D", index: int, coordinates: List["Coordinate4D"]):
-        super().__init__()
         self._coordinates: List["Coordinate4D"] = coordinates
         self.start: "Coordinate3D" = start
         self.end: "Coordinate3D" = end
