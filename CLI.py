@@ -1,3 +1,8 @@
+"""
+Some examples of calling the CLI without any interaction:
+python CLI.py --create --name "testmodel" --description "This is a description" --allocator "PriorityAllocator" --payment-rule "PriorityPaymentRule" --address "Zurich" --neighbouring-tiles 0 --resolution 2 --height 200 --min-height 50 --timesteps 1000 --allocation-period 500 --owner OwnerA 20 PriorityPathBiddingStrategy PriorityPathValueFunction --summary --skip-save-config --skip-save-simulation
+"""
+
 from typing import Type, List
 
 import json
@@ -24,12 +29,23 @@ from Simulator.Mechanism.PaymentRule import PaymentRule
 PREFAB_PATH = "./Prefabs/configs"
 HOME_PATH = "~/" if os.name == "posix" else "C:\\"
 
-
 def random_locations_for_bidding_strategy(bidding_strategy: Type[BiddingStrategy]) -> List:
+    """
+    Returns a list of random path locations with minimum number of locations for
+    a given bidding strategy
+    :param bidding_strategy: Bidding strategy
+    :return: Minimum list of random paths
+    """
     return [{"type": "random", "points": []} for _ in range(bidding_strategy.min_locations)]
 
 
 def bidding_strategy_to_dict(bidding_strategy: Type[BiddingStrategy]):
+    """
+    Creates a dictionary in the form that is required by the simulation config file from
+    a bidding strategy class object
+    :param bidding_strategy: Bidding Strategy Class
+    :return: Dictionary that is compatible with the simulation config
+    """
     return {
         "minLocations": bidding_strategy.min_locations,
         "maxLocations": bidding_strategy.max_locations,
@@ -38,26 +54,25 @@ def bidding_strategy_to_dict(bidding_strategy: Type[BiddingStrategy]):
         "meta": bidding_strategy.meta()
     }
 
-
-def bidding_strategy_from_name(allocator: Type[Allocator], bidding_strategy_name: str) -> Type[BiddingStrategy]:
-    allocators = list(filter(lambda x: (x.__name__ == allocator), available_allocators))
-    selected_allocator = allocators[0]
-    compatible_bidding_strategies = selected_allocator.compatible_bidding_strategies()
-    bidding_strategy = list(filter(lambda b: (b.__name__ == bidding_strategy_name), compatible_bidding_strategies))
-    if len(bidding_strategy) == 0:
-        raise ValueError(
-            f"Bidding strategy '{bidding_strategy_name}' is unknown or incompatible with allocator '{allocator.__name__}'")
-    return bidding_strategy[0]
-
-
 def allocator_from_name(allocator_name: str) -> Type[Allocator]:
+    """
+    Resolves an allocator class object given the allocators classname
+    :param allocator_name: Classname of allocator
+    :return: Allocator class object
+    """
     allocators = list(filter(lambda x: (x.__name__ == allocator_name), available_allocators))
     if len(allocators) == 0:
         raise ValueError(f"Allocator '{allocator_name}' unknown")
     return allocators[0]
 
-
-def bidding_strategy_by_name(allocator: Type[Allocator], strategy_name: str) -> Type[BiddingStrategy]:
+def bidding_strategy_from_name(allocator: Type[Allocator], strategy_name: str) -> Type[BiddingStrategy]:
+    """
+    Resolves the name of a bidding strategy to the BiddingStrategy class type. If the provided bidding
+    strategy name is incompatible with the provided allocator class object, a ValueError is thrown.
+    :param allocator_name: Allocator Class that must match bidding strategy
+    :param bidding_strategy_name: Classname of bidding strategy
+    :return:
+    """
     strategies = list(filter(lambda x: (x.__name__ == strategy_name), allocator.compatible_bidding_strategies()))
     if len(strategies) == 0:
         raise ValueError(
@@ -65,7 +80,14 @@ def bidding_strategy_by_name(allocator: Type[Allocator], strategy_name: str) -> 
     return strategies[0]
 
 
-def payment_rule_by_name(allocator: Type[Allocator], rule_name: str) -> Type[PaymentRule]:
+def payment_rule_from_name(allocator: Type[Allocator], rule_name: str) -> Type[PaymentRule]:
+    """
+    Resolves the name of a payment rule to the PaymentRule class type.The provided payment rule must
+    be compatible with the given allocator.
+    :param allocator: Allocator Class that must match payment rule
+    :param rule_name: Classname of payment rule
+    :return:
+    """
     rules = list(filter(lambda x: (x.__name__ == rule_name), allocator.compatible_payment_functions()))
     if len(rules) == 0:
         raise ValueError(
@@ -73,21 +95,38 @@ def payment_rule_by_name(allocator: Type[Allocator], rule_name: str) -> Type[Pay
     return rules[0]
 
 
-def available_prefab_names():
+def available_prefab_names() -> List[str]:
+    """
+    Returns a list of available prefab simulation configurations
+    :return: Prefab names
+    """
     files = glob.glob(f"{PREFAB_PATH}/*.json")
     return [os.path.basename(file).split("-config")[0] for file in files]
 
 
-def available_allocator_names():
+def available_allocator_names() -> List[str]:
+    """
+    Returns a list of allocator names
+    :return: Allocator names
+    """
     return [allocator.__name__ for allocator in available_allocators]
 
-def all_payment_function_names():
+def all_payment_rule_names() -> List[tr]:
+    """
+    Returns a list of all payment rule names
+    :return: Payment Rules
+    """
     names = set()
     for allocator in available_allocators:
         names.update([payment_function.__name__ for payment_function in allocator.compatible_payment_functions()])
     return list(names)
 
-def all_payment_functions_str():
+def all_payment_rules_str() -> str:
+    """
+    Returns a nicely formatted string that illustrates the available allocators and their matching
+    payment rules
+    :return:
+    """
     s = ""
     for allocator in available_allocators:
         payment_functions = [payment_function.__name__ for payment_function in allocator.compatible_payment_functions()]
@@ -95,7 +134,12 @@ def all_payment_functions_str():
     return s
 
 
-def all_bidding_strategies_and_value_functions_str():
+def all_bidding_strategies_and_value_functions_str() -> str:
+    """
+    Returns a nicely formatted string that illustrates the available allocators and their matching
+    bidding strategies as well as the bidding strategies and their matching value functions.
+    :return:
+    """
     s = ""
     strategies = set([])
     for allocator in available_allocators:
@@ -110,7 +154,8 @@ def all_bidding_strategies_and_value_functions_str():
     return s
 
 
-model_config = None
+# The config will be injected into this variable, either through loading it from disk or creating a new one
+model_config: APISimulationConfig | None = None
 
 parser = argparse.ArgumentParser(description='Start a new Airspace Auction Simulation')
 parser.add_argument('-p', '--prefab', dest="prefab", type=str, metavar=f"[{', '.join(available_prefab_names())}]",
@@ -170,10 +215,10 @@ parser.add_argument('--allocator', dest="allocator", type=str, metavar=f"[{', '.
                     help=f'The allocator is responsible for allocating paths to agents based on the specified '
                          f'bidding mechanism and payment function. The following allocators are available: '
                          f'{", ".join(available_allocator_names())}.')
-parser.add_argument('--payment-rule', dest="paymentRule", type=str, metavar=f"[{', '.join(all_payment_function_names())}]",
+parser.add_argument('--payment-rule', dest="paymentRule", type=str, metavar=f"[{', '.join(all_payment_rule_names())}]",
                     help=f'The payment rule specifies how the agents compete for paths in a simulation. Not all '
                          f'allocators can handle all payment rules, though. The following payment rules are '
-                         f'available for the supported allocators: {all_payment_functions_str()}')
+                         f'available for the supported allocators: {all_payment_rules_str()}')
 parser.add_argument('--address', dest="addressQuery", type=str,
                     help='Airspace simulations happen on a real map. By specifying an address here, you can choose '
                          'where your simulation will be centered. You can use any city as an input here, for example '
@@ -285,9 +330,9 @@ if model_config is None:
             "color": color_generator(),
             "name": owner[0],
             "agents": int(owner[1]),
-            "biddingStrategy": bidding_strategy_to_dict(bidding_strategy_from_name(args.allocator, owner[2])),
+            "biddingStrategy": bidding_strategy_to_dict(bidding_strategy_from_name(allocator_from_name(args.allocator), owner[2])),
             "valueFunction": owner[3],
-            "locations": random_locations_for_bidding_strategy(bidding_strategy_from_name(args.allocator, owner[2])),
+            "locations": random_locations_for_bidding_strategy(bidding_strategy_from_name(allocator_from_name(args.allocator), owner[2])),
         } for owner in args.owners],
     }
     if model_data['name'] is None:
@@ -412,8 +457,8 @@ if model_config is None:
                          bidding_strategy in compatible_bidding_strategies],
                 validate=EmptyInputValidator(),
             ).execute()
-            selected_bidding_strategy = bidding_strategy_by_name(selected_allocator,
-                                                                 owner['biddingStrategy']['classname'])
+            selected_bidding_strategy = bidding_strategy_from_name(selected_allocator,
+                                                                   owner['biddingStrategy']['classname'])
             compatible_value_functions = selected_bidding_strategy.compatible_value_functions()
             owner['valueFunction'] = inquirer.select(
                 message=f"Owner {i} - Value Function:",
