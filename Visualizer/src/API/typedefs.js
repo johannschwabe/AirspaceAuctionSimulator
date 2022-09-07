@@ -116,8 +116,6 @@
  * @property {string} locationName
  * @property {int} neighbouringTiles
  * @property {int} resolution
- * @property {RawSimpleCoordinate} bottomLeftCoordinate
- * @property {int[][]} tiles
  */
 
 /**
