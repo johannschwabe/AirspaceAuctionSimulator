@@ -561,5 +561,4 @@ if not args.skipSimulation:
                 # Save simulation to disk
                 dest_path = args.saveSimulationPath if args.saveSimulationPath else input_path
                 with open(os.path.join(dest_path, f"{model_config.name}-simulation.json"), "w") as f:
-                    print(type(simulation_json), simulation_json)
                     json.dump(simulation_json, f, indent=4)
