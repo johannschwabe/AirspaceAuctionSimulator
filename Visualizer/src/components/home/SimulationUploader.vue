@@ -42,7 +42,7 @@ const onUpload = async (upload) => {
   fileReader.onload = async (event) => {
     const data = JSON.parse(event.target.result);
     await persistSimulation(data);
-    const simulation = new Simulation(data.simulation);
+    const simulation = new Simulation(data.simulation, data.config, data.statistics);
     await simulation.load();
     setSimulationSingleton(simulation);
     setSimulationConfig(data.config);

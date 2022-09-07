@@ -42,7 +42,7 @@ def build_json(config: APISimulationConfig, simulator: "Simulator", simulation_d
     statistics_duration = statistics_end_time - statistics_start_time
     statistics_compute_time = statistics_duration
     simulation_compute_time = simulation_duration
-    return {"config": config,
+    return {"config": config.dict(),
             "simulation": simulation_json,
             "statistics": statistics,
             "statistics_compute_time": statistics_compute_time,
