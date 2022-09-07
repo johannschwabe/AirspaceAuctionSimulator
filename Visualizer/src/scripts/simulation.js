@@ -18,7 +18,7 @@ export function setSimulationSingleton(simulation) {
   simulationSingleton = simulation;
 }
 
-export function canRecoverSimulationSingleton() {
+export async function canRecoverSimulationSingleton() {
   return canLoadSimulation();
 }
 
@@ -26,12 +26,13 @@ export async function loadSimulationSingleton() {
   const simulation_data = await loadSimulationData();
   const config_data = await loadConfigData();
   const statistics_data = await loadStatisticsData();
-  if (!simulation_data) {
+  if (simulation_data && config_data && statistics_data) {
+    const simulation = new Simulation(simulation_data, config_data, statistics_data);
+    simulationSingleton = await simulation.load();
+    return simulationSingleton;
+  } else {
     throw new Error("Unable to recover last simulation!");
   }
-  const simulation = new Simulation(simulation_data, config_data, statistics_data);
-  simulationSingleton = await simulation.load();
-  return simulationSingleton;
 }
 
 export function setSimulationConfig(config) {

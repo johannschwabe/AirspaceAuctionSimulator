@@ -160,33 +160,30 @@ async function openDB() {
 }
 
 async function addToObjectStore(db, name, data) {
-  console.log("OPEN");
   const oldData = await getFromObjectStore(db, name);
   if (oldData !== null) {
     await deleteFromObjectStore(db, name);
   }
   return new Promise((resolve) => {
-    db.transaction([name], "readwrite").objectStore(name).add(data, name).onsuccess = () => {
+    db.transaction(name, "readwrite").objectStore(name).add(data, name).onsuccess = () => {
       resolve();
     };
   });
 }
 
 async function deleteFromObjectStore(db, name) {
-  console.log("DELETE");
   return new Promise((resolve) => {
-    db.transaction([name], "readwrite").objectStore(name).delete(name).onsuccess = () => {
+    db.transaction(name, "readwrite").objectStore(name).delete(name).onsuccess = () => {
       resolve();
     };
   });
 }
 
 async function getFromObjectStore(db, name) {
-  console.log("GET");
   return new Promise((resolve) => {
-    const request = db.transaction([name]).objectStore(name).get(name);
+    const request = db.transaction(name).objectStore(name).get(name);
     request.onsuccess = (event) => {
-      resolve(event.target.result.value);
+      resolve(event.target.result ?? null);
     };
     request.onerror = () => {
       resolve(null);
@@ -240,7 +237,7 @@ export async function loadConfigData() {
 }
 
 /**
- * @returns {null|JSONConfig}
+ * @returns {null|SimulationStatistics}
  */
 export async function loadStatisticsData() {
   const db = await openDB();

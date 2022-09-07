@@ -17,9 +17,9 @@ export default class Simulation {
   /**
    * @param {JSONSimulation} jsonSimulation
    * @param {JSONConfig} jsonConfig
-   * @param {SimulationStatistics} jsonStatistics
+   * @param {SimulationStatistics} simulationStats
    */
-  constructor(jsonSimulation, jsonConfig, jsonStatistics) {
+  constructor(jsonSimulation, jsonConfig, simulationStats) {
     this._simulationStore = useSimulationStore();
 
     this.name = jsonConfig.name;
@@ -41,7 +41,7 @@ export default class Simulation {
      * Object containing statistics about the simulation
      * @type {Statistics}
      */
-    this.statistics = new Statistics(jsonStatistics);
+    this.statistics = new Statistics(simulationStats);
 
     /**
      * Blockers living in the simulated environment
@@ -62,7 +62,10 @@ export default class Simulation {
      * All owners that were simulated
      * @type {Owner[]}
      */
-    this.owners = jsonSimulation.owners.map((owner) => new Owner(owner, this));
+    this.owners = jsonSimulation.owners.map((owner) => {
+      const ownerStats = simulationStats.owners.find((ownerStat) => ownerStat.id === owner.id);
+      return new Owner(owner, this, ownerStats);
+    });
 
     /**
      * Flattened list of all agents belonging to any owner

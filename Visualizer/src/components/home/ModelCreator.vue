@@ -175,7 +175,8 @@ const loadingForSeconds = ref(0);
 const loadingInterval = ref(undefined);
 const finished = ref(false);
 
-const canRecoverSimulation = ref(hasSimulationSingleton() || canRecoverSimulationSingleton());
+const canRecoverSimulation = ref(hasSimulationSingleton());
+canRecoverSimulationSingleton().then((val) => (canRecoverSimulation.value = canRecoverSimulation.value || val));
 
 const rules = {
   name: [

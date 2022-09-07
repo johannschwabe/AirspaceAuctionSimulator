@@ -59,7 +59,7 @@ const updateSeries = () => {
         throw new Error("Invalid start or end of path!");
       }
       gantt.push({
-        x: agent.name,
+        x: agent.id,
         y: [start, end],
         fillColor: agent.color,
       });

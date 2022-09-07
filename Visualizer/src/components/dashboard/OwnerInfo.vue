@@ -2,20 +2,12 @@
   <boxplot
     title="Utility"
     :color="simulation.ownerInFocus.color"
-    :quantiles="simulation.ownerInFocus.utilityQuantiles"
+    :quartiles="simulation.ownerInFocus.utilityQuartiles"
     :outliers="simulation.ownerInFocus.utilityOutliers"
     :min="simulation.ownerInFocus.minUtility"
     :max="simulation.ownerInFocus.maxUtility"
   />
   <n-divider style="margin-top: 6px; margin-bottom: 6px" />
-  <boxplot
-    title="Bids"
-    :color="simulation.ownerInFocus.color"
-    :quantiles="simulation.ownerInFocus.bidQuantiles"
-    :outliers="simulation.ownerInFocus.bidOutliers"
-    :min="simulation.ownerInFocus.minBidValue"
-    :max="simulation.ownerInFocus.maxBidValue"
-  />
   <n-divider style="margin-top: 6px; margin-bottom: 6px" />
   <div v-for="datapoint in datapoints" :key="datapoint.label">
     <div style="display: flex">
@@ -55,7 +47,7 @@ const simulationConfig = useSimulationConfigStore();
 const componentMap = useComponentMapping();
 
 const owner = computed(() => {
-  return simulationConfig.owners.find((o) => o.name === simulation.ownerInFocus.name);
+  return simulationConfig.owners.find((o) => o.id === simulation.ownerInFocus.id);
 });
 
 const locations = computed(() => {
