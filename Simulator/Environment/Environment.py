@@ -58,13 +58,21 @@ class Environment:
         self.max_near_radius = 0
 
     @staticmethod
-    def _setup_rtree() -> Index:
+    def _generate_data(data: Iterator["Item"]):
+        for item in data:
+            yield item.id, item.bbox, item.object
+
+    @staticmethod
+    def _setup_rtree(data: Optional[Iterator["Item"]] = None) -> Index:
         """
         Returns a rtree instance with 4 dimensions.
         """
         props = Property()
         props.dimension = 4
-        return Rtree(properties=props)
+        if data is None:
+            return Rtree(properties=props)
+        else:
+            return Rtree(Environment._generate_data(data), properties=props)
 
     def _get_blocker_id(self) -> int:
         """
@@ -321,10 +329,9 @@ class Environment:
         """
         Returns a set of all agents in the given space that are not the given agent.
         """
-        intersections: Iterator["Item"] = self.tree.intersection(bottom_left.list_rep() + top_right.list_rep(),
-                                                                 objects=True)
-        other_agents: List["Agent"] = [self.agents[intersection_item.id] for intersection_item in intersections if
-                                       intersection_item.id != hash(agent)]
+        intersections: Iterator[int] = self.tree.intersection(bottom_left.list_rep() + top_right.list_rep())
+        other_agents: List["Agent"] = [self.agents[intersection_id] for intersection_id in intersections if
+                                       intersection_id != hash(agent)]
         return set(other_agents)
 
     def intersect_space_segment(self,
@@ -369,11 +376,13 @@ class Environment:
         """
         Returns a clone of the environment with clones of all agents.
         """
-        cloned_tree: "Index" = self._setup_rtree()
+        self.tree.contains()
         if len(self.tree) > 0:
             all_items = self.tree.intersection(self.tree.bounds, objects=True)
-            for item in all_items:
-                cloned_tree.insert(item.id, item.bbox, obj=item.object)
+            cloned_tree: "Index" = self._setup_rtree(all_items)
+
+        else:
+            cloned_tree: "Index" = self._setup_rtree()
 
         cloned = Environment(self.dimension,
                              None,

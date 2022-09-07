@@ -41,7 +41,7 @@ def setup_map():
                                   math.floor(size[1]),
                                   time_steps)
     print(dimensions)
-    return EnvironmentGen(map_dimensions, [MapTile([15, 17161, 11475], area)]).generate()
+    return EnvironmentGen(map_dimensions, [MapTile([15, 17161, 11475], area)], 50, 10).generate()
 
 
 def fcfsSimulation(env: Environment):
