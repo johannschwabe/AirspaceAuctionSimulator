@@ -280,6 +280,7 @@ if args.load_path:
         model_config = APISimulationConfig(**json.load(f))
 
 # No argument led to creation of a model - ask user if prefab should be used
+# Skip this interaction if user provides 'create' argument
 if model_config is None and not args.create:
     use_prefab = inquirer.confirm(message="Use prefab configuration?", default=True).execute()
     if use_prefab:
@@ -294,6 +295,7 @@ if model_config is None and not args.create:
             model_config = APISimulationConfig(**json.load(f))
 
 # No argument led to creation of a model and no prefab was selected - ask user if model should be loaded
+# Skip this interaction if user provides 'create' argument
 if model_config is None and not args.create:
     load_config = inquirer.confirm(message="Load Simulation from existing config File?", default=True).execute()
     if load_config:
@@ -358,6 +360,7 @@ if model_config is None:
             validate=EmptyInputValidator()
         ).execute()
 
+    # Convert provided address query argument to location and coordinates
     if args.addressQuery:
         data = requests.get(
             f"https://nominatim.openstreetmap.org/search?q={args.addressQuery}&format=json&addressdetails=1").json()
@@ -367,6 +370,7 @@ if model_config is None:
         model_data["map"]["coordinates"]["lat"] = float(data[0]["lat"])
         model_data["map"]["coordinates"]["long"] = float(data[0]["lon"])
     else:
+        # Interactively ask the user for a query and prompt him whether the resolved location is correct
         address_correct = False
         while not address_correct:
             addressQuery = inquirer.text(message="Location:", validate=EmptyInputValidator()).execute()
@@ -430,10 +434,12 @@ if model_config is None:
             validate=EmptyInputValidator(),
         ).execute())
 
+    # Interactively ask for owner data until at least 1 owner exists and until the user breaks the flow
     if not len(model_data["owners"]) > 0:
         add_owner = True
         while add_owner:
             i = len(model_data["owners"]) + 1
+
             owner = {
                 "color": color_generator(),
                 "name": "",
@@ -441,6 +447,7 @@ if model_config is None:
                 "biddingStrategy": None,
                 "valueFunction": "",
             }
+
             owner['name'] = inquirer.text(message=f"Owner {i} - Name:", validate=EmptyInputValidator()).execute()
             owner['agents'] = int(inquirer.number(
                 message=f"Owner {i} - Number of Agents:",
@@ -448,6 +455,8 @@ if model_config is None:
                 max_allowed=100,
                 validate=EmptyInputValidator(),
             ).execute())
+
+            # Ask user for choice within bidding strategies that are compatible with selected allocator
             allocators = list(filter(lambda x: (x.__name__ == model_data["allocator"]), available_allocators))
             selected_allocator = allocators[0]
             compatible_bidding_strategies = selected_allocator.compatible_bidding_strategies()
@@ -459,12 +468,21 @@ if model_config is None:
             ).execute()
             selected_bidding_strategy = bidding_strategy_from_name(selected_allocator,
                                                                    owner['biddingStrategy']['classname'])
+
+            # Ask user for choice within value functions that are compatible with selected allocator
             compatible_value_functions = selected_bidding_strategy.compatible_value_functions()
             owner['valueFunction'] = inquirer.select(
                 message=f"Owner {i} - Value Function:",
                 choices=[Choice(value_function.__name__) for value_function in compatible_value_functions],
                 validate=EmptyInputValidator(),
             ).execute()
+
+            # Generate random location for selected bidding strategies
+            # The CLI could be extended in the future to make configurations of paths possible, such as
+            # Number of stops for path agens or dimensions of space agents.
+            # Even selection of locations or heatmap inputs could be extended in the future.
+            # As of right now, these are only supported by the Web-UI since the complexitiy of the CLI should be
+            # kept to an easily understandable extend.
             owner["locations"] = random_locations_for_bidding_strategy(selected_bidding_strategy)
             print(f"----- OWNER {i} -----")
             print(
@@ -475,6 +493,7 @@ if model_config is None:
 
     model_config = APISimulationConfig(**model_data)
 
+# Ask for model summary if user did not specify either --summary or --skip-summary
 if not args.skipSummary:
     if not args.summary:
         summarize = inquirer.confirm(message="Print model summary?", default=True).execute()
@@ -483,10 +502,14 @@ if not args.skipSummary:
         print(yaml.dump(model_config.dict(), sort_keys=False))
         print("=============================================================")
 
+# Save config flow if user did not specify --skip-save-config
 if not args.skipSaveConfig:
+    # Only ask the user for config path if he did not already specify one
     if not args.saveConfigPath:
         save_model = inquirer.confirm(message="Save model configuration?", default=True).execute()
+    # Enter this flow if user provided a path or responded with "yes" in the previous step
     if args.saveConfigPath or save_model:
+        # Ask user for config path if not already provided as input parameter
         if not args.saveConfigPath:
             input_path = inquirer.filepath(
                 message="Folder:",
@@ -495,12 +518,16 @@ if not args.skipSaveConfig:
                 only_directories=True,
             ).execute()
         dest_path = args.saveConfigPath if args.saveConfigPath else input_path
+        # Write config as to disk as json file
         with open(os.path.join(dest_path, f"{model_config.name}-config.json"), "w") as f:
             f.write(model_config.json())
 
+# Skip this flow if user provided --skip-simulation argument
 if not args.skipSimulation:
+    # Ask user if simulation should be run if he provided neither --skip-simulation nor --simulate
     if not args.simulate:
         simulate = inquirer.confirm(message="Start Simulation?", default=True).execute()
+    # Run actual simulation
     if args.simulate or simulate:
         print("Running simulation. This may take a while!")
         generator, duration = run_from_config(model_config)
@@ -508,17 +535,23 @@ if not args.skipSimulation:
         simulation_json = build_json(generator.simulator, duration)
         simulation_json["config"] = model_config
 
+        # Printing simulation summary flow if user did not provide --skip-summary flag
         if not args.skipSummary:
+            # If user did neither provide --summary nor --skip-summary, ask for his input
             if not args.summary:
                 summarize = inquirer.confirm(message="Print simulation summary?", default=True).execute()
+            # Print summary as YAML (for better readability and more compact output)
             if args.summary or summarize:
                 print("===================== SIMULATION SUMMARY ========================")
                 print(yaml.dump(simulation_json, sort_keys=False))
                 print("=================================================================")
 
+        # Save simulation flow if --skip-save-simulation is not provided
         if not args.skipSaveSimulation:
+            # If user did neither provide --save-simulation-path nor --skip-save-simulation, ask for his input
             if not args.saveSimulationPath:
                 save_simulation = inquirer.confirm(message="Save simulation?", default=True).execute()
+            # If path is present or user responded with 'yes', save simulation
             if args.saveSimulationPath or save_simulation:
                 if not args.saveSimulationPath:
                     input_path = inquirer.filepath(
@@ -527,6 +560,7 @@ if not args.skipSimulation:
                         validate=PathValidator(is_dir=True, message="Input is not a directory"),
                         only_directories=True,
                     ).execute()
+                # Save simulation to disk
                 dest_path = args.saveSimulationPath if args.saveSimulationPath else input_path
                 with open(os.path.join(dest_path, f"{model_config.name}-simulation.json"), "w") as f:
                     json.dump(simulation_json, f)
