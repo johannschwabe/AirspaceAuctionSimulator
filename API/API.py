@@ -3,15 +3,13 @@ Run server using >>> uvicorn API:app --reload
 App runs on 'https://localhost:8000/'
 """
 import random
-import traceback
 import time
+import traceback
 
 from fastapi import HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from Simulator import Simulator
-from Simulator.IO.JSONS import get_simulation_dict
-from Simulator.IO.Statistics import get_statistics_dict
+from Simulator import Simulator, get_simulation_dict, get_statistics_dict
 from .Runners import run_from_config
 from .Types import APISimulationConfig
 from .config import available_allocators
