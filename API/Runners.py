@@ -1,33 +1,36 @@
-import time
 import math
 import random
-from typing import List, Tuple
+import time
+from typing import List, Tuple, TYPE_CHECKING
 
 from Simulator import Coordinate4D
-
-from .API import APISimulationConfig
 from .Area import Area
 from .Generator.Generator import Generator
 from .Generator.MapTile import MapTile
-
 from .config import available_allocators
 
-def run_from_config(config: APISimulationConfig) -> Tuple[Generator, int]:
+if TYPE_CHECKING:
+    from .API import APISimulationConfig
+
+
+def run_from_config(config: "APISimulationConfig") -> Tuple[Generator, int]:
     """
     Runs an AirspaceAuctionSimulation using a config that is usually provided by the API or generated using the CLI.
     :param config: Configuration object, defining all parameters of the Simulation
     :return: Simulated generator, simulation duration in seconds
     """
-    maptiles: List[MapTile] = MapTile.tiles_from_coordinates(config.map.coordinates, config.map.neighbouringTiles, config.map.resolution)
+    maptiles: List[MapTile] = MapTile.tiles_from_coordinates(config.map.coordinates, config.map.neighbouringTiles,
+                                                             config.map.resolution)
     config.map.tiles = [tile.zxy for tile in maptiles]
 
     if config.map.subselection is not None and config.map.subselection.bottomLeft and config.map.subselection.topRight:
-        area = Area(config.map.subselection.bottomLeft, config.map.subselection.topRight, config.map.resolution)
+        area = Area(config.map.subselection.bottomLeft, config.map.subselection.topRight, config.map.resolution,
+                    config.map.minHeight)
     else:
         bottom_left_coordinate, top_right_coordinate = MapTile.bounding_box_from_maptiles_group(maptiles)
         config.map.bottomLeftCoordinate = bottom_left_coordinate.as_dict()
         config.map.topRightCoordinate = top_right_coordinate.as_dict()
-        area = Area(bottom_left_coordinate, top_right_coordinate, config.map.resolution)
+        area = Area(bottom_left_coordinate, top_right_coordinate, config.map.resolution, config.map.minHeight)
 
     size = area.dimension
 
@@ -48,7 +51,8 @@ def run_from_config(config: APISimulationConfig) -> Tuple[Generator, int]:
     selected_payment_rule = payment_rule[0]()
 
     random.seed(2)
-    generator = Generator(config.owners, dimensions, maptiles, allocator, area, selected_payment_rule)
+    generator = Generator(config.owners, dimensions, maptiles, allocator, area, selected_payment_rule,
+                          allocation_period=config.map.allocationPeriod)
     start_time = time.time_ns()
     generator.simulate()
     end_time = time.time_ns()

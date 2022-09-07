@@ -9,9 +9,9 @@ from fastapi import HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from Simulator import build_json
-from .config import available_allocators
-from .Types import APISimulationConfig
 from .Runners import run_from_config
+from .Types import APISimulationConfig
+from .config import available_allocators
 
 app = FastAPI()
 

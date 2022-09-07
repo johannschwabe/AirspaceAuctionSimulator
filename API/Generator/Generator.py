@@ -20,19 +20,21 @@ class Generator:
         maptiles: List["MapTile"],
         allocator: "Allocator",
         area: "Area",
-        payment_rule: "PaymentRule"
+        payment_rule: "PaymentRule",
+        allocation_period: int = 50
     ):
-        self.apiOwners: List["APIOwner"] = owners
+        self.api_owners: List["APIOwner"] = owners
         self.dimensions: "Coordinate4D" = dimensions
         self.owners: List["Owner"] = []
         self.allocator: "Allocator" = allocator
-        self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles).generate()
+        self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles, min_height=area.min_height,
+                                                         allocation_period=allocation_period).generate()
         self.simulator: Optional["Simulator"] = None
         self.history: Optional["History"] = None
         self.statistics: Optional["Statistics"] = None
         self.simulator: Optional["Simulator"] = None
         self.area = area
-        self.paymentRule = payment_rule
+        self.payment_rule = payment_rule
 
     def extract_owner_stops(self, owner: "APIOwner"):
         stops: List["GridLocation"] = []
@@ -58,7 +60,7 @@ class Generator:
 
     def simulate(self):
         owner_id = 0
-        for apiOwner in self.apiOwners:
+        for apiOwner in self.api_owners:
             stops: List["GridLocation"] = self.extract_owner_stops(apiOwner)
             bidding_strategy = [bs for bs in self.allocator.compatible_bidding_strategies() if
                                 bs.__name__ == apiOwner.biddingStrategy.classname]
@@ -118,7 +120,7 @@ class Generator:
                                      )
             self.owners.append(newOwner)
             owner_id += 1
-        mech = Mechanism(self.allocator, self.paymentRule)
+        mech = Mechanism(self.allocator, self.payment_rule)
         self.simulator = Simulator(
             self.owners,
             mech,
