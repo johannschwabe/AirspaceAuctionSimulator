@@ -430,7 +430,7 @@ if model_config is None:
         model_data["map"]["allocationPeriod"] = int(inquirer.number(
             message="Allocation Period:",
             min_allowed=1,
-            max_allowed=round(model_data["map"]["timesteps"] ** (1 / 3)),
+            max_allowed=round(model_data["map"]["timesteps"] / 2),
             validate=EmptyInputValidator(),
         ).execute())
 
