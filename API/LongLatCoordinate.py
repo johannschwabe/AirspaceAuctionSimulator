@@ -9,3 +9,9 @@ class LongLatCoordinate:
 
     def __repr__(self):
         return f"Coord<long={self.long}, lat={self.lat}>"
+
+    def as_dict(self):
+        return {
+            "long": self.long,
+            "lat": self.lat,
+        }

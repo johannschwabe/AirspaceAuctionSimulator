@@ -25,8 +25,8 @@ def run_from_config(config: APISimulationConfig) -> Tuple[Generator, int]:
         area = Area(config.map.subselection.bottomLeft, config.map.subselection.topRight, config.map.resolution)
     else:
         bottom_left_coordinate, top_right_coordinate = MapTile.bounding_box_from_maptiles_group(maptiles)
-        config.map.bottomLeftCoordinate = bottom_left_coordinate
-        config.map.topRightCoordinate = top_right_coordinate
+        config.map.bottomLeftCoordinate = bottom_left_coordinate.as_dict()
+        config.map.topRightCoordinate = top_right_coordinate.as_dict()
         area = Area(bottom_left_coordinate, top_right_coordinate, config.map.resolution)
 
     print(area)

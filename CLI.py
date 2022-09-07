@@ -531,7 +531,7 @@ if not args.skipSimulation:
         generator, duration = run_from_config(model_config)
         print(f"-- Simulation Completed in {duration} seconds --")
         simulation_json = build_json(generator.simulator, duration)
-        simulation_json["config"] = model_config
+        simulation_json["config"] = model_config.dict()
 
         # Printing simulation summary flow if user did not provide --skip-summary flag
         if not args.skipSummary:
@@ -561,4 +561,5 @@ if not args.skipSimulation:
                 # Save simulation to disk
                 dest_path = args.saveSimulationPath if args.saveSimulationPath else input_path
                 with open(os.path.join(dest_path, f"{model_config.name}-simulation.json"), "w") as f:
-                    json.dump(simulation_json.dict(), f)
+                    print(type(simulation_json), simulation_json)
+                    json.dump(simulation_json, f, indent=4)
