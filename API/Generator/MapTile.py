@@ -1,8 +1,10 @@
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Tuple
 
 import cloudscraper
+import mpmath as mp
 
 from Simulator import BuildingBlocker, Coordinate3D
+from .. import APIWorldCoordinates
 from ..LongLatCoordinate import LongLatCoordinate
 
 if TYPE_CHECKING:
@@ -95,3 +97,63 @@ class MapTile:
 
     def __str__(self):
         return f"x:{self.x}, y:{self.y}, z:{self.z}"
+
+    @property
+    def long(self) -> float:
+        return MapTile.zxy2lon(self.z, self.x, self.y)
+
+    @property
+    def lat(self) -> float:
+        return MapTile.zxy2lon(self.z, self.x, self.y)
+
+    @property
+    def coordinates(self) -> LongLatCoordinate:
+        return LongLatCoordinate(long=self.long, lat=self.lat)
+
+    @property
+    def bottom_left_coordinate(self) -> LongLatCoordinate:
+        return self.area.bottom_left
+
+    @property
+    def top_right_coordinate(self) -> LongLatCoordinate:
+        return self.area.top_right
+
+    @staticmethod
+    def zxy2lon(z: int, x: int, y: int) -> float:
+        return x / 2 ** z * 360 - 180
+
+    @staticmethod
+    def zxy2lat(z: int, x: int, y: int) -> float:
+        n = mp.pi - 2 * mp.pi * y / 2 ** z
+        return float((180 / mp.pi) * (mp.atan(0.5 * (mp.exp(n) - mp.exp(-n)))))
+
+    @staticmethod
+    def from_coordinates(coordinates: APIWorldCoordinates, neighbouring_tiles: int, resolution: int) -> List["MapTile"]:
+        lat_rad = mp.radians(coordinates.lat)
+        n = 2 ** 15
+
+        xtile = int(n * ((coordinates.long + 180) / 360))
+        ytile = int(n * (1 - (mp.log(mp.tan(lat_rad) + mp.sec(lat_rad)) / mp.pi)) / 2)
+
+        tiles = []
+        for i in range(-neighbouring_tiles, neighbouring_tiles + 1):
+            for j in range(-neighbouring_tiles, neighbouring_tiles + 1):
+                z, x, y = 15, xtile + i, ytile + j
+                tile_ids = [z, x, y]
+                bottom_left, top_right = MapTile.bounding_box_from_zxy(z, x, y)
+                area = Area(bottom_left, top_right, resolution)
+                tiles.append(MapTile(tile_ids=tile_ids, area=area))
+        return tiles
+
+    @staticmethod
+    def bounding_box_from_zxy(z: int, x: int, y: int) -> Tuple[LongLatCoordinate, LongLatCoordinate]:
+        bottom_left_lat = MapTile.zxy2lat(z, x + 1, y)
+        bottom_left_lon = MapTile.zxy2lon(z, x + 1, y)
+
+        top_right_lat = MapTile.zxy2lat(z, x, y + 1)
+        top_right_lon = MapTile.zxy2lon(z, x, y + 1)
+
+        bottom_left = LongLatCoordinate(lat=bottom_left_lat, long=bottom_left_lon)
+        top_right = LongLatCoordinate(lat=top_right_lat, long=top_right_lon)
+
+        return bottom_left, top_right

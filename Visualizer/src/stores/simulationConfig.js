@@ -145,7 +145,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
         allocationType: biddingStrategy.strategyType,
         minLocations: biddingStrategy.minLocations,
         maxLocations: biddingStrategy.maxLocations,
-        meta: biddingStrategy.meta(),
+        meta: biddingStrategy.meta,
       });
     });
     owners.splice(0);
