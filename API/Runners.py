@@ -31,7 +31,11 @@ def run_from_config(config: "APISimulationConfig") -> Tuple[Generator, int]:
         config.map.bottomLeftCoordinate = bottom_left_coordinate.as_dict()
         config.map.topRightCoordinate = top_right_coordinate.as_dict()
         area = Area(bottom_left_coordinate, top_right_coordinate, config.map.resolution, config.map.minHeight)
+        print("no Subselection")
 
+    for maptile in maptiles:
+        maptile.area = area
+        
     size = area.dimension
 
     dimensions = Coordinate4D(math.floor(size[0]),
