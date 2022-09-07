@@ -11,21 +11,24 @@ class SpaceBiddingStrategy:
                 "label": "Field Size X",
                 "description": "Size of reserved field in X-Dimension",
                 "type": "int",
-                "value": math.ceil(random.random() * 100),
+                "value": math.ceil(random.random() * 50),
+                "range": "1-50"
             },
             {
                 "key": "size_y",
                 "label": "Field Size Y",
                 "description": "Size of reserved field in Y-Dimension",
                 "type": "int",
-                "value": math.ceil(random.random() * 100),
+                "value": math.ceil(random.random() * 50),
+                "range": "1-50"
             },
             {
                 "key": "size_z",
                 "label": "Field Size Z",
                 "description": "Size of reserved field in Z-Dimension",
                 "type": "int",
-                "value": math.ceil(random.random() * 100),
+                "value": math.ceil(random.random() * 50),
+                "range": "1-50"
             },
             {
                 "key": "size_t",
@@ -33,5 +36,6 @@ class SpaceBiddingStrategy:
                 "description": "Size of reserved field in T-Dimension",
                 "type": "int",
                 "value": math.ceil(random.random() * 100),
+                "range": "1-100"
             },
         ]

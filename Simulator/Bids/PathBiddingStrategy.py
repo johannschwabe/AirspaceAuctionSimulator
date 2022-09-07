@@ -1,6 +1,7 @@
 import math
 import random
 
+
 class PathBiddingStrategy:
     @staticmethod
     def meta():
@@ -11,6 +12,7 @@ class PathBiddingStrategy:
                 "description": "Radius of reserved field",
                 "type": "int",
                 "value": math.ceil(random.random() * 4),
+                "range": "1-10"
             },
             {
                 "key": "battery",
@@ -18,6 +20,7 @@ class PathBiddingStrategy:
                 "description": "Maximum flight time",
                 "type": "int",
                 "value": math.ceil(random.random() * 1000),
+                "range": "500-2000"
             },
             {
                 "key": "speed",
@@ -25,5 +28,6 @@ class PathBiddingStrategy:
                 "description": "Number ticks needed to traverse a voxel: 1 is the fastest",
                 "type": "int",
                 "value": math.ceil(random.random() * 5),
+                "range": "1-10"
             },
         ]
