@@ -2,15 +2,12 @@
 Run server using >>> uvicorn API:app --reload
 App runs on 'https://localhost:8000/'
 """
-import math
 import random
+import traceback
 import time
-from typing import List, Optional, Dict, Any
 
 from fastapi import HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from pydantic.fields import Field
 
 from Simulator import Coordinate4D, Simulator
 from Simulator.IO.JSONS import get_simulation_dict
@@ -19,6 +16,8 @@ from .Area import Area
 from .Generator.Generator import Generator
 from .Generator.MapTile import MapTile
 from .config import available_allocators
+from .Types import APISimulationConfig
+from .Runners import run_from_config
 
 app = FastAPI()
 
@@ -38,66 +37,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-class APIWorldCoordinates(BaseModel):
-    long: float
-    lat: float
-
-
-class APIWeightedCoordinate(BaseModel):
-    lat: float
-    long: float
-    value: float
-
-
-class APISubselection(BaseModel):
-    bottomLeft: Optional["APIWorldCoordinates"] = Field(None)
-    topRight: Optional["APIWorldCoordinates"] = Field(None)
-
-
-class APILocations(BaseModel):
-    type: str
-    points: List[APIWeightedCoordinate]
-
-
-class APIBiddingStrategy(BaseModel):
-    minLocations: int
-    maxLocations: int
-    allocationType: str
-    classname: str
-    meta: List[Dict[str, Any]]
-
-
-class APIOwner(BaseModel):
-    color: str
-    name: str
-    agents: int
-    biddingStrategy: APIBiddingStrategy
-    locations: List[APILocations]
-    valueFunction: str
-
-
-class APIMap(BaseModel):
-    coordinates: APIWorldCoordinates
-    locationName: str
-    neighbouringTiles: int
-    bottomLeftCoordinate: APIWorldCoordinates
-    topRightCoordinate: APIWorldCoordinates
-    subselection: APISubselection
-    resolution: int
-    tiles: List[List[int]]
-    height: int
-    timesteps: int
-
-
-class APISimulationConfig(BaseModel):
-    name: str
-    description: str
-    allocator: str
-    map: APIMap
-    owners: List[APIOwner]
-    paymentRule: str
 
 
 def build_json(config: APISimulationConfig, simulator: "Simulator", simulation_duration: int):
@@ -151,45 +90,19 @@ def get_strategies_for_allocator(allocator):
              "strategyType": bidding_strategy.allocation_type,
              "minLocations": bidding_strategy.min_locations,
              "maxLocations": bidding_strategy.max_locations,
-             "meta": bidding_strategy.meta
+             "meta": bidding_strategy.meta()
              } for bidding_strategy in compatible_bidding_strategies]
 
 
 @app.post("/simulation")
-def read_root(config: APISimulationConfig):
-    if config.map.subselection.bottomLeft and config.map.subselection.topRight:
-        area = Area(config.map.subselection.bottomLeft, config.map.subselection.topRight, config.map.resolution)
-    else:
-        area = Area(config.map.bottomLeftCoordinate, config.map.topRightCoordinate, config.map.resolution)
-
-    size = area.dimension
-
-    dimensions = Coordinate4D(math.floor(size[0]),
-                              math.floor(config.map.height / area.resolution),
-                              math.floor(size[1]),
-                              config.map.timesteps)
-
-    maptiles = [MapTile(tile, area) for tile in config.map.tiles]
-
-    allocators = list(filter(lambda x: (x.__name__ == config.allocator), available_allocators))
-    if len(allocators) != 1:
-        raise HTTPException(status_code=404, detail="allocator not found")
-    allocator = allocators[0]()
-
-    payment_rule = [pf for pf in allocator.compatible_payment_functions() if
-                    pf.__name__ == config.paymentRule]
-    if len(payment_rule) != 1:
-        raise Exception(f"{len(payment_rule)} payment functions found")
-    selected_payment_rule = payment_rule[0]()
-
-    random.seed(2)
-    g = Generator(config.owners, dimensions, maptiles, allocator, area, selected_payment_rule)
-    simulation_start_time = time.time_ns()
-    g.simulate()
-    simulation_end_time = time.time_ns()
-    simulation_duration = simulation_end_time - simulation_start_time
+def simulate(config: APISimulationConfig):
+    try:
+        generator, duration = run_from_config(config)
+    except ValueError as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=404, detail=str(e))
     print("--Simulation Completed--")
-    return build_json(config, g.simulator, simulation_duration)
+    return build_json(config, generator.simulator, duration)
 
 
 @app.get("/paymentRules/{allocator}")

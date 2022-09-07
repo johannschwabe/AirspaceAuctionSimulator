@@ -1,0 +1,121 @@
+{
+  "name": "Grossmünster",
+  "description": "Package-Delivery in and out of the Grossmünster in Zurich, Switzerland",
+  "allocator": "FCFSAllocator",
+  "map": {
+    "coordinates": {
+      "long": 8.5410422,
+      "lat": 47.3744489
+    },
+    "locationName": "Zürich, Bezirk Zürich, Zürich, Schweiz",
+    "neighbouringTiles": 0,
+    "bottomLeftCoordinate": {
+      "lat": 47.36859434521338,
+      "long": 8.536376953124991
+    },
+    "topRightCoordinate": {
+      "lat": 47.376034633497596,
+      "long": 8.547363281249993
+    },
+    "subselection": {
+      "bottomLeft": {
+        "long": 8.543608188629143,
+        "lat": 47.3695843855202
+      },
+      "topRight": {
+        "long": 8.544981479644767,
+        "lat": 47.370688848922896
+      }
+    },
+    "resolution": 1,
+    "height": 100,
+    "timesteps": 1060,
+    "tiles": [
+      [
+        15,
+        17161,
+        11475
+      ]
+    ]
+  },
+  "owners": [
+    {
+      "color": "#e094e0",
+      "name": "Mace Windu",
+      "agents": 20,
+      "minLocations": 2,
+      "maxLocations": 100,
+      "type": "path",
+      "classname": "FCFSPathOwner",
+      "allocator": "FCFSAllocator",
+      "meta": [],
+      "locations": [
+        {
+          "type": "random",
+          "points": [],
+          "meta": {}
+        },
+        {
+          "type": "random",
+          "points": [],
+          "meta": {}
+        }
+      ]
+    }
+  ],
+  "availableAllocators": [
+    "FCFSAllocator",
+    "PriorityAllocator"
+  ],
+  "availableOwnersForAllocator": [
+    {
+      "label": "FCFS Path Owner",
+      "meta": [],
+      "classname": "FCFSPathOwner",
+      "description": "FCFS Path Owner",
+      "ownerType": "path",
+      "allocator": "FCFSAllocator",
+      "minLocations": 2,
+      "maxLocations": 100
+    },
+    {
+      "label": "FCFS Space Owner",
+      "meta": [
+        {
+          "key": "size_x",
+          "label": "Field Size X",
+          "description": "Size of reserved field in X-Dimension",
+          "type": "int",
+          "value": 39
+        },
+        {
+          "key": "size_y",
+          "label": "Field Size Y",
+          "description": "Size of reserved field in Y-Dimension",
+          "type": "int",
+          "value": 30
+        },
+        {
+          "key": "size_z",
+          "label": "Field Size Z",
+          "description": "Size of reserved field in Z-Dimension",
+          "type": "int",
+          "value": 97
+        },
+        {
+          "key": "size_t",
+          "label": "Reservation Duration",
+          "description": "Number of ticks field should be reserved",
+          "type": "int",
+          "value": 7
+        }
+      ],
+      "classname": "FCFSSpaceOwner",
+      "description": "FCFS Space Owner",
+      "ownerType": "space",
+      "allocator": "FCFSAllocator",
+      "minLocations": 1,
+      "maxLocations": 100
+    }
+  ]
+}

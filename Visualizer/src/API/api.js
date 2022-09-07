@@ -2,39 +2,6 @@ import axios from "axios";
 import { saveAs } from "file-saver";
 
 /**
- * @typedef {Object} ApiOwnerType
- * @property {string} name
- * @property {string} color
- * @property {string} type
- * @property {int} agents
- */
-
-/**
- * @typedef {Object} ApiDimensionType
- * @property {int} x
- * @property {int} y
- * @property {int} z
- * @property {int} t
- */
-
-/**
- * @typedef {Object} MapObject
- * @property {int[][]} tiles
- * @property {{long: number, lat: number}} topLeftCoordinate
- * @property {{long: number, lat: number}} bottomRightCoordiante
- */
-
-/**
- * @typedef {Object} ApiSimulationConfigType
- * @property {string} name
- * @property {?string} description
- * @property {?MapObject} map
- * @property {ApiOwnerType} owners
- * @property {ApiDimensionType} dimension
- * @property {string} allocator
- */
-
-/**
  * @type {AxiosInstance}
  */
 const apiServer = axios.create({
@@ -59,7 +26,7 @@ const apiPostErrorToString = (e) => {
 };
 
 /**
- * @param {ApiSimulationConfigType} simulationConfig
+ * @param {JSONConfig} simulationConfig
  * @returns {Promise<JSONResponse>}
  */
 export async function postSimulation(simulationConfig) {
