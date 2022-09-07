@@ -4,11 +4,11 @@ import cloudscraper
 import mpmath as mp
 
 from Simulator import BuildingBlocker, Coordinate3D
-from .. import APIWorldCoordinates
 from ..LongLatCoordinate import LongLatCoordinate
+from ..Area import Area
 
 if TYPE_CHECKING:
-    from ..Area import Area
+    from ..Types import APIWorldCoordinates
 
 
 class MapTile:
@@ -168,7 +168,7 @@ class MapTile:
         return float((180 / mp.pi) * (mp.atan(0.5 * (mp.exp(n) - mp.exp(-n)))))
 
     @staticmethod
-    def tiles_from_coordinates(coordinates: APIWorldCoordinates, neighbouring_tiles: int, resolution: int) -> List["MapTile"]:
+    def tiles_from_coordinates(coordinates: "APIWorldCoordinates", neighbouring_tiles: int, resolution: int) -> List["MapTile"]:
         """
         Given an input coordinate, returns a list of MapTiles centering that coordinate, including neighbouring
         maptiles according to the input parameters

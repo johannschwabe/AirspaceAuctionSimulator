@@ -21,9 +21,13 @@ from Simulator.Mechanism.Allocator import Allocator
 from Simulator.Bids.BiddingStrategy import BiddingStrategy
 from Simulator.Mechanism.PaymentRule import PaymentRule
 
+PREFAB_PATH = "./Prefabs/configs"
+HOME_PATH = "~/" if os.name == "posix" else "C:\\"
+
 
 def random_locations_for_bidding_strategy(bidding_strategy: Type[BiddingStrategy]) -> List:
-    return [{ "type": "random", "points": [] } for _ in range(bidding_strategy.min_locations)]
+    return [{"type": "random", "points": []} for _ in range(bidding_strategy.min_locations)]
+
 
 def bidding_strategy_to_dict(bidding_strategy: Type[BiddingStrategy]):
     return {
@@ -33,6 +37,7 @@ def bidding_strategy_to_dict(bidding_strategy: Type[BiddingStrategy]):
         "classname": bidding_strategy.__name__,
         "meta": bidding_strategy.meta()
     }
+
 
 def bidding_strategy_from_name(allocator: Type[Allocator], bidding_strategy_name: str) -> Type[BiddingStrategy]:
     allocators = list(filter(lambda x: (x.__name__ == allocator), available_allocators))
@@ -68,44 +73,149 @@ def payment_rule_by_name(allocator: Type[Allocator], rule_name: str) -> Type[Pay
     return rules[0]
 
 
-PREFAB_PATH = "./Prefabs/configs"
-HOME_PATH = "~/" if os.name == "posix" else "C:\\"
+def available_prefab_names():
+    files = glob.glob(f"{PREFAB_PATH}/*.json")
+    return [os.path.basename(file).split("-config")[0] for file in files]
+
+
+def available_allocator_names():
+    return [allocator.__name__ for allocator in available_allocators]
+
+def all_payment_function_names():
+    names = set()
+    for allocator in available_allocators:
+        names.update([payment_function.__name__ for payment_function in allocator.compatible_payment_functions()])
+    return list(names)
+
+def all_payment_functions_str():
+    s = ""
+    for allocator in available_allocators:
+        payment_functions = [payment_function.__name__ for payment_function in allocator.compatible_payment_functions()]
+        s += f"{allocator.__name__}: [{', '.join(payment_functions)}]. "
+    return s
+
+
+def all_bidding_strategies_and_value_functions_str():
+    s = ""
+    strategies = set([])
+    for allocator in available_allocators:
+        bidding_strategies = [bidding_strategy.__name__ for bidding_strategy in
+                              allocator.compatible_bidding_strategies()]
+        s += f"{allocator.__name__}: [{', '.join(bidding_strategies)}]. "
+        strategies.update(allocator.compatible_bidding_strategies())
+    for strategy in strategies:
+        compatible_value_functions = [value_function.__name__ for value_function in
+                                      strategy.compatible_value_functions()]
+        s += f"{strategy.__name__}: [{', '.join(compatible_value_functions)}]. "
+    return s
+
 
 model_config = None
 
 parser = argparse.ArgumentParser(description='Start a new Airspace Auction Simulation')
-parser.add_argument('-p', '--prefab', dest="prefab", type=str, help='Prefab Name')
-parser.add_argument('-l', '--load', dest="load_path", type=str, help='File path to configuration to load')
-parser.add_argument('-c', '--create', dest="create", action="store_true", help='Create a new model')
-parser.add_argument('-s', '--simulate', dest="simulate", action="store_true", help='Start simulation')
-parser.add_argument('-ss', '--skip-simulation', dest="skipSimulation", action="store_true", help='Skip simulation')
+parser.add_argument('-p', '--prefab', dest="prefab", type=str, metavar=f"[{', '.join(available_prefab_names())}]",
+                    help=f'AAS comes with predefined simulation configurations that you can use to test the '
+                         f'functionalities of the Simulator. By specifying the name of a prefab, you can load its '
+                         f'configuration and run a simulation based of it. You can also save your own configurations '
+                         f'as prefabs by placing them into the folder "/Prefabs". The File-name will become the prefab '
+                         f'name. Currently ,the following prefabs are available: {", ".join(available_prefab_names())}.')
+parser.add_argument('-l', '--load', dest="load_path", type=str,
+                    help='You can load your previously saved configuration file by specifying the absolute path to '
+                         'your *-config.json File.')
+parser.add_argument('-c', '--create', dest="create", action="store_true",
+                    help='Flag that tells the CLI to create a new model based on your model configuration. '
+                         'Prevents theCLI from asking you whether you want to load a prefab or an already '
+                         'existing simulation config file.')
+parser.add_argument('-s', '--simulate', dest="simulate", action="store_true",
+                    help='Flag that tells the CLI to start a simulation after the model configuration '
+                         'file was generated.')
+parser.add_argument('-ss', '--skip-simulation', dest="skipSimulation", action="store_true",
+                    help='Flag that tells the CLI to not run a simulation. If you want to prevent the CLI '
+                         'from asking you interactive questions, please specify either '
+                         'the --simulate or --skip-simulation flag.')
 
-parser.add_argument('--summary', dest="summary", action="store_true", help='Log summary of created config file')
+parser.add_argument('--summary', dest="summary", action="store_true",
+                    help='Flag to output compact summaries of your simulation configuration as well as your '
+                         'final simulation output to the console in YAML format')
 parser.add_argument('--skip-summary', dest="skipSummary", action="store_true",
-                    help='Do not log summary of created config file')
-parser.add_argument('--save-config', dest="saveConfigPath", type=str, help='Path to save model config file to')
-parser.add_argument('--save-simulation', dest="saveSimulationPath", type=str, help='Path to save simulation to')
+                    help='Flag to skip printing the summaries to the console. If you wan to prevent the CLI '
+                         'from asking you interactive questions, '
+                         'please specify either the --summary or --skip-summary flag.')
+parser.add_argument('--save-config', dest="saveConfigPath", type=str,
+                    help='Specifies an absolute path to which your simulation configuration will be saved. '
+                         'Please only provide a folder, as your configuration will be saved with the naming '
+                         'schema {name}-config.json')
 parser.add_argument('--skip-save-config', dest="skipSaveConfig", action="store_true",
-                    help='Do not save config file to disk')
+                    help='Flag that tells the CLI that you do not want to save the configuration to disk. '
+                         'This flag is usefull if you want to prevent the CLI from asking you interactively '
+                         'whether you want to save your created configuration to your disk.')
+parser.add_argument('--save-simulation', dest="saveSimulationPath", type=str,
+                    help='Specifies an absolute path to which your final simulation output will be saved. '
+                         'Please only provide a folder, as your configuration will be saved with the naming schema '
+                         '{name}-simulation.json')
 parser.add_argument('--skip-save-simulation', dest="skipSaveSimulation", action="store_true",
-                    help='Do not save simulation file to disk')
+                    help='Flag that tells the CLI that you do not want to save the final simulation output to disk. '
+                         'This flag is usefull if you want to prevent the CLI from asking you interactively whether '
+                         'you want to save your simulation output to your disk.')
 
-parser.add_argument('--name', dest="name", type=str, help='Model name')
-parser.add_argument('--description', dest="description", type=str, help='Model description')
-parser.add_argument('--allocator', dest="allocator", type=str, help='Allocator')
-parser.add_argument('--payment-rule', dest="paymentRule", type=str, help='Payment Rule')
-parser.add_argument('--address', dest="addressQuery", type=str, help='Address Query')
-parser.add_argument('--neighbouring-tiles', dest="neighbouringTiles", type=int, choices=range(0, 3),
-                    help='Neighbouring Tiles for Map')
-parser.add_argument('--resolution', dest="resolution", type=int, choices=range(1, 20), help='Map resolution')
-parser.add_argument('--height', dest="height", type=int, choices=range(20, 1000), help='Map height')
-parser.add_argument('--min-height', dest="minHeight", type=int, choices=range(20, 999), help='Minimum Flight height')
-parser.add_argument('--timesteps', dest="timesteps", type=int, choices=range(300, 4000), help='Timesteps')
-parser.add_argument('--allocation-period', dest="allocationPeriod", type=int, choices=range(300, 4000),
-                    help='Allocation period')
+parser.add_argument('--name', dest="name", type=str,
+                    help='The name of your model. This name will also be included in the filename of your '
+                         'configuration and simulation output JSON files. Hence, please only specify valid filename '
+                         'characters.')
+parser.add_argument('--description', dest="description", type=str,
+                    help='Model description. This parameter can be used to describe your model in full details. '
+                         'However, there is no need to describe your simulation parameters, as they will all be '
+                         'included in the model configuration file as well.')
+parser.add_argument('--allocator', dest="allocator", type=str, metavar=f"[{', '.join(available_allocator_names())}]",
+                    help=f'The allocator is responsible for allocating paths to agents based on the specified '
+                         f'bidding mechanism and payment function. The following allocators are available: '
+                         f'{", ".join(available_allocator_names())}.')
+parser.add_argument('--payment-rule', dest="paymentRule", type=str, metavar=f"[{', '.join(all_payment_function_names())}]",
+                    help=f'The payment rule specifies how the agents compete for paths in a simulation. Not all '
+                         f'allocators can handle all payment rules, though. The following payment rules are '
+                         f'available for the supported allocators: {all_payment_functions_str()}')
+parser.add_argument('--address', dest="addressQuery", type=str,
+                    help='Airspace simulations happen on a real map. By specifying an address here, you can choose '
+                         'where your simulation will be centered. You can use any city as an input here, for example '
+                         '"Zurich", "New York" or "Barcelona".')
+parser.add_argument('--neighbouring-tiles', dest="neighbouringTiles", type=int, choices=range(0, 3), metavar="[0-3]",
+                    help='Per default, a ~800m by ~800m region around your address input is used for the '
+                         'simulation - for technical reasons. By increasing the amount of neighbouring tiles, '
+                         'you can increase the region to 2400m^2, 4000m^2 and 5600m^2.')
+parser.add_argument('--resolution', dest="resolution", type=int, choices=range(1, 20), metavar="[1, 20]",
+                    help='This parameter lets you specify the resolution of your simulation. Per default, agents '
+                         'can navigate through the map with a precision of 1m. By increasing this parameter, your '
+                         'agents can navigate less precisely around buildings, but the simulation duration decreases '
+                         'drastically.')
+parser.add_argument('--height', dest="height", type=int, choices=range(20, 1000), metavar="[20, 1000]",
+                    help='The maximum height your agents are allowed to fly')
+parser.add_argument('--min-height', dest="minHeight", type=int, choices=range(20, 999), metavar="[20, 999]",
+                    help='The minimum height your agents must fly up to before navigating the map. Your agents will '
+                         'appear at this height. Usually, this height is set to be slightly higher than the average '
+                         'building in your city, since we want to prevent agents to fly accross balconies.')
+parser.add_argument('--timesteps', dest="timesteps", type=int, choices=range(300, 4000), metavar="[300, 4000]",
+                    help='The number of timesteps you want to run your simulation for. Agents must start and land '
+                         'within this timeperiod. The fewer timesteps you simulate, the more agents will be in the '
+                         'air at the same time. However, keep in mind that large playfields with fine granularity '
+                         'require the agents to fly for longer. Agents that can not reach their destination within '
+                         'your specified timesteps will not be allocated.')
+parser.add_argument('--allocation-period', dest="allocationPeriod", type=int, choices=range(300, 4000), metavar="[300, 1000]",
+                    help='Agents should not be allowed to start their journey in the last timesteps, since they '
+                         'will not reach their destination on-time. Hence, you need to specify for how long new '
+                         'agents are allowed to enter the playing field. Usually, this parameter should be between '
+                         '10 and 33 percent of the total number of timesteps you specified.')
 
 parser.add_argument('--owner', dest="owners", action='append', nargs='+', default=[],
-                    help="Configuration of owner: Name, agents, BiddingStrategy, ValueFunction")
+                    metavar="[Name, nAgents, BiddingStrategy, ValueFunction]",
+                    help="Owners act according to a bidding strategy and to maximize their value functions. They spawn "
+                         "agents on the playing field and act on their best interrest. Owners will spaws agents at "
+                         "random locations. To have further control over where owners spawn agents and the paths they "
+                         "fly, use the Web-UI. To create a new owner, specify the following information in the right "
+                         "order: Name(str), nAgents(int), BiddingStrategy(str), ValueFunction(str). You can call this "
+                         "argument multiple times to create multiple owners. Note that not all BiddingStrategies are "
+                         "compatible with all Allocators and not all ValueFunctions are compatible with all "
+                         "BiddingStrategies. The supported pairs are listed here. "
+                         f"{all_bidding_strategies_and_value_functions_str()}")
 
 args = parser.parse_args()
 
@@ -302,7 +412,8 @@ if model_config is None:
                          bidding_strategy in compatible_bidding_strategies],
                 validate=EmptyInputValidator(),
             ).execute()
-            selected_bidding_strategy = bidding_strategy_by_name(selected_allocator, owner['biddingStrategy']['classname'])
+            selected_bidding_strategy = bidding_strategy_by_name(selected_allocator,
+                                                                 owner['biddingStrategy']['classname'])
             compatible_value_functions = selected_bidding_strategy.compatible_value_functions()
             owner['valueFunction'] = inquirer.select(
                 message=f"Owner {i} - Value Function:",
@@ -372,6 +483,5 @@ if not args.skipSimulation:
                         only_directories=True,
                     ).execute()
                 dest_path = args.saveSimulationPath if args.saveSimulationPath else input_path
-                with open(os.path.join(dest_path, f"{model_config.name}-config.json"), "w") as f:
+                with open(os.path.join(dest_path, f"{model_config.name}-simulation.json"), "w") as f:
                     json.dump(simulation_json, f)
-
