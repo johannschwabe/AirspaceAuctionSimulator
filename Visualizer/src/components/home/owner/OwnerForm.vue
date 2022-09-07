@@ -18,6 +18,7 @@
 import { computed, ref, watch } from "vue";
 import { useSimulationConfigStore } from "../../../stores/simulationConfig.js";
 import { getSupportedValueFunctions } from "../../../API/api";
+import { cloneDeep } from "lodash-es";
 
 const props = defineProps({
   ownerIndex: {
@@ -61,8 +62,8 @@ const biddingStrategySelected = () => {
 watch(
   () => biddingStrategy.value,
   () => {
-    owner.value.biddingStrategy = simulationConfig.availableBiddingStrategiesForAllocator.find(
-      (strat) => strat.classname === biddingStrategy.value
+    owner.value.biddingStrategy = cloneDeep(
+      simulationConfig.availableBiddingStrategiesForAllocator.find((strat) => strat.classname === biddingStrategy.value)
     );
     loadCompatibleValueFunctions();
   }

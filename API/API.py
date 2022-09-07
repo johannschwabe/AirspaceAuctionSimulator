@@ -9,15 +9,12 @@ import time
 from fastapi import HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from Simulator import Coordinate4D, Simulator
+from Simulator import Simulator
 from Simulator.IO.JSONS import get_simulation_dict
 from Simulator.IO.Statistics import get_statistics_dict
-from .Area import Area
-from .Generator.Generator import Generator
-from .Generator.MapTile import MapTile
-from .config import available_allocators
-from .Types import APISimulationConfig
 from .Runners import run_from_config
+from .Types import APISimulationConfig
+from .config import available_allocators
 
 app = FastAPI()
 
