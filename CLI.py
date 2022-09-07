@@ -31,7 +31,7 @@ def bidding_strategy_to_dict(bidding_strategy: Type[BiddingStrategy]):
         "maxLocations": bidding_strategy.max_locations,
         "allocationType": bidding_strategy.allocation_type,
         "classname": bidding_strategy.__name__,
-        "meta": bidding_strategy.meta
+        "meta": bidding_strategy.meta()
     }
 
 def bidding_strategy_from_name(allocator: Type[Allocator], bidding_strategy_name: str) -> Type[BiddingStrategy]:
@@ -105,7 +105,7 @@ parser.add_argument('--allocation-period', dest="allocationPeriod", type=int, ch
                     help='Allocation period')
 
 parser.add_argument('--owner', dest="owners", action='append', nargs='+', default=[],
-                    help="Configuration of owner: Name), agents, BiddingStrategy, ValueFunction")
+                    help="Configuration of owner: Name, agents, BiddingStrategy, ValueFunction")
 
 args = parser.parse_args()
 

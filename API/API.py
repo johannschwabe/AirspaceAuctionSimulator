@@ -69,7 +69,7 @@ def get_strategies_for_allocator(allocator):
              "strategyType": bidding_strategy.allocation_type,
              "minLocations": bidding_strategy.min_locations,
              "maxLocations": bidding_strategy.max_locations,
-             "meta": bidding_strategy.meta
+             "meta": bidding_strategy.meta()
              } for bidding_strategy in compatible_bidding_strategies]
 
 

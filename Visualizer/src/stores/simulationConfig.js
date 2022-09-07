@@ -127,60 +127,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     return availableAllocators.map((a) => ({ label: a, value: a }));
   });
 
-  const path_meta = [
-    {
-      key: "near_field",
-      label: "Near field size",
-      description: "Radius of reserved field ",
-      type: "int",
-      value: Math.ceil(Math.random() * 4),
-    },
-    {
-      key: "battery",
-      label: "Battery capacity",
-      description: "Maximum flight time",
-      type: "int",
-      value: Math.ceil(Math.random() * 1000),
-    },
-    {
-      key: "speed",
-      label: "Ticks per voxel",
-      description: "Number ticks needed to traverse a voxel: 1 is the fastest",
-      type: "int",
-      value: Math.ceil(Math.random() * 5),
-    },
-  ];
-  const space_meta = [
-    {
-      key: "size_x",
-      label: "Field Size X",
-      description: "Size of reserved field in X-Dimension",
-      type: "int",
-      value: Math.ceil(Math.random() * 100),
-    },
-    {
-      key: "size_y",
-      label: "Field Size Y",
-      description: "Size of reserved field in Y-Dimension",
-      type: "int",
-      value: Math.ceil(Math.random() * 100),
-    },
-    {
-      key: "size_z",
-      label: "Field Size Z",
-      description: "Size of reserved field in Z-Dimension",
-      type: "int",
-      value: Math.ceil(Math.random() * 100),
-    },
-    {
-      key: "size_t",
-      label: "Reservation Duration",
-      description: "Number of ticks field should be reserved",
-      type: "int",
-      value: Math.ceil(Math.random() * 100),
-    },
-  ];
-
   /**
    * List of all available Bidding Strategies given the selected allocator. Changes whenever the
    * allocator changes.
@@ -199,7 +145,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
         allocationType: biddingStrategy.strategyType,
         minLocations: biddingStrategy.minLocations,
         maxLocations: biddingStrategy.maxLocations,
-        meta: [...(biddingStrategy.strategyType === "space" ? space_meta : path_meta), ...biddingStrategy.meta],
+        meta: biddingStrategy.meta(),
       });
     });
     owners.splice(0);

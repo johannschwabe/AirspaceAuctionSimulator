@@ -2,6 +2,7 @@ import random
 from typing import TYPE_CHECKING
 
 from Simulator import AgentType, BiddingStrategy
+from Simulator.Bids.SpaceBiddingStrategy import SpaceBiddingStrategy
 from ..Bids.PrioritySpaceBid import PrioritySpaceBid
 from ..ValueFunction.PrioritySpaceValueFunction import PrioritySpaceValueFunction
 from ...FCFS.ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction
@@ -10,19 +11,25 @@ if TYPE_CHECKING:
     from Simulator import SpaceAgent, Environment
 
 
-class PrioritySpaceBiddingStrategy(BiddingStrategy):
+class PrioritySpaceBiddingStrategy(BiddingStrategy, SpaceBiddingStrategy):
     label = "Priority Space Bidding Strategy"
     description = "An Bidding Strategy for Priority Space Agents"
     min_locations = 1
     max_locations = 4
-    meta = [{
-        "key": "priority",
-        "label": "Priority",
-        "description": "Priority of the agents",
-        "type": "float",
-        "value": round(random.random(), 2),
-    }]
     allocation_type = AgentType.SPACE.value
+
+    @staticmethod
+    def meta():
+        return [
+            SpaceBiddingStrategy.meta(),
+            {
+                "key": "priority",
+                "label": "Priority",
+                "description": "Priority of the agents",
+                "type": "float",
+                "value": round(random.random(), 2),
+            }
+        ]
 
     def generate_bid(self, agent: "SpaceAgent", _environment: "Environment", _time_step: int) -> "PrioritySpaceBid":
         return PrioritySpaceBid(agent, agent.blocks, agent.config["priority"])

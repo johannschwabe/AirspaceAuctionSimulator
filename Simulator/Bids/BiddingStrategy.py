@@ -13,8 +13,12 @@ class BiddingStrategy(ABC):
     description = "An Bidding Strategy: Override this class variable"
     min_locations: int
     max_locations: int
-    meta: []
     allocation_type: str
+
+    @staticmethod
+    @abstractmethod
+    def meta():
+        pass
 
     @abstractmethod
     def generate_bid(self, agent: "Agent", environment: "Environment", time_step: int) -> "Bid":
