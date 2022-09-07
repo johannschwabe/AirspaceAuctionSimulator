@@ -1,12 +1,12 @@
 export default class Statistics {
   /**
-   * @param {JSONStatistics} jsonStatistics
+   * @param {SimulationStatistics} statistics
    */
-  constructor(jsonStatistics) {
-    this.totalNumberOfOwners = jsonStatistics.total_number_of_owners;
-    this.totalNumberOfAgents = jsonStatistics.total_number_of_agents;
-    this.totalValue = jsonStatistics.total_value;
-    this.totalNumberOfCollisions = jsonStatistics.total_number_of_collisions;
-    this.totalNumberOfReallocations = jsonStatistics.total_number_of_reallocations;
+  constructor(statistics) {
+    this.totalNumberOfOwners = statistics.total_number_of_owners;
+    this.totalNumberOfAgents = statistics.total_number_of_agents;
+    this.totalValue = statistics.total_value;
+    this.totalNumberOfCollisions = statistics.total_number_of_collisions;
+    this.totalNumberOfReallocations = statistics.total_number_of_reallocations;
   }
 }

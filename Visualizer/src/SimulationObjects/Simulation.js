@@ -17,7 +17,7 @@ export default class Simulation {
   /**
    * @param {JSONSimulation} jsonSimulation
    * @param {JSONConfig} jsonConfig
-   * @param {JSONStatistics} jsonStatistics
+   * @param {SimulationStatistics} jsonStatistics
    */
   constructor(jsonSimulation, jsonConfig, jsonStatistics) {
     this._simulationStore = useSimulationStore();
@@ -114,13 +114,13 @@ export default class Simulation {
     /**
      * @type {MapTile[]}
      */
-    this.mapTiles = jsonSimulation.config.map.tiles.map(
+    this.mapTiles = jsonConfig.map.tiles.map(
       (tile) =>
         new MapTile(
           tile,
-          jsonSimulation.config.map.resolution,
-          jsonSimulation.config.map.subselection?.bottomLeft || jsonSimulation.config.map.bottomLeftCoordinate,
-          jsonSimulation.config.map.subselection?.topRight || jsonSimulation.config.map.topRightCoordinate
+          jsonConfig.map.resolution,
+          jsonConfig.map.subselection?.bottomLeft || jsonConfig.map.bottomLeftCoordinate,
+          jsonConfig.map.subselection?.topRight || jsonConfig.map.topRightCoordinate
         )
     );
 

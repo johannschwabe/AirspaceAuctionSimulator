@@ -140,7 +140,7 @@ async function openDB() {
     request.onsuccess = (event) => {
       const db = event.target.result;
       db.onerror = (error_event) => {
-        console.error(`Database error: ${error_event.target.errorCode}`);
+        console.error("DB ERROR:", error_event.target);
       };
       db.onclose = (close_event) => {
         console.log("DB CLOSED:", close_event.target);
@@ -160,21 +160,36 @@ async function openDB() {
 }
 
 async function addToObjectStore(db, name, data) {
-  console.log("ADD");
+  console.log("OPEN");
+  const oldData = await getFromObjectStore(db, name);
+  if (oldData !== null) {
+    await deleteFromObjectStore(db, name);
+  }
   return new Promise((resolve) => {
-    db.transaction([name], "readwrite").objectStore(name).add(data, name).onsuccess = (event) => {
-      console.log("ADD:", event);
+    db.transaction([name], "readwrite").objectStore(name).add(data, name).onsuccess = () => {
       resolve();
     };
   });
 }
 
-async function fetchFromObjectStore(db, name) {
-  console.log("FETCH");
+async function deleteFromObjectStore(db, name) {
+  console.log("DELETE");
   return new Promise((resolve) => {
-    db.transaction([name]).objectStore(name).openCursor().onsuccess = (event) => {
-      console.log("FETCH:", event);
-      resolve(event.target.result?.value ?? null);
+    db.transaction([name], "readwrite").objectStore(name).delete(name).onsuccess = () => {
+      resolve();
+    };
+  });
+}
+
+async function getFromObjectStore(db, name) {
+  console.log("GET");
+  return new Promise((resolve) => {
+    const request = db.transaction([name]).objectStore(name).get(name);
+    request.onsuccess = (event) => {
+      resolve(event.target.result.value);
+    };
+    request.onerror = () => {
+      resolve(null);
     };
   });
 }
@@ -188,10 +203,10 @@ export async function persistSimulation(data) {
     const statistics = data.statistics;
     const config = data.config;
     const db = await openDB();
-    console.log("DB:", db);
     await addToObjectStore(db, SIMULATION_STORAGE_KEY, simulation);
     await addToObjectStore(db, STATISTICS_STORAGE_KEY, statistics);
     await addToObjectStore(db, CONFIG_STORAGE_KEY, config);
+    db.close();
   } catch (e) {
     throw new Error(e);
   }
@@ -199,32 +214,39 @@ export async function persistSimulation(data) {
 
 export async function canLoadSimulation() {
   const db = await openDB();
-  const data = await fetchFromObjectStore(db, SIMULATION_STORAGE_KEY);
-  return !!data;
+  const data = await getFromObjectStore(db, SIMULATION_STORAGE_KEY);
+  db.close();
+  return data !== null;
 }
 
 /**
  * @returns {null|JSONSimulation}
  */
 export async function loadSimulationData() {
-  const db = await openDB(STORAGE_KEY);
-  return fetchFromObjectStore(db, SIMULATION_STORAGE_KEY);
+  const db = await openDB();
+  const simulation = getFromObjectStore(db, SIMULATION_STORAGE_KEY);
+  db.close();
+  return simulation;
 }
 
 /**
  * @returns {null|JSONConfig}
  */
 export async function loadConfigData() {
-  const db = await openDB(STORAGE_KEY);
-  return fetchFromObjectStore(db, CONFIG_STORAGE_KEY);
+  const db = await openDB();
+  const config = getFromObjectStore(db, CONFIG_STORAGE_KEY);
+  db.close();
+  return config;
 }
 
 /**
  * @returns {null|JSONConfig}
  */
 export async function loadStatisticsData() {
-  const db = await openDB(STORAGE_KEY);
-  return fetchFromObjectStore(db, STATISTICS_STORAGE_KEY);
+  const db = await openDB();
+  const statistics = getFromObjectStore(db, STATISTICS_STORAGE_KEY);
+  db.close();
+  return statistics;
 }
 
 export function downloadSimulation() {

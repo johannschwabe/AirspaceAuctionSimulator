@@ -1,4 +1,15 @@
 /**
+ * @typedef {Object} JSONResponse
+ * @property {JSONConfig} config
+ * @property {SimulationStatistics} statistics
+ * @property {JSONSimulation} simulation
+ */
+
+/*
+ * Simulation
+ */
+
+/**
  * @typedef {{x: int, y: int, z: int}} JSONCoordinate
  */
 
@@ -12,7 +23,7 @@
 
 /**
  * @typedef {Object} JSONPath
- * @property {int: JSONArrayCoordinate} positions
+ * @property {{int: JSONArrayCoordinate}} positions
  */
 
 /**
@@ -25,47 +36,20 @@
  * @typedef {Object} JSONBranch
  * @property {int} tick
  * @property {JSONPath[]} paths
- * @property {float} value
- * @property {string} reason
- * @property {string[]} colliding_agent_ids
- * @property {int} compute_time
- */
-
-/**
- * @typedef {Object} JSONViolations
- * @property {{string: JSONTimeCoordinate}} violations
- * @property {int} total_violations
  */
 
 /**
  * @typedef {Object} JSONAgent
  * @property {string} agent_type
  * @property {string} id
- * @property {float} value
- * @property {float} non_colliding_value
- * @property {JSONViolations} violations
- * @property {int} total_reallocations
  * Space-Agent:
  * @property {JSONSpace[]} [spaces]
  * Path-Agent:
  * @property {int} [speed]
  * @property {int} [near_radius]
  * @property {int} [battery]
- * @property {int} [time_in_air]
  * @property {JSONPath[]} [paths]
  * @property {JSONBranch[]} [branches]
- */
-
-/**
- * @typedef {Object} JSONValues
- * @property {float[]} values
- * @property {float} total
- * @property {float} mean
- * @property {float} median
- * @property {float} max
- * @property {float} min
- * @property {float[]} quartiles
- * @property {float[]} outliers
  */
 
 /**
@@ -74,11 +58,6 @@
  * @property {string} id
  * @property {string} color
  * @property {JSONAgent[]} agents
- * @property {int} total_time_in_air
- * @property {JSONValues} values
- * @property {JSONValues} non_colliding_values
- * @property {int} number_of_agents
- * @property {{string: int}} number_per_type
  */
 
 /**
@@ -96,14 +75,105 @@
  * @property {JSONBlocker[]} blockers
  */
 
+/*
+ * Statistics
+ */
+
 /**
- * @typedef {Object} JSONStatistics
+ * @typedef {Object} SimulationStatistics
+ * @property {OwnerStatistics[]} owners
  * @property {int} total_number_of_owners
  * @property {int} total_number_of_agents
  * @property {float} total_value
  * @property {float} total_non_colliding_value
  * @property {int} total_number_of_collisions
  * @property {int} total_number_of_reallocations
+ * @property {{int: int}} step_compute_time
+ */
+
+/**
+ * @typedef {Object} OwnerStatistics
+ * @property {string} id
+ * @property {AgentStatistics[]} agents
+ * @property {int} total_time_in_air
+ * @property {ValueStatistics} values
+ * @property {ValueStatistics} non_colliding_values
+ * @property {int} number_of_agents
+ */
+
+/**
+ * @typedef {Object} ValueStatistics
+ * @property {float[]} values
+ * @property {float} total
+ * @property {float} mean
+ * @property {float} median
+ * @property {float} max
+ * @property {float} min
+ * @property {float[]} quartiles
+ * @property {float[]} outliers
+ */
+
+/**
+ * @typedef {Object} AgentStatistics
+ * @property {string} id
+ * @property {float} value
+ * @property {float} non_colliding_value
+ * @property {ViolationStatistics} violations
+ * @property {int} total_reallocations
+ * Space-Agent:
+ * @property {SpaceStatistics} [space]
+ * Path-Agent:
+ * @property {int} [time_in_air]
+ * @property {PathStatistics} [path]
+ * @property {AllocationStatistics[]} [allocations]
+ */
+
+/**
+ * @typedef {Object} AllocationStatistics
+ * @property {int} tick
+ * @property {float} value
+ * @property {string} reason
+ * @property {string[]} colliding_agent_ids
+ * @property {int} compute_time
+ */
+
+/**
+ * @typedef {Object} ViolationStatistics
+ * @property {{string: JSONTimeCoordinate}} violations
+ * @property {int} total_violations
+ */
+
+/**
+ * @typedef {Object} SpaceStatistics
+ * @property {int} volume
+ * @property {float} mean_volume
+ * @property {int} median_volume
+ * @property {float} mean_height
+ * @property {int} median_height
+ * @property {int} area
+ * @property {float} mean_area
+ * @property {int} median_area
+ * @property {float} mean_time
+ * @property {int} median_time
+ * @property {float} mean_height_above_ground
+ * @property {int} median_height_above_ground
+ */
+
+/**
+ * @typedef {Object} PathStatistics
+ * @property {int} l1_distance
+ * @property {float} l2_distance
+ * @property {int} l1_ground_distance
+ * @property {float} l2_ground_distance
+ * @property {int} height_difference
+ * @property {int} time_difference
+ * @property {int} ascent
+ * @property {int} descent
+ * @property {int} distance_traveled
+ * @property {int} ground_distance_traveled
+ * @property {float} mean_height
+ * @property {int} median_height
+ * @property {int[]} heights
  */
 
 /*
@@ -163,11 +233,4 @@
  * @typedef {Object} JSONSimulation
  * @property {JSONEnvironment} environment
  * @property {JSONOwner[]} owners
- */
-
-/**
- * @typedef {Object} JSONResponse
- * @property {JSONConfig} config
- * @property {JSONStatistics} statistics
- * @property {JSONSimulation} simulation
  */

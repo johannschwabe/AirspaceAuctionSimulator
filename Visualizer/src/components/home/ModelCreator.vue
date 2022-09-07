@@ -260,8 +260,8 @@ const simulate = () => {
       startLoading();
       postSimulation(simulationConfig.generateConfigJson())
         .then((data) => {
-          const simulation = new Simulation(data.simulation);
-          setSimulationConfig(simulation.config);
+          const simulation = new Simulation(data.simulation, data.config, data.statistics);
+          setSimulationConfig(data.config);
           return simulation.load();
         })
         .then((simulation) => {
