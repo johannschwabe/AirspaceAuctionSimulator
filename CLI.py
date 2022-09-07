@@ -285,7 +285,6 @@ if model_config is None and not args.create:
     use_prefab = inquirer.confirm(message="Use prefab configuration?", default=True).execute()
     if use_prefab:
         files = glob.glob(f"{PREFAB_PATH}/*.json")
-        print(files)
         prefab = inquirer.select(
             message="Select a prefab:",
             choices=[Choice(file, name=os.path.basename(file)) for file in files],
@@ -408,7 +407,6 @@ if model_config is None:
             max_allowed=1000,
             validate=EmptyInputValidator(),
         ).execute())
-        print(model_data["map"]["height"], type(model_data["map"]["height"]))
 
     if model_data["map"]["minHeight"] is None:
         model_data["map"]["minHeight"] = int(inquirer.number(
@@ -563,4 +561,4 @@ if not args.skipSimulation:
                 # Save simulation to disk
                 dest_path = args.saveSimulationPath if args.saveSimulationPath else input_path
                 with open(os.path.join(dest_path, f"{model_config.name}-simulation.json"), "w") as f:
-                    json.dump(simulation_json, f)
+                    json.dump(simulation_json.dict(), f)

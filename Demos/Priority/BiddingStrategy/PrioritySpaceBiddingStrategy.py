@@ -21,7 +21,7 @@ class PrioritySpaceBiddingStrategy(BiddingStrategy, SpaceBiddingStrategy):
     @staticmethod
     def meta():
         return [
-            SpaceBiddingStrategy.meta(),
+            *SpaceBiddingStrategy.meta(),
             {
                 "key": "priority",
                 "label": "Priority",
