@@ -376,7 +376,6 @@ class Environment:
         """
         Returns a clone of the environment with clones of all agents.
         """
-        self.tree.contains()
         if len(self.tree) > 0:
             all_items = self.tree.intersection(self.tree.bounds, objects=True)
             cloned_tree: "Index" = self._setup_rtree(all_items)
