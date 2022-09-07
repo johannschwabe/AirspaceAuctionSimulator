@@ -28,6 +28,7 @@ class PrioritySpaceBiddingStrategy(BiddingStrategy, SpaceBiddingStrategy):
                 "description": "Priority of the agents",
                 "type": "float",
                 "value": round(random.random(), 2),
+                "range": "0-1"
             }
         ]
 

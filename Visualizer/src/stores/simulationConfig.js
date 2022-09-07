@@ -153,6 +153,22 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
   };
   void updateSupportedBiddingStrategies();
 
+  const getBiddingStrategy = (stratName) => {
+    const biddingStrategy = cloneDeep(
+      availableBiddingStrategiesForAllocator.find((strat) => strat.classname === stratName)
+    );
+    biddingStrategy.meta.forEach((_meta) => {
+      if (_meta.range) {
+        const limits = _meta.range.split("-").map((limit) => parseInt(limit));
+        _meta.value = Math.random() * (limits[1] - limits[0]) + limits[0];
+        if (_meta.type === "int") {
+          _meta.value = Math.floor(_meta.value);
+        }
+      }
+    });
+    return biddingStrategy;
+  };
+
   /**
    * List of available biddingStrategies, but computed in a format that is supported by the naive-ui selector
    * @type {ComputedRef<{label: string, value: string}>}
@@ -211,7 +227,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
    * @returns {OwnerConfig}
    */
   const generateOwner = () => {
-    const biddingStrategyTemplate = cloneDeep(availableBiddingStrategiesForAllocator[0]);
+    const biddingStrategyTemplate = getBiddingStrategy(availableBiddingStrategiesForAllocator[0].classname);
     const locations = generateLocationsForOwner(biddingStrategyTemplate);
     return {
       color: randomColor(),
@@ -290,5 +306,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     setMapSubTile,
     paymentRule,
     availableBiddingStrategiesOptions,
+    getBiddingStrategy,
   };
 });
