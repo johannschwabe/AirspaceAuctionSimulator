@@ -95,40 +95,90 @@ class MapTile:
         self.blockers = res
         return res
 
-    def __str__(self):
+    def __repr__(self):
         return f"x:{self.x}, y:{self.y}, z:{self.z}"
 
     @property
+    def zxy(self):
+        return [self.z, self.x, self.y]
+
+    @property
     def long(self) -> float:
+        """
+        Returns the longitude of the top-left anchor point of the maptile
+        :return: longitude
+        """
         return MapTile.zxy2lon(self.z, self.x, self.y)
 
     @property
     def lat(self) -> float:
+        """
+        Returns the latitude of the top-left anchor point of the maptile
+        :return: latitude
+        """
         return MapTile.zxy2lon(self.z, self.x, self.y)
 
     @property
     def coordinates(self) -> LongLatCoordinate:
+        """
+        Returns the longitude latitude of the top-left anchor point of the maptile
+        :return: LongLatCoordinate
+        """
         return LongLatCoordinate(long=self.long, lat=self.lat)
 
     @property
     def bottom_left_coordinate(self) -> LongLatCoordinate:
+        """
+        Returns the longitude latitude of the bottom-left point of the maptile
+        This is usually the origin of our simulation world
+        :return:
+        """
         return self.area.bottom_left
 
     @property
     def top_right_coordinate(self) -> LongLatCoordinate:
+        """
+        Returns the longitude latitude of the top-right point of the maptile
+        This point usually spans the playing field from the origin in our simulations
+        :return:
+        """
         return self.area.top_right
 
     @staticmethod
     def zxy2lon(z: int, x: int, y: int) -> float:
+        """
+        Converts a raw maptile definition using z,x,y to the longitude of its anchor point at the top-left
+        :param z: Zoom
+        :param x: horizontal index
+        :param y: vertical index
+        :return: longitude
+        """
         return x / 2 ** z * 360 - 180
 
     @staticmethod
     def zxy2lat(z: int, x: int, y: int) -> float:
+        """
+        Converts a raw maptile definition using z,x,y to the latitude of its anchor point at the top-left
+        :param z: Zoom
+        :param x: horizontal index
+        :param y: vertical index
+        :return: latitude
+        """
         n = mp.pi - 2 * mp.pi * y / 2 ** z
         return float((180 / mp.pi) * (mp.atan(0.5 * (mp.exp(n) - mp.exp(-n)))))
 
     @staticmethod
-    def from_coordinates(coordinates: APIWorldCoordinates, neighbouring_tiles: int, resolution: int) -> List["MapTile"]:
+    def tiles_from_coordinates(coordinates: APIWorldCoordinates, neighbouring_tiles: int, resolution: int) -> List["MapTile"]:
+        """
+        Given an input coordinate, returns a list of MapTiles centering that coordinate, including neighbouring
+        maptiles according to the input parameters
+        :param coordinates: Coordinate that will be covered by the maptile at the center of the array
+        :param neighbouring_tiles:
+        :param resolution:
+        :return: Array of maptiles, starting from the top-left tile, left-to-right, top-to-bottom flow: [[1,2,3], [4, 5, 6], [7, 8, 9]]
+                 The number of tiles returned is always (1 + (neighbouring_tiles * 2)^2
+                 Hence: 0->1, 1->9, 2->25 etc.
+        """
         lat_rad = mp.radians(coordinates.lat)
         n = 2 ** 15
 
@@ -147,6 +197,14 @@ class MapTile:
 
     @staticmethod
     def bounding_box_from_zxy(z: int, x: int, y: int) -> Tuple[LongLatCoordinate, LongLatCoordinate]:
+        """
+        Returns the bounding box of a MapTile given in raw z,x,y format. The bounding box spans a field
+        from the bottom-left coordinate to the top-right coordiante
+        :param z: Zoom
+        :param x: horizontal index
+        :param y: vertical index
+        :return: Bottom-Left LongLatCoordinate, Top-Right LongLatCoordinate
+        """
         bottom_left_lat = MapTile.zxy2lat(z, x + 1, y)
         bottom_left_lon = MapTile.zxy2lon(z, x + 1, y)
 
@@ -157,3 +215,22 @@ class MapTile:
         top_right = LongLatCoordinate(lat=top_right_lat, long=top_right_lon)
 
         return bottom_left, top_right
+
+    @staticmethod
+    def bounding_box_from_maptiles_group(maptiles: List["MapTile"]) -> Tuple[LongLatCoordinate, LongLatCoordinate]:
+        """
+        Returns the bounding box of a group of MapTiles that form a squared grid. Hence, the number of input maptiles
+        must be the square root of an uneven number (1, 9, 25...), starting with the maptile at the top left,
+        flowing left-to-right and top-to-bottom. The bounding box is defined by the overall bottom-left and top-right
+        coordinates of the maptile group
+        :param maptiles: List of maptiles
+        :return: Bottom-Left LongLatCoordinate, Top-Right LongLatCoordinate
+        """
+        n = len(maptiles)
+        top_right_tile_index = int(n - mp.sqrt(n))
+        top_right_tile = maptiles[top_right_tile_index]
+
+        bottom_left_tile_index = int(mp.sqrt(n) - 1)
+        bottom_left_tile = maptiles[bottom_left_tile_index]
+
+        return bottom_left_tile.bottom_left_coordinate, top_right_tile.top_right_coordinate

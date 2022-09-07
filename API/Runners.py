@@ -1,80 +1,30 @@
 import time
 import math
 import random
-from typing import Tuple, List
-
-import mpmath as mp
+from typing import List, Tuple
 
 from Simulator import Coordinate4D
 
 from .API import APISimulationConfig
-from .LongLatCoordinate import LongLatCoordinate
 from .Area import Area
-from .Types import APIWorldCoordinates
 from .Generator.Generator import Generator
 from .Generator.MapTile import MapTile
 
 from .config import available_allocators
 
-
-def tile2lon(z, x, y):
-    return x / 2 ** z * 360 - 180
-
-
-def tile2lat(z, x, y):
-    n = mp.pi - 2 * mp.pi * y / 2 ** z
-    return float((180 / mp.pi) * (mp.atan(0.5 * (mp.exp(n) - mp.exp(-n)))))
-
-
-def tile_bbox(z, x, y) -> Tuple[LongLatCoordinate, LongLatCoordinate]:
-    bottom_left_lat = tile2lat(z, x + 1, y)
-    bottom_left_lon = tile2lon(z, x + 1, y)
-
-    top_right_lat = tile2lat(z, x, y + 1)
-    top_right_lon = tile2lon(z, x, y + 1)
-
-    bottom_left = LongLatCoordinate(lat=bottom_left_lat, long=bottom_left_lon)
-    top_right = LongLatCoordinate(lat=top_right_lat, long=top_right_lon)
-
-    return bottom_left, top_right
-
-
-def resolve_border_coordinates(tiles: List[List[int]]) -> Tuple[LongLatCoordinate, LongLatCoordinate]:
-    n = len(tiles)
-    top_right_tile_index = int(n - math.sqrt(n))
-    top_right_tile = tiles[top_right_tile_index]
-
-    bottom_left_tile_index = int(math.sqrt(n) - 1)
-    bottom_left_tile = tiles[bottom_left_tile_index]
-
-    top_righ_bb = tile_bbox(*top_right_tile)
-    bottom_left_bb = tile_bbox(*bottom_left_tile)
-
-    return bottom_left_bb[1], top_righ_bb[0]
-
-
-def resolve_tiles(coordinates: APIWorldCoordinates, neighbouring_tiles: int) -> List[List[int]]:
-    lat_rad = mp.radians(coordinates.lat)
-    n = 2 ** 15
-
-    xtile = int(n * ((coordinates.long + 180) / 360))
-    ytile = int(n * (1 - (mp.log(mp.tan(lat_rad) + mp.sec(lat_rad)) / mp.pi)) / 2)
-
-    tiles = []
-    for i in range(-neighbouring_tiles, neighbouring_tiles + 1):
-        for j in range(-neighbouring_tiles, neighbouring_tiles + 1):
-            tiles.append([15, xtile + i, ytile + j])
-    return tiles
-
-
-def run_from_config(config: APISimulationConfig):
-    tiles = resolve_tiles(config.map.coordinates, config.map.neighbouringTiles)
-    config.map.tiles = tiles
+def run_from_config(config: APISimulationConfig) -> Tuple[Generator, int]:
+    """
+    Runs an AirspaceAuctionSimulation using a config that is usually provided by the API or generated using the CLI.
+    :param config: Configuration object, defining all parameters of the Simulation
+    :return: Simulated generator, simulation duration in seconds
+    """
+    maptiles: List[MapTile] = MapTile.tiles_from_coordinates(config.map.coordinates, config.map.neighbouringTiles, config.map.resolution)
+    config.map.tiles = [tile.zxy for tile in maptiles]
 
     if config.map.subselection is not None and config.map.subselection.bottomLeft and config.map.subselection.topRight:
         area = Area(config.map.subselection.bottomLeft, config.map.subselection.topRight, config.map.resolution)
     else:
-        bottom_left_coordinate, top_right_coordinate = resolve_border_coordinates(tiles)
+        bottom_left_coordinate, top_right_coordinate = MapTile.bounding_box_from_maptiles_group(maptiles)
         config.map.bottomLeftCoordinate = bottom_left_coordinate
         config.map.topRightCoordinate = top_right_coordinate
         area = Area(bottom_left_coordinate, top_right_coordinate, config.map.resolution)
@@ -86,8 +36,6 @@ def run_from_config(config: APISimulationConfig):
                               math.floor(config.map.height / area.resolution),
                               math.floor(size[1]),
                               config.map.timesteps)
-
-    maptiles = [MapTile(tile, area) for tile in tiles]
 
     allocators = list(filter(lambda x: (x.__name__ == config.allocator), available_allocators))
     if len(allocators) != 1:
