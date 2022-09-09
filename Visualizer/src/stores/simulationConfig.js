@@ -70,10 +70,10 @@ import { randomName } from "../scripts/names";
  * Simulation Config Store
  */
 export const useSimulationConfigStore = defineStore("simulationConfig", () => {
-  const name = ref("");
+  const name = ref(randomName());
   const description = ref("");
-  const allocator = ref("FCFSAllocator");
-  const paymentRule = ref("FCFSPaymentRule");
+  const allocator = ref(null);
+  const paymentRule = ref(null);
 
   /**
    * @type {UnwrapNestedRefs<MapConfig>}
@@ -116,6 +116,8 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     getSupportedAllocators().then((allocatorNames) => {
       availableAllocators.splice(0);
       allocatorNames.forEach((allocatorName) => availableAllocators.push(allocatorName));
+      allocator.value = allocatorNames[0];
+      void updateSupportedBiddingStrategies();
     });
   };
 
@@ -151,7 +153,6 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     owners.splice(0);
     owners.push(generateOwner());
   };
-  void updateSupportedBiddingStrategies();
 
   const getBiddingStrategy = (stratName) => {
     const biddingStrategy = cloneDeep(
@@ -160,7 +161,7 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     biddingStrategy.meta.forEach((_meta) => {
       if (_meta.range) {
         const limits = _meta.range.split("-").map((limit) => parseInt(limit));
-        _meta.value = Math.random() * (limits[1] - limits[0]) + limits[0];
+        _meta.value = Math.round((Math.random() * (limits[1] - limits[0]) + limits[0]) * 100) / 100;
         if (_meta.type === "int") {
           _meta.value = Math.floor(_meta.value);
         }
