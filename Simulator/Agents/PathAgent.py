@@ -40,12 +40,20 @@ class PathAgent(Agent):
 
         self.allocated_segments: List["PathSegment"] = []
 
-    def get_position_at_tick(self, tick: int):
+    def get_position_at_tick(self, tick: int) -> Optional["Coordinate4D"]:
         for segment in self.allocated_segments:
             if segment.max.t >= tick >= segment.min.t:
                 index = tick - segment.min.t
                 return segment.coordinates[index]
         return None
+
+    def get_positions_at_ticks(self, tick: int, speed: int = 0) -> List["Coordinate4D"]:
+        positions = []
+        for tick in range(tick, tick + speed + 1):  # Include upper bound
+            position = self.get_position_at_tick(tick)
+            if position is not None:
+                positions.append(position)
+        return positions
 
     def initialize_clone(self):
         clone = PathAgent(self.id,
