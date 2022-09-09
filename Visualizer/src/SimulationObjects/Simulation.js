@@ -270,14 +270,15 @@ export default class Simulation {
    * @param {PathAgent} agent
    */
   focusOnAgent(agent) {
-    if (this.agentInFocus === agent || !agent.isActiveAtTick(this.tick)) {
+    if (this.agentInFocus === agent) {
       return;
     }
+    const previousAgentInFocus = this.agentInFocus;
     this._simulationStore.agentInFocus = true;
     this._simulationStore.agentInFocusId = agent.id;
     this._simulationStore.ownerInFocusId = agent.owner.id;
     this.agentInFocus = agent;
-    emitFocusOnAgent(agent);
+    emitFocusOnAgent(agent, previousAgentInFocus);
   }
 
   focusOff() {

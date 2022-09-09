@@ -38,7 +38,7 @@ const canvas = ref(null);
 let engine, scene, camera;
 let mainLight, hemisphereLight, selectionLight;
 let shadows;
-let focusOnSpaceAgent, focusOnPathAgent, focusOffSpaceAgent, focusOffPathAgent;
+let focusOnSpaceAgent, focusOnPathAgent, focusOffSpaceAgent, focusOffPathAgent, focusAgentInvisible;
 let droneCache, blockerCache, focusCache;
 let blockerMaterial;
 
@@ -55,14 +55,59 @@ const doDroneUpdate = () => {
 };
 
 const doFocusUpdate = () => {
-  updateFocus({
-    focusCache,
-    focusOnSpaceAgent,
-    focusOnPathAgent,
-    focusOffSpaceAgent,
-    focusOffPathAgent,
-  });
+  const focusAgentInvisibleBefore = focusAgentInvisible;
+  const focusAgentInvisibleNow = !(simulation.agentInFocus.isActiveAtTick(simulation.tick));
+
+  if (simulation.agentInFocus && !focusAgentInvisibleNow && focusAgentInvisibleBefore) {
+    focusOnAgent({ agentInFocus: simulation.agentInFocus });
+  }
+  else if (simulation.agentInFocus && focusAgentInvisibleNow && !focusAgentInvisibleBefore) {
+    focusOffAgent(simulation.agentInFocus);
+  } else {
+    updateFocus({
+      focusCache,
+      focusOnSpaceAgent,
+      focusOnPathAgent,
+      focusOffSpaceAgent,
+      focusOffPathAgent,
+    });
+  }
+  focusAgentInvisible = focusAgentInvisibleNow;
 };
+
+function focusOnAgent({ agentInFocus: agent, previousAgentInFocus }) {
+  focusAgentInvisible = !(agent.isActiveAtTick(simulation.tick));
+  if (focusAgentInvisible) {
+    if (previousAgentInFocus) {
+      if (previousAgentInFocus instanceof SpaceAgent) {
+        focusOffSpaceAgent();
+      }
+      if (previousAgentInFocus instanceof PathAgent) {
+        focusOffPathAgent();
+      }
+    }
+    return;
+  }
+  if (agent instanceof SpaceAgent) {
+    const space = agent.spaces.find((s) => s.isActiveAtTick(simulation.tick));
+    focusOnSpaceAgent({ agent, space });
+  }
+  if (agent instanceof PathAgent) {
+    const { x: agent_x, y: agent_y, z: agent_z } = agent.combinedPath.at(simulation.tick);
+    focusOnPathAgent({ agent, agent_x, agent_y, agent_z, update: true });
+  }
+}
+onFocusOnAgent(focusOnAgent);
+
+function focusOffAgent(agent) {
+  if (agent instanceof SpaceAgent) {
+    focusOffSpaceAgent();
+  }
+  if (agent instanceof PathAgent) {
+    focusOffPathAgent();
+  }
+}
+onFocusOffAgent(focusOffAgent);
 
 onTick(() => {
   doBlockerUpdate();
@@ -72,27 +117,6 @@ onTick(() => {
 
 onAgentsSelected(() => {
   doDroneUpdate();
-});
-
-onFocusOnAgent(() => {
-  const agent = simulation.agentInFocus;
-  if (agent instanceof SpaceAgent) {
-    const space = agent.spaces.find((s) => s.isActiveAtTick(simulation.tick));
-    focusOnSpaceAgent({ agent, space });
-  }
-  if (agent instanceof PathAgent) {
-    const { x: agent_x, y: agent_y, z: agent_z } = agent.combinedPath.at(simulation.tick);
-    focusOnPathAgent({ agent, agent_x, agent_y, agent_z, update: true });
-  }
-});
-
-onFocusOffAgent((agent) => {
-  if (agent instanceof SpaceAgent) {
-    focusOffSpaceAgent();
-  }
-  if (agent instanceof PathAgent) {
-    focusOffPathAgent();
-  }
 });
 
 onMounted(() => {
