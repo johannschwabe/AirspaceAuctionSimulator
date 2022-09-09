@@ -247,7 +247,7 @@ parser.add_argument('--timesteps', dest="timesteps", type=int, choices=range(300
                          'require the agents to fly for longer. Agents that can not reach their destination within '
                          'your specified timesteps will not be allocated.')
 parser.add_argument('--allocation-period', dest="allocationPeriod", type=int, choices=range(300, 4000),
-                    metavar="[300, 1000]",
+                    metavar="[300, 4000]",
                     help='Agents should not be allowed to start their journey in the last timesteps, since they '
                          'will not reach their destination on-time. Hence, you need to specify for how long new '
                          'agents are allowed to enter the playing field. Usually, this parameter should be between '
