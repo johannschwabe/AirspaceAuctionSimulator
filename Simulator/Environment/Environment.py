@@ -291,7 +291,7 @@ class Environment:
         """
         speed: int = path_agent.speed if include_speed else 0
         radius: int = self.max_near_radius if use_max_radius else path_agent.near_radius
-        agent_hashes = set(self.tree.intersection(coords.tree_query_cube_rep(path_agent.near_radius, speed)))
+        agent_hashes = set(self.tree.intersection(coords.tree_query_cube_rep(radius, speed)))
         return set([self.agents[agent_hash] for agent_hash in agent_hashes if agent_hash != hash(path_agent)])
 
     def new_clear(self):
