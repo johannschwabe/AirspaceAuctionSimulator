@@ -92,26 +92,53 @@ export const hOwnerColor = {
 }
 export const hOwnerName = {
   title: "Owner Name",
-  abstract: "",
-  content: ``,
+  abstract: "Name of owner can be freely choosen",
+  content: `The name of the owner can be arbitrarily choosen. It will also appear in the name of the agents.`,
 };
 export const hOwnerAgents = {
   title: "Owner number of Agents",
-  abstract: "",
-  content: ``,
+  abstract: "How many agents an owner will spawn",
+  content: `This number indicates how many agents an owner will try to spawn within the allocation period.`,
 };
 export const hOwnerBidding = {
   title: "Owner Bidding Strategy",
-  abstract: "",
-  content: ``,
+  abstract: "How the owners agent will place bids",
+  content: `The bidding strategy sets up the rules how agents compete for airspace using bids. Not all bidding strategies
+are supported by all Allocators.`,
 };
 export const hOwnerValue = {
   title: "Owner Value Function",
-  abstract: "",
-  content: ``,
+  abstract: "How the owners agent calculate their value for airspace",
+  content: `Thhe value function determines how the owners agents find out which path brings them what value. Based
+on the value they get from a path, they will place a bid on it. Hence, the value function must be supported by
+the bidding strategy.`,
 };
 export const hMapSelection = {
   title: "Map Area Selection",
-  abstract: "",
-  content: ``,
+  abstract: "Define sub-area of visible map as playfield",
+  content: `You have the option to select a square from a map. Agents will only be allowed to spawn and fly within
+this region, and only buildings that originate within this area will be considered for the route determination.`,
+};
+export const hStops = {
+  title: "Owner Stops",
+  abstract: "Route of locations for Path agents, area locations for space agents",
+  content: `Path agents can have multiple stops that they want to fly towards. If you give a path agents 2 stop,
+your agent will fly from the first location to the second location. If you give him more stops, he will start
+at the first, visit all locations in order, until he de-spawns at the last. For space agents, the multiple locations
+determine where agents will reserve their airspace. If you determine two locations, each agent will reserve reserve
+space at both locations at the same time, with the exact same airspace dimensions and for the same time period.
+For random locations or heatmap locations, the locations are drawn at random (or weighted random in the case of the
+heatmap) for every agent.`,
+};
+export const hPositonMap = {
+  title: "Position Location",
+  abstract: "Select exact point as location",
+  content: `Select an exact coordinate for this stop / location.`,
+};
+export const hHeatmap = {
+  title: "Heatmap Location",
+  abstract: "Define heatmap of possible locations",
+  content: `Draw a heatmap - a location from the drawing will be selected based on the intensity of the heatmap.
+Hence, you can only get points that you drew your heatmap on, and it is most likely that the point will be in a region
+that appears dark in your drawing.`
 };

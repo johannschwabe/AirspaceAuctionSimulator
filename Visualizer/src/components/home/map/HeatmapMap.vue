@@ -1,5 +1,14 @@
 <template>
   <div ref="mapRoot" :style="{ width: `${size.width}px`, height: `${size.height}px` }" class="map" />
+  <n-form-item style="margin-top: 5px">
+    <template #label>
+      <help v-bind="hHeatmap">
+        <span style="font-style: italic">
+          Draw on map to create Heatmap
+        </span>
+      </help>
+    </template>
+  </n-form-item>
 </template>
 
 <script setup>
@@ -8,6 +17,8 @@ import { restoreHeatmapFeatures, useBaseLayer, useHeatmapInteraction, useHeatmap
 import { Collection } from "ol";
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
 import { computed } from "vue";
+import Help from "@/components/common/help/help.vue";
+import { hHeatmap } from "@/components/common/help/texts.js";
 
 const props = defineProps({
   ownerIndex: {
