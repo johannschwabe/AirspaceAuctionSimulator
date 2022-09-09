@@ -4,6 +4,7 @@ from typing import List, TYPE_CHECKING, Set, Tuple
 
 from .Node import Node
 from ..Agents.PathAgent import PathAgent
+from ..Agents.SpaceAgent import SpaceAgent
 
 if TYPE_CHECKING:
     from ..Environment.Environment import Environment
@@ -159,9 +160,8 @@ class AStar:
                 return True, colliding_agents
             return False, None
 
-        intersecting_agents = self.environment.intersect_path_coordinate(position, agent)
-
-        for intersecting_agent in intersecting_agents:
+        max_intersecting_agents = self.environment.intersect_path_coordinate(position, agent)
+        for intersecting_agent in max_intersecting_agents:
             if isinstance(intersecting_agent, PathAgent):
                 path_coordinates = intersecting_agent.get_positions_at_ticks(position.t, speed=agent.speed)
                 assert len(path_coordinates) > 0
@@ -179,6 +179,16 @@ class AStar:
                 colliding_agents.add(intersecting_agent)
             else:
                 return False, None
+
+        intersecting_agents = self.environment.intersect_path_coordinate(position, agent, use_max_radius=False)
+        for intersecting_agent in intersecting_agents:
+            if isinstance(intersecting_agent, SpaceAgent):
+                other_bid = self.bid_tracker.get_last_bid_for_tick(self.tick, intersecting_agent, self.environment)
+                if other_bid is None or my_bid > other_bid:
+                    colliding_agents.add(intersecting_agent)
+                else:
+                    return False, None
+
         return True, colliding_agents
 
     @staticmethod
