@@ -167,13 +167,13 @@ class AStar:
                 assert len(path_coordinates) > 0
                 true_intersection = False
                 for path_coordinate in path_coordinates:
-                    distance = position.inter_temporal_distance(path_coordinate)
+                    distance = position.inter_temporal_distance(path_coordinate, l2=True)
                     if distance <= max(agent.near_radius, intersecting_agent.near_radius):
                         true_intersection = True
                         break
                 if not true_intersection:
                     continue
-                    
+
             other_bid = self.bid_tracker.get_last_bid_for_tick(self.tick, intersecting_agent, self.environment)
             if other_bid is None or my_bid > other_bid:
                 colliding_agents.add(intersecting_agent)

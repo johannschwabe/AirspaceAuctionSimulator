@@ -428,12 +428,13 @@ class Statistics:
         for coordinate in path_segment.coordinates:
             intersecting_agents = self.simulation.environment.intersect_path_coordinate(coordinate,
                                                                                         path_agent,
-                                                                                        include_speed=False)
+                                                                                        include_speed=False,
+                                                                                        use_max_radius=False)
             for intersecting_agent in intersecting_agents:
                 if intersecting_agent != path_agent:
                     if isinstance(intersecting_agent, PathAgent):
                         encountered_agent_position = intersecting_agent.get_position_at_tick(coordinate.t)
-                        distance = coordinate.inter_temporal_distance(encountered_agent_position)
+                        distance = coordinate.inter_temporal_distance(encountered_agent_position, l2=True)
                         if distance <= path_agent.near_radius:
                             if intersecting_agent.id not in violations:
                                 violations[intersecting_agent.id] = []
