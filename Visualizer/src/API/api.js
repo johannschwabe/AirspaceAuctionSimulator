@@ -211,10 +211,13 @@ export async function loadStatisticsData() {
   return statistics;
 }
 
-export function downloadSimulation() {
-  const data = loadSimulationData();
+export async function downloadSimulation() {
+  const simulation = await loadSimulationData();
+  const config = await loadConfigData();
+  const statistics = await loadStatisticsData();
+  const data = { simulation, config, statistics };
   const fileToSave = new Blob([JSON.stringify(data, undefined, 2)], {
     type: "application/json",
   });
-  saveAs(fileToSave, `${data?.config.name}.json`);
+  saveAs(fileToSave, `${config.name}.json`);
 }
