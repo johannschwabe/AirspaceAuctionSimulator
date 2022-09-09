@@ -1,12 +1,18 @@
 <template>
   <n-form ref="formRef" :model="simulationConfig" :rules="rules">
     <!-- Model Name -->
-    <n-form-item path="name" label="Model Name">
+    <n-form-item path="name">
+      <template #label>
+        <help v-bind="hName">Model Name</help>
+      </template>
       <n-input v-model:value="simulationConfig.name" type="text" placeholder="Unique Model Name" />
     </n-form-item>
 
     <!-- Model Description -->
-    <n-form-item path="description" label="Model Description">
+    <n-form-item>
+      <template #label>
+        <help v-bind="hDescription">Model Description</help>
+      </template>
       <n-input
         v-model:value="simulationConfig.description"
         type="textarea"
@@ -18,14 +24,20 @@
     <map-selector />
 
     <!-- Model Timesteps -->
-    <n-form-item path="dimension.t" label="Timesteps">
+    <n-form-item>
+      <template #label>
+        <help v-bind="hTimesteps">Timesteps</help>
+      </template>
       <n-slider show-tooltip v-model:value="simulationConfig.map.timesteps" :min="300" :max="4000" :step="10" />
     </n-form-item>
 
     <n-grid cols="2" x-gap="10">
       <n-gi>
         <!-- Model Allocator -->
-        <n-form-item path="allocator" label="Allocator">
+        <n-form-item>
+          <template #label>
+            <help v-bind="hAllocator">Allocator</help>
+          </template>
           <n-select
             v-model:value="simulationConfig.allocator"
             :options="simulationConfig.availableAllocatorsOptions"
@@ -36,7 +48,10 @@
       </n-gi>
       <n-gi>
         <!-- Model Payment Rule -->
-        <n-form-item path="paymentRule" label="Payment Rule">
+        <n-form-item>
+          <template #label>
+            <help v-bind="hPaymentRule">Payment Rule</help>
+          </template>
           <n-select
             v-model:value="simulationConfig.paymentRule"
             :options="simulationConfig.availablePaymentRulesOptions"
@@ -47,15 +62,18 @@
     </n-grid>
 
     <!-- Model Owners -->
-    <n-form-item path="owners" label="Owners">
-      <owner />
+    <n-form-item>
+      <template #label>
+        <help v-bind="hOwners">Owners</help>
+      </template>
+      <owner/>
     </n-form-item>
   </n-form>
 
   <!-- Upload and Download of configuration file -->
   <n-grid cols="2" x-gap="10">
     <n-grid-item>
-      <n-upload :custom-request="uploadConfiguration" accept="application/json" :on-preview="uploadConfiguration">
+      <n-upload :custom-request="uploadConfiguration" accept="application/json" :on-preview="uploadConfiguration" class="upload">
         <n-button block tertiary :type="simulationConfig.isEmpty ? 'primary' : 'tertiary'">
           Upload Simulation Configuration
           <template #icon>
@@ -141,6 +159,8 @@ import { saveAs } from "file-saver";
 
 import Owner from "./owner/Owner.vue";
 import MapSelector from "./map/MapSelector.vue";
+import Help from "../common/help/help.vue";
+
 import Simulation from "../../SimulationObjects/Simulation.js";
 
 import { postSimulation, downloadSimulation } from "../../API/api.js";
@@ -156,7 +176,8 @@ import {
   onAllocatorSwitched,
   offAllocatorSwitched,
   emitAllocatorSwitched,
-} from "../../scripts/emitter";
+} from "../../scripts/emitter.js";
+import { hName, hDescription, hTimesteps, hAllocator, hPaymentRule, hOwners } from "../common/help/texts.js";
 
 const simulationConfig = useSimulationConfigStore();
 simulationConfig.loadAvailableAllocators();
@@ -287,5 +308,8 @@ const simulate = () => {
   });
 };
 </script>
-
-<style scoped></style>
+<style scoped>
+.upload :deep(.n-upload-trigger) {
+  width: 100%;
+}
+</style>

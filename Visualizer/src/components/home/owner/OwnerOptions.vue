@@ -1,16 +1,21 @@
 <template>
-  <n-h3>Stops</n-h3>
-  <n-dynamic-input
-    :value="owner.locations"
-    :on-create="onCreate"
-    :on-remove="onRemove"
-    :min="owner.biddingStrategy.minLocations"
-    :max="owner.biddingStrategy.maxLocations"
-  >
-    <template #default="{ index }">
-      <owner-stop :ownerIndex="props.ownerIndex" :locationIndex="index" />
+  <n-h3>Stops / Locations</n-h3>
+  <n-form-item>
+    <template #label>
+      <help v-bind="hStops">Select between {{owner.biddingStrategy.minLocations}} and {{owner.biddingStrategy.maxLocations}} stops</help>
     </template>
-  </n-dynamic-input>
+    <n-dynamic-input
+      :value="owner.locations"
+      :on-create="onCreate"
+      :on-remove="onRemove"
+      :min="owner.biddingStrategy.minLocations"
+      :max="owner.biddingStrategy.maxLocations"
+    >
+      <template #default="{ index }">
+        <owner-stop :ownerIndex="props.ownerIndex" :locationIndex="index" />
+      </template>
+    </n-dynamic-input>
+  </n-form-item>
   <template v-if="meta.length > 0">
     <n-divider />
     <n-h3>Customization Options</n-h3>
@@ -36,6 +41,8 @@
 import { computed } from "vue";
 import OwnerStop from "./OwnerStop.vue";
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import Help from "@/components/common/help/help.vue";
+import { hStops } from "@/components/common/help/texts.js";
 
 const props = defineProps({
   ownerIndex: {
@@ -47,14 +54,6 @@ const props = defineProps({
 const simulationConfig = useSimulationConfigStore();
 
 const owner = computed(() => simulationConfig.owners[props.ownerIndex]);
-
-// /**
-//  * Returns config of owner of fitting type
-//  * @type {ComputedRef<OwnerConfig>}
-//  */
-// const ownerProperties = computed(() => {
-//   return simulationConfig.availableBiddingStrategiesForAllocator.find((o) => o.classname === owner.value.classname);
-// });
 
 /**
  * @type {ComputedRef<RawMeta>}

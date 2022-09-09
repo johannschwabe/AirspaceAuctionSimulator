@@ -4,7 +4,10 @@
       <n-grid cols="3" x-gap="12">
         <!-- Address Input -->
         <n-grid-item span="3">
-          <n-form-item label="Address">
+          <n-form-item>
+            <template #label>
+              <help v-bind="hAddress">Address</help>
+            </template>
             <n-input-group>
               <n-input
                 placeholder="Address Search"
@@ -25,32 +28,47 @@
 
         <!-- Dimension Height Input -->
         <n-grid-item span="1">
-          <n-form-item label="Height (m)">
+          <n-form-item>
+            <template #label>
+              <help v-bind="hHeight">Height (m)</help>
+            </template>
             <n-input-number v-model:value="simulationConfig.map.height" :min="20" :max="1000" :step="10" />
           </n-form-item>
         </n-grid-item>
 
         <n-grid-item span="1">
-          <n-form-item label="Voxel size (m)">
+          <n-form-item>
+            <template #label>
+              <help v-bind="hVoxelSize">Voxel size (m)</help>
+            </template>
             <n-slider v-model:value="simulationConfig.map.resolution" :max="20" :min="1" :step="1" />
           </n-form-item>
         </n-grid-item>
         <!-- Surrounding Tiles Input -->
         <n-grid-item span="1">
-          <n-form-item label="Surrounding Tiles">
+          <n-form-item>
+            <template #label>
+              <help v-bind="hSurroundingTiles">Surrounding Tiles</help>
+            </template>
             <n-input-number v-model:value="simulationConfig.map.neighbouringTiles" clearable :min="0" :max="3" />
           </n-form-item>
         </n-grid-item>
 
         <!-- Minimum flying height  -->
         <n-grid-item span="1">
-          <n-form-item label="Min height">
+          <n-form-item>
+            <template #label>
+              <help v-bind="hMinHeight">Min height</help>
+            </template>
             <n-input-number v-model:value="simulationConfig.map.minHeight" clearable :min="0" :max="100" />
           </n-form-item>
         </n-grid-item>
         <!--    Allocation Period    -->
         <n-grid-item span="2">
-          <n-form-item label="Allocation Period">
+          <n-form-item>
+            <template #label>
+              <help v-bind="hAllocationPeriod">Allocation Period</help>
+            </template>
             <n-slider
               v-model:value="allocationPeriod"
               :max="Math.pow(simulationConfig.map.timesteps, 1 / 3)"
@@ -65,7 +83,17 @@
     </n-grid-item>
 
     <n-grid-item span="3">
-      <view-only-map />
+      <view-only-map>
+        <n-form-item style="margin-top: 5px">
+          <template #label>
+            <help v-bind="hMapSelection">
+              <span style="font-style: italic">
+                (Optional) Select Area on Map
+              </span>
+            </help>
+          </template>
+        </n-form-item>
+      </view-only-map>
     </n-grid-item>
   </n-grid>
 </template>
@@ -80,9 +108,19 @@ import { NavigateCircleOutline } from "@vicons/ionicons5";
 import { useMessage } from "naive-ui";
 
 import ViewOnlyMap from "./ViewOnlyMap.vue";
+import Help from "../../../components/common/help/help.vue";
 
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
-import { offConfigLoaded, onConfigLoaded } from "../../../scripts/emitter";
+import { offConfigLoaded, onConfigLoaded } from "../../../scripts/emitter.js";
+import {
+  hAddress,
+  hHeight,
+  hVoxelSize,
+  hSurroundingTiles,
+  hMinHeight,
+  hAllocationPeriod,
+  hMapSelection,
+} from "@/components/common/help/texts.js";
 
 const message = useMessage();
 const simulationConfig = useSimulationConfigStore();
