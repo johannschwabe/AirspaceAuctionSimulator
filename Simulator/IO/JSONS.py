@@ -93,12 +93,11 @@ class JSONBlocker(Stringify):
         self.dimension = blocker.dimension
 
 
-cclass JSONEnvironment(Stringify):
-     def __init__(self, environment: "Environment"):
-         self.dimensions: "Coordinate4D" = environment.dimension
-         self.blockers: List["JSONBlocker"] = [JSONBlocker(blocker) for blocker in environment.blocker_dict.values() if
+class JSONEnvironment(Stringify):
+    def __init__(self, environment: "Environment"):
+        self.dimensions: "Coordinate4D" = environment.dimension
+        self.blockers: List["JSONBlocker"] = [JSONBlocker(blocker) for blocker in environment.blocker_dict.values() if
                                               not isinstance(blocker, BuildingBlocker)]
-
 
 
 class JSONStatistics(Stringify):
