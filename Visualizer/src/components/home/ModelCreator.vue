@@ -240,7 +240,8 @@ const uploadConfiguration = (upload) => {
   const fileReader = new FileReader();
   fileReader.onload = async (event) => {
     const data = JSON.parse(event.target.result);
-    simulationConfig.overwrite(data);
+    const config = data.config ?? data;
+    simulationConfig.overwrite(config);
     emitConfigLoaded();
   };
   fileReader.onerror = () => {

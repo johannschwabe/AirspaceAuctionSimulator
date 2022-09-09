@@ -216,7 +216,7 @@ export async function downloadSimulation() {
   const config = await loadConfigData();
   const statistics = await loadStatisticsData();
   const data = { simulation, config, statistics };
-  const fileToSave = new Blob([JSON.stringify(data, undefined, 2)], {
+  const fileToSave = new Blob([JSON.stringify(data)], {
     type: "application/json",
   });
   saveAs(fileToSave, `${config.name}.json`);
