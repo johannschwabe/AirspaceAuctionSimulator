@@ -4,7 +4,10 @@
       <n-grid cols="3" x-gap="12">
         <!-- Address Input -->
         <n-grid-item span="3">
-          <n-form-item label="Address">
+          <n-form-item>
+            <template #label>
+              <help v-bind="hAddress">Address</help>
+            </template>
             <n-input-group>
               <n-input
                 placeholder="Address Search"
@@ -25,7 +28,10 @@
 
         <!-- Dimension Height Input -->
         <n-grid-item span="1">
-          <n-form-item label="Height (m)">
+          <n-form-item>
+            <template #label>
+              <help v-bind="hAddress">Height (m)</help>
+            </template>
             <n-input-number v-model:value="simulationConfig.map.height" :min="20" :max="1000" :step="10" />
           </n-form-item>
         </n-grid-item>
@@ -80,9 +86,18 @@ import { NavigateCircleOutline } from "@vicons/ionicons5";
 import { useMessage } from "naive-ui";
 
 import ViewOnlyMap from "./ViewOnlyMap.vue";
+import Help from "../../../components/common/help/help.vue";
 
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
-import { offConfigLoaded, onConfigLoaded } from "../../../scripts/emitter";
+import { offConfigLoaded, onConfigLoaded } from "../../../scripts/emitter.js";
+import {
+  hAddress,
+  hHeight,
+  hVoxelSize,
+  hSurroundingTiles,
+  hMinHeight,
+  hAllocationPeriod,
+} from "@/components/common/help/texts.js";
 
 const message = useMessage();
 const simulationConfig = useSimulationConfigStore();
