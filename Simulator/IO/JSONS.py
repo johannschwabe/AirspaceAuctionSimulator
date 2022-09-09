@@ -6,7 +6,6 @@ from .. import Simulator
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
 from ..Allocations.Allocation import Allocation
-from ..Blocker.BuildingBlocker import BuildingBlocker
 from ..Blocker.DynamicBlocker import DynamicBlocker
 from ..Blocker.StaticBlocker import StaticBlocker
 from ..Owners.Owner import Owner
@@ -96,7 +95,7 @@ class JSONBlocker(Stringify):
 class JSONEnvironment(Stringify):
     def __init__(self, environment: "Environment"):
         self.dimensions: "Coordinate4D" = environment.dimension
-        self.blockers: List["JSONBlocker"] = [JSONBlocker(blocker) for blocker in environment.blockers]
+        self.blockers: List["JSONBlocker"] = [JSONBlocker(blocker) for blocker in environment.blocker_dict.values()]
 
 
 class JSONSimulation(Stringify):
