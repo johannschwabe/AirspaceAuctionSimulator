@@ -3,12 +3,11 @@ Some examples of calling the CLI without any interaction:
 python CLI.py --create --name "testmodel" --description "This is a description" --allocator "PriorityAllocator" --payment-rule "PriorityPaymentRule" --address "Zurich" --neighbouring-tiles 0 --resolution 2 --height 200 --min-height 50 --timesteps 1000 --allocation-period 500 --owner OwnerA 20 PriorityPathBiddingStrategy PriorityPathValueFunction --summary --skip-save-config --skip-save-simulation --simulate
 """
 
-from typing import Type, List
-
+import argparse
+import glob
 import json
 import os
-import glob
-import argparse
+from typing import Type, List
 
 import requests
 import yaml
@@ -16,18 +15,17 @@ from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.validator import PathValidator, EmptyInputValidator
 
-from API import run_from_config
-from API.config import available_allocators
+from API import run_from_config, build_json
 from API.Types import APISimulationConfig
+from API.config import available_allocators
 from Development.playground import color_generator
-from Simulator.IO.JSONS import build_json
-
-from Simulator.Mechanism.Allocator import Allocator
 from Simulator.Bids.BiddingStrategy import BiddingStrategy
+from Simulator.Mechanism.Allocator import Allocator
 from Simulator.Mechanism.PaymentRule import PaymentRule
 
 PREFAB_PATH = "./Prefabs/configs"
 HOME_PATH = "~/" if os.name == "posix" else "C:\\"
+
 
 def random_locations_for_bidding_strategy(bidding_strategy: Type[BiddingStrategy]) -> List:
     """
@@ -54,6 +52,7 @@ def bidding_strategy_to_dict(bidding_strategy: Type[BiddingStrategy]):
         "meta": bidding_strategy.meta()
     }
 
+
 def allocator_from_name(allocator_name: str) -> Type[Allocator]:
     """
     Resolves an allocator class object given the allocators classname
@@ -64,6 +63,7 @@ def allocator_from_name(allocator_name: str) -> Type[Allocator]:
     if len(allocators) == 0:
         raise ValueError(f"Allocator '{allocator_name}' unknown")
     return allocators[0]
+
 
 def bidding_strategy_from_name(allocator: Type[Allocator], strategy_name: str) -> Type[BiddingStrategy]:
     """
@@ -111,6 +111,7 @@ def available_allocator_names() -> List[str]:
     """
     return [allocator.__name__ for allocator in available_allocators]
 
+
 def all_payment_rule_names() -> List[str]:
     """
     Returns a list of all payment rule names
@@ -120,6 +121,7 @@ def all_payment_rule_names() -> List[str]:
     for allocator in available_allocators:
         names.update([payment_function.__name__ for payment_function in allocator.compatible_payment_functions()])
     return list(names)
+
 
 def all_payment_rules_str() -> str:
     """
@@ -244,7 +246,8 @@ parser.add_argument('--timesteps', dest="timesteps", type=int, choices=range(300
                          'air at the same time. However, keep in mind that large playfields with fine granularity '
                          'require the agents to fly for longer. Agents that can not reach their destination within '
                          'your specified timesteps will not be allocated.')
-parser.add_argument('--allocation-period', dest="allocationPeriod", type=int, choices=range(300, 4000), metavar="[300, 1000]",
+parser.add_argument('--allocation-period', dest="allocationPeriod", type=int, choices=range(300, 4000),
+                    metavar="[300, 1000]",
                     help='Agents should not be allowed to start their journey in the last timesteps, since they '
                          'will not reach their destination on-time. Hence, you need to specify for how long new '
                          'agents are allowed to enter the playing field. Usually, this parameter should be between '
@@ -331,9 +334,11 @@ if model_config is None:
             "color": color_generator(),
             "name": owner[0],
             "agents": int(owner[1]),
-            "biddingStrategy": bidding_strategy_to_dict(bidding_strategy_from_name(allocator_from_name(args.allocator), owner[2])),
+            "biddingStrategy": bidding_strategy_to_dict(
+                bidding_strategy_from_name(allocator_from_name(args.allocator), owner[2])),
             "valueFunction": owner[3],
-            "locations": random_locations_for_bidding_strategy(bidding_strategy_from_name(allocator_from_name(args.allocator), owner[2])),
+            "locations": random_locations_for_bidding_strategy(
+                bidding_strategy_from_name(allocator_from_name(args.allocator), owner[2])),
         } for owner in args.owners],
     }
     if model_data['name'] is None:
@@ -530,8 +535,7 @@ if not args.skipSimulation:
         print("Running simulation. This may take a while!")
         generator, duration = run_from_config(model_config)
         print(f"-- Simulation Completed in {duration} seconds --")
-        simulation_json = build_json(generator.simulator, duration)
-        simulation_json["config"] = model_config.dict()
+        simulation_json = build_json(model_config, generator.simulator, duration)
 
         # Printing simulation summary flow if user did not provide --skip-summary flag
         if not args.skipSummary:

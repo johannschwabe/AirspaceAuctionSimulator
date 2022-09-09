@@ -159,16 +159,18 @@ class AStar:
                 return True, colliding_agents
             return False, None
 
-        colliding_agents = self.environment.intersect_path_coordinate(position, agent)
+        intersecting_agents = self.environment.intersect_path_coordinate(position, agent)
 
-        for colliding_agent in colliding_agents:
-            if isinstance(colliding_agent, PathAgent):
-                distance = position.inter_temporal_distance(colliding_agent.get_position_at_tick(position.t))
-                if distance > max(agent.near_radius, colliding_agent.near_radius):
+        for intersecting_agent in intersecting_agents:
+            if isinstance(intersecting_agent, PathAgent):
+                path_coordinate = intersecting_agent.get_position_at_tick(position.t)
+                assert path_coordinate is not None
+                distance = position.inter_temporal_distance(path_coordinate)
+                if distance > max(agent.near_radius, intersecting_agent.near_radius):
                     continue
-            other_bid = self.bid_tracker.get_last_bid_for_tick(self.tick, colliding_agent, self.environment)
+            other_bid = self.bid_tracker.get_last_bid_for_tick(self.tick, intersecting_agent, self.environment)
             if other_bid is None or my_bid > other_bid:
-                colliding_agents.add(colliding_agent)
+                colliding_agents.add(intersecting_agent)
             else:
                 return False, None
         return True, colliding_agents

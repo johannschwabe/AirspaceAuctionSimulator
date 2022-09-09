@@ -16,7 +16,3 @@ class Bid(ABC):
     @abstractmethod
     def __lt__(self, other):
         pass
-
-    @abstractmethod
-    def __eq__(self, other):
-        pass

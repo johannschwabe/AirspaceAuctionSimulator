@@ -16,6 +16,3 @@ class FCFSSpaceBid(Bid):
 
     def __lt__(self, other):
         return False
-
-    def __eq__(self, other):
-        return True
