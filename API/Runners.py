@@ -24,22 +24,18 @@ def run_from_config(config: "APISimulationConfig") -> Tuple[Generator, int]:
     config.map.tiles = [tile.zxy for tile in maptiles]
 
     if config.map.subselection is not None and config.map.subselection.bottomLeft and config.map.subselection.topRight:
-        area = Area(config.map.subselection.bottomLeft, config.map.subselection.topRight, config.map.resolution,
+        map_playfield_area = Area(config.map.subselection.bottomLeft, config.map.subselection.topRight, config.map.resolution,
                     config.map.minHeight)
     else:
         bottom_left_coordinate, top_right_coordinate = MapTile.bounding_box_from_maptiles_group(maptiles)
         config.map.bottomLeftCoordinate = bottom_left_coordinate.as_dict()
         config.map.topRightCoordinate = top_right_coordinate.as_dict()
-        area = Area(bottom_left_coordinate, top_right_coordinate, config.map.resolution, config.map.minHeight)
-        print("no Subselection")
+        map_playfield_area = Area(bottom_left_coordinate, top_right_coordinate, config.map.resolution, config.map.minHeight)
 
-    for maptile in maptiles:
-        maptile.area = area
-        
-    size = area.dimension
+    size = map_playfield_area.dimension
 
     dimensions = Coordinate4D(math.floor(size[0]),
-                              math.floor(config.map.height / area.resolution),
+                              math.floor(config.map.height / map_playfield_area.resolution),
                               math.floor(size[1]),
                               config.map.timesteps)
 
@@ -55,7 +51,7 @@ def run_from_config(config: "APISimulationConfig") -> Tuple[Generator, int]:
     selected_payment_rule = payment_rule[0]()
 
     random.seed(2)
-    generator = Generator(config.owners, dimensions, maptiles, allocator, area, selected_payment_rule,
+    generator = Generator(config.owners, dimensions, maptiles, allocator, map_playfield_area, selected_payment_rule,
                           allocation_period=config.map.allocationPeriod)
     start_time = time.time_ns()
     generator.simulate()

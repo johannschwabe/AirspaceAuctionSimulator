@@ -19,7 +19,7 @@ class Generator:
         dimensions: "Coordinate4D",
         maptiles: List["MapTile"],
         allocator: "Allocator",
-        area: "Area",
+        map_playfield_area: "Area",
         payment_rule: "PaymentRule",
         allocation_period: int = 50
     ):
@@ -27,13 +27,13 @@ class Generator:
         self.dimensions: "Coordinate4D" = dimensions
         self.owners: List["Owner"] = []
         self.allocator: "Allocator" = allocator
-        self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles, min_height=area.min_height,
-                                                         allocation_period=allocation_period).generate()
+        self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles, min_height=map_playfield_area.min_height,
+                                                         allocation_period=allocation_period, map_playfield_area=map_playfield_area).generate()
         self.simulator: Optional["Simulator"] = None
         self.history: Optional["History"] = None
         self.statistics: Optional["Statistics"] = None
         self.simulator: Optional["Simulator"] = None
-        self.area = area
+        self.map_playfield_area = map_playfield_area
         self.payment_rule = payment_rule
 
     def extract_owner_stops(self, owner: "APIOwner"):
@@ -42,13 +42,13 @@ class Generator:
             if location.type == GridLocationType.RANDOM.value:
                 stops.append(GridLocation(str(GridLocationType.RANDOM.value)))
             elif location.type == GridLocationType.POSITION.value:
-                gridCoord = self.area.point_to_coordinate2D(location.points[0])
+                gridCoord = self.map_playfield_area.point_to_coordinate2D(location.points[0])
                 stops.append(GridLocation(str(GridLocationType.POSITION.value),
                                           position=gridCoord))
             elif location.type == GridLocationType.HEATMAP.value:
                 heat_dict: Dict[float, List["Coordinate2D"]] = {}
                 for point in location.points:
-                    coordinate = self.area.point_to_coordinate2D(point)
+                    coordinate = self.map_playfield_area.point_to_coordinate2D(point)
                     if point.value in heat_dict:
                         heat_dict[point.value].append(coordinate)
                     else:
