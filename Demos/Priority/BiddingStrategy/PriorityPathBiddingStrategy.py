@@ -28,6 +28,7 @@ class PriorityPathBiddingStrategy(BiddingStrategy, PathBiddingStrategy):
                 "description": "Priority of the agents",
                 "type": "float",
                 "value": round(random.random(), 2),
+                "range": "0-1"
             }
         ]
 

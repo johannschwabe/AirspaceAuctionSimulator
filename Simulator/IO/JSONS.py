@@ -96,8 +96,7 @@ class JSONBlocker(Stringify):
 class JSONEnvironment(Stringify):
     def __init__(self, environment: "Environment"):
         self.dimensions: "Coordinate4D" = environment.dimension
-        self.blockers: List["JSONBlocker"] = [JSONBlocker(blocker) for blocker in environment.blocker_dict.values() if
-                                              not isinstance(blocker, BuildingBlocker)]
+        self.blockers: List["JSONBlocker"] = [JSONBlocker(blocker) for blocker in environment.blockers]
 
 
 class JSONSimulation(Stringify):
