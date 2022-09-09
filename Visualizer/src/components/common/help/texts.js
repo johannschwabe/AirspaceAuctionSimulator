@@ -91,22 +91,27 @@ export const hOwnerColor = {
   content: `All agents spawned by this owner will appear in the specified color within the Simulation Visualizer.`,
 }
 export const hOwnerName = {
-  title: "",
+  title: "Owner Name",
   abstract: "",
   content: ``,
 };
 export const hOwnerAgents = {
-  title: "",
+  title: "Owner number of Agents",
   abstract: "",
   content: ``,
 };
 export const hOwnerBidding = {
-  title: "",
+  title: "Owner Bidding Strategy",
   abstract: "",
   content: ``,
 };
 export const hOwnerValue = {
-  title: "",
+  title: "Owner Value Function",
+  abstract: "",
+  content: ``,
+};
+export const hMapSelection = {
+  title: "Map Area Selection",
   abstract: "",
   content: ``,
 };

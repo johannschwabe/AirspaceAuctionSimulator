@@ -83,7 +83,17 @@
     </n-grid-item>
 
     <n-grid-item span="3">
-      <view-only-map />
+      <view-only-map>
+        <n-form-item style="margin-top: 5px">
+          <template #label>
+            <help v-bind="hMapSelection">
+              <span style="font-style: italic">
+                (Optional) Select Area on Map
+              </span>
+            </help>
+          </template>
+        </n-form-item>
+      </view-only-map>
     </n-grid-item>
   </n-grid>
 </template>
@@ -109,6 +119,7 @@ import {
   hSurroundingTiles,
   hMinHeight,
   hAllocationPeriod,
+  hMapSelection,
 } from "@/components/common/help/texts.js";
 
 const message = useMessage();

@@ -73,7 +73,7 @@
   <!-- Upload and Download of configuration file -->
   <n-grid cols="2" x-gap="10">
     <n-grid-item>
-      <n-upload :custom-request="uploadConfiguration" accept="application/json" :on-preview="uploadConfiguration">
+      <n-upload :custom-request="uploadConfiguration" accept="application/json" :on-preview="uploadConfiguration" class="upload">
         <n-button block tertiary :type="simulationConfig.isEmpty ? 'primary' : 'tertiary'">
           Upload Simulation Configuration
           <template #icon>
@@ -306,5 +306,8 @@ const simulate = () => {
   });
 };
 </script>
-
-<style scoped></style>
+<style scoped>
+.upload :deep(.n-upload-trigger) {
+  width: 100%;
+}
+</style>
