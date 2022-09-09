@@ -36,7 +36,7 @@ class MapTile:
     def url(self):
         return f"https://a.data.osmbuildings.org/0.2/anonymous/tile/{self.z}/{self.x}/{self.y}.json"
 
-    def resolve_buildings(self):
+    def resolve_buildings(self, map_playfield_area: Area):
         """
         Extract building information from tile and convert them to building blockers
         :return: BuildingBlocker[]
@@ -64,7 +64,7 @@ class MapTile:
                 min_z = 100000
                 max_z = -100000
                 for coord in building['geometry']['coordinates'][0]:
-                    translated_coords = self.area.lon_lat_to_grid(LongLatCoordinate(coord[0], coord[1]))
+                    translated_coords = map_playfield_area.lon_lat_to_grid(LongLatCoordinate(coord[0], coord[1]))
 
                     coords.append(translated_coords)
                     x = translated_coords[0]
@@ -80,13 +80,13 @@ class MapTile:
 
                 for hole in building['geometry']['coordinates'][1:]:
                     holes.append(
-                        [self.area.lon_lat_to_grid(LongLatCoordinate(hole_coord[0], hole_coord[1]))
+                        [map_playfield_area.lon_lat_to_grid(LongLatCoordinate(hole_coord[0], hole_coord[1]))
                          for hole_coord in hole])
 
                 bounds = [Coordinate3D(min_x, 0, min_z),
-                          Coordinate3D(max_x, building['properties']['height'] / self.area.resolution, max_z)]
+                          Coordinate3D(max_x, building['properties']['height'] / map_playfield_area.resolution, max_z)]
 
-                dimension = self.area.dimension
+                dimension = map_playfield_area.dimension
                 if dimension[0] < min_x or dimension[1] < min_z or max_x < 0 or max_z < 0:
                     continue
                 new_blocker = BuildingBlocker(coords, bounds, holes)

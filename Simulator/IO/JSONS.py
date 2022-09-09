@@ -5,6 +5,7 @@ from typing import Dict, List, TYPE_CHECKING
 from .Stringify import Stringify
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
+from ..Blocker.BuildingBlocker import BuildingBlocker
 from ..Blocker.DynamicBlocker import DynamicBlocker
 from ..Blocker.StaticBlocker import StaticBlocker
 from ..Statistics.Statistics import Statistics
@@ -167,10 +168,10 @@ class JSONBlocker(Stringify):
 class JSONEnvironment(Stringify):
     def __init__(self, dimensions: "Coordinate4D", blockers: List["Blocker"]):
         self.dimensions: "Coordinate4D" = dimensions
-        # self.blockers: List["JSONBlocker"] = [JSONBlocker(blocker) for blocker in blockers if
-        #                                       not isinstance(blocker, BuildingBlocker)]
+        self.blockers: List["JSONBlocker"] = [JSONBlocker(blocker) for blocker in blockers if
+                                              not isinstance(blocker, BuildingBlocker)]
 
-        self.blockers: List["JSONBlocker"] = [JSONBlocker(blocker) for blocker in blockers]
+        # self.blockers: List["JSONBlocker"] = [JSONBlocker(blocker) for blocker in blockers]
 
 
 class JSONStatistics(Stringify):
