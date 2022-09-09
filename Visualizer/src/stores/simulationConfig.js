@@ -7,7 +7,7 @@ import {
   getSupportedAllocators,
 } from "../API/api";
 import { randomColor } from "../scripts/color";
-import { randomName } from "../scripts/names";
+import { randomName, randomSimulationName } from "../scripts/names";
 
 /**
  * @typedef {Object} MapConfig
@@ -70,7 +70,7 @@ import { randomName } from "../scripts/names";
  * Simulation Config Store
  */
 export const useSimulationConfigStore = defineStore("simulationConfig", () => {
-  const name = ref(randomName());
+  const name = ref(randomSimulationName());
   const description = ref("");
   const allocator = ref(null);
   const paymentRule = ref(null);
