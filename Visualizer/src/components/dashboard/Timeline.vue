@@ -1,35 +1,87 @@
 <template>
-  <div>
-    <vue-apex-charts type="bar" height="75" :options="agentChartOptions" :series="agentSeries" />
-    <div style="margin-top: -30px">
-      <vue-apex-charts type="bar" height="75" :options="eventChartOptions" :series="eventSeries" />
-    </div>
-    <div style="padding: 0 15px 0 35px; margin-top: -85px; z-index: 100000">
-      <n-slider
+  <div class="flex">
+    <div class="flex">
+      <n-button
+        quaternary
+        circle
+        v-for="control in controls"
+        @click="control.action"
+      >
+        <template #icon>
+          <n-icon :component="control.icon" />
+        </template>
+      </n-button>
+      <n-input-number
+        round
+        size="small"
+        :show-button="false"
+        :min="0"
+        :max="maxTick + 1"
         :value="currentTick"
         @update:value="updateTick"
-        :min="0"
-        :max="maxTick"
-        show-tooltip
-        placement="bottom"
+        style="max-width: 50px"
       />
+    </div>
+    <div style="flex-grow: 1">
+      <vue-apex-charts type="bar" height="75" :options="agentChartOptions" :series="agentSeries" />
+      <div style="margin-top: -30px">
+        <vue-apex-charts type="bar" height="75" :options="eventChartOptions" :series="eventSeries" />
+      </div>
+      <div style="padding: 0 15px 0 35px; margin-top: -85px; z-index: 100000">
+        <n-slider
+          :value="currentTick"
+          @update:value="updateTick"
+          :min="0"
+          :max="maxTick"
+          show-tooltip
+          placement="bottom"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
-import { reactive, ref } from "vue";
+import { reactive, ref, computed } from "vue";
 import { debounce } from "lodash-es";
 
 import { onAgentsSelected } from "@/scripts/emitter";
 import { useSimulationSingleton } from "@/scripts/simulation";
+
+import { PlayOutline, PauseOutline, PlaySkipForwardOutline, PlaySkipBackOutline, PlayBackOutline, PlayForwardOutline, } from "@vicons/ionicons5";
 
 const simulation = useSimulationSingleton();
 
 const maxTick = ref(simulation.maxTick - 1);
 
 const currentTick = ref(simulation.tick);
+
+let interval;
+
+const playing = ref(false);
+const controls = computed(() => ([
+  {
+    icon: PlaySkipBackOutline,
+    action: firstTick,
+  },
+  {
+    icon: PlayBackOutline,
+    action: previousTick,
+  },
+  {
+    icon: playing.value ? PauseOutline : PlayOutline,
+    action: playing.value ? pause : play,
+  },
+  {
+    icon: PlayForwardOutline,
+    action: nextTick,
+  },
+  {
+    icon: PlaySkipForwardOutline,
+    action: lastTick,
+  },
+]));
 
 const agentChartOptions = {
   chart: {
@@ -127,10 +179,6 @@ const updateEventSeries = () => {
   eventSeries[1].data = simulation.timeline.map((y, x) => ({ x, y: -y }));
 };
 
-function updateTick(t) {
-  currentTick.value = t;
-  setTick();
-}
 const setTick = debounce(
   () => {
     simulation.tick = currentTick.value;
@@ -139,6 +187,50 @@ const setTick = debounce(
   { leading: false }
 );
 
+function updateTick(t) {
+  currentTick.value = t;
+  setTick();
+}
+
+function firstTick() {
+  currentTick.value = 0;
+  setTick();
+}
+
+function lastTick() {
+  currentTick.value = simulation.maxTick - 1;
+  setTick();
+}
+
+function previousTick() {
+  if (currentTick.value >= 0) {
+    currentTick.value = simulation.tick - 1;
+    setTick();
+  }
+}
+
+function nextTick() {
+  if (currentTick.value < simulation.maxTick) {
+    currentTick.value = simulation.tick + 1;
+    setTick();
+  }
+}
+
+function play() {
+  playing.value = true;
+  interval = setInterval(() => {
+    nextTick();
+    if (currentTick.value === simulation.maxTick) {
+      pause();
+    }
+  }, 500);
+}
+
+function pause() {
+  playing.value = false;
+  clearInterval(interval);
+}
+
 onAgentsSelected(() => {
   maxTick.value = simulation.maxTick;
   updateAgentSeries();
@@ -146,4 +238,11 @@ onAgentsSelected(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.flex {
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+  justify-content: center;
+}
+</style>
