@@ -161,9 +161,10 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
     biddingStrategy.meta.forEach((_meta) => {
       if (_meta.range) {
         const limits = _meta.range.split("-").map((limit) => parseInt(limit));
-        _meta.value = Math.round((Math.random() * (limits[1] - limits[0]) + limits[0]) * 100) / 100;
-        if (_meta.type === "int") {
-          _meta.value = Math.floor(_meta.value);
+        if (_meta.type === "float") {
+          _meta.value = Math.round((Math.random() * (limits[1] - limits[0]) + limits[0]) * 100) / 100;
+        } else if (_meta.type === "int") {
+          _meta.value = Math.floor(Math.random() * (limits[1] - limits[0] + 1) + limits[0]);
         }
       }
     });
