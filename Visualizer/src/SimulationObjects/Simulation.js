@@ -15,13 +15,15 @@ import SpaceAgent from "./SpaceAgent";
 
 export default class Simulation {
   /**
-   * @param {RawSimulation} rawSimulation
+   * @param {JSONSimulation} jsonSimulation
+   * @param {JSONConfig} jsonConfig
+   * @param {SimulationStatistics} simulationStats
    */
-  constructor(rawSimulation) {
+  constructor(jsonSimulation, jsonConfig, simulationStats) {
     this._simulationStore = useSimulationStore();
 
-    this.name = rawSimulation.config.name;
-    this.description = rawSimulation.config.description;
+    this.name = jsonConfig.name;
+    this.description = jsonConfig.description;
 
     /**
      * Simulated dimension. Note: The dimension t describes how long new agents
@@ -29,23 +31,23 @@ export default class Simulation {
      * @type {Coordinate4D}
      */
     this.dimensions = new Coordinate4D(
-      rawSimulation.environment.dimensions.x,
-      rawSimulation.environment.dimensions.y,
-      rawSimulation.environment.dimensions.z,
-      rawSimulation.environment.dimensions.t
+      jsonSimulation.environment.dimensions.x,
+      jsonSimulation.environment.dimensions.y,
+      jsonSimulation.environment.dimensions.z,
+      jsonSimulation.environment.dimensions.t
     );
 
     /**
      * Object containing statistics about the simulation
      * @type {Statistics}
      */
-    this.statistics = new Statistics(rawSimulation.statistics);
+    this.statistics = new Statistics(simulationStats);
 
     /**
      * Blockers living in the simulated environment
      * @type {Blocker[]}
      */
-    this.blockers = rawSimulation.environment.blockers.map((blocker) => {
+    this.blockers = jsonSimulation.environment.blockers.map((blocker) => {
       switch (blocker.blocker_type) {
         case BlockerType.DYNAMIC:
           return new DynamicBlocker(blocker);
@@ -60,7 +62,10 @@ export default class Simulation {
      * All owners that were simulated
      * @type {Owner[]}
      */
-    this.owners = rawSimulation.owners.map((owner) => new Owner(owner, this));
+    this.owners = jsonSimulation.owners.map((owner) => {
+      const ownerStats = simulationStats.owners.find((ownerStat) => ownerStat.id === owner.id);
+      return new Owner(owner, this, ownerStats);
+    });
 
     /**
      * Flattened list of all agents belonging to any owner
@@ -112,13 +117,13 @@ export default class Simulation {
     /**
      * @type {MapTile[]}
      */
-    this.mapTiles = rawSimulation.config.map.tiles.map(
+    this.mapTiles = jsonConfig.map.tiles.map(
       (tile) =>
         new MapTile(
           tile,
-          rawSimulation.config.map.resolution,
-          rawSimulation.config.map.subselection?.bottomLeft || rawSimulation.config.map.bottomLeftCoordinate,
-          rawSimulation.config.map.subselection?.topRight || rawSimulation.config.map.topRightCoordinate
+          jsonConfig.map.resolution,
+          jsonConfig.map.subselection?.bottomLeft || jsonConfig.map.bottomLeftCoordinate,
+          jsonConfig.map.subselection?.topRight || jsonConfig.map.topRightCoordinate
         )
     );
 

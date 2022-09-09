@@ -1,13 +1,10 @@
-import Coordinate4D from "@/SimulationObjects/Coordinate4D";
-
 export default class Space {
   /**
-   * @param {{x: number, y: number, z: number, t: number}} min
-   * @param {{x: number, y: number, z: number, t: number}} max
+   * @param {JSONSpace} rawSpace
    */
-  constructor(min, max) {
-    this.min = new Coordinate4D(min.x, min.y, min.z, min.t);
-    this.max = new Coordinate4D(max.x, max.y, max.z, max.t);
+  constructor(rawSpace) {
+    this.min = rawSpace.min;
+    this.max = rawSpace.max;
   }
 
   isActiveAtTick(tick) {

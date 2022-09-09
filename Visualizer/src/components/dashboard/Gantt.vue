@@ -4,7 +4,7 @@
 
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
-import { reactive, ref } from "vue";
+import { nextTick, onMounted, ref } from "vue";
 
 import { useSimulationSingleton } from "@/scripts/simulation";
 import { onAgentsSelected } from "@/scripts/emitter";
@@ -45,11 +45,11 @@ const chartOptions = {
   },
 };
 
-const series = reactive([
+const series = [
   {
     data: [],
   },
-]);
+];
 
 const updateSeries = () => {
   const gantt = [];
@@ -59,20 +59,25 @@ const updateSeries = () => {
         throw new Error("Invalid start or end of path!");
       }
       gantt.push({
-        x: agent.name,
+        x: agent.id,
         y: [start, end],
         fillColor: agent.color,
       });
     });
   });
   series[0].data = gantt;
+  chart.value.updateSeries(series);
 };
 
 onAgentsSelected(() => {
   updateSeries();
 });
 
-updateSeries();
+onMounted(() => {
+  nextTick(() => {
+    updateSeries();
+  });
+});
 </script>
 
 <style scoped></style>

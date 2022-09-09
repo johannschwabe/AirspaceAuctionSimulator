@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class PathSegment(Segment):
     def __init__(self, start: "Coordinate3D", end: "Coordinate3D", index: int, coordinates: List["Coordinate4D"]):
-        self.coordinates: List["Coordinate4D"] = coordinates
+        self._coordinates: List["Coordinate4D"] = coordinates
         self.start: "Coordinate3D" = start
         self.end: "Coordinate3D" = end
         self.index: int = index
@@ -30,6 +30,10 @@ class PathSegment(Segment):
         return same_index
 
     @property
+    def coordinates(self) -> List["Coordinate4D"]:
+        return self._coordinates
+
+    @property
     def nr_voxels(self) -> int:
         return len(self.coordinates)
 
@@ -44,12 +48,15 @@ class PathSegment(Segment):
     def clone(self):
         return PathSegment(self.start.clone(), self.end.clone(), self.index, [x.clone() for x in self.coordinates])
 
+    def contains(self, coordinate: "Coordinate4D") -> bool:
+        return coordinate in self.coordinates
+
     def split_temporal(self, t: int) -> Tuple["PathSegment", "PathSegment"]:
         t_index = t - self.min.t
         first_segment = self.clone()
-        first_segment.coordinates = first_segment.coordinates[:t_index + 1]
+        first_segment._coordinates = first_segment.coordinates[:t_index + 1]
 
         second_segment = self.clone()
-        second_segment.coordinates = second_segment.coordinates[t_index + 1:]
+        second_segment._coordinates = second_segment.coordinates[t_index + 1:]
 
         return first_segment, second_segment

@@ -18,6 +18,3 @@ class PrioritySpaceBid(Bid):
 
     def __lt__(self, other):
         return self.priority < other.priority
-
-    def __eq__(self, other):
-        return self.priority == other.priority
