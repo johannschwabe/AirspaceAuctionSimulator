@@ -1,6 +1,6 @@
 <template>
   <!-- Simple one-line display of Owner -->
-  <n-dynamic-input :value="simulationConfig.owners" :on-create="onCreate" :on-remove="onRemove" :min="1">
+  <n-dynamic-input :value="simulationConfig.owners" :on-create="onCreate" :on-remove="onRemove" :min="1" style="margin-top: 24px;">
     <template #default="{ index }">
       <div style="display: flex; column-gap: 10px; width: 100%">
         <owner-form :owner-index="index" />

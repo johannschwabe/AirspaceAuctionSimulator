@@ -1,9 +1,10 @@
 <template>
   <div ref="mapRoot" :style="{ width: `${size}px`, height: `${size}px` }" class="map" />
+  <slot />
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { useBaseLayer, useMap, usePositionLayer } from "./Map";
 import { createBox } from "ol/interaction/Draw";
 import { Draw } from "ol/interaction";
