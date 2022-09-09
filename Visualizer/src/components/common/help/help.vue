@@ -2,7 +2,7 @@
   <div class="label">
     <n-tooltip trigger="hover">
       <template #trigger>
-        <n-icon size="16" style="cursor: help">
+        <n-icon size="16" style="cursor: help" color="grey">
           <help-circle-outline />
         </n-icon>
       </template>

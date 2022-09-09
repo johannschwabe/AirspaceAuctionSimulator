@@ -66,7 +66,7 @@
       <template #label>
         <help v-bind="hOwners">Owners</help>
       </template>
-      <owner />
+      <owner/>
     </n-form-item>
   </n-form>
 

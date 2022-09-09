@@ -52,26 +52,60 @@ where your simulation will be centered. You can use any city as an input here, f
 act as obstacles that the agents have to navigate.`,
 };
 export const hHeight = {
-  title: "",
-  abstract: "",
-  content: ``,
+  title: "Height",
+  abstract: "Maximum flight height of agents",
+  content: `The maximum height your agents are allowed to fly.`,
 };
 export const hVoxelSize = {
-  title: "",
-  abstract: "",
-  content: ``,
+  title: "Voxel Size",
+  abstract: "Qubic voxel dimensions in meters",
+  content: `This parameter lets you specify the resolution of your simulation. Per default, agents
+can navigate through the map with a precision of 1m. By increasing this parameter, your
+agents can navigate less precisely around buildings, but the simulation duration decreases drastically.`,
 };
 export const hSurroundingTiles = {
-  title: "",
-  abstract: "",
-  content: ``,
+  title: "Surrounding Map Tiles",
+  abstract: "Increases playfield size",
+  content: `Per default, a ~800m by ~800m region around your address input is used for the
+simulation - for technical reasons. By increasing the amount of neighbouring tiles,
+you can increase the region to 2400m^2, 4000m^2 and 5600m^2.`,
 };
 export const hMinHeight = {
+  title: "Minimum Flight Height",
+  abstract: "Spawn height of agents",
+  content: `The minimum height your agents must fly up to before navigating the map. Your agents will
+appear at this height. Usually, this height is set to be slightly higher than the average
+building in your city, since we want to prevent agents to fly accross balconies.`,
+};
+export const hAllocationPeriod = {
+  title: "Alocation Period",
+  abstract: "How long new agents spawn",
+  content: `Agents should not be allowed to start their journey in the last timesteps, since they
+will not reach their destination on-time. Hence, you need to specify for how long new
+agents are allowed to enter the playing field. Usually, this parameter should be between
+10 and 33 percent of the total number of timesteps you specified.`,
+};
+export const hOwnerColor = {
+  title: "Owner Color",
+  abstract: "Display color of Agents",
+  content: `All agents spawned by this owner will appear in the specified color within the Simulation Visualizer.`,
+}
+export const hOwnerName = {
   title: "",
   abstract: "",
   content: ``,
 };
-export const hAllocationPeriod = {
+export const hOwnerAgents = {
+  title: "",
+  abstract: "",
+  content: ``,
+};
+export const hOwnerBidding = {
+  title: "",
+  abstract: "",
+  content: ``,
+};
+export const hOwnerValue = {
   title: "",
   abstract: "",
   content: ``,

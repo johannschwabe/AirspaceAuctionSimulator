@@ -30,33 +30,45 @@
         <n-grid-item span="1">
           <n-form-item>
             <template #label>
-              <help v-bind="hAddress">Height (m)</help>
+              <help v-bind="hHeight">Height (m)</help>
             </template>
             <n-input-number v-model:value="simulationConfig.map.height" :min="20" :max="1000" :step="10" />
           </n-form-item>
         </n-grid-item>
 
         <n-grid-item span="1">
-          <n-form-item label="Voxel size (m)">
+          <n-form-item>
+            <template #label>
+              <help v-bind="hVoxelSize">Voxel size (m)</help>
+            </template>
             <n-slider v-model:value="simulationConfig.map.resolution" :max="20" :min="1" :step="1" />
           </n-form-item>
         </n-grid-item>
         <!-- Surrounding Tiles Input -->
         <n-grid-item span="1">
-          <n-form-item label="Surrounding Tiles">
+          <n-form-item>
+            <template #label>
+              <help v-bind="hSurroundingTiles">Surrounding Tiles</help>
+            </template>
             <n-input-number v-model:value="simulationConfig.map.neighbouringTiles" clearable :min="0" :max="3" />
           </n-form-item>
         </n-grid-item>
 
         <!-- Minimum flying height  -->
         <n-grid-item span="1">
-          <n-form-item label="Min height">
+          <n-form-item>
+            <template #label>
+              <help v-bind="hMinHeight">Min height</help>
+            </template>
             <n-input-number v-model:value="simulationConfig.map.minHeight" clearable :min="0" :max="100" />
           </n-form-item>
         </n-grid-item>
         <!--    Allocation Period    -->
         <n-grid-item span="2">
-          <n-form-item label="Allocation Period">
+          <n-form-item>
+            <template #label>
+              <help v-bind="hAllocationPeriod">Allocation Period</help>
+            </template>
             <n-slider
               v-model:value="allocationPeriod"
               :max="Math.pow(simulationConfig.map.timesteps, 1 / 3)"
