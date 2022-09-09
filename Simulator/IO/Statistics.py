@@ -100,7 +100,7 @@ class Statistics:
                                                               path_statistics))
         return allocation_statistics
 
-    def get_non_colliding_value_for_agent(self, agent: "Agent"):
+    def get_non_colliding_value_for_agent(self, agent: "Agent") -> float:
         """
         Calculate the value for an allocation on an empty map (no other agents).
         :param agent:
@@ -113,7 +113,7 @@ class Statistics:
             self.non_colliding_values[agent] = local_agent.value_for_segments(allocation.segments)
         return self.non_colliding_values[agent]
 
-    def get_value_for_agent(self, agent: "Agent"):
+    def get_value_for_agent(self, agent: "Agent") -> float:
         """
         Calculate the value for the allocated segments of an agent.
         :param agent:
@@ -123,7 +123,7 @@ class Statistics:
             self.values[agent] = agent.get_allocated_value()
         return self.values[agent]
 
-    def get_total_non_colliding_value(self):
+    def get_total_non_colliding_value(self) -> float:
         """
         Calculate the value for the allocations of all agents on an empty map summed up.
         :return:
@@ -133,7 +133,7 @@ class Statistics:
             total_value += self.get_non_colliding_value_for_agent(agent)
         return total_value
 
-    def get_total_value(self):
+    def get_total_value(self) -> float:
         """
         Calculate the value for the allocations of all agents summed up.
         :return:
@@ -189,7 +189,7 @@ class Statistics:
         return self._get_value_statistics(values)
 
     @staticmethod
-    def path_segment_statistics(path_segment: "PathSegment"):
+    def path_segment_statistics(path_segment: "PathSegment") -> "PathStatistics":
         """
         Create statistics for a path-segment.
         :param path_segment:
@@ -289,7 +289,7 @@ class Statistics:
                               heights)
 
     @staticmethod
-    def space_segment_statistics(space_segment: "SpaceSegment"):
+    def space_segment_statistics(space_segment: "SpaceSegment") -> "SpaceSegmentStatistics":
         """
         Create statistics for a space-segment.
         :param space_segment:
@@ -431,24 +431,23 @@ class Statistics:
                                                                                         include_speed=False,
                                                                                         use_max_radius=False)
             for intersecting_agent in intersecting_agents:
-                if intersecting_agent != path_agent:
-                    if isinstance(intersecting_agent, PathAgent):
-                        encountered_agent_position = intersecting_agent.get_position_at_tick(coordinate.t)
-                        distance = coordinate.inter_temporal_distance(encountered_agent_position, l2=True)
-                        if distance <= path_agent.near_radius:
-                            if intersecting_agent.id not in violations:
-                                violations[intersecting_agent.id] = []
-                            violations[intersecting_agent.id].append(coordinate)
-                            total_violations += 1
-
-                    elif isinstance(intersecting_agent, SpaceAgent):
-                        if intersecting_agent not in violations:
+                if isinstance(intersecting_agent, PathAgent):
+                    encountered_agent_position = intersecting_agent.get_position_at_tick(coordinate.t)
+                    distance = coordinate.inter_temporal_distance(encountered_agent_position, l2=True)
+                    if distance <= path_agent.near_radius:
+                        if intersecting_agent.id not in violations:
                             violations[intersecting_agent.id] = []
                         violations[intersecting_agent.id].append(coordinate)
                         total_violations += 1
 
-                    else:
-                        raise Exception(f"Invalid agent {intersecting_agent}")
+                elif isinstance(intersecting_agent, SpaceAgent):
+                    if intersecting_agent not in violations:
+                        violations[intersecting_agent.id] = []
+                    violations[intersecting_agent.id].append(coordinate)
+                    total_violations += 1
+
+                else:
+                    raise Exception(f"Invalid agent {intersecting_agent}")
 
         return ViolationStatistics(violations, total_violations)
 

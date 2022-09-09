@@ -85,7 +85,7 @@ class EnvironmentTest(unittest.TestCase):
 
     def test_register_agent(self):
         agi = generate_space_agent()
-        self.env.register_agent(agi, 0)
+        self.env.register_or_reset_agent(agi, 0)
         self.assertIn(hash(agi.id), self.env.agents)
 
     def test_deallocate_path_agent(self):
@@ -120,7 +120,7 @@ class EnvironmentTest(unittest.TestCase):
         alloc_1 = generate_path_allocation()
         real_agent_1 = alloc_1.agent
         alloc_1.agent = real_agent_1.clone()
-        self.env.register_agent(real_agent_1, 0)
+        self.env.register_or_reset_agent(real_agent_1, 0)
         alloc_2 = generate_space_allocation()
         real_agent_2 = alloc_2.agent
         alloc_2.agent = real_agent_2.clone()

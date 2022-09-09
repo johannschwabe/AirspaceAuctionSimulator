@@ -174,7 +174,7 @@ class Environment:
         for allocation in allocations:
             agent = allocation.agent
             segments = allocation.segments
-            self.register_agent(agent, time_step)
+            self.register_or_reset_agent(agent, time_step)
             if isinstance(agent, SpaceAgent):
                 self.allocate_space_for_agent(agent, segments)
 
@@ -184,7 +184,7 @@ class Environment:
             else:
                 raise Exception(f"Invalid Agent: {agent}")
 
-    def register_agent(self, agent: "Agent", time_step: int):
+    def register_or_reset_agent(self, agent: "Agent", time_step: int):
         """
         Register a new (or existing) agent with the environment.
         If the agent already exists, he gets deallocated.
