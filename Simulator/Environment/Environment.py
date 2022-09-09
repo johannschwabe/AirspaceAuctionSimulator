@@ -1,3 +1,4 @@
+import math
 from typing import List, Dict, TYPE_CHECKING, Set, Iterator, Optional
 
 from rtree import Index
@@ -27,7 +28,7 @@ class Environment:
         self.min_height = min_height
 
         if allocation_period is None:
-            allocation_period = dimension.t
+            allocation_period = math.floor(dimension.t / 2)
         self.allocation_period = allocation_period
 
         if blockers is None:

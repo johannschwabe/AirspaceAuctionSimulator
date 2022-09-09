@@ -3,7 +3,7 @@ import math
 import random
 import time
 
-from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, APISimulationConfig, build_json
+from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, build_json
 from Demos.FCFS import FCFSAllocator, FCFSPaymentRule, FCFSPathBiddingStrategy, FCFSSpaceBiddingStrategy, \
     FCFSPathValueFunction, FCFSSpaceValueFunction
 from Demos.Priority import PriorityAllocator, PriorityPaymentRule, PriorityPathBiddingStrategy, \
@@ -41,7 +41,7 @@ def setup_map():
                                   math.floor(size[1]),
                                   time_steps)
     print(dimensions)
-    return EnvironmentGen(map_dimensions, [MapTile([15, 17161, 11475], area)], 50, 10).generate()
+    return EnvironmentGen(map_dimensions, [MapTile([15, 17161, 11475], area)], area, 50, 10).generate()
 
 
 def fcfsSimulation(env: Environment):
@@ -141,10 +141,10 @@ if __name__ == "__main__":
     print(f"SIM: {sim_time / 6e10:2.2f} min")
     print()
 
-    config: APISimulationConfig = {"name": "test",
-                                   "map": {"tiles": []},
-                                   "dimension": environment.dimension.to_dict(),
-                                   "owners": []}
+    config = {"name": "test",
+              "map": {"tiles": []},
+              "dimension": environment.dimension.to_dict(),
+              "owners": []}
 
     tot_time = time.time_ns() - start
     print()

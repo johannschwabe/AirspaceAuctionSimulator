@@ -535,7 +535,7 @@ if not args.skipSimulation:
         print("Running simulation. This may take a while!")
         generator, duration = run_from_config(model_config)
         print(f"-- Simulation Completed in {duration} seconds --")
-        simulation_json = build_json(model_config, generator.simulator, duration)
+        simulation_json = build_json(model_config.dict(), generator.simulator, duration)
 
         # Printing simulation summary flow if user did not provide --skip-summary flag
         if not args.skipSummary:

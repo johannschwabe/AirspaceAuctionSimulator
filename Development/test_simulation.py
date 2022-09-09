@@ -11,7 +11,7 @@ f.close()
 
 generator, duration = run_from_config(config)
 print("--Simulation Completed--")
-res = build_json(config, generator.simulator, duration)
+res = build_json(config.dict(), generator.simulator, duration)
 
 f = open("test_sim.json", "w")
 f.write(json.dumps(res))

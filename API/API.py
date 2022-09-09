@@ -5,6 +5,7 @@ App runs on 'https://localhost:8000/'
 import random
 import time
 import traceback
+from typing import Any, Dict
 
 from fastapi import HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -34,7 +35,7 @@ app.add_middleware(
 )
 
 
-def build_json(config: APISimulationConfig, simulator: "Simulator", simulation_duration: int):
+def build_json(config: Dict[str, Any], simulator: "Simulator", simulation_duration: int):
     simulation_json = get_simulation_dict(simulator)
     statistics_start_time = time.time_ns()
     statistics = get_statistics_dict(simulator)
@@ -42,7 +43,7 @@ def build_json(config: APISimulationConfig, simulator: "Simulator", simulation_d
     statistics_duration = statistics_end_time - statistics_start_time
     statistics_compute_time = statistics_duration
     simulation_compute_time = simulation_duration
-    return {"config": config.dict(),
+    return {"config": config,
             "simulation": simulation_json,
             "statistics": statistics,
             "statistics_compute_time": statistics_compute_time,
@@ -97,7 +98,7 @@ def simulate(config: APISimulationConfig):
         traceback.print_exc()
         raise HTTPException(status_code=404, detail=str(e))
     print("--Simulation Completed--")
-    return build_json(config, generator.simulator, duration)
+    return build_json(config.dict(), generator.simulator, duration)
 
 
 @app.get("/paymentRules/{allocator}")
