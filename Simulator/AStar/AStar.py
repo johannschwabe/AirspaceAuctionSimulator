@@ -159,12 +159,9 @@ class AStar:
                 return True, colliding_agents
             return False, None
 
-        agent_hashes = self.environment.intersect_path_coordinate(position, agent.near_radius, agent.speed)
+        colliding_agents = self.environment.intersect_path_coordinate(position, agent)
 
-        for agent_hash in agent_hashes:
-            if agent_hash == hash(agent):
-                continue
-            colliding_agent = self.environment.agents[agent_hash]
+        for colliding_agent in colliding_agents:
             if isinstance(colliding_agent, PathAgent):
                 distance = position.inter_temporal_distance(colliding_agent.get_position_at_tick(position.t))
                 if distance > max(agent.near_radius, colliding_agent.near_radius):

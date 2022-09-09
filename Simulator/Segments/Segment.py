@@ -33,3 +33,7 @@ class Segment(ABC):
     @abstractmethod
     def max(self) -> "Coordinate4D":
         pass
+
+    @abstractmethod
+    def contains(self, coordinate: "Coordinate4D") -> bool:
+        pass

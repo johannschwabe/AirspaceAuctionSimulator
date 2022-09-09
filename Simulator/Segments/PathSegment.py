@@ -48,6 +48,9 @@ class PathSegment(Segment):
     def clone(self):
         return PathSegment(self.start.clone(), self.end.clone(), self.index, [x.clone() for x in self.coordinates])
 
+    def contains(self, coordinate: "Coordinate4D") -> bool:
+        return coordinate in self.coordinates
+
     def split_temporal(self, t: int) -> Tuple["PathSegment", "PathSegment"]:
         t_index = t - self.min.t
         first_segment = self.clone()

@@ -426,11 +426,10 @@ class Statistics:
         total_violations: int = 0
 
         for coordinate in path_segment.coordinates:
-            intersecting_agent_hashes = self.simulation.environment.intersect_path_coordinate(coordinate,
-                                                                                              path_agent.near_radius)
-            for intersecting_agent_hash in intersecting_agent_hashes:
-                intersecting_agent = self.simulation.environment.agents[intersecting_agent_hash]
-
+            intersecting_agents = self.simulation.environment.intersect_path_coordinate(coordinate,
+                                                                                        path_agent,
+                                                                                        include_speed=False)
+            for intersecting_agent in intersecting_agents:
                 if intersecting_agent != path_agent:
                     if isinstance(intersecting_agent, PathAgent):
                         encountered_agent_position = intersecting_agent.get_position_at_tick(coordinate.t)
@@ -463,18 +462,17 @@ class Statistics:
         violations: Dict[str, List["Coordinate4D"]] = {}
         total_violations: int = 0
 
-        intersecting_segments = self.simulation.environment.intersect_space_segment(
-            space_segment)
+        intersecting_agents = self.simulation.environment.intersect_space_segment(
+            space_segment, space_agent)
 
-        for intersecting_agent in intersecting_segments:
-            if intersecting_agent != space_agent:
-                if intersecting_agent.id not in violations:
-                    violations[intersecting_agent.id] = []
-                for intersecting_space_segment in intersecting_segments[intersecting_agent]:
-                    for space_coordinate in intersecting_space_segment.coordinates:
-                        if space_segment.contains(space_coordinate):
-                            violations[intersecting_agent.id].append(space_coordinate)
-                            total_violations += 1
+        for intersecting_agent in intersecting_agents:
+            if intersecting_agent.id not in violations:
+                violations[intersecting_agent.id] = []
+            for space_coordinate in space_segment.coordinates:
+                for intersecting_segment in intersecting_agent.allocated_segments:
+                    if intersecting_segment.contains(space_coordinate):
+                        violations[intersecting_agent.id].append(space_coordinate)
+                        total_violations += 1
 
         return ViolationStatistics(violations, total_violations)
 
