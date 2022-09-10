@@ -56,6 +56,13 @@ export default class PathAgent extends Agent {
     this._simulation.focusOnAgent(this);
   }
 
+  locationAtTick(tick) {
+    if (!this.isActiveAtTick(tick)) {
+      return undefined;
+    }
+    return this.combinedPath.at(tick);
+  }
+
   get flyingTicks() {
     return Object.keys(this.combinedPath.ticks).map((t) => parseInt(t, 10));
   }

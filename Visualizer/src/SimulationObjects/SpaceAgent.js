@@ -56,6 +56,13 @@ export default class SpaceAgent extends Agent {
     return Object.keys(this.combinedSpace).map((t) => parseInt(t, 10));
   }
 
+  locationAtTick(tick) {
+    if (!this.isActiveAtTick(tick)) {
+      return undefined;
+    }
+    return this.combinedSpace[tick].origin;
+  }
+
   get segmentsStartEnd() {
     return this.spaces.map((space) => [space.min.t, space.max.t]);
   }

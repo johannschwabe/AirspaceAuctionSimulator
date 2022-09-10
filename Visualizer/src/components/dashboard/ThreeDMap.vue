@@ -55,6 +55,7 @@ const doDroneUpdate = () => {
 };
 
 const doFocusUpdate = () => {
+  if (!simulation.agentInFocus) { return; }
   const focusAgentInvisibleBefore = focusAgentInvisible;
   const focusAgentInvisibleNow = !(simulation.agentInFocus.isActiveAtTick(simulation.tick));
 

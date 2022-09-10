@@ -48,11 +48,11 @@ const chartOptions = reactive({
 
 const series = reactive([
   {
-    name: "Optimal Welfare",
+    name: "Non-Colliding Utility",
     data: [],
   },
   {
-    name: "Achieved Welfare",
+    name: "Achieved Utility",
     data: [],
   },
 ]);
