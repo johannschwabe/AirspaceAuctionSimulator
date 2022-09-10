@@ -386,11 +386,6 @@ combined-stream@^1.0.8:
   dependencies:
     delayed-stream "~1.0.0"
 
-compress-json@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/compress-json/-/compress-json-2.1.1.tgz#8b29890e6bb606eb7992edd5bdeafe8a445a48da"
-  integrity sha512-ahSe5zh23mQoOA9kYtttXIRQDETKJ/u3+myRCNLsY1mOg+7pa72RHs/CjJ2n3q5Q3XJMYMHyXP+dEAapmWfYFQ==
-
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"

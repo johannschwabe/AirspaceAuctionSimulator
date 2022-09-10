@@ -196,7 +196,8 @@ const loadingForSeconds = ref(0);
 const loadingInterval = ref(undefined);
 const finished = ref(false);
 
-const canRecoverSimulation = ref(hasSimulationSingleton() || canRecoverSimulationSingleton());
+const canRecoverSimulation = ref(hasSimulationSingleton());
+canRecoverSimulationSingleton().then((val) => (canRecoverSimulation.value = canRecoverSimulation.value || val));
 
 const rules = {
   name: [
@@ -260,7 +261,8 @@ const uploadConfiguration = (upload) => {
   const fileReader = new FileReader();
   fileReader.onload = async (event) => {
     const data = JSON.parse(event.target.result);
-    simulationConfig.overwrite(data);
+    const config = data.config ?? data;
+    simulationConfig.overwrite(config);
     emitConfigLoaded();
   };
   fileReader.onerror = () => {
@@ -281,12 +283,12 @@ const simulate = () => {
       startLoading();
       postSimulation(simulationConfig.generateConfigJson())
         .then((data) => {
-          const simulation = new Simulation(data);
+          const simulation = new Simulation(data.simulation, data.config, data.statistics);
+          setSimulationConfig(data.config);
           return simulation.load();
         })
         .then((simulation) => {
           setSimulationSingleton(simulation);
-          setSimulationConfig(simulation);
           loadingBar.finish();
           message.success("Simulation Created!");
           finished.value = true;

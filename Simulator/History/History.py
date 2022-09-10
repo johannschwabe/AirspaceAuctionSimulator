@@ -1,6 +1,4 @@
-from typing import List, Dict, TYPE_CHECKING
-
-from .HistoryAgent import HistoryAgent
+from typing import Dict, TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from ..Agents.Agent import Agent
@@ -8,20 +6,41 @@ if TYPE_CHECKING:
 
 
 class History:
+    """
+    Record values for statistical analysis.
+    """
+
     def __init__(self):
-        self.agents: Dict["Agent", "HistoryAgent"] = {}
+        """
+        Allocation per agent per tick.
+        Compute-time per tick.
+        Registration tick per agent.
+        """
+        self.allocations: Dict["Agent", Dict[int, "Allocation"]] = {}
         self.compute_times: Dict[int, int] = {}
+        self.registrations: Dict["Agent", int] = {}
+        self.reallocations: Dict["Agent", int] = {}
+        self.total_reallocations = 0
 
-    def add_new_agents(self, agents: List["Agent"], time_step: int):
-        for agent in agents:
-            self.agents[agent] = HistoryAgent(agent, time_step)
-
-    def update_allocations(self,
-                           new_allocations: List["Allocation"],
-                           time_step: int,
-                           compute_time: int):
+    def update_history(self,
+                       new_allocations: List["Allocation"],
+                       time_step: int,
+                       compute_time: int):
+        """
+        Update history.
+        :param new_allocations:
+        :param time_step:
+        :param compute_time:
+        :return:
+        """
         self.compute_times[time_step] = compute_time
         for allocation in new_allocations:
-            history_agent = self.agents[allocation.agent]
-            history_agent.reallocation(allocation.segments, allocation.statistics.reason, time_step,
-                                       allocation.statistics.compute_time)
+            agent = allocation.agent
+            if agent not in self.allocations:
+                self.registrations[agent] = time_step
+                self.allocations[agent] = {}
+                self.reallocations[agent] = 0
+            else:
+                self.reallocations[agent] += 1
+                self.total_reallocations += 1
+            self.allocations[agent][time_step] = allocation

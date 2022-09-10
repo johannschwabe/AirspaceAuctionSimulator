@@ -6,24 +6,23 @@ import Agent from "./Agent";
 export default class PathAgent extends Agent {
   /**
    *
-   * @param {RawAgent} rawAgent
+   * @param {JSONAgent} rawAgent
    * @param {Owner} owner
    * @param {Simulation} simulation
+   * @param {AgentStatistics} agentStats
    */
-  constructor(rawAgent, owner, simulation) {
-    super(rawAgent, owner, simulation);
+  constructor(rawAgent, owner, simulation, agentStats) {
+    super(rawAgent, owner, simulation, agentStats);
     this.speed = rawAgent.speed;
     this.nearRadius = rawAgent.near_radius;
-    this.farRadius = rawAgent.far_radius;
     this.battery = rawAgent.battery;
-    this.timeInAir = rawAgent.time_in_air;
-    this.nearFieldIntersections = rawAgent.near_field_intersections;
-    this.farFieldIntersections = rawAgent.far_field_intersections;
-    this.nearFieldViolations = rawAgent.near_field_violations;
-    this.farFieldViolations = rawAgent.far_field_violations;
+    this.timeInAir = agentStats.time_in_air;
     this.paths = rawAgent.paths.map((path) => new Path(path));
     this.combinedPath = Path.join(this.paths);
-    this.branches = rawAgent.branches.map((branch) => new Branch(branch));
+    this.branches = rawAgent.branches.map((branch) => {
+      const branchStats = agentStats.allocations.find((allocationStats) => allocationStats.tick === branch.tick);
+      return new Branch(branch, branchStats);
+    });
   }
 
   /**
@@ -41,7 +40,7 @@ export default class PathAgent extends Agent {
     });
     this.branches.forEach((branch) => {
       const reallocationLocation = branch.paths[0].firstLocation;
-      const reallocationEvent = new ReallocationEvent(branch.tick, reallocationLocation, branch.collision.reason);
+      const reallocationEvent = new ReallocationEvent(branch.tick, reallocationLocation, branch.reason);
       events.push(reallocationEvent);
     });
     events.sort(FlightEvent.sortEventsFunction);

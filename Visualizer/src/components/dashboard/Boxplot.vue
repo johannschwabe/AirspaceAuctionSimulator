@@ -10,7 +10,7 @@ import { reactive } from "vue";
 const props = defineProps({
   title: String,
   color: String,
-  quantiles: Array,
+  quartiles: Array,
   outliers: Array,
   min: Number,
   max: Number,
@@ -62,7 +62,7 @@ const series = reactive([
     data: [
       {
         x: props.title,
-        y: [props.min, ...props.quantiles, props.max],
+        y: [props.min, ...props.quartiles, props.max],
       },
     ],
   },

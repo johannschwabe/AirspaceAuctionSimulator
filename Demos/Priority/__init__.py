@@ -4,6 +4,6 @@ from .BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStra
 from .BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
 from .Bids.PriorityPathBid import PriorityPathBid
 from .Bids.PrioritySpaceBid import PrioritySpaceBid
-from .Owners.PriorityPathOwner import PriorityPathOwner
-from .Owners.PrioritySpaceOwner import PrioritySpaceOwner
 from .PaymentRule.PriorityPaymentRule import PriorityPaymentRule
+from .ValueFunction.PriorityPathValueFunction import PriorityPathValueFunction
+from .ValueFunction.PrioritySpaceValueFunction import PrioritySpaceValueFunction

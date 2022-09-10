@@ -54,11 +54,11 @@ watch(selectedModel, () => {
       }
     })
     .then(async (data) => {
-      persistSimulation(data);
-      const simulation = new Simulation(data);
+      await persistSimulation(data);
+      const simulation = new Simulation(data.simulation);
       await simulation.load();
       setSimulationSingleton(simulation);
-      setSimulationConfig(simulation);
+      setSimulationConfig(data.config);
       await router.push({ name: "dashboard" });
     });
 });

@@ -73,7 +73,7 @@ class Generator:
                                vf.__name__ == apiOwner.valueFunction]
             if len(value_functions) != 1:
                 raise Exception(f"{len(value_functions)} bidding strategies found")
-            selected_value_functions = value_functions[0]({})
+            selected_value_functions = value_functions[0]()
 
             if apiOwner.biddingStrategy.allocationType == "space":
                 dim_x = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if

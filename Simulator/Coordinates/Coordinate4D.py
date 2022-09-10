@@ -10,7 +10,7 @@ class Coordinate4D(Coordinate3D):
         self.t: int = t
 
     @staticmethod
-    def from_3d(coord_3d: "Coordinate3D", t: int) -> "Coordinate4D":
+    def from_3D(coord_3d: "Coordinate3D", t: int) -> "Coordinate4D":
         return Coordinate4D(coord_3d.x, coord_3d.y, coord_3d.z, t)
 
     def to_dict(self) -> Dict[str, int]:
@@ -24,6 +24,30 @@ class Coordinate4D(Coordinate3D):
                self.y == other.y and \
                self.z == other.z and \
                self.t == other.t
+
+    def __lt__(self, other) -> bool:
+        return self.x < other.x and \
+               self.y < other.y and \
+               self.z < other.z and \
+               self.t < other.t
+
+    def __gt__(self, other) -> bool:
+        return self.x > other.x and \
+               self.y > other.y and \
+               self.z > other.z and \
+               self.t > other.t
+
+    def __ge__(self, other) -> bool:
+        return self.x >= other.x and \
+               self.y >= other.y and \
+               self.z >= other.z and \
+               self.t >= other.t
+
+    def __le__(self, other) -> bool:
+        return self.x <= other.x and \
+               self.y <= other.y and \
+               self.z <= other.z and \
+               self.t <= other.t
 
     def __hash__(self) -> int:
         return hash(f"{self.x}:{self.y}:{self.z}:{self.t}")
@@ -43,7 +67,7 @@ class Coordinate4D(Coordinate3D):
     def list_rep(self) -> List[int]:
         return [self.x, self.y, self.z, self.t]
 
-    def to_inter_temporal(self) -> "Coordinate3D":
+    def to_3D(self) -> "Coordinate3D":
         return Coordinate3D(self.x, self.y, self.z)
 
     def __add__(self, other) -> "Coordinate4D":

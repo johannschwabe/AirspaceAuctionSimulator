@@ -1,17 +1,17 @@
 export default class Agent {
   /**
    *
-   * @param {RawAgent} rawAgent
+   * @param {JSONAgent} rawAgent
    * @param {Owner} owner
    * @param {Simulation} simulation
+   * @param {AgentStatistics} agentStats
    */
-  constructor(rawAgent, owner, simulation) {
+  constructor(rawAgent, owner, simulation, agentStats) {
     this.agentType = rawAgent.agent_type;
     this.id = rawAgent.id;
-    this.name = rawAgent.name;
-    this.utility = rawAgent.utility;
-    this.nonCollidingUtility = rawAgent.non_colliding_utility;
-    this.bid = rawAgent.bid;
+    this.name = owner.name + "-" + rawAgent.id;
+    this.utility = agentStats.value;
+    this.nonCollidingUtility = agentStats.non_colliding_value;
     this.owner = owner;
     this.color = owner.color;
     this._simulation = simulation;

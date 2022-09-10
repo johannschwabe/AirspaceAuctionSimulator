@@ -6,17 +6,18 @@ import { FlightEvent, ReservationEndEvent, ReservationStartEvent } from "@/Simul
 export default class SpaceAgent extends Agent {
   /**
    *
-   * @param {RawAgent} rawAgent
+   * @param {JSONAgent} rawAgent
    * @param {Owner} owner
    * @param {Simulation} simulation
+   * @param {AgentStatistics} agentStats
    */
-  constructor(rawAgent, owner, simulation) {
-    super(rawAgent, owner, simulation);
+  constructor(rawAgent, owner, simulation, agentStats) {
+    super(rawAgent, owner, simulation, agentStats);
 
     /**
      * @type {Space[]}
      */
-    this.spaces = rawAgent.spaces.map((space) => new Space(space.min, space.max));
+    this.spaces = rawAgent.spaces.map((space) => new Space(space));
 
     /**
      * @type {Object<int, Coordinate4D>}

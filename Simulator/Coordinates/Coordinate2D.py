@@ -25,6 +25,10 @@ class Coordinate2D:
         return Coordinate2D(self.x - other.x, self.z - other.z)
 
     @property
+    def area(self) -> int:
+        return self.x * self.z
+
+    @property
     def l1(self) -> int:
         return abs(self.x) + abs(self.z)
 

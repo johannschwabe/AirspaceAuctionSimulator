@@ -3,12 +3,14 @@ Run server using >>> uvicorn API:app --reload
 App runs on 'https://localhost:8000/'
 """
 import random
+import time
 import traceback
+from typing import Any, Dict
 
 from fastapi import HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from Simulator import build_json
+from Simulator import Simulator, get_simulation_dict, get_statistics_dict
 from .Runners import run_from_config
 from .Types import APISimulationConfig
 from .config import available_allocators
@@ -31,6 +33,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def build_json(config: Dict[str, Any], simulator: "Simulator", simulation_duration: int):
+    simulation_json = get_simulation_dict(simulator)
+    statistics_start_time = time.time_ns()
+    statistics = get_statistics_dict(simulator)
+    statistics_end_time = time.time_ns()
+    statistics_duration = statistics_end_time - statistics_start_time
+    statistics_compute_time = statistics_duration
+    simulation_compute_time = simulation_duration
+    return {"config": config,
+            "simulation": simulation_json,
+            "statistics": statistics,
+            "statistics_compute_time": statistics_compute_time,
+            "simulation_compute_time": simulation_compute_time}
 
 
 @app.get("/allocators")
@@ -81,9 +98,7 @@ def simulate(config: APISimulationConfig):
         traceback.print_exc()
         raise HTTPException(status_code=404, detail=str(e))
     print("--Simulation Completed--")
-    json = build_json(generator.simulator, duration)
-    json["config"] = config
-    return json
+    return build_json(config.dict(), generator.simulator, duration)
 
 
 @app.get("/paymentRules/{allocator}")

@@ -35,6 +35,13 @@ class Coordinate3D(Coordinate2D):
     def l2(self) -> float:
         return math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
+    @property
+    def volume(self) -> int:
+        return self.x * self.y * self.z
+
+    def to_2D(self) -> Coordinate2D:
+        return Coordinate2D(self.x, self.z)
+
     def distance(self, other: "Coordinate3D", l2: bool = False) -> float:
         if l2:
             return ((self.x - other.x) ** 2 + (self.y - other.y) ** 2 + (self.z - other.z) ** 2) ** 0.5

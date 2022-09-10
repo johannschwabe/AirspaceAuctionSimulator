@@ -10,9 +10,6 @@ class PriorityPathValueFunction(ValueFunction):
     label = "PrioPath"
     description = "Magic"
 
-    def __init__(self, config):
-        super().__init__(config)
-
     def value_for_segments(self, segments: List["Segment"], agent: "PathAgent"):
         if len(segments) == 0:
             return 0.

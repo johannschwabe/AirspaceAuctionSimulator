@@ -51,7 +51,8 @@ import { canRecoverSimulationSingleton, hasSimulationSingleton } from "@/scripts
 const router = useRouter();
 const loadingBar = useLoadingBar();
 
-const canRecoverSimulation = ref(hasSimulationSingleton() || canRecoverSimulationSingleton());
+const canRecoverSimulation = ref(hasSimulationSingleton());
+canRecoverSimulationSingleton().then((val) => (canRecoverSimulation.value = canRecoverSimulation.value || val));
 
 // The dashboard will recover the simulationt that can be recovered through localStorage
 const recoverSession = () => {
