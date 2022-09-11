@@ -21,6 +21,7 @@
     <simple-data-table :title="`Allocation ${index + 1}`" :datapoints="allocation.allocationData" />
     <simple-data-table :subtitle="`Path for Allocation ${index + 1}`" :datapoints="allocation.pathData" />
   </template>
+  <simple-data-table title="Violations" :datapoints="violationDatapoints" v-if="violationDatapoints.length > 0" />
 </template>
 
 <script setup>
@@ -269,6 +270,14 @@ const allocations = computed(() =>
     pathData: pathToDatapoints(stat.pathStatistics),
   }))
 );
+
+const violationDatapoints = computed(() => {
+  return Object.entries(simulation.agentInFocus.violations).map(([agent_id, loc]) => ({
+    label: `Agent ${agent_id}`,
+    value: loc,
+    icon: GitPullRequest,
+  }));
+});
 
 const fillColor = (event) => {
   return {

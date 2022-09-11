@@ -28,6 +28,9 @@ export default class Agent {
     this.pathStatistics = agentStats.path ? new PathStatistic(agentStats.path) : null;
     this.allocationStatistics = agentStats.allocations.map((a) => new AllocationStatistic(a));
 
+    this.reAllocationTimesteps = [];
+    this.violationsTimesteps = Object.values(agentStats.violations).map((loc) => loc.t);
+
     this._simulation = simulation;
   }
 

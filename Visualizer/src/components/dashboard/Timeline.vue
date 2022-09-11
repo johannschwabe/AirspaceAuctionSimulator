@@ -1,12 +1,7 @@
 <template>
   <div class="flex">
     <div class="flex">
-      <n-button
-        quaternary
-        circle
-        v-for="control in controls"
-        @click="control.action"
-      >
+      <n-button quaternary circle v-for="control in controls" @click="control.action">
         <template #icon>
           <n-icon :component="control.icon" />
         </template>
@@ -25,7 +20,13 @@
     <div style="flex-grow: 1">
       <vue-apex-charts ref="timelineChart" type="bar" height="75" :options="agentChartOptions" :series="agentSeries" />
       <div style="margin-top: -30px">
-        <vue-apex-charts ref="collisionsChart" type="bar" height="75" :options="eventChartOptions" :series="eventSeries" />
+        <vue-apex-charts
+          ref="collisionsChart"
+          type="bar"
+          height="75"
+          :options="eventChartOptions"
+          :series="eventSeries"
+        />
       </div>
       <div style="padding: 0 15px 0 35px; margin-top: -85px; z-index: 100000">
         <n-slider
@@ -46,10 +47,17 @@ import VueApexCharts from "vue3-apexcharts";
 import { reactive, ref, computed } from "vue";
 import { debounce } from "lodash-es";
 
-import {onAgentsSelected, onFocusOffAgent, onFocusOnAgent} from "@/scripts/emitter";
+import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent } from "@/scripts/emitter";
 import { useSimulationSingleton } from "@/scripts/simulation";
 
-import { PlayOutline, PauseOutline, PlaySkipForwardOutline, PlaySkipBackOutline, PlayBackOutline, PlayForwardOutline, } from "@vicons/ionicons5";
+import {
+  PlayOutline,
+  PauseOutline,
+  PlaySkipForwardOutline,
+  PlaySkipBackOutline,
+  PlayBackOutline,
+  PlayForwardOutline,
+} from "@vicons/ionicons5";
 
 const simulation = useSimulationSingleton();
 
@@ -61,7 +69,7 @@ const currentTick = ref(simulation.tick);
 let interval;
 
 const playing = ref(false);
-const controls = computed(() => ([
+const controls = computed(() => [
   {
     icon: PlaySkipBackOutline,
     action: firstTick,
@@ -82,7 +90,7 @@ const controls = computed(() => ([
     icon: PlaySkipForwardOutline,
     action: lastTick,
   },
-]));
+]);
 
 const agentChartOptions = {
   chart: {
@@ -118,7 +126,7 @@ const agentChartOptions = {
     axisTicks: { show: false },
     axisBorder: { show: false },
   },
-}
+};
 
 const eventChartOptions = {
   chart: {
@@ -166,12 +174,12 @@ const agentSeries = reactive([
 
 const eventSeries = reactive([
   {
-    name: "# Collisions",
-    data: simulation.timeline.map((y, x) => ({ x, y: -Math.floor(y / 5) })),
+    name: "# Violations",
+    data: simulation.timelineViolations.map((y, x) => ({ x, y: -y })),
   },
   {
     name: "# Reallocations",
-    data: simulation.timeline.map((y, x) => ({ x, y: -Math.floor(y / 4) })),
+    data: simulation.timelineReAllocations.map((y, x) => ({ x, y: -y })),
   },
 ]);
 
@@ -245,13 +253,12 @@ onAgentsSelected(() => {
 function getTimelineColors(lightColor, darkColor) {
   return Array.from({ length: simulation.timeline.length }).map((_, i) => {
     if (simulation.agentInFocus)
-      if (i < simulation.agentInFocus.veryFirstTick || i > simulation.agentInFocus.veryLastTick)
-        return darkColor
+      if (i < simulation.agentInFocus.veryFirstTick || i > simulation.agentInFocus.veryLastTick) return darkColor;
     return lightColor;
   });
 }
 function getBaselineColor() {
-  return Array.from({ length: simulation.timeline.length }).map((_) => "#2a947d")
+  return Array.from({ length: simulation.timeline.length }).map((_) => "#2a947d");
 }
 
 function updateChartColor() {
@@ -264,7 +271,7 @@ function baselineChartColor() {
     colors: getBaselineColor(),
   });
 }
-onFocusOnAgent(updateChartColor)
+onFocusOnAgent(updateChartColor);
 onFocusOffAgent(baselineChartColor);
 </script>
 

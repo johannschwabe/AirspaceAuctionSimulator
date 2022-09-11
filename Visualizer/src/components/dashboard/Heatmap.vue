@@ -75,8 +75,8 @@ const chartOptions = {
 const series = reactive([]);
 
 // Fill series with zeroes
-const dimXlength = simulation.dimensions[props.dimX] / props.buckets;
-const dimYlength = simulation.dimensions[props.dimY] / props.buckets;
+const dimXlength = (simulation.dimensions[props.dimX] + 1) / props.buckets;
+const dimYlength = (simulation.dimensions[props.dimY] + 1) / props.buckets;
 
 for (let bucket = 0; bucket < props.buckets; bucket++) {
   series.push({

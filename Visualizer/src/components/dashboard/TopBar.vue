@@ -62,21 +62,21 @@ import { useSimulationSingleton } from "@/scripts/simulation";
 const router = useRouter();
 const simulation = useSimulationSingleton();
 
+const dim = computed(() => {
+  const { x, y, z } = simulation.dimensions;
+  return `${x}/${y}/${z}`;
+});
+
 const stats = computed(() => {
   return [
     {
-      label: "Dimension X",
-      value: simulation.dimensions.x,
+      label: "Dimensions",
+      value: dim.value,
       icon: Cube,
     },
     {
-      label: "Dimension Y",
-      value: simulation.dimensions.y,
-      icon: Cube,
-    },
-    {
-      label: "Dimension Z",
-      value: simulation.dimensions.z,
+      label: "Timesteps",
+      value: simulation.dimensions.t,
       icon: Cube,
     },
     {
@@ -90,9 +90,9 @@ const stats = computed(() => {
       icon: Fish,
     },
     {
-      label: "Welfare",
-      value: simulation.statistics.totalValue,
-      icon: HappyOutline,
+      label: "Re-Allocations",
+      value: simulation.statistics.totalNumberOfReallocations,
+      icon: GitBranch,
     },
     {
       label: "Collisions",
@@ -100,11 +100,16 @@ const stats = computed(() => {
       icon: GitPullRequest,
     },
     {
-      label: "Re-Allocations",
-      value: simulation.statistics.totalNumberOfReallocations,
-      icon: GitBranch,
+      label: "Utility",
+      value: Math.round(simulation.statistics.totalValue * 100) / 100,
+      icon: HappyOutline,
     },
-  ];
+    {
+      label: "Non-Colliding Utility",
+      value: Math.round(simulation.statistics.totalNonCollidingValue * 100) / 100,
+      icon: HappyOutline,
+    },
+  ]
 });
 </script>
 

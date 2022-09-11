@@ -23,6 +23,7 @@ export default class PathAgent extends Agent {
       const branchStats = agentStats.allocations.find((allocationStats) => allocationStats.tick === branch.tick);
       return new Branch(branch, branchStats);
     });
+    this.reAllocationTimesteps = this.branches.map((branch) => branch.tick);
   }
 
   /**
@@ -39,6 +40,7 @@ export default class PathAgent extends Agent {
       events.push(arrivalEvent);
     });
     this.branches.forEach((branch) => {
+      console.log(branch);
       const reallocationLocation = branch.paths[0].firstLocation;
       const reallocationEvent = new ReallocationEvent(branch.tick, reallocationLocation, branch.reason);
       events.push(reallocationEvent);
