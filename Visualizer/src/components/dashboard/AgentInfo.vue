@@ -244,7 +244,6 @@ const allocations = computed(() =>
       {
         label: "Compute Time",
         value: () => {
-          console.log(stat.compute_time);
           const milliseconds = stat.compute_time / 1000;
           const date = set(new Date(), {
             year: 0,

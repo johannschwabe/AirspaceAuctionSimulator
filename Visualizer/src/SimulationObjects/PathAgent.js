@@ -40,7 +40,6 @@ export default class PathAgent extends Agent {
       events.push(arrivalEvent);
     });
     this.branches.forEach((branch) => {
-      console.log(branch);
       const reallocationLocation = branch.paths > 0 ? branch.paths[0].firstLocation : null;
       const reallocationEvent = new ReallocationEvent(branch.tick, reallocationLocation, branch.reason);
       events.push(reallocationEvent);
