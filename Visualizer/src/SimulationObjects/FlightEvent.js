@@ -65,10 +65,10 @@ export class ReallocationEvent extends FlightEvent {
   /**
    * @param {int} tick
    * @param {Coordinate3D} location
-   * @param {ReasonEnum} reallocationReason
+   * @param {string} reallocationReason
    */
   constructor(tick, location, reallocationReason) {
-    super("Reallocation", "warning", mdiSourceBranch, tick, reallocationReason.name);
+    super("Allocation", "warning", mdiSourceBranch, tick, reallocationReason);
     this.location = location;
   }
 }

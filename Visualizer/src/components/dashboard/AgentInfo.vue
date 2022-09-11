@@ -16,10 +16,15 @@
   <n-divider style="margin-bottom: 6px" />
   <simple-data-table title="General Info" :datapoints="datapoints" />
   <simple-data-table title="Path info" :datapoints="pathDatapoints" />
-  <height-profile label="Height profile" :color="simulation.agentInFocus.color" :data="heightProfileData" />
+  <height-profile
+    label="Height profile"
+    :color="simulation.agentInFocus.color"
+    :data="heightProfileData"
+    v-if="heightProfileData"
+  />
   <template v-for="(allocation, index) in allocations" :key="`${simulation.agentInFocus.id}-${index}`">
     <simple-data-table :title="`Allocation ${index + 1}`" :datapoints="allocation.allocationData" />
-    <simple-data-table :subtitle="`Path for Allocation ${index + 1}`" :datapoints="allocation.pathData" />
+    <simple-data-table :subtitle="`Path for Allocation ${index + 1}`" :datapoints="allocation.pathData" v-if="allocation.pathData.length > 0"/>
   </template>
   <simple-data-table title="Violations" :datapoints="violationDatapoints" v-if="violationDatapoints.length > 0" />
 </template>
@@ -140,7 +145,7 @@ const pathDatapoints = computed(() => {
 });
 
 const heightProfileData = computed(() => {
-  return simulation.agentInFocus.pathStatistics.heightProfile;
+  return simulation.agentInFocus.pathStatistics?.heightProfile;
 });
 
 function pathToDatapoints(path) {
