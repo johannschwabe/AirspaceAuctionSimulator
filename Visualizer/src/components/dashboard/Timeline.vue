@@ -58,6 +58,7 @@ import {
   PlayBackOutline,
   PlayForwardOutline,
 } from "@vicons/ionicons5";
+import { ReallocationEvent } from "@/SimulationObjects/FlightEvent";
 
 const simulation = useSimulationSingleton();
 
@@ -188,8 +189,23 @@ const updateAgentSeries = () => {
 };
 
 const updateEventSeries = () => {
-  eventSeries[0].data = simulation.timeline.map((y, x) => ({ x, y: -y }));
-  eventSeries[1].data = simulation.timeline.map((y, x) => ({ x, y: -y }));
+  eventSeries[0].data = simulation.timelineViolations.map((y, x) => ({ x, y: -y }));
+  eventSeries[1].data = simulation.timelineReAllocations.map((y, x) => ({ x, y: -y }));
+};
+
+const agentFocussedEventSeries = () => {
+  const timelineViolations = Array(simulation.maxTick).fill(0);
+  simulation.agentInFocus.violationsTimesteps.forEach((tick) => {
+    timelineViolations[tick] += 1;
+  });
+  const timelineReAllocations = Array(simulation.maxTick).fill(0);
+  simulation.agentInFocus.events.forEach((event) => {
+    if (event instanceof ReallocationEvent && event.content !== "FIRST_ALLOCATION") {
+      timelineReAllocations[event.tick] += 1;
+    }
+  });
+  eventSeries[0].data = timelineViolations.map((y, x) => ({ x, y: -y }));
+  eventSeries[1].data = timelineReAllocations.map((y, x) => ({ x, y: -y }));
 };
 
 const setTick = debounce(
@@ -271,8 +287,14 @@ function baselineChartColor() {
     colors: getBaselineColor(),
   });
 }
-onFocusOnAgent(updateChartColor);
-onFocusOffAgent(baselineChartColor);
+onFocusOnAgent(() => {
+  updateChartColor();
+  agentFocussedEventSeries();
+});
+onFocusOffAgent(() => {
+  baselineChartColor();
+  updateEventSeries();
+});
 </script>
 
 <style scoped>
