@@ -7,8 +7,8 @@ from .Agents.PathAgent import PathAgent
 from .Agents.SpaceAgent import SpaceAgent
 # Allocations
 from .Allocations.Allocation import Allocation
+from .Allocations.AllocationHistory import AllocationHistory
 from .Allocations.AllocationReason import AllocationReason
-from .Allocations.AllocationStatistics import AllocationStatistics
 # BidTracker
 from .BidTracker.BidTracker import BidTracker
 # Bids

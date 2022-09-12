@@ -7,6 +7,7 @@ from rtree import index, Index
 from .Stringify import Stringify
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
+from ..Bids.Bid import Bid
 from ..Coordinates.Coordinate2D import Coordinate2D
 from ..Owners.Owner import Owner
 from ..Segments.PathSegment import PathSegment
@@ -94,11 +95,11 @@ class Statistics:
             path_statistics = self.path_statistics(allocation.segments)
             allocation_statistics.append(AllocationStatistics(tick,
                                                               path_agent.value_for_segments(allocation.segments),
-                                                              allocation.statistics.compute_time,
-                                                              allocation.statistics.reason,
-                                                              allocation.statistics.explanation,
-                                                              allocation.statistics.colliding_agent_ids,
-                                                              allocation.statistics.displacing_agent_ids,
+                                                              allocation.history.compute_time,
+                                                              allocation.history.reason,
+                                                              allocation.history.explanation,
+                                                              allocation.history.colliding_agent_ids,
+                                                              allocation.history.displacing_agent_ids,
                                                               path_statistics))
         return allocation_statistics
 
@@ -657,6 +658,7 @@ class AllocationStatistics(Stringify):
     def __init__(self,
                  tick: int,
                  value: float,
+                 bid: "Bid",
                  compute_time: int,
                  reason: str,
                  explanation: str,
@@ -665,6 +667,7 @@ class AllocationStatistics(Stringify):
                  path_statistics: Optional["PathStatistics"]):
         self.tick: int = tick
         self.value: float = value
+        self.bid: Dict[str, str | int | float] = bid.to_dict()
         self.reason: str = reason
         self.explanation: str = explanation
         self.colliding_agent_ids: Set[str] = colliding_agent_ids if colliding_agent_ids is not None else []

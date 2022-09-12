@@ -2,7 +2,7 @@ from time import time_ns
 from typing import List, Optional, Dict, TYPE_CHECKING, Tuple
 
 from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, \
-    AllocationStatistics, Agent, BidTracker
+    AllocationHistory, Agent, BidTracker
 from Simulator.Coordinates.Coordinate4D import Coordinate4D
 from ..BidTracker.FCFSBidTracker import FCFSBidTracker
 from ..BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
@@ -159,11 +159,7 @@ class FCFSAllocator(Allocator):
             bid = self.bid_tracker.request_new_bid(tick, agent, environment)
 
             if bid is None:
-                allocations[agent] = Allocation(agent, [],
-                                                AllocationStatistics(time_ns() - start_time,
-                                                                     AllocationReason.ALLOCATION_FAILED,
-                                                                     "Crashed."))
-                continue
+                raise Exception(f"Agent is stuck. {agent}")
 
             # Path Agents
             if isinstance(bid, FCFSPathBid):
@@ -171,9 +167,10 @@ class FCFSAllocator(Allocator):
 
                 if optimal_segments is None:
                     allocations[agent] = Allocation(agent, [],
-                                                    AllocationStatistics(time_ns() - start_time,
-                                                                         AllocationReason.ALLOCATION_FAILED,
-                                                                         explanation))
+                                                    AllocationHistory(bid,
+                                                                      time_ns() - start_time,
+                                                                      AllocationReason.ALLOCATION_FAILED,
+                                                                      explanation))
                     continue
 
             # Space Agents
@@ -185,9 +182,10 @@ class FCFSAllocator(Allocator):
                 raise Exception(f"Invalid Bid: {bid}")
 
             new_allocation = Allocation(agent, optimal_segments,
-                                        AllocationStatistics(time_ns() - start_time,
-                                                             AllocationReason.FIRST_ALLOCATION,
-                                                             explanation))
+                                        AllocationHistory(bid,
+                                                          time_ns() - start_time,
+                                                          AllocationReason.FIRST_ALLOCATION,
+                                                          explanation))
             allocations[agent] = new_allocation
             environment.allocate_segments_for_agents([new_allocation], tick)
 

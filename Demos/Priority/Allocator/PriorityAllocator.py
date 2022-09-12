@@ -2,7 +2,7 @@ from time import time_ns
 from typing import List, Tuple, Set, Optional, Dict, TYPE_CHECKING
 
 from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation, \
-    AllocationStatistics, AStar
+    AllocationHistory, AStar
 from Simulator.Coordinates.Coordinate4D import Coordinate4D
 from ..BidTracker.PriorityBidTracker import PriorityBidTracker
 from ..BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStrategy
@@ -68,7 +68,7 @@ class PriorityAllocator(Allocator):
         if bid.flying:
             if a.t != tick:
                 return None, None, f"Cannot teleport to {a} at tick {tick}."
-            
+
             valid, _ = astar.is_valid_for_allocation(a, bid.agent)
             if not valid:
                 return None, None, f"Cannot escape {a}."
@@ -207,9 +207,10 @@ class PriorityAllocator(Allocator):
 
                 if optimal_segments is None:
                     allocations[agent] = Allocation(agent, [],
-                                                    AllocationStatistics(time_ns() - start_time,
-                                                                         AllocationReason.ALLOCATION_FAILED,
-                                                                         explanation))
+                                                    AllocationHistory(bid,
+                                                                      time_ns() - start_time,
+                                                                      AllocationReason.ALLOCATION_FAILED,
+                                                                      explanation))
                     continue
 
             # Space Agents
@@ -235,11 +236,12 @@ class PriorityAllocator(Allocator):
                                         displacements[agent]]) if agent in displacements else None
             collision_ids = set([collision.id for collision in collisions])
             new_allocation = Allocation(agent, optimal_segments,
-                                        AllocationStatistics(time_ns() - start_time,
-                                                             reason,
-                                                             explanation,
-                                                             colliding_agent_ids=collision_ids,
-                                                             displacing_agent_ids=displacing_agent_ids))
+                                        AllocationHistory(bid,
+                                                          time_ns() - start_time,
+                                                          reason,
+                                                          explanation,
+                                                          colliding_agent_ids=collision_ids,
+                                                          displacing_agent_ids=displacing_agent_ids))
             allocations[agent] = new_allocation
             environment.allocate_segments_for_agents([new_allocation], tick)
 
