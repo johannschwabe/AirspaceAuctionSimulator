@@ -127,13 +127,14 @@
  * Path-Agent:
  * @property {int} [time_in_air]
  * @property {PathStatistics} [path]
- * @property {AllocationStatistics[]} [allocations]
+ * @property {RawAllocationStatistics[]} [allocations]
  */
 
 /**
- * @typedef {Object} AllocationStatistics
+ * @typedef {Object} RawAllocationStatistics
  * @property {int} tick
  * @property {float} value
+ * @property {{string: string|int|float}} bid
  * @property {string} reason
  * @property {string} explanation
  * @property {string[]} colliding_agent_ids

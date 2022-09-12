@@ -4,7 +4,7 @@ export default class Branch {
   /**
    *
    * @param {JSONBranch} rawBranch
-   * @param {AllocationStatistics} allocationStats
+   * @param {RawAllocationStatistics} allocationStats
    */
   constructor(rawBranch, allocationStats) {
     this.tick = rawBranch.tick;
