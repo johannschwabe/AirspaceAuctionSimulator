@@ -65,6 +65,7 @@ class Statistics:
                 nr_reallocations_caused_aggr += nr_reallocations_caused
                 if isinstance(agent, PathAgent):
                     path_statistics = self.path_statistics(agent.allocated_segments)
+                    battery_unused: int = agent.battery - agent.get_airtime()
                     agent_statistics.append(PathAgentStatistics(
                         agent,
                         agent_value,
@@ -74,7 +75,8 @@ class Statistics:
                         path_statistics,
                         self.get_allocation_statistics_for_agent(agent),
                         compute_time,
-                        nr_reallocations_caused
+                        nr_reallocations_caused,
+                        battery_unused
                     ))
 
                 elif isinstance(agent, SpaceAgent):
@@ -248,7 +250,6 @@ class Statistics:
                               l1_ground_distance,
                               l2_ground_distance,
                               height_difference,
-                              time_difference,
                               ascent,
                               descent,
                               distance_traveled,
@@ -272,7 +273,6 @@ class Statistics:
         l1_ground_distance: int = int(Coordinate2D.distance(path[0].min, path[-1].max))
         l2_ground_distance: float = Coordinate2D.distance(path[0].min, path[-1].max, l2=True)
         height_difference: int = path[-1].max.y - path[0].min.y
-        time_difference: int = path[-1].max.t - path[0].min.t
         heights: List[int] = []
         ascent: int = 0
         descent: int = 0
@@ -294,7 +294,6 @@ class Statistics:
                               l1_ground_distance,
                               l2_ground_distance,
                               height_difference,
-                              time_difference,
                               ascent,
                               descent,
                               distance_traveled,
@@ -505,7 +504,6 @@ class PathStatistics(Stringify):
                  l1_ground_distance: int,
                  l2_ground_distance: float,
                  height_difference: int,
-                 time_difference: int,
                  ascent: int,
                  descent: int,
                  distance_traveled: int,
@@ -518,7 +516,6 @@ class PathStatistics(Stringify):
         self.l1_ground_distance: int = l1_ground_distance
         self.l2_ground_distance: float = l2_ground_distance
         self.height_difference: int = height_difference
-        self.time_difference: int = time_difference
         self.ascent: int = ascent
         self.descent: int = descent
         self.distance_traveled: int = distance_traveled
@@ -627,6 +624,8 @@ class OwnerStatistics(Stringify):
         self.number_of_agents: int = len(self.agents)
         self.compute_time = compute_time
         self.nr_reallocations_caused = nr_reallocations_caused_aggr
+        self.nr_battery_overused = sum([agent_statistic.battery_unused < 0 for agent_statistic in agent_statistics if
+                                        isinstance(agent_statistic, PathAgentStatistics)])
 
 
 class AgentStatistics(ABC):
@@ -673,12 +672,14 @@ class PathAgentStatistics(AgentStatistics, Stringify):
                  path_statistics: Optional["PathStatistics"],
                  allocation_statistics: List["AllocationStatistics"],
                  compute_time: int,
-                 nr_reallocations_caused: int):
+                 nr_reallocations_caused: int,
+                 battery_unused: int):
         super().__init__(path_agent, value, non_colliding_value, violation_statistics, total_reallocations,
                          compute_time, nr_reallocations_caused)
         self.path: Optional["PathStatistics"] = path_statistics
         self.time_in_air: int = path_agent.get_airtime()
         self.allocations: List["AllocationStatistics"] = allocation_statistics
+        self.battery_unused: int = battery_unused
 
 
 class AllocationStatistics(Stringify):
