@@ -61,8 +61,6 @@ const doFocusUpdate = () => {
   const focusAgentInvisibleBefore = focusAgentInvisible;
   const focusAgentInvisibleNow = !simulation.agentInFocus.isActiveAtTick(simulation.tick);
 
-  console.log({ focusAgentInvisibleBefore, focusAgentInvisibleNow });
-
   if (simulation.agentInFocus && !focusAgentInvisibleNow && focusAgentInvisibleBefore) {
     focusOnAgent({ agentInFocus: simulation.agentInFocus });
   } else if (simulation.agentInFocus && focusAgentInvisibleNow && !focusAgentInvisibleBefore) {
@@ -80,6 +78,8 @@ const doFocusUpdate = () => {
 };
 
 function focusOnAgent({ agentInFocus: agent }) {
+  focusAgentInvisible = !simulation.agentInFocus.isActiveAtTick(simulation.tick);
+  if (focusAgentInvisible) { return; }
   if (agent instanceof SpaceAgent) {
     const space = agent.spaces.find((s) => s.isActiveAtTick(simulation.tick));
     focusOnSpaceAgent({ agent, space });

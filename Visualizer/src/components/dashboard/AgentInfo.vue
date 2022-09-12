@@ -30,7 +30,7 @@
       v-if="allocation.pathData.length > 0"
     />
   </template>
-  <h3>Airspace Violations</h3>
+  <h3 v-if="violationData.length > 0">Airspace Violations</h3>
   <template v-for="(violation, index) in violationData" :key="`${simulation.agentInFocus.id}-violation-${index}`">
     <simple-data-table :subtitle="violation.subtitle" :datapoints="violation.datapoints" />
   </template>
@@ -45,8 +45,6 @@ import {
   Speedometer,
   Happy,
   Timer,
-  RemoveCircle,
-  AlertCircle,
   InformationCircle,
   TrophyOutline,
   Remove,
@@ -63,7 +61,8 @@ import {
   Compass,
   Time,
   ChatboxEllipses,
-  GitPullRequest,
+  GitBranch,
+  Skull,
 } from "@vicons/ionicons5";
 import { format, set } from "date-fns";
 
@@ -117,12 +116,12 @@ const datapoints = computed(() =>
     {
       label: "Reallocations",
       value: simulation.agentInFocus.totalReallocations,
-      icon: AlertCircle,
+      icon: GitBranch,
     },
     {
       label: "Violations",
       value: simulation.agentInFocus.totalViolations,
-      icon: RemoveCircle,
+      icon: Skull,
     },
     {
       label: "Battery",
@@ -246,7 +245,7 @@ const allocations = computed(() =>
       {
         label: "Collisions",
         value: stat.collidingAgentIds.length,
-        icon: GitPullRequest,
+        icon: Skull,
       },
       {
         label: "Compute Time",
@@ -305,7 +304,7 @@ const violationData = computed(() => {
       acc[entryIndex].datapoints.push({
         label: `${agent.owner.name} > ${agent.id}`,
         value: { x: violation.x, y: violation.y, z: violation.z },
-        icon: GitPullRequest,
+        icon: Skull,
         onClick: () => {
           simulation.focusOnAgent(agent);
         },

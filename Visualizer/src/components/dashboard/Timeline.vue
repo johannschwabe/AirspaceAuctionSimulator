@@ -58,7 +58,7 @@ import {
   PlayBackOutline,
   PlayForwardOutline,
 } from "@vicons/ionicons5";
-import { ReallocationEvent } from "@/SimulationObjects/FlightEvent";
+import { FailedAllocationEvent, ReallocationEvent } from "@/SimulationObjects/FlightEvent";
 
 const simulation = useSimulationSingleton();
 
@@ -200,7 +200,7 @@ const agentFocussedEventSeries = () => {
   });
   const timelineReAllocations = Array(simulation.maxTick).fill(0);
   simulation.agentInFocus.events.forEach((event) => {
-    if (event instanceof ReallocationEvent && event.content !== "FIRST_ALLOCATION") {
+    if (event instanceof ReallocationEvent || event instanceof FailedAllocationEvent) {
       timelineReAllocations[event.tick] += 1;
     }
   });

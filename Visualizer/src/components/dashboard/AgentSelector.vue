@@ -48,7 +48,6 @@ const apply = () => {
 
 const renderSuffix = ({ option }) => {
   if (!(option instanceof Owner)) {
-    console.log(option);
     if (option.timeInAir === 0) {
       return h(NButton, { text: true, type: "info" }, { default: () => "No Start" });
     }

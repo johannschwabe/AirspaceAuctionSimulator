@@ -135,6 +135,7 @@
  * @property {int} tick
  * @property {float} value
  * @property {string} reason
+ * @property {string} explanation
  * @property {string[]} colliding_agent_ids
  * @property {int} compute_time
  */

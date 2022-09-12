@@ -172,9 +172,8 @@ class AStar:
                     if distance <= max_near_radius:
                         true_intersection = True
                         break
-                continue
-                # if not true_intersection:
-                #     continue
+                if not true_intersection:
+                    continue
 
                 other_bid = self.bid_tracker.get_last_bid_for_tick(self.tick, intersecting_agent, self.environment)
                 if other_bid is None or my_bid > other_bid:
