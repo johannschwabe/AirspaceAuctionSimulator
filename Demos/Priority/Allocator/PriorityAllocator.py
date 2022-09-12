@@ -1,7 +1,7 @@
 from time import time_ns
 from typing import List, Tuple, Set, Optional, Dict, TYPE_CHECKING
 
-from Simulator import Allocator, PathSegment, AllocationType, SpaceSegment, Allocation, \
+from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation, \
     AllocationStatistics, AStar
 from Simulator.Coordinates.Coordinate4D import Coordinate4D
 from ..BidTracker.PriorityBidTracker import PriorityBidTracker
@@ -199,8 +199,8 @@ class PriorityAllocator(Allocator):
             if bid is None:
                 allocations[agent] = Allocation(agent, [],
                                                 AllocationStatistics(time_ns() - start_time,
-                                                                     AllocationType.CRASH,
-                                                                     "Stuck in the past."))
+                                                                     AllocationReason.ALLOCATION_FAILED,
+                                                                     "Crashed."))
                 continue
 
             # Path Agents
@@ -210,7 +210,7 @@ class PriorityAllocator(Allocator):
                 if optimal_segments is None:
                     allocations[agent] = Allocation(agent, [],
                                                     AllocationStatistics(time_ns() - start_time,
-                                                                         AllocationType.ALLOCATION_FAILED,
+                                                                         AllocationReason.ALLOCATION_FAILED,
                                                                          reason))
                     continue
 
@@ -229,7 +229,7 @@ class PriorityAllocator(Allocator):
                 environment.deallocate_agent(agent_to_remove, tick)
 
             # Allocate Agent
-            allocation_type = AllocationType.FIRST_ALLOCATION if agent in agents else AllocationType.AGENT
+            allocation_type = AllocationReason.FIRST_ALLOCATION if agent in agents else AllocationReason.REALLOCATION
             collision_ids = [collision.id for collision in collisions]
             new_allocation = Allocation(agent, optimal_segments,
                                         AllocationStatistics(time_ns() - start_time,

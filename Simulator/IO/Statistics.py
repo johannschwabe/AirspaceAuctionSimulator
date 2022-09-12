@@ -95,7 +95,7 @@ class Statistics:
             allocation_statistics.append(AllocationStatistics(tick,
                                                               path_agent.value_for_segments(allocation.segments),
                                                               allocation.statistics.compute_time,
-                                                              allocation.statistics.reason,
+                                                              allocation.statistics.explanation,
                                                               allocation.statistics.colliding_agent_ids,
                                                               path_statistics))
         return allocation_statistics

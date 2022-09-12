@@ -1,7 +1,7 @@
 from time import time_ns
 from typing import List, Optional, Dict, TYPE_CHECKING, Tuple
 
-from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationType, \
+from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, \
     AllocationStatistics, Agent, BidTracker
 from Simulator.Coordinates.Coordinate4D import Coordinate4D
 from ..BidTracker.FCFSBidTracker import FCFSBidTracker
@@ -161,8 +161,8 @@ class FCFSAllocator(Allocator):
             if bid is None:
                 allocations[agent] = Allocation(agent, [],
                                                 AllocationStatistics(time_ns() - start_time,
-                                                                     AllocationType.CRASH,
-                                                                     "Stuck in the past."))
+                                                                     AllocationReason.ALLOCATION_FAILED,
+                                                                     "Crashed."))
                 continue
 
             # Path Agents
@@ -172,7 +172,7 @@ class FCFSAllocator(Allocator):
                 if optimal_segments is None:
                     allocations[agent] = Allocation(agent, [],
                                                     AllocationStatistics(time_ns() - start_time,
-                                                                         AllocationType.ALLOCATION_FAILED,
+                                                                         AllocationReason.ALLOCATION_FAILED,
                                                                          reason))
                     continue
 
@@ -186,7 +186,7 @@ class FCFSAllocator(Allocator):
 
             new_allocation = Allocation(agent, optimal_segments,
                                         AllocationStatistics(time_ns() - start_time,
-                                                             AllocationType.FIRST_ALLOCATION,
+                                                             AllocationReason.FIRST_ALLOCATION,
                                                              reason))
             allocations[agent] = new_allocation
             environment.allocate_segments_for_agents([new_allocation], tick)
