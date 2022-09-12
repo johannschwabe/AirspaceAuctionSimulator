@@ -101,12 +101,14 @@ class Statistics:
                 raise Exception(f"Invalid Agent: {agent}")
 
             colliding_agent_bids = {}
-            for key, value in allocation.history.colliding_agent_bids.items():
-                colliding_agent_bids[key] = value.to_dict()
+            if allocation.history.colliding_agent_bids is not None:
+                for key, value in allocation.history.colliding_agent_bids.items():
+                    colliding_agent_bids[key] = value.to_dict()
 
             displacing_agent_bids = {}
-            for key, value in allocation.history.displacing_agent_bids.items():
-                displacing_agent_bids[key] = value.to_dict()
+            if allocation.history.displacing_agent_bids is not None:
+                for key, value in allocation.history.displacing_agent_bids.items():
+                    displacing_agent_bids[key] = value.to_dict()
 
             allocation_statistics.append(AllocationStatistics(tick,
                                                               agent.value_for_segments(allocation.segments),
