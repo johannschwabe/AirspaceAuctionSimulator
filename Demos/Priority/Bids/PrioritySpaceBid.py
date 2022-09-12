@@ -1,4 +1,5 @@
-from typing import List
+import json
+from typing import List, Dict
 
 from Simulator import Bid, SpaceAgent, Coordinate4D
 
@@ -18,3 +19,10 @@ class PrioritySpaceBid(Bid):
 
     def __lt__(self, other):
         return self.priority < other.priority
+
+    def to_dict(self) -> Dict[str, str | int | float]:
+        return {
+            "blocks": json.dumps([{"min": [block[0].x, block[0].y, block[0].z, block[0].t],
+                                   "max": [block[1].x, block[1].y, block[1].z, block[1].t]} for block in self.blocks]),
+            "priority": self.priority,
+        }
