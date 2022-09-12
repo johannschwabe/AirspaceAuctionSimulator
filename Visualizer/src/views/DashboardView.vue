@@ -114,6 +114,7 @@
 <script setup>
 import { nextTick, onUnmounted, ref, shallowRef } from "vue";
 import { useRouter } from "vue-router";
+import { useLoadingBar, useMessage } from "naive-ui";
 
 import loadingGif from "../assets/loading.gif";
 import TopBar from "../components/dashboard/TopBar.vue";
@@ -125,15 +126,14 @@ import Welfare from "../components/dashboard/Welfare.vue";
 import AgentInfo from "../components/dashboard/AgentInfo.vue";
 import OwnerInfo from "../components/dashboard/OwnerInfo.vue";
 import Timeline from "../components/dashboard/Timeline.vue";
-import { offAll } from "../scripts/emitter";
+import { offAll } from "../scripts/emitter.js";
 import {
   hasSimulationSingleton,
   loadSimulationConfig,
   loadSimulationSingleton,
   useSimulationSingleton,
-} from "../scripts/simulation";
-import { useSimulationStore } from "../stores/simulation";
-import { useLoadingBar, useMessage } from "naive-ui";
+} from "../scripts/simulation.js";
+import { useSimulationStore } from "../stores/simulation.js";
 
 const router = useRouter();
 const message = useMessage();

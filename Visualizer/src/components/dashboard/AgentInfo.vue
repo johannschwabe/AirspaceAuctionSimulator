@@ -31,6 +31,7 @@
 
 <script setup>
 import { computed } from "vue";
+
 import {
   FingerPrint,
   Airplane,

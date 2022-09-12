@@ -1,28 +1,48 @@
-import {
-  ActionManager,
-  ArcRotateCamera,
-  AxesViewer,
-  Color3,
-  DirectionalLight,
-  Engine,
-  ExecuteCodeAction,
-  HemisphericLight,
-  MeshBuilder,
-  PointLight,
-  Scene,
-  ShadowGenerator,
-  StandardMaterial,
-  Vector3,
-  Color4,
-} from "babylonjs";
-import earcut from "earcut";
-import { useSimulationSingleton } from "./simulation";
-import Path from "../SimulationObjects/Path";
-import PathAgent from "@/SimulationObjects/PathAgent";
-import SpaceAgent from "@/SimulationObjects/SpaceAgent";
+import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
+import { HemisphericLight, DirectionalLight } from "@babylonjs/core/lights";
+import { ShadowGenerator } from "@babylonjs/core/lights/Shadows/shadowGenerator";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { PointLight } from "@babylonjs/core/lights/pointLight";
+import { Vector3, Color3, Color4 } from "@babylonjs/core/Maths/math";
+import { AxesViewer } from "@babylonjs/core/debug/axesViewer";
+import { ActionManager } from "@babylonjs/core/actions/ActionManager";
+import { ExecuteCodeAction } from "@babylonjs/core/actions/directActions";
+import { ArcRotateCamera } from "@babylonjs/core/Cameras/arcRotateCamera";
+import { Scene } from "@babylonjs/core/scene";
+import { Engine } from "@babylonjs/core/Engines/engine";
+import { ExtrudePolygon, CreateGround, CreateLines, CreateBox, CreateSphere } from "@babylonjs/core/Meshes/Builders";
+import "@babylonjs/loaders";
 
-const HEMISPHERE_LIGHT_INTENSITY = 1.0;
-const MAIN_LIGHT_INTENSITY = 1.5;
+import earcut from "earcut";
+
+import { useSimulationSingleton } from "./simulation.js";
+import Path from "../SimulationObjects/Path.js";
+import PathAgent from "@/SimulationObjects/PathAgent.js";
+import SpaceAgent from "@/SimulationObjects/SpaceAgent.js";
+
+const HEMISPHERE_LIGHT_INTENSITY = 0.1;
+const MAIN_LIGHT_INTENSITY = 1;
+const DRONE_TYPE = ["big_boye_drone", "camera_drone", "bowl_drone", "simple_drone", "package_drone"];
+
+let droneMeshes;
+
+export async function getDroneInstance(scene, agent) {
+  if (!droneMeshes) {
+    const { meshes } = await SceneLoader.ImportMeshAsync("", "./3d/", "drones.glb", scene);
+    console.log(meshes);
+    droneMeshes = meshes.filter((mesh) => DRONE_TYPE.includes(mesh.name));
+    droneMeshes.forEach((droneMesh) => {
+      droneMesh.isVisible = false;
+      droneMesh.setParent(null);
+    });
+  }
+  const simulation = useSimulationSingleton();
+  const name = `sphere-agent-${agent.id}`;
+  const droneMesh = droneMeshes[(simulation.owners.indexOf(agent.owner) + 3) % droneMeshes.length];
+  const clone = droneMesh.clone(name);
+  clone.isVisible = true;
+  return clone;
+}
 
 export function getMaterialName(agent) {
   return `material-agent-${agent.id}`;
@@ -43,7 +63,7 @@ export function useScene({ engine }) {
 
 export function useBlockerMaterial({ scene }) {
   const blockerMaterial = new StandardMaterial("blocker-material", scene);
-  blockerMaterial.diffuseColor = new Color3.FromHexString("#313336");
+  blockerMaterial.diffuseColor = Color3.FromHexString("#313336");
   blockerMaterial.maxSimultaneousLights = 10;
   blockerMaterial.alpha = 1;
   return blockerMaterial;
@@ -51,9 +71,9 @@ export function useBlockerMaterial({ scene }) {
 
 export function useMainLight({ scene, x, y, z }) {
   const mainLight = new DirectionalLight("directionalLight", new Vector3(-1, -1, -1), scene);
-  mainLight.diffuse = new Color3.FromHexString("#ffffff");
-  mainLight.specular = new Color3.FromHexString("#63e2b7");
-  mainLight.groundColor = new Color3.FromHexString("#44ab87");
+  mainLight.diffuse = Color3.FromHexString("#ffffff");
+  mainLight.specular = Color3.FromHexString("#63e2b7");
+  mainLight.groundColor = Color3.FromHexString("#44ab87");
   mainLight.intensity = MAIN_LIGHT_INTENSITY;
   mainLight.position.x = x / 2;
   mainLight.position.y = y / 2;
@@ -92,10 +112,10 @@ export function useShadows({ mainLight }) {
 }
 
 export function useGround({ scene, x, z }) {
-  const ground = MeshBuilder.CreateGround("ground", { width: x, height: z });
+  const ground = CreateGround("ground", { width: x, height: z });
   const groundMaterial = new StandardMaterial("ground-material", scene);
-  groundMaterial.diffuseColor = new Color3.FromHexString("#101010");
-  groundMaterial.specularColor = new Color3.FromHexString("#2b2b2c");
+  groundMaterial.diffuseColor = Color3.FromHexString("#101010");
+  groundMaterial.specularColor = Color3.FromHexString("#2b2b2c");
   groundMaterial.alpha = 1;
   ground.material = groundMaterial;
   ground.receiveShadows = true;
@@ -110,7 +130,7 @@ export function useBuildings({ scene, shadows, mapTiles, blockerMaterial }) {
         depth: building.height,
         holes: building.holes.map((hole) => hole.map(({ x, z }) => new Vector3(x, 0, z))).reverse(),
       };
-      const buildingMesh = MeshBuilder.ExtrudePolygon(`tile-${i}-building-${j}`, options, scene, earcut);
+      const buildingMesh = ExtrudePolygon(`tile-${i}-building-${j}`, options, scene, earcut);
       buildingMesh.material = blockerMaterial;
       buildingMesh.receiveShadows = true;
       buildingMesh.position.y = building.height;
@@ -126,30 +146,30 @@ export function useOrientationLights({ lineAlpha, x, y, z }) {
 
   for (let xi = 0; xi <= x; xi += stepX) {
     for (let yi = 0; yi <= y; yi += stepY) {
-      const line = MeshBuilder.CreateLines(`line-x${xi}-y${yi}`, {
+      const line = CreateLines(`line-x${xi}-y${yi}`, {
         points: [new Vector3(xi - x / 2, yi, 0 - z / 2), new Vector3(xi - x / 2, yi, z - z / 2)],
       });
       line.alpha = lineAlpha;
-      line.color = new Color3.White();
+      line.color = Color3.White();
     }
   }
   for (let xi = 0; xi <= x; xi += stepX) {
     for (let zi = 0; zi <= z; zi += stepZ) {
-      const line = MeshBuilder.CreateLines(`line-x${xi}-z${zi}`, {
+      const line = CreateLines(`line-x${xi}-z${zi}`, {
         points: [new Vector3(xi - x / 2, 0, zi - z / 2), new Vector3(xi - x / 2, y, zi - z / 2)],
       });
       line.alpha = lineAlpha;
-      line.color = new Color3.White();
+      line.color = Color3.White();
     }
   }
 
   for (let yi = 0; yi <= y; yi += stepY) {
     for (let zi = 0; zi <= z; zi += stepZ) {
-      const line = MeshBuilder.CreateLines(`line-y${yi}-z${zi}`, {
+      const line = CreateLines(`line-y${yi}-z${zi}`, {
         points: [new Vector3(0 - x / 2, yi, zi - z / 2), new Vector3(x - x / 2, yi, zi - z / 2)],
       });
       line.alpha = lineAlpha;
-      line.color = new Color3.White();
+      line.color = Color3.White();
     }
   }
 }
@@ -169,27 +189,17 @@ export function useFocusCache({ scene }) {
   selectionLight.intensity = 0;
 
   // Create nearField
-  const nearFieldSphere = MeshBuilder.CreateSphere("near-field-sphere", { segments: 8, diameter: 1 }, scene);
+  const nearFieldSphere = CreateSphere("near-field-sphere", { segments: 8, diameter: 1 }, scene);
   nearFieldSphere.scaling = new Vector3(0, 0, 0);
   const nearFieldMaterial = new StandardMaterial("near-field-material", scene);
   nearFieldMaterial.wireframe = true;
   nearFieldMaterial.alpha = 0.2;
   nearFieldSphere.material = nearFieldMaterial;
 
-  // Create farField
-  const farFieldSphere = MeshBuilder.CreateSphere("far-field-sphere", { segments: 16, diameter: 1 }, scene);
-  farFieldSphere.scaling = new Vector3(0, 0, 0);
-  const farFieldMaterial = new StandardMaterial("far-field-material", scene);
-  farFieldMaterial.wireframe = true;
-  farFieldMaterial.alpha = 0.05;
-  farFieldSphere.material = farFieldMaterial;
-
   return {
     selectionLight,
     nearFieldSphere,
     nearFieldMaterial,
-    farFieldSphere,
-    farFieldMaterial,
     pathLines: [],
     agent: undefined,
   };
@@ -201,7 +211,7 @@ export function useBlockers({ scene, blockerCache, shadows, x, z, blockerMateria
   // Create blockers
   simulation.activeBlockers.forEach((blocker) => {
     if (!(blocker.id in blockerCache)) {
-      const blockerCube = MeshBuilder.CreateBox(
+      const blockerCube = CreateBox(
         "box",
         {
           height: blocker.dimension.y,
@@ -252,8 +262,8 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
     selectionLight.position.y = space.originY;
     selectionLight.position.z = space.originZ - z / 2;
     if (!update) {
-      selectionLight.diffuse = new Color3.FromHexString(agent.color);
-      selectionLight.specular = new Color3.FromHexString(agent.color);
+      selectionLight.diffuse = Color3.FromHexString(agent.color);
+      selectionLight.specular = Color3.FromHexString(agent.color);
       selectionLight.range = y * 2;
       selectionLight.intensity = 2;
 
@@ -289,8 +299,8 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
     selectionLight.position.y = agent_y;
     selectionLight.position.z = agent_z - z / 2;
     if (!update) {
-      selectionLight.diffuse = new Color3.FromHexString(agent.color);
-      selectionLight.specular = new Color3.FromHexString(agent.color);
+      selectionLight.diffuse = Color3.FromHexString(agent.color);
+      selectionLight.specular = Color3.FromHexString(agent.color);
       selectionLight.range = y * 2;
       selectionLight.intensity = 2;
 
@@ -309,20 +319,8 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
     if (!update) {
       const nearR = agent.nearRadius * 2;
       nearFieldSphere.scaling = new Vector3(nearR, nearR, nearR);
-      nearFieldMaterial.diffuseColor = new Color3.FromHexString(agent.color);
-      nearFieldMaterial.emissiveColor = new Color3.FromHexString(agent.color);
-    }
-
-    // Activate FarField
-    const { farFieldSphere, farFieldMaterial } = focusCache;
-    farFieldSphere.position.x = agent_x - x / 2;
-    farFieldSphere.position.y = agent_y;
-    farFieldSphere.position.z = agent_z - z / 2;
-    if (!update) {
-      const farR = agent.farRadius * 2;
-      farFieldSphere.scaling = new Vector3(farR, farR, farR);
-      farFieldMaterial.diffuseColor = new Color3.FromHexString(agent.color);
-      farFieldMaterial.emissiveColor = new Color3.FromHexString(agent.color);
+      nearFieldMaterial.diffuseColor = Color3.FromHexString(agent.color);
+      nearFieldMaterial.emissiveColor = Color3.FromHexString(agent.color);
     }
 
     // Darken all other drones
@@ -345,11 +343,11 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
           const { x: ax, y: ay, z: az } = path.atIndex(i);
           return new Vector3(ax - x / 2, ay, az - z / 2);
         });
-        const pathLine = MeshBuilder.CreateLines(`branch-agent-${agent.id}`, {
+        const pathLine = CreateLines(`branch-agent-${agent.id}`, {
           points,
         });
         pathLine.alpha = alpha;
-        pathLine.color = new Color3.FromHexString(color);
+        pathLine.color = Color3.FromHexString(color);
         return pathLine;
       };
       const pathLines = [];
@@ -410,9 +408,8 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
     hemisphereLight.intensity = HEMISPHERE_LIGHT_INTENSITY;
 
     // Disable Near-/ Farfield Spheres
-    const { nearFieldSphere, farFieldSphere } = focusCache;
+    const { nearFieldSphere } = focusCache;
     nearFieldSphere.scaling = new Vector3(0, 0, 0);
-    farFieldSphere.scaling = new Vector3(0, 0, 0);
 
     // Set opacity of other drones to regular values
     Object.values(droneCache).forEach(({ meshes }) => {
@@ -446,7 +443,7 @@ export function useDrones({ scene, droneCache, x, z, focusOnPathAgent, focusOnSp
   const simulation = useSimulationSingleton();
 
   // Push new meshes for SPACE AGENTS
-  simulation.activeSpaceAgents.forEach((agent) => {
+  simulation.activeSpaceAgents.forEach(async (agent) => {
     const spaces = agent.spaces.filter((s) => s.isActiveAtTick(simulation.tick));
     const reservedSpaces = [];
 
@@ -459,16 +456,16 @@ export function useDrones({ scene, droneCache, x, z, focusOnPathAgent, focusOnSp
 
     spaces.forEach((space) => {
       // Draw occupied field
-      const agentReservedSpace = MeshBuilder.CreateBox(`space-agent-${agent.id}`, {
+      const agentReservedSpace = CreateBox(`space-agent-${agent.id}`, {
         height: space.dimensionY,
         width: space.dimensionX,
         depth: space.dimensionZ,
       });
-      agentReservedSpace.color = new Color3.FromHexString(agent.color);
+      agentReservedSpace.color = Color3.FromHexString(agent.color);
 
       // create Material
       const ownerMaterial = new StandardMaterial(getMaterialName(agent), scene);
-      ownerMaterial.diffuseColor = new Color3.FromHexString(agent.color);
+      ownerMaterial.diffuseColor = Color3.FromHexString(agent.color);
       agentReservedSpace.visibility = 0.66;
       agentReservedSpace.material = ownerMaterial;
       agentReservedSpace.isPickable = true;
@@ -491,7 +488,7 @@ export function useDrones({ scene, droneCache, x, z, focusOnPathAgent, focusOnSp
   });
 
   // Push new meshes for PATH AGENTS
-  simulation.activePathAgents.forEach((agent) => {
+  simulation.activePathAgents.forEach(async (agent) => {
     const path = agent.paths.find((p) => p.isActiveAtTick(simulation.tick));
     const pathIdx = agent.paths.indexOf(path);
     const { x: agent_x, y: agent_y, z: agent_z } = agent.combinedPath.at(simulation.tick);
@@ -509,34 +506,29 @@ export function useDrones({ scene, droneCache, x, z, focusOnPathAgent, focusOnSp
         const { x: ax, y: ay, z: az } = path.atIndex(i);
         return new Vector3(ax - x / 2, ay, az - z / 2);
       });
-      const agentPathLine = MeshBuilder.CreateLines(`line-agent-${agent.id}`, {
+      const agentPathLine = CreateLines(`line-agent-${agent.id}`, {
         points,
       });
       agentPathLine.alpha = 0.5;
-      agentPathLine.color = new Color3.FromHexString(agent.color);
+      agentPathLine.color = Color3.FromHexString(agent.color);
 
       // create Material
       const ownerMaterial = new StandardMaterial(getMaterialName(agent), scene);
-      ownerMaterial.diffuseColor = new Color3.FromHexString(agent.color);
-      ownerMaterial.emissiveColor = new Color3.FromHexString(agent.color);
+      ownerMaterial.diffuseColor = Color3.FromHexString(agent.color);
+      ownerMaterial.emissiveColor = Color3.FromHexString(agent.color);
       ownerMaterial.alpha = 1;
 
-      // Draw drone
-      const agentLocationSphere = MeshBuilder.CreateSphere(
-        `sphere-agent-${agent.id}`,
-        { segments: 4, diameter: 1 },
-        scene
-      );
-      agentLocationSphere.material = ownerMaterial;
-      agentLocationSphere.isPickable = true;
-      agentLocationSphere.actionManager = new ActionManager(scene);
+      const agentMesh = await getDroneInstance(scene, agent);
+      agentMesh.material = ownerMaterial;
+      agentMesh.isPickable = true;
+      agentMesh.actionManager = new ActionManager(scene);
 
-      agentLocationSphere.actionManager.registerAction(
+      agentMesh.actionManager.registerAction(
         new ExecuteCodeAction(ActionManager.OnPickTrigger, () => focusOnPathAgent({ agent, agent_x, agent_y, agent_z }))
       );
 
       droneCache[agent.id] = {
-        meshes: [agentLocationSphere, agentPathLine],
+        meshes: [agentMesh, agentPathLine],
         pathIdx,
       };
     }

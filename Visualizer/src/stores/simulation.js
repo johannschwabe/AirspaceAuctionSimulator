@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { useStorage } from "@vueuse/core";
-import { emitAgentsSelectedEvent, emitTickEvent } from "@/scripts/emitter";
+import { emitAgentsSelectedEvent, emitTickEvent } from "@/scripts/emitter.js";
 
 export const useSimulationStore = defineStore({
   id: "simulation",

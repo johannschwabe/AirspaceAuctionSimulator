@@ -4,7 +4,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent, onTick } from "@/scripts/emitter";
+import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent, onTick } from "@/scripts/emitter.js";
 import {
   updateBlockers,
   updateDrones,
@@ -27,9 +27,9 @@ import {
   useScene,
   useShadows,
 } from "@/scripts/3dmap";
-import { useSimulationSingleton } from "@/scripts/simulation";
-import SpaceAgent from "@/SimulationObjects/SpaceAgent";
-import PathAgent from "@/SimulationObjects/PathAgent";
+import { useSimulationSingleton } from "@/scripts/simulation.js";
+import SpaceAgent from "@/SimulationObjects/SpaceAgent.js";
+import PathAgent from "@/SimulationObjects/PathAgent.js";
 
 const simulation = useSimulationSingleton();
 
