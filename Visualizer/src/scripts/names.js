@@ -2,7 +2,9 @@ import { uniqueNamesGenerator, starWars, countries } from "unique-names-generato
 
 export const randomName = () => {
   return uniqueNamesGenerator({
-    dictionaries: [starWars, ["Johann", "Paul", "Thomas", "Joel", "Ludwig", "Sven Seuken", "PolygonSoftware - Daniel"]],
+    dictionaries: [
+      [...starWars, "Johann", "Paul", "Thomas", "Joel", "Ludwig", "Sven Seuken", "PolygonSoftware - Daniel"],
+    ],
     style: "capital",
     separator: " ",
   });
@@ -10,7 +12,7 @@ export const randomName = () => {
 
 export const randomSimulationName = () => {
   return uniqueNamesGenerator({
-    dictionaries: [countries, ["Risotto", "Atlantis", "Westeros", "Arrakis", "Shire", "Gondor"]],
+    dictionaries: [[...countries, "Risotto", "Atlantis", "Westeros", "Arrakis", "Shire", "Gondor"]],
     style: "capital",
     separator: " ",
   });
