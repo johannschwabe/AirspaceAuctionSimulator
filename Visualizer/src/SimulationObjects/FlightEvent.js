@@ -68,7 +68,7 @@ export class ReallocationEvent extends FlightEvent {
    * @param {string} reallocationReason
    */
   constructor(tick, location, reallocationReason) {
-    super("Allocation", "warning", mdiSourceBranch, tick, reallocationReason);
+    super("(Re-) Allocation", "warning", mdiSourceBranch, tick, reallocationReason);
     this.location = location;
   }
 }

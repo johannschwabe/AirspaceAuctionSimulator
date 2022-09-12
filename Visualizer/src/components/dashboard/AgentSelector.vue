@@ -8,7 +8,7 @@
       :data="data"
       :pattern="pattern"
       key-field="id"
-      label-field="name"
+      label-field="displayName"
       children-field="agents"
       :node-props="nodeProps"
       :render-suffix="renderSuffix"
@@ -48,6 +48,7 @@ const apply = () => {
 
 const renderSuffix = ({ option }) => {
   if (!(option instanceof Owner)) {
+    console.log(option);
     if (option.timeInAir === 0) {
       return h(NButton, { text: true, type: "info" }, { default: () => "No Start" });
     }

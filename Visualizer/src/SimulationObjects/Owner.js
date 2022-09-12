@@ -31,7 +31,6 @@ export default class Owner {
     this.nonCollidingUtilityQuartiles = ownerStats.non_colliding_values.quartiles;
     this.nonCollidingUtilityOutliers = ownerStats.non_colliding_values.outliers;
 
-
     /**
      * All agents belonging to this owner
      * @type {PathAgent|SpaceAgent[]}
@@ -49,5 +48,9 @@ export default class Owner {
     });
 
     this._simulation = simulation;
+  }
+
+  get displayName() {
+    return this.name;
   }
 }

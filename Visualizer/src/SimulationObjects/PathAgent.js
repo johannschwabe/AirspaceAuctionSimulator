@@ -23,7 +23,9 @@ export default class PathAgent extends Agent {
       const branchStats = agentStats.allocations.find((allocationStats) => allocationStats.tick === branch.tick);
       return new Branch(branch, branchStats);
     });
-    this.reAllocationTimesteps = this.branches.map((branch) => branch.tick);
+    this.reAllocationTimesteps = this.branches
+      .filter((branch) => branch.reason === "REALLOCATION")
+      .map((branch) => branch.tick);
   }
 
   /**
@@ -50,6 +52,10 @@ export default class PathAgent extends Agent {
         events[i].lineType = "dashed";
       }
     }
+    // const failedIndex = events.findIndex((e) => e.content === "ALLOCATION_FAILED");
+    // if (failedIndex > -1) {
+    //   return events.slice(0, failedIndex + 1);
+    // }
     return events;
   }
 
