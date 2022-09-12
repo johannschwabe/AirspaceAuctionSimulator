@@ -100,7 +100,7 @@ class Statistics:
             displacing_agent_bids = {}
             for key, value in allocation.history.displacing_agent_bids.items():
                 displacing_agent_bids[key] = value.to_dict()
-                
+
             allocation_statistics.append(AllocationStatistics(tick,
                                                               path_agent.value_for_segments(allocation.segments),
                                                               allocation.history.bid.to_dict(),
@@ -574,7 +574,7 @@ class SimulationStatistics(Stringify):
                  nr_agents: int,
                  value: float,
                  non_colliding_value: float,
-                 nr_collisions: int,
+                 nr_violations: int,
                  nr_reallocations: int,
                  step_compute_time: Dict[int, int]):
         self.owners = owners
@@ -582,7 +582,7 @@ class SimulationStatistics(Stringify):
         self.total_number_of_agents = nr_agents
         self.total_value = value
         self.total_non_colliding_value = non_colliding_value
-        self.total_number_of_collisions = nr_collisions
+        self.total_number_of_violations = nr_violations
         self.total_number_of_reallocations = nr_reallocations
         self.step_compute_time: Dict[int, int] = step_compute_time
 
