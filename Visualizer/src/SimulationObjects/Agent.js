@@ -1,3 +1,6 @@
+import PathStatistic from "@/SimulationObjects/PathStatistic.js";
+import AllocationStatistic from "@/SimulationObjects/AllocationStatistic.js";
+
 export default class Agent {
   /**
    *
@@ -14,6 +17,20 @@ export default class Agent {
     this.nonCollidingUtility = agentStats.non_colliding_value;
     this.owner = owner;
     this.color = owner.color;
+
+    this.timeInAir = agentStats.time_in_air;
+
+    this.totalReallocations = agentStats.total_reallocations;
+
+    this.violations = agentStats.violations.violations;
+    this.totalViolations = agentStats.violations.total_violations;
+
+    this.pathStatistics = agentStats.path ? new PathStatistic(agentStats.path) : null;
+    this.allocationStatistics = agentStats.allocations.map((a) => new AllocationStatistic(a));
+
+    this.reAllocationTimesteps = [];
+    this.violationsTimesteps = Object.values(this.violations).map((loc) => loc.t);
+
     this._simulation = simulation;
   }
 
@@ -31,6 +48,10 @@ export default class Agent {
 
   isActiveAtTick(tick) {
     return this.flyingTicks.includes(parseInt(tick, 10));
+  }
+
+  locationAtTick(tick) {
+    /* abstract method */
   }
 
   get flyingTicks() {

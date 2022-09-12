@@ -39,7 +39,7 @@
   <!-- Dropdown selection for owner type -->
   <n-form-item class="small-form">
     <template #label v-if="ownerIndex === 0">
-      <help v-bind="hOwnerValue">Value FUnction</help>
+      <help v-bind="hOwnerValue">Value Function</help>
     </template>
     <n-select v-model:value="owner.valueFunction" :options="compatibleValueFunctions" placeholder="Type" />
   </n-form-item>

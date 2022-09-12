@@ -11,6 +11,7 @@
       label-field="name"
       children-field="agents"
       :node-props="nodeProps"
+      :render-suffix="renderSuffix"
       :default-checked-keys="simulationStore.selectedAgentIDs"
       @update:checked-keys="updateCheckedKeys"
     />
@@ -20,10 +21,11 @@
 
 <script setup>
 import { isEmpty, xor } from "lodash-es";
-import { ref, computed } from "vue";
+import { ref, computed, h } from "vue";
 import { useSimulationStore } from "@/stores/simulation";
 import { useSimulationSingleton } from "@/scripts/simulation";
 import Owner from "@/SimulationObjects/Owner";
+import { NButton } from "naive-ui";
 
 const simulationStore = useSimulationStore();
 const simulation = useSimulationSingleton();
@@ -42,6 +44,20 @@ const updateCheckedKeys = (v) => {
 
 const apply = () => {
   simulationStore.setSelectedAgentIDs(selectedAgentIDs.value);
+};
+
+const renderSuffix = ({ option }) => {
+  if (!(option instanceof Owner)) {
+    if (option.timeInAir === 0) {
+      return h(NButton, { text: true, type: "info" }, { default: () => "No Start" });
+    }
+    if (option.totalViolations > 0) {
+      return h(NButton, { text: true, type: "error" }, { default: () => "Violations" });
+    }
+    if (option.reAllocationTimesteps.length > 0) {
+      return h(NButton, { text: true, type: "warning" }, { default: () => "Reallocated" });
+    }
+  }
 };
 
 const nodeProps = ({ option }) => ({

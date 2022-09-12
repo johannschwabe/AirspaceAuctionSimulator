@@ -3,6 +3,8 @@
  * @property {JSONConfig} config
  * @property {SimulationStatistics} statistics
  * @property {JSONSimulation} simulation
+ * @property {int} statistics_compute_time
+ * @property {int} simulation_compute_time
  */
 
 /*

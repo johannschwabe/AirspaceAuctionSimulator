@@ -14,23 +14,19 @@
   </n-timeline>
 
   <n-divider style="margin-bottom: 6px" />
-
-  <div v-for="datapoint in datapoints" :key="datapoint.label">
-    <div style="display: flex">
-      <div style="display: flex; flex-direction: column; justify-content: center; margin-right: 10px">
-        <n-icon :component="datapoint.icon" :depth="5" size="25" />
-      </div>
-      <div>
-        <div style="color: rgba(255, 255, 255, 0.52); font-size: 12px">
-          {{ datapoint.label }}
-        </div>
-        <div>
-          {{ datapoint.value }}
-        </div>
-      </div>
-    </div>
-    <n-divider style="margin-top: 6px; margin-bottom: 6px" />
-  </div>
+  <simple-data-table title="General Info" :datapoints="datapoints" />
+  <simple-data-table title="Path info" :datapoints="pathDatapoints" />
+  <height-profile
+    label="Height profile"
+    :color="simulation.agentInFocus.color"
+    :data="heightProfileData"
+    v-if="heightProfileData"
+  />
+  <template v-for="(allocation, index) in allocations" :key="`${simulation.agentInFocus.id}-${index}`">
+    <simple-data-table :title="`Allocation ${index + 1}`" :datapoints="allocation.allocationData" />
+    <simple-data-table :subtitle="`Path for Allocation ${index + 1}`" :datapoints="allocation.pathData" v-if="allocation.pathData.length > 0"/>
+  </template>
+  <simple-data-table title="Violations" :datapoints="violationDatapoints" v-if="violationDatapoints.length > 0" />
 </template>
 
 <script setup>
@@ -46,51 +42,246 @@ import {
   AlertCircle,
   InformationCircle,
   TrophyOutline,
+  Remove,
+  ReorderTwo,
+  Resize,
+  Stopwatch,
+  Podium,
+  SwapVertical,
+  ArrowUp,
+  ArrowDown,
+  TrendingUp,
+  TrendingDown,
+  Telescope,
+  Compass,
+  Time,
+  ChatboxEllipses,
+  GitPullRequest,
 } from "@vicons/ionicons5";
-import { useSimulationSingleton } from "@/scripts/simulation";
+import { format, set } from "date-fns";
+
+import { useSimulationSingleton } from "@/scripts/simulation.js";
+import SimpleDataTable from "@/components/dashboard/SimpleDataTable.vue";
+import HeightProfile from "@/components/dashboard/HeightProfile.vue";
 
 const simulation = useSimulationSingleton();
 const datapoints = computed(() =>
   [
-    { label: "Agent ID", value: simulation.agentInFocus.id, icon: FingerPrint },
-    { label: "Type", value: simulation.agentInFocus.agentType, icon: Airplane },
-    { label: "Battery", value: simulation.agentInFocus.battery, icon: BatteryHalf },
-    { label: "Speed", value: simulation.agentInFocus.speed, icon: Speedometer },
-    { label: "Utility", value: simulation.agentInFocus.utility, icon: Happy },
-    { label: "Non-Colliding Utility", value: simulation.agentInFocus.nonCollidingUtility, icon: TrophyOutline },
-    { label: "Time in Air", value: simulation.agentInFocus.timeInAir, icon: Timer },
+    {
+      label: "Agent ID",
+      value: simulation.agentInFocus.id,
+      icon: FingerPrint,
+    },
+    {
+      label: "Type",
+      value: simulation.agentInFocus.agentType,
+      icon: Airplane,
+    },
+    {
+      label: "In Air",
+      value: simulation.agentInFocus.isActiveAtTick(simulation.tick) ? "Yes" : "No",
+      icon: Compass,
+    },
+    simulation.agentInFocus.isActiveAtTick(simulation.tick) && {
+      label: "Current Location",
+      value: simulation.agentInFocus.locationAtTick(simulation.tick),
+      icon: Telescope,
+    },
+    {
+      label: "First Tick",
+      value: simulation.agentInFocus.veryFirstTick,
+      icon: TrendingUp,
+    },
+    {
+      label: "Last Tick",
+      value: simulation.agentInFocus.veryLastTick,
+      icon: TrendingDown,
+    },
+    {
+      label: "Utility",
+      value: simulation.agentInFocus.utility,
+      icon: Happy,
+    },
+    {
+      label: "Non-Colliding Utility",
+      value: simulation.agentInFocus.nonCollidingUtility,
+      icon: TrophyOutline,
+    },
+    {
+      label: "Reallocations",
+      value: simulation.agentInFocus.totalReallocations,
+      icon: AlertCircle,
+    },
+    {
+      label: "Violations",
+      value: simulation.agentInFocus.totalViolations,
+      icon: RemoveCircle,
+    },
+    {
+      label: "Battery",
+      value: simulation.agentInFocus.battery,
+      icon: BatteryHalf,
+    },
+    {
+      label: "Speed",
+      value: simulation.agentInFocus.speed,
+      icon: Speedometer,
+    },
+    {
+      label: "Time in Air",
+      value: simulation.agentInFocus.timeInAir,
+      icon: Timer,
+    },
     {
       label: "Near Field Radius",
       value: simulation.agentInFocus.nearRadius,
       icon: InformationCircle,
     },
-    {
-      label: "Near Field Intersections",
-      value: simulation.agentInFocus.nearFieldIntersections,
-      icon: AlertCircle,
-    },
-    {
-      label: "Near Field Violations",
-      value: simulation.agentInFocus.nearFieldViolations,
-      icon: RemoveCircle,
-    },
-    {
-      label: "Far Field Radius",
-      value: simulation.agentInFocus.farRadius,
-      icon: InformationCircle,
-    },
-    {
-      label: "Far Field Intersections",
-      value: simulation.agentInFocus.farFieldIntersections,
-      icon: AlertCircle,
-    },
-    {
-      label: "Far Field Violations",
-      value: simulation.agentInFocus.farFieldViolations,
-      icon: RemoveCircle,
-    },
   ].filter((d) => d.value)
 );
+
+const pathDatapoints = computed(() => {
+  return pathToDatapoints(simulation.agentInFocus.pathStatistics);
+});
+
+const heightProfileData = computed(() => {
+  return simulation.agentInFocus.pathStatistics?.heightProfile;
+});
+
+function pathToDatapoints(path) {
+  if (!path) {
+    return [];
+  }
+  return [
+    {
+      label: "Distance Traveled",
+      value: path.distanceTraveled,
+      icon: Resize,
+    },
+    {
+      label: "L1 Distance",
+      value: path.distanceL1,
+      icon: Remove,
+    },
+    {
+      label: "L2 Distance",
+      value: path.distanceL2,
+      icon: ReorderTwo,
+    },
+    {
+      label: "Ground Distance Traveled",
+      value: path.groundDistanceTraveled,
+      icon: Resize,
+    },
+    {
+      label: "L1 Ground Distance",
+      value: path.groundDistanceL1,
+      icon: Remove,
+    },
+    {
+      label: "L2 Ground Distance",
+      value: path.groundDistanceL2,
+      icon: ReorderTwo,
+    },
+    {
+      label: "Time difference",
+      value: path.timeDifference,
+      icon: Stopwatch,
+    },
+    {
+      label: "Mean height",
+      value: path.meanHeight,
+      icon: Podium,
+    },
+    {
+      label: "Median height",
+      value: path.medianHeight,
+      icon: Podium,
+    },
+    {
+      label: "Height difference",
+      value: path.heightDifference,
+      icon: SwapVertical,
+    },
+    {
+      label: "Ascent",
+      value: path.ascent,
+      icon: ArrowUp,
+    },
+    {
+      label: "Descent",
+      value: path.descent,
+      icon: ArrowDown,
+    },
+  ]
+    .filter((d) => d.value)
+    .map((d) => ({ ...d, value: Math.round(d.value * 10) / 10 }));
+}
+
+const allocations = computed(() =>
+  simulation.agentInFocus.allocationStatistics.map((stat) => ({
+    allocationData: [
+      {
+        label: "tick",
+        value: stat.tick,
+        icon: Time,
+      },
+      {
+        label: "Reason",
+        value: stat.reason,
+        icon: ChatboxEllipses,
+      },
+      {
+        label: "Utility",
+        value: stat.utility,
+        icon: Happy,
+      },
+      {
+        label: "Collisions",
+        value: stat.collidingAgentIds.length,
+        icon: GitPullRequest,
+      },
+      {
+        label: "Compute Time",
+        value: () => {
+          const milliseconds = stat.compute_time / 1000;
+          const date = set(new Date(), {
+            year: 0,
+            month: 0,
+            date: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+            milliseconds,
+          });
+          if (stat.compute_time < 1000) {
+            return `${stat.compute_time} ns`;
+          }
+          if (milliseconds < 1000) {
+            return `${milliseconds} ms`;
+          }
+          if (milliseconds < 60 * 1000) {
+            return `${format(date, "ss")}s`;
+          }
+          if (milliseconds < 60 * 60 * 1000) {
+            return `${format(date, "mm")}min ${format(date, "ss")}s`;
+          }
+          return `${format(date, "HH")}h ${format(date, "mm")}min ${format(date, "ss")}s`;
+        },
+        icon: Timer,
+      },
+    ],
+    pathData: pathToDatapoints(stat.pathStatistics),
+  }))
+);
+
+const violationDatapoints = computed(() => {
+  return Object.entries(simulation.agentInFocus.violations).map(([agent_id, loc]) => ({
+    label: `Agent ${agent_id}`,
+    value: loc,
+    icon: GitPullRequest,
+  }));
+});
 
 const fillColor = (event) => {
   return {

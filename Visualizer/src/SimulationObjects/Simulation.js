@@ -134,10 +134,16 @@ export default class Simulation {
     this.timeline = [];
 
     /**
-     * Holds a list of events at each timestep
-     * @type {*[]}
+     * Stores how many agents got reallocated at each possible tick
+     * @type {int[]}
      */
-    this.timelineEvents = [];
+    this.timelineReAllocations = [];
+
+    /**
+     * Stores how many agents violated the airspace of another agent at each possible tick
+     * @type {int[]}
+     */
+    this.timelineViolations = [];
 
     /**
      * The maximum tick at which any active agent is still active / flying
@@ -250,6 +256,8 @@ export default class Simulation {
 
   updateTimeline() {
     const agentsPerTick = {};
+    const reAllocationsPerTick = {};
+    const violationsPerTick = {};
     let maxTick = 0;
     this.selectedAgents.forEach((agent) => {
       agent.flyingTicks.forEach((tick) => {
@@ -261,12 +269,34 @@ export default class Simulation {
           maxTick = parseInt(tick, 10);
         }
       });
+      agent.reAllocationTimesteps.forEach((tick) => {
+        if (!(tick in reAllocationsPerTick)) {
+          reAllocationsPerTick[tick] = 0;
+        }
+        reAllocationsPerTick[tick] += 1;
+      });
+      agent.violationsTimesteps.forEach((tick) => {
+        if (!(tick in violationsPerTick)) {
+          violationsPerTick[tick] = 0;
+        }
+        violationsPerTick[tick] += 1;
+      });
     });
     const timeline = Array(maxTick).fill(0);
+    const timelineReAllocations = Array(maxTick).fill(0);
+    const timelineViolations = Array(maxTick).fill(0);
     Object.entries(agentsPerTick).forEach(([tick, numberOfAgents]) => {
       timeline[tick] = numberOfAgents;
     });
+    Object.entries(reAllocationsPerTick).forEach(([tick, numberOfReallocations]) => {
+      timelineReAllocations[tick] = numberOfReallocations;
+    });
+    Object.entries(violationsPerTick).forEach(([tick, numberOfViolations]) => {
+      timelineViolations[tick] = numberOfViolations;
+    });
     this.timeline = timeline;
+    this.timelineReAllocations = timelineReAllocations;
+    this.timelineViolations = timelineViolations;
     this.maxTick = maxTick;
   }
 
@@ -275,14 +305,15 @@ export default class Simulation {
    * @param {PathAgent} agent
    */
   focusOnAgent(agent) {
-    if (this.agentInFocus === agent || !agent.isActiveAtTick(this.tick)) {
+    if (this.agentInFocus === agent) {
       return;
     }
+    const previousAgentInFocus = this.agentInFocus;
     this._simulationStore.agentInFocus = true;
     this._simulationStore.agentInFocusId = agent.id;
     this._simulationStore.ownerInFocusId = agent.owner.id;
     this.agentInFocus = agent;
-    emitFocusOnAgent(agent);
+    emitFocusOnAgent(agent, previousAgentInFocus);
   }
 
   focusOff() {

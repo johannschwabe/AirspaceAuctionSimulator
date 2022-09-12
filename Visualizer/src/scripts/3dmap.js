@@ -564,6 +564,7 @@ export function updateDrones({ scene, droneCache, x, z, focusOnSpaceAgent, focus
   });
   useDrones({ scene, droneCache, x, z, focusOnSpaceAgent, focusOnPathAgent });
 }
+
 export function updateFocus({ focusCache, focusOnSpaceAgent, focusOnPathAgent }) {
   const agent = focusCache.agent;
   if (!agent) {
@@ -571,7 +572,6 @@ export function updateFocus({ focusCache, focusOnSpaceAgent, focusOnPathAgent })
   }
   const simulation = useSimulationSingleton();
   if (!agent.isActiveAtTick(simulation.tick)) {
-    simulation.focusOff();
     return;
   }
   if (agent instanceof SpaceAgent) {

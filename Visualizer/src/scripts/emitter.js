@@ -20,8 +20,8 @@ export function emitAgentsSelectedEvent(selectedIds) {
   emitter.emit(AGENTS_SELECTED_EVENT, selectedIds);
 }
 
-export function emitFocusOnAgent(agent) {
-  emitter.emit(AGENT_FOCUS_ON_EVENT, agent);
+export function emitFocusOnAgent(agentInFocus, previousAgentInFocus) {
+  emitter.emit(AGENT_FOCUS_ON_EVENT, { agentInFocus, previousAgentInFocus });
 }
 
 export function emitFocusOffAgent(agent) {

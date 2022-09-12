@@ -219,5 +219,5 @@ export async function downloadSimulation() {
   const fileToSave = new Blob([JSON.stringify(data)], {
     type: "application/json",
   });
-  saveAs(fileToSave, `${config.name}.json`);
+  saveAs(fileToSave, `${config.name.toLowerCase().replace(/ /g,"-")}-simulation.json`);
 }
