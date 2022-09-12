@@ -16,4 +16,4 @@ class AllocationStatistics:
         """
         self.compute_time: int = compute_time
         self.reason: str = reason
-        self.colliding_agent_ids: Optional[List[str]] = colliding_agent_ids
+        self.colliding_agent_ids: List[str] = colliding_agent_ids if colliding_agent_ids is not None else []
