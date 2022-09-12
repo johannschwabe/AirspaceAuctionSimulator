@@ -144,6 +144,8 @@
  * @property {{string: RawBid}} colliding_agent_bids
  * @property {{string: RawBid}} displacing_agent_bids
  * @property {int} compute_time
+ * @property {PathStatistics} path
+ * @property {SpaceStatistics} space
  */
 
 /**
