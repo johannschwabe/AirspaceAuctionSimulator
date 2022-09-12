@@ -12,8 +12,8 @@ export default class AllocationStatistic {
     this.bid = allocationStatistic.bid;
     this.reason = allocationStatistic.reason;
     this.explanation = allocationStatistic.explanation;
-    this.collidingAgentIds = allocationStatistic.colliding_agent_ids;
-    this.displacingAgentIds = allocationStatistic.displacing_agent_ids;
+    this.collidingAgentBids = allocationStatistic.colliding_agent_bids;
+    this.displacingAgentBids = allocationStatistic.displacing_agent_bids;
     this.pathStatistics = allocationStatistic.path ? new PathStatistic(allocationStatistic.path) : null;
   }
 }

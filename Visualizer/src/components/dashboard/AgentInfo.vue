@@ -24,7 +24,11 @@
   />
   <template v-for="(allocation, index) in allocations" :key="`${simulation.agentInFocus.id}-${index}`">
     <simple-data-table :title="`Allocation ${index + 1}`" :datapoints="allocation.allocationData" />
-    <simple-data-table :subtitle="`Path for Allocation ${index + 1}`" :datapoints="allocation.pathData" v-if="allocation.pathData.length > 0"/>
+    <simple-data-table
+      :subtitle="`Path for Allocation ${index + 1}`"
+      :datapoints="allocation.pathData"
+      v-if="allocation.pathData.length > 0"
+    />
   </template>
   <simple-data-table title="Violations" :datapoints="violationDatapoints" v-if="violationDatapoints.length > 0" />
 </template>
@@ -238,7 +242,7 @@ const allocations = computed(() =>
       },
       {
         label: "Collisions",
-        value: stat.collidingAgentIds.length,
+        value: stat.collidingAgentBids.length,
         icon: GitPullRequest,
       },
       {

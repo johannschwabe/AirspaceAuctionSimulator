@@ -131,14 +131,18 @@
  */
 
 /**
+ * @typedef {{string: string|number}} RawBid
+ */
+
+/**
  * @typedef {Object} RawAllocationStatistics
  * @property {int} tick
  * @property {float} value
- * @property {{string: string|int|float}} bid
+ * @property {RawBid} bid
  * @property {string} reason
  * @property {string} explanation
- * @property {string[]} colliding_agent_ids
- * @property {string[]} displacing_agent_ids
+ * @property {{string: RawBid}} colliding_agent_bids
+ * @property {{string: RawBid}} displacing_agent_bids
  * @property {int} compute_time
  */
 
