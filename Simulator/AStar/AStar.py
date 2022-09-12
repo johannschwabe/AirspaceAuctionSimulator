@@ -176,7 +176,9 @@ class AStar:
                     continue
 
                 other_bid = self.bid_tracker.get_last_bid_for_tick(self.tick, intersecting_agent, self.environment)
-                if other_bid is None or my_bid > other_bid:
+                if other_bid is None:
+                    raise Exception(f"Agent stuck: {intersecting_agent}")
+                if my_bid > other_bid:
                     other_pos = intersecting_agent.get_position_at_tick(self.tick)
                     if other_pos is not None:
                         # Make sure intersecting agent can dodge in time

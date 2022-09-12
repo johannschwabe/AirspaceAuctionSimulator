@@ -65,15 +65,16 @@ class PriorityAllocator(Allocator):
         start = a.to_3D()
         a = a.clone()
 
-        if bid.flying and a.t != tick:
-            return None, None, f"Cannot teleport to {a} at tick {tick}."
+        if bid.flying:
+            if a.t != tick:
+                return None, None, f"Cannot teleport to {a} at tick {tick}."
+            
+            valid, _ = astar.is_valid_for_allocation(a, bid.agent)
+            if not valid:
+                return None, None, f"Cannot escape {a}."
 
-        if not bid.flying and a.t == tick:
+        elif a.t == tick:
             a.t += 1
-
-        valid, _ = astar.is_valid_for_allocation(a, bid.agent)
-        if not valid and bid.flying:
-            return None, None, f"Cannot escape {a}."
 
         time = 0
         count = 0
@@ -198,11 +199,7 @@ class PriorityAllocator(Allocator):
             bid = self.bid_tracker.request_new_bid(tick, agent, environment)
 
             if bid is None:
-                allocations[agent] = Allocation(agent, [],
-                                                AllocationStatistics(time_ns() - start_time,
-                                                                     AllocationReason.ALLOCATION_FAILED,
-                                                                     "Crashed."))
-                continue
+                raise Exception(f"Agent is stuck: {agent}")
 
             # Path Agents
             if isinstance(bid, PriorityPathBid):
