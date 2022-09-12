@@ -167,19 +167,19 @@ class FCFSAllocator(Allocator):
 
             # Path Agents
             if isinstance(bid, FCFSPathBid):
-                optimal_segments, reason = self.allocate_path(bid, environment, astar, tick)
+                optimal_segments, explanation = self.allocate_path(bid, environment, astar, tick)
 
                 if optimal_segments is None:
                     allocations[agent] = Allocation(agent, [],
                                                     AllocationStatistics(time_ns() - start_time,
                                                                          AllocationReason.ALLOCATION_FAILED,
-                                                                         reason))
+                                                                         explanation))
                     continue
 
             # Space Agents
             elif isinstance(bid, FCFSSpaceBid):
                 optimal_segments = self.allocate_space(bid, environment, tick)
-                reason = "Space allocated."
+                explanation = "Space allocated."
 
             else:
                 raise Exception(f"Invalid Bid: {bid}")
@@ -187,7 +187,7 @@ class FCFSAllocator(Allocator):
             new_allocation = Allocation(agent, optimal_segments,
                                         AllocationStatistics(time_ns() - start_time,
                                                              AllocationReason.FIRST_ALLOCATION,
-                                                             reason))
+                                                             explanation))
             allocations[agent] = new_allocation
             environment.allocate_segments_for_agents([new_allocation], tick)
 

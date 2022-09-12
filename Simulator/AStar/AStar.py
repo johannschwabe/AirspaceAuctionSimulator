@@ -180,7 +180,7 @@ class AStar:
                     other_pos = intersecting_agent.get_position_at_tick(self.tick)
                     if other_pos is not None:
                         # Make sure intersecting agent can dodge in time
-                        distance_to_clear = max_near_radius - position.inter_temporal_distance(other_pos)
+                        distance_to_clear = 2 * max_near_radius - position.inter_temporal_distance(other_pos) + 1
                         time_to_clearance = distance_to_clear * intersecting_agent.speed
                         if time_to_clearance >= position.t - self.tick:
                             return False, None

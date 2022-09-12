@@ -189,6 +189,7 @@ class PriorityAllocator(Allocator):
         """
         astar = AStar(environment, self.bid_tracker, tick)
         allocations: Dict["Agent", "Allocation"] = {}
+        displacements: Dict["Agent", Set["Agent"]] = {}
         agents_to_allocate = set(agents)
         while len(list(agents_to_allocate)) > 0:
             start_time = time_ns()
@@ -205,19 +206,19 @@ class PriorityAllocator(Allocator):
 
             # Path Agents
             if isinstance(bid, PriorityPathBid):
-                optimal_segments, collisions, reason = self.allocate_path(bid, environment, astar, tick)
+                optimal_segments, collisions, explanation = self.allocate_path(bid, environment, astar, tick)
 
                 if optimal_segments is None:
                     allocations[agent] = Allocation(agent, [],
                                                     AllocationStatistics(time_ns() - start_time,
                                                                          AllocationReason.ALLOCATION_FAILED,
-                                                                         reason))
+                                                                         explanation))
                     continue
 
             # Space Agents
             elif isinstance(bid, PrioritySpaceBid):
                 optimal_segments, collisions = self.allocate_space(bid, environment, tick)
-                reason = "Space allocated"
+                explanation = "Space allocated"
 
             else:
                 raise Exception(f"Invalid Bid: {bid}")
@@ -226,16 +227,22 @@ class PriorityAllocator(Allocator):
             agents_to_allocate = agents_to_allocate.union(collisions)
             for agent_to_remove in collisions:
                 print(f"reallocating: {agent_to_remove.id}")
+                if agent_to_remove not in displacements:
+                    displacements[agent_to_remove] = set()
+                displacements[agent_to_remove].add(agent)
                 environment.deallocate_agent(agent_to_remove, tick)
 
             # Allocate Agent
-            allocation_type = AllocationReason.FIRST_ALLOCATION if agent in agents else AllocationReason.REALLOCATION
-            collision_ids = [collision.id for collision in collisions]
+            reason = AllocationReason.FIRST_ALLOCATION if agent in agents else AllocationReason.REALLOCATION
+            displacing_agent_ids = set([displacing_agent.id for displacing_agent in
+                                        displacements[agent]]) if agent in displacements else None
+            collision_ids = set([collision.id for collision in collisions])
             new_allocation = Allocation(agent, optimal_segments,
                                         AllocationStatistics(time_ns() - start_time,
-                                                             allocation_type,
                                                              reason,
-                                                             colliding_agent_ids=collision_ids))
+                                                             explanation,
+                                                             colliding_agent_ids=collision_ids,
+                                                             displacing_agent_ids=displacing_agent_ids))
             allocations[agent] = new_allocation
             environment.allocate_segments_for_agents([new_allocation], tick)
 
