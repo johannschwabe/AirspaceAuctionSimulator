@@ -76,6 +76,7 @@ class Statistics:
                         violations,
                         total_reallocations,
                         space_statistics,
+                        self.get_allocation_statistics_for_agent(agent),
                     ))
 
                 else:
@@ -88,10 +89,12 @@ class Statistics:
 
         return owner_statistics
 
-    def get_allocation_statistics_for_agent(self, path_agent: "PathAgent") -> List["AllocationStatistics"]:
+    def get_allocation_statistics_for_agent(self, agent: "Agent") -> List["AllocationStatistics"]:
         allocation_statistics: List["AllocationStatistics"] = []
-        for tick, allocation in self.simulation.history.allocations[path_agent].items():
-            path_statistics = self.path_statistics(allocation.segments)
+        for tick, allocation in self.simulation.history.allocations[agent].items():
+            path_statistics = None
+            if isinstance(agent, PathAgent):
+                path_statistics = self.path_statistics(allocation.segments)
 
             colliding_agent_bids = {}
             for key, value in allocation.history.colliding_agent_bids.items():
@@ -102,7 +105,7 @@ class Statistics:
                 displacing_agent_bids[key] = value.to_dict()
 
             allocation_statistics.append(AllocationStatistics(tick,
-                                                              path_agent.value_for_segments(allocation.segments),
+                                                              agent.value_for_segments(allocation.segments),
                                                               allocation.history.bid.to_dict(),
                                                               allocation.history.compute_time,
                                                               allocation.history.reason,
@@ -628,12 +631,14 @@ class AgentStatistics(ABC):
                  value: float,
                  non_colliding_value: float,
                  violation_statistics: "ViolationStatistics",
-                 total_reallocations: int):
+                 total_reallocations: int,
+                 allocation_statistics: List["AllocationStatistics"]):
         self.id: str = agent.id
         self.value: float = value
         self.non_colliding_value: float = non_colliding_value
         self.violations = violation_statistics
         self.total_reallocations = total_reallocations
+        self.allocations: List["AllocationStatistics"] = allocation_statistics
 
 
 class SpaceAgentStatistics(AgentStatistics, Stringify):
@@ -643,8 +648,10 @@ class SpaceAgentStatistics(AgentStatistics, Stringify):
                  non_colliding_value: float,
                  violation_statistics: "ViolationStatistics",
                  total_reallocations: int,
-                 space_statistics: Optional["SpaceStatistics"]):
-        super().__init__(space_agent, value, non_colliding_value, violation_statistics, total_reallocations)
+                 space_statistics: Optional["SpaceStatistics"],
+                 allocation_statistics: List["AllocationStatistics"]):
+        super().__init__(space_agent, value, non_colliding_value, violation_statistics, total_reallocations,
+                         allocation_statistics)
         self.space: Optional["SpaceStatistics"] = space_statistics
 
 
@@ -657,10 +664,10 @@ class PathAgentStatistics(AgentStatistics, Stringify):
                  total_reallocations: int,
                  path_statistics: Optional["PathStatistics"],
                  allocation_statistics: List["AllocationStatistics"]):
-        super().__init__(path_agent, value, non_colliding_value, violation_statistics, total_reallocations)
+        super().__init__(path_agent, value, non_colliding_value, violation_statistics, total_reallocations,
+                         allocation_statistics)
         self.path: Optional["PathStatistics"] = path_statistics
         self.time_in_air: int = path_agent.get_airtime()
-        self.allocations: List["AllocationStatistics"] = allocation_statistics
 
 
 class AllocationStatistics(Stringify):
