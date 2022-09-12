@@ -144,6 +144,9 @@ class AStar:
         return complete_path, collisions
 
     def is_valid_for_allocation(self, position: "Coordinate4D", agent: "PathAgent"):
+        if position.t < self.tick:
+            raise Exception(f"Cannot validate position in the past. Position: {position}, Tick: {self.tick}.")
+
         if self.environment.is_blocked(position, agent):
             return False, None
 
