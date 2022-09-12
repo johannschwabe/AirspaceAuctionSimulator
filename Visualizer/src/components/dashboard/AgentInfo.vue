@@ -63,6 +63,7 @@ import {
   ChatboxEllipses,
   GitBranch,
   Skull,
+  GitPullRequest,
 } from "@vicons/ionicons5";
 import { format, set } from "date-fns";
 
@@ -121,7 +122,7 @@ const datapoints = computed(() =>
     {
       label: "Violations",
       value: simulation.agentInFocus.totalViolations,
-      icon: Skull,
+      icon: GitPullRequest,
     },
     {
       label: "Battery",
@@ -304,7 +305,7 @@ const violationData = computed(() => {
       acc[entryIndex].datapoints.push({
         label: `${agent.owner.name} > ${agent.id}`,
         value: { x: violation.x, y: violation.y, z: violation.z },
-        icon: Skull,
+        icon: GitPullRequest,
         onClick: () => {
           simulation.focusOnAgent(agent);
         },
