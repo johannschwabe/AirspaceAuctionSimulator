@@ -232,16 +232,27 @@ class PriorityAllocator(Allocator):
 
             # Allocate Agent
             reason = AllocationReason.FIRST_ALLOCATION if agent in agents else AllocationReason.REALLOCATION
-            displacing_agent_ids = set([displacing_agent.id for displacing_agent in
-                                        displacements[agent]]) if agent in displacements else None
-            collision_ids = set([collision.id for collision in collisions])
+            displacing_agent_bids = {}
+            if agent in displacements:
+                for displacing_agent in displacements[agent]:
+                    displacing_agent_bids[displacing_agent.id] = \
+                        self.bid_tracker.get_last_bid_for_tick(tick,
+                                                               displacing_agent,
+                                                               environment)
+            colliding_agent_bids = {}
+            for colliding_agent in collisions:
+                colliding_agent_bids[colliding_agent.id] = \
+                    self.bid_tracker.get_last_bid_for_tick(tick,
+                                                           colliding_agent,
+                                                           environment)
+                
             new_allocation = Allocation(agent, optimal_segments,
                                         AllocationHistory(bid,
                                                           time_ns() - start_time,
                                                           reason,
                                                           explanation,
-                                                          colliding_agent_ids=collision_ids,
-                                                          displacing_agent_ids=displacing_agent_ids))
+                                                          colliding_agent_bids=colliding_agent_bids,
+                                                          displacing_agent_bids=displacing_agent_bids))
             allocations[agent] = new_allocation
             environment.allocate_segments_for_agents([new_allocation], tick)
 

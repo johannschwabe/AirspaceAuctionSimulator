@@ -1,13 +1,12 @@
 import statistics
 from abc import ABC
-from typing import TYPE_CHECKING, List, Dict, Optional, Any, Set
+from typing import TYPE_CHECKING, List, Dict, Optional, Any
 
 from rtree import index, Index
 
 from .Stringify import Stringify
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
-from ..Bids.Bid import Bid
 from ..Coordinates.Coordinate2D import Coordinate2D
 from ..Owners.Owner import Owner
 from ..Segments.PathSegment import PathSegment
@@ -93,13 +92,23 @@ class Statistics:
         allocation_statistics: List["AllocationStatistics"] = []
         for tick, allocation in self.simulation.history.allocations[path_agent].items():
             path_statistics = self.path_statistics(allocation.segments)
+
+            colliding_agent_bids = {}
+            for key, value in allocation.history.colliding_agent_bids.items():
+                colliding_agent_bids[key] = value.to_dict()
+
+            displacing_agent_bids = {}
+            for key, value in allocation.history.displacing_agent_bids.items():
+                displacing_agent_bids[key] = value.to_dict()
+                
             allocation_statistics.append(AllocationStatistics(tick,
                                                               path_agent.value_for_segments(allocation.segments),
+                                                              allocation.history.bid.to_dict(),
                                                               allocation.history.compute_time,
                                                               allocation.history.reason,
                                                               allocation.history.explanation,
-                                                              allocation.history.colliding_agent_ids,
-                                                              allocation.history.displacing_agent_ids,
+                                                              colliding_agent_bids,
+                                                              displacing_agent_bids,
                                                               path_statistics))
         return allocation_statistics
 
@@ -658,20 +667,22 @@ class AllocationStatistics(Stringify):
     def __init__(self,
                  tick: int,
                  value: float,
-                 bid: "Bid",
+                 bid: Dict[str, str | int | float],
                  compute_time: int,
                  reason: str,
                  explanation: str,
-                 colliding_agent_ids: Optional[Set[str]],
-                 displacing_agent_ids: Optional[Set[str]],
+                 colliding_agent_bids: Optional[Dict[str, Dict[str, str | int | float]]],
+                 displacing_agent_bids: Optional[Dict[str, Dict[str, str | int | float]]],
                  path_statistics: Optional["PathStatistics"]):
         self.tick: int = tick
         self.value: float = value
-        self.bid: Dict[str, str | int | float] = bid.to_dict()
+        self.bid: Dict[str, str | int | float] = bid
         self.reason: str = reason
         self.explanation: str = explanation
-        self.colliding_agent_ids: Set[str] = colliding_agent_ids if colliding_agent_ids is not None else []
-        self.displacing_agent_ids: Set[str] = displacing_agent_ids if displacing_agent_ids is not None else []
+        self.colliding_agent_bids: Dict[
+            str, Dict[str, str | int | float]] = colliding_agent_bids if colliding_agent_bids is not None else {}
+        self.displacing_agent_bids: Dict[
+            str, Dict[str, str | int | float]] = displacing_agent_bids if displacing_agent_bids is not None else {}
         self.compute_time: int = compute_time
         self.path: Optional["PathStatistics"] = path_statistics
 
