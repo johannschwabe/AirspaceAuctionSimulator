@@ -14,8 +14,10 @@ class AllocationStatistics:
         Set the compute-time needed for this allocation, the reason for this allocation and the optional list of
         agents that are reallocated because of this allocation.
         :param compute_time:
+        :param reason:
         :param explanation:
         :param colliding_agent_ids:
+        :param displacing_agent_id:
         """
         self.compute_time: int = compute_time
         self.reason: str = str(reason.value())
