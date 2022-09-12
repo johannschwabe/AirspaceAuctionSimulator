@@ -88,7 +88,7 @@
  * @property {int} total_number_of_agents
  * @property {float} total_value
  * @property {float} total_non_colliding_value
- * @property {int} total_number_of_collisions
+ * @property {int} total_number_of_violations
  * @property {int} total_number_of_reallocations
  * @property {{int: int}} step_compute_time
  */
