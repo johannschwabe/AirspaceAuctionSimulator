@@ -23,4 +23,4 @@ class AllocationStatistics:
         self.reason: str = str(reason.value)
         self.explanation: str = explanation
         self.colliding_agent_ids: Optional[Set[str]] = colliding_agent_ids
-        self.displacing_agent_id: Optional[Set[str]] = displacing_agent_ids
+        self.displacing_agent_ids: Optional[Set[str]] = displacing_agent_ids

@@ -1,6 +1,6 @@
 import statistics
 from abc import ABC
-from typing import TYPE_CHECKING, List, Dict, Optional, Any
+from typing import TYPE_CHECKING, List, Dict, Optional, Any, Set
 
 from rtree import index, Index
 
@@ -95,8 +95,10 @@ class Statistics:
             allocation_statistics.append(AllocationStatistics(tick,
                                                               path_agent.value_for_segments(allocation.segments),
                                                               allocation.statistics.compute_time,
+                                                              allocation.statistics.reason,
                                                               allocation.statistics.explanation,
                                                               allocation.statistics.colliding_agent_ids,
+                                                              allocation.statistics.displacing_agent_ids,
                                                               path_statistics))
         return allocation_statistics
 
@@ -657,12 +659,16 @@ class AllocationStatistics(Stringify):
                  value: float,
                  compute_time: int,
                  reason: str,
-                 colliding_agent_ids: Optional[List[str]],
+                 explanation: str,
+                 colliding_agent_ids: Optional[Set[str]],
+                 displacing_agent_ids: Optional[Set[str]],
                  path_statistics: Optional["PathStatistics"]):
         self.tick: int = tick
         self.value: float = value
         self.reason: str = reason
-        self.colliding_agent_ids: List[str] = colliding_agent_ids if colliding_agent_ids is not None else []
+        self.explanation: str = explanation
+        self.colliding_agent_ids: Set[str] = colliding_agent_ids if colliding_agent_ids is not None else []
+        self.displacing_agent_ids: Set[str] = displacing_agent_ids if displacing_agent_ids is not None else []
         self.compute_time: int = compute_time
         self.path: Optional["PathStatistics"] = path_statistics
 
