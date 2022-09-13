@@ -462,6 +462,8 @@ class Statistics:
                                                                                         path_agent,
                                                                                         include_speed=False,
                                                                                         use_max_radius=False)
+            print(intersecting_agents)
+
             for intersecting_agent in intersecting_agents:
                 if isinstance(intersecting_agent, PathAgent):
                     encountered_agent_position = intersecting_agent.get_position_at_tick(coordinate.t)
@@ -473,6 +475,21 @@ class Statistics:
                         total_violations += 1
 
                 elif isinstance(intersecting_agent, SpaceAgent):
+                    for intersecting_space_segment in intersecting_agent.allocated_segments:
+                        if not path_segment.min.t > intersecting_space_segment.max.t and not path_segment.max.t < intersecting_space_segment.min.t:
+                            first_index = min(intersecting_space_segment.min.t - path_segment.min.t, 0)
+                            last_index = min(
+                                first_index + intersecting_space_segment.max.t - intersecting_space_segment.min.t,
+                                path_segment.max.t - path_segment.min.t)
+                            for possible_collision in path_segment.coordinates[first_index:last_index]:
+                                if possible_collision.distance_block(
+                                    [intersecting_space_segment.min,
+                                     intersecting_space_segment.max]) < path_agent.near_radius:
+                                    if intersecting_agent.id not in violations:
+                                        violations[intersecting_agent.id] = []
+                                    violations[intersecting_agent.id].append(possible_collision)
+                                    total_violations += 1
+
                     if intersecting_agent not in violations:
                         violations[intersecting_agent.id] = []
                     violations[intersecting_agent.id].append(coordinate)
@@ -501,11 +518,16 @@ class Statistics:
             if intersecting_agent.id not in violations:
                 violations[intersecting_agent.id] = []
             if isinstance(intersecting_agent, PathAgent):
-                for space_coordinate in space_segment.coordinates:
-                    for intersecting_segment in intersecting_agent.allocated_segments:
-                        if intersecting_segment.contains(space_coordinate):
-                            violations[intersecting_agent.id].append(space_coordinate)
-                            total_violations += 1
+                for intersecting_segment in intersecting_agent.allocated_segments:
+                    if not intersecting_segment.min.t > space_segment.max.t and not intersecting_segment.max.t < space_segment.min.t:
+                        first_index = min(space_segment.min.t - intersecting_segment.min.t, 0)
+                        last_index = min(first_index + space_segment.max.t - space_segment.min.t,
+                                         intersecting_segment.max.t - intersecting_segment.min.t)
+                        for possible_collision in intersecting_segment.coordinates[first_index:last_index]:
+                            if space_segment.contains(possible_collision):
+                                violations[intersecting_agent.id].append(possible_collision)
+                                total_violations += 1
+
             else:
                 pass  # Todo
 

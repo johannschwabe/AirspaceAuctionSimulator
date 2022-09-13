@@ -277,21 +277,29 @@ class Environment:
 
         adjusted_bottom_left: "Coordinate4D" = bottom_left - max_radius_3d
         adjusted_top_right: "Coordinate4D" = top_right + max_radius_3d
-        intersections: Iterator[int] = self.tree.intersection(
+        intersections_max_radius: Iterator[int] = self.tree.intersection(
             adjusted_bottom_left.list_rep() + adjusted_top_right.list_rep())
-        other_agents: List["Agent"] = [self.agents[intersection_id] for intersection_id in intersections if
+        other_agents: List["Agent"] = [self.agents[intersection_id] for intersection_id in intersections_max_radius if
                                        intersection_id != hash(agent)]
         true_collisions: set["Agent"] = set()
-        for agent in set(other_agents):
-            if isinstance(agent, PathAgent):
+        for _agent in set(other_agents):
+            if isinstance(_agent, PathAgent):
                 for tick in range(bottom_left.t, top_right.t + 1):
-                    agent_posi = agent.get_position_at_tick(tick)
+                    agent_posi = _agent.get_position_at_tick(tick)
                     if not agent_posi:
                         continue
                     distance = agent_posi.distance_block([bottom_left, top_right])
-                    if distance <= agent.near_radius:
-                        true_collisions.add(agent)
+                    if distance <= _agent.near_radius:
+                        true_collisions.add(_agent)
                         break
+
+        intersections: list[int] = list(self.tree.intersection(
+            bottom_left.list_rep() + top_right.list_rep()))
+        other_close_agents: List["Agent"] = [self.agents[intersection_id] for intersection_id in intersections if
+                                             intersection_id != hash(agent)]
+        for _agent in set(other_close_agents):
+            if isinstance(_agent, SpaceAgent):
+                true_collisions.add(_agent)
 
         return true_collisions
 
