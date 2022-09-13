@@ -55,14 +55,15 @@ const doDroneUpdate = () => {
 };
 
 const doFocusUpdate = () => {
-  if (!simulation.agentInFocus) { return; }
+  if (!simulation.agentInFocus) {
+    return;
+  }
   const focusAgentInvisibleBefore = focusAgentInvisible;
-  const focusAgentInvisibleNow = !(simulation.agentInFocus.isActiveAtTick(simulation.tick));
+  const focusAgentInvisibleNow = !simulation.agentInFocus.isActiveAtTick(simulation.tick);
 
   if (simulation.agentInFocus && !focusAgentInvisibleNow && focusAgentInvisibleBefore) {
     focusOnAgent({ agentInFocus: simulation.agentInFocus });
-  }
-  else if (simulation.agentInFocus && focusAgentInvisibleNow && !focusAgentInvisibleBefore) {
+  } else if (simulation.agentInFocus && focusAgentInvisibleNow && !focusAgentInvisibleBefore) {
     focusOffAgent(simulation.agentInFocus);
   } else {
     updateFocus({
@@ -76,29 +77,22 @@ const doFocusUpdate = () => {
   focusAgentInvisible = focusAgentInvisibleNow;
 };
 
-function focusOnAgent({ agentInFocus: agent, previousAgentInFocus }) {
-  focusAgentInvisible = !(agent.isActiveAtTick(simulation.tick));
-  if (focusAgentInvisible) {
-    if (previousAgentInFocus) {
-      if (previousAgentInFocus instanceof SpaceAgent) {
-        focusOffSpaceAgent();
-      }
-      if (previousAgentInFocus instanceof PathAgent) {
-        focusOffPathAgent();
-      }
-    }
-    return;
-  }
+function focusOnAgent({ agentInFocus: agent }) {
+  focusAgentInvisible = !simulation.agentInFocus.isActiveAtTick(simulation.tick);
+  if (focusAgentInvisible) { return; }
   if (agent instanceof SpaceAgent) {
     const space = agent.spaces.find((s) => s.isActiveAtTick(simulation.tick));
     focusOnSpaceAgent({ agent, space });
   }
   if (agent instanceof PathAgent) {
     const { x: agent_x, y: agent_y, z: agent_z } = agent.combinedPath.at(simulation.tick);
-    focusOnPathAgent({ agent, agent_x, agent_y, agent_z, update: true });
+    focusOnPathAgent({ agent, agent_x, agent_y, agent_z });
   }
 }
-onFocusOnAgent(focusOnAgent);
+onFocusOnAgent(({ previousAgentInFocus }) => {
+  focusOffAgent(previousAgentInFocus);
+  focusOnAgent({ agentInFocus: simulation.agentInFocus });
+});
 
 function focusOffAgent(agent) {
   if (agent instanceof SpaceAgent) {

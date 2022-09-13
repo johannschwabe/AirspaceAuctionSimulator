@@ -75,7 +75,7 @@
       to="#drawer-target"
     >
       <n-drawer-content
-        :title="simulation.ownerInFocus?.name"
+        :title="'Owner: ' + simulation.ownerInFocus?.displayName"
         :closable="true"
         :key="simulationStore.ownerInFocusId || 0"
       >
@@ -97,7 +97,7 @@
       to="#drawer-target"
     >
       <n-drawer-content
-        :title="simulation.agentInFocus?.name"
+        :title="'Agent: ' + simulation.agentInFocus?.displayName"
         :closable="true"
         :key="simulationStore.agentInFocusId || 0"
       >

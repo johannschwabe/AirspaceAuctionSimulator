@@ -1,4 +1,12 @@
-import { mdiAirplaneLanding, mdiAirplaneTakeoff, mdiSourceBranch } from "@mdi/js";
+import {
+  mdiAirplaneLanding,
+  mdiAirplaneTakeoff,
+  mdiSourceBranchCheck,
+  mdiSourceBranchSync,
+  mdiSourceBranchRemove,
+  mdiSkull,
+} from "@mdi/js";
+import { BRANCH_REASONS } from "@/API/enums";
 
 export class FlightEvent {
   /**
@@ -61,15 +69,53 @@ export class ReservationEndEvent extends FlightEvent {
   }
 }
 
+export class FirstAllocationEvent extends FlightEvent {
+  /**
+   * @param {int} tick
+   * @param {Coordinate3D} location
+   * @param {string} explanation
+   */
+  constructor(tick, location, explanation) {
+    super("First Allocation", "default", mdiSourceBranchCheck, tick, explanation);
+    this.location = location;
+  }
+}
+
 export class ReallocationEvent extends FlightEvent {
   /**
    * @param {int} tick
    * @param {Coordinate3D} location
-   * @param {string} reallocationReason
+   * @param {string} explanation
    */
-  constructor(tick, location, reallocationReason) {
-    super("Allocation", "warning", mdiSourceBranch, tick, reallocationReason);
+  constructor(tick, location, explanation) {
+    super("Reallocation", "warning", mdiSourceBranchSync, tick, explanation);
     this.location = location;
+  }
+}
+
+export class FailedAllocationEvent extends FlightEvent {
+  /**
+   * @param {int} tick
+   * @param {Coordinate3D} location
+   * @param {string} explanation
+   */
+  constructor(tick, location, explanation) {
+    super("Failed Allocation", "error", mdiSourceBranchRemove, tick, explanation);
+    this.location = location;
+  }
+}
+
+export function allocationEventFactory(reason) {
+  switch (reason) {
+    case BRANCH_REASONS.FIRST_ALLOCATION:
+      return FirstAllocationEvent;
+    case BRANCH_REASONS.REALLOCATION:
+      return ReallocationEvent;
+    case BRANCH_REASONS.ALLOCATION_FAILED:
+      return FailedAllocationEvent;
+    default:
+      console.error(`Unknown allocation reason: ${reason}`);
+      throw new Error("Unknown allocation reason");
   }
 }
 

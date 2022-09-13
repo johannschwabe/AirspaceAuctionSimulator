@@ -135,13 +135,14 @@
  * @property {int} tick
  * @property {float} value
  * @property {string} reason
+ * @property {string} explanation
  * @property {string[]} colliding_agent_ids
  * @property {int} compute_time
  */
 
 /**
  * @typedef {Object} ViolationStatistics
- * @property {{string: JSONTimeCoordinate}} violations
+ * @property {{string: JSONTimeCoordinate[]}} violations
  * @property {int} total_violations
  */
 

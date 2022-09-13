@@ -5,7 +5,12 @@
   <h4 v-if="subtitle">
     {{ subtitle }}
   </h4>
-  <div v-for="datapoint in datapoints" :key="datapoint.label">
+  <div
+    v-for="datapoint in datapoints"
+    :key="datapoint.label"
+    @click="datapoint.onClick"
+    :style="{ cursor: datapoint.onClick ? 'pointer' : 'default' }"
+  >
     <div style="display: flex">
       <div style="display: flex; flex-direction: column; justify-content: center; margin-right: 10px">
         <n-icon :component="datapoint.icon" :depth="5" size="25" />
