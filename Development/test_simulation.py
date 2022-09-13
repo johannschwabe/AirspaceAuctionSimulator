@@ -5,7 +5,7 @@ from API import APISimulationConfig, build_json, run_from_config
 
 random.seed(0)
 
-f = open("config.json", "r")
+f = open("Timor-Leste-config.json", "r")
 config: APISimulationConfig = APISimulationConfig(**json.load(f))
 f.close()
 
