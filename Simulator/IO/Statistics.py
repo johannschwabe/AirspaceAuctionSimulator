@@ -406,6 +406,15 @@ class Statistics:
                                mean_height_above_ground,
                                median_height_above_ground)
 
+    @staticmethod
+    def merge_violations(violations: Dict[str, List["Coordinate4D"]],
+                         new_violations: Dict[str, List["Coordinate4D"]]):
+        for key, value in new_violations.items():
+            if key in violations:
+                violations[key].extend(value)
+            else:
+                violations[key] = value
+
     def get_agent_violations(self, agent: "Agent") -> "ViolationStatistics":
         """
         Tracks all violations for the given agent.
@@ -420,13 +429,13 @@ class Statistics:
             if isinstance(agent, PathAgent):
                 for segment in agent.allocated_segments:
                     segment_violations = self.path_segment_violations(agent, segment)
-                    violations.update(segment_violations.violations)
+                    self.merge_violations(violations, segment_violations.violations)
                     total_violations += segment_violations.total_violations
 
             elif isinstance(agent, SpaceAgent):
                 for segment in agent.allocated_segments:
                     segment_violations = self.space_segment_violations(agent, segment)
-                    violations.update(segment_violations.violations)
+                    self.merge_violations(violations, segment_violations.violations)
                     total_violations += segment_violations.total_violations
 
             else:
