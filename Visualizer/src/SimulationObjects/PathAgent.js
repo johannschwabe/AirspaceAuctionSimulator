@@ -10,6 +10,8 @@ import {
 } from "./FlightEvent";
 import Agent from "./Agent";
 import { BRANCH_REASONS } from "@/API/enums";
+import PathStatistic from "@/SimulationObjects/PathStatistic";
+import AllocationStatistic from "@/SimulationObjects/AllocationStatistic";
 
 export default class PathAgent extends Agent {
   /**
@@ -34,6 +36,8 @@ export default class PathAgent extends Agent {
     this.reAllocationTimesteps = this.branches
       .filter((branch) => branch.reason === BRANCH_REASONS.REALLOCATION)
       .map((branch) => branch.tick);
+    this.pathStatistics = agentStats.path ? new PathStatistic(agentStats.path) : null;
+    this.allocationStatistics = agentStats.allocations.map((a) => new AllocationStatistic(a));
   }
 
   /**

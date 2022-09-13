@@ -22,13 +22,15 @@
     :data="heightProfileData"
     v-if="heightProfileData"
   />
-  <template v-for="(allocation, index) in allocations" :key="`${simulation.agentInFocus.id}-allocation-${index}`">
-    <simple-data-table :title="`Allocation ${index + 1}`" :datapoints="allocation.allocationData" />
-    <simple-data-table
-      :subtitle="`Path for Allocation ${index + 1}`"
-      :datapoints="allocation.pathData"
-      v-if="allocation.pathData.length > 0"
-    />
+  <template v-if="allocations">
+    <template v-for="(allocation, index) in allocations" :key="`${simulation.agentInFocus.id}-allocation-${index}`">
+      <simple-data-table :title="`Allocation ${index + 1}`" :datapoints="allocation.allocationData" />
+      <simple-data-table
+        :subtitle="`Path for Allocation ${index + 1}`"
+        :datapoints="allocation.pathData"
+        v-if="allocation.pathData.length > 0"
+      />
+    </template>
   </template>
   <h3 v-if="violationData.length > 0">Airspace Violations</h3>
   <template v-for="(violation, index) in violationData" :key="`${simulation.agentInFocus.id}-violation-${index}`">
@@ -226,8 +228,11 @@ function pathToDatapoints(path) {
     .map((d) => ({ ...d, value: Math.round(d.value * 10) / 10 }));
 }
 
-const allocations = computed(() =>
-  simulation.agentInFocus.allocationStatistics.map((stat) => ({
+const allocations = computed(() => {
+  if (!simulation.agentInFocus.allocationStatistics) {
+    return undefined;
+  }
+  return simulation.agentInFocus.allocationStatistics.map((stat) => ({
     allocationData: [
       {
         label: "tick",
@@ -280,8 +285,8 @@ const allocations = computed(() =>
       },
     ],
     pathData: pathToDatapoints(stat.pathStatistics),
-  }))
-);
+  }));
+});
 
 const violationData = computed(() => {
   return Object.entries(simulation.agentInFocus.violations)

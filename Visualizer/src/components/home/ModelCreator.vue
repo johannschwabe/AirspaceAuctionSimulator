@@ -297,6 +297,7 @@ const simulate = () => {
           loadingBar.error();
           message.error(e.message);
           errorText.value = e.message;
+          console.error(e);
           throw new Error(e);
         })
         .finally(() => {

@@ -29,7 +29,6 @@ let droneMeshes;
 export async function getDroneInstance(scene, agent) {
   if (!droneMeshes) {
     const { meshes } = await SceneLoader.ImportMeshAsync("", "./3d/", "drones.glb", scene);
-    console.log(meshes);
     droneMeshes = meshes.filter((mesh) => DRONE_TYPE.includes(mesh.name));
     droneMeshes.forEach((droneMesh) => {
       droneMesh.isVisible = false;
