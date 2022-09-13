@@ -66,14 +66,19 @@
       <template #label>
         <help v-bind="hOwners">Owners</help>
       </template>
-      <owner/>
+      <owner />
     </n-form-item>
   </n-form>
 
   <!-- Upload and Download of configuration file -->
   <n-grid cols="2" x-gap="10">
     <n-grid-item>
-      <n-upload :custom-request="uploadConfiguration" accept="application/json" :on-preview="uploadConfiguration" class="upload">
+      <n-upload
+        :custom-request="uploadConfiguration"
+        accept="application/json"
+        :on-preview="uploadConfiguration"
+        class="upload"
+      >
         <n-button block tertiary :type="simulationConfig.isEmpty ? 'primary' : 'tertiary'">
           Upload Simulation Configuration
           <template #icon>
@@ -180,7 +185,9 @@ import {
 import { hName, hDescription, hTimesteps, hAllocator, hPaymentRule, hOwners } from "../common/help/texts.js";
 
 const simulationConfig = useSimulationConfigStore();
-simulationConfig.loadAvailableAllocators();
+if (!simulationConfig.availableAllocators || simulationConfig.availableAllocators.length === 0) {
+  simulationConfig.loadAvailableAllocators();
+}
 const message = useMessage();
 const loadingBar = useLoadingBar();
 const router = useRouter();
