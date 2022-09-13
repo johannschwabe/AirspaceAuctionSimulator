@@ -76,6 +76,7 @@ class Statistics:
                         violations,
                         total_reallocations,
                         space_statistics,
+                        self.get_allocation_statistics_for_agent(agent),
                     ))
 
                 else:
@@ -88,16 +89,37 @@ class Statistics:
 
         return owner_statistics
 
-    def get_allocation_statistics_for_agent(self, path_agent: "PathAgent") -> List["AllocationStatistics"]:
+    def get_allocation_statistics_for_agent(self, agent: "Agent") -> List["AllocationStatistics"]:
         allocation_statistics: List["AllocationStatistics"] = []
-        for tick, allocation in self.simulation.history.allocations[path_agent].items():
-            path_statistics = self.path_statistics(allocation.segments)
+        for tick, allocation in self.simulation.history.allocations[agent].items():
+            path_statistics, space_statistics = None, None
+            if isinstance(agent, PathAgent):
+                path_statistics = self.path_statistics(allocation.segments)
+            elif isinstance(agent, SpaceAgent):
+                space_statistics = self.spaces_statistics(allocation.segments)
+            else:
+                raise Exception(f"Invalid Agent: {agent}")
+
+            colliding_agent_bids = {}
+            if allocation.history.colliding_agent_bids is not None:
+                for key, value in allocation.history.colliding_agent_bids.items():
+                    colliding_agent_bids[key] = value.to_dict()
+
+            displacing_agent_bids = {}
+            if allocation.history.displacing_agent_bids is not None:
+                for key, value in allocation.history.displacing_agent_bids.items():
+                    displacing_agent_bids[key] = value.to_dict()
+
             allocation_statistics.append(AllocationStatistics(tick,
-                                                              path_agent.value_for_segments(allocation.segments),
-                                                              allocation.statistics.compute_time,
-                                                              allocation.statistics.reason,
-                                                              allocation.statistics.colliding_agent_ids,
-                                                              path_statistics))
+                                                              agent.value_for_segments(allocation.segments),
+                                                              allocation.history.bid.to_dict(),
+                                                              allocation.history.compute_time,
+                                                              allocation.history.reason,
+                                                              allocation.history.explanation,
+                                                              colliding_agent_bids=colliding_agent_bids,
+                                                              displacing_agent_bids=displacing_agent_bids,
+                                                              path_statistics=path_statistics,
+                                                              space_statistics=space_statistics))
         return allocation_statistics
 
     def get_non_colliding_value_for_agent(self, agent: "Agent") -> float:
@@ -562,7 +584,7 @@ class SimulationStatistics(Stringify):
                  nr_agents: int,
                  value: float,
                  non_colliding_value: float,
-                 nr_collisions: int,
+                 nr_violations: int,
                  nr_reallocations: int,
                  step_compute_time: Dict[int, int]):
         self.owners = owners
@@ -570,7 +592,7 @@ class SimulationStatistics(Stringify):
         self.total_number_of_agents = nr_agents
         self.total_value = value
         self.total_non_colliding_value = non_colliding_value
-        self.total_number_of_collisions = nr_collisions
+        self.total_number_of_violations = nr_violations
         self.total_number_of_reallocations = nr_reallocations
         self.step_compute_time: Dict[int, int] = step_compute_time
 
@@ -616,12 +638,14 @@ class AgentStatistics(ABC):
                  value: float,
                  non_colliding_value: float,
                  violation_statistics: "ViolationStatistics",
-                 total_reallocations: int):
+                 total_reallocations: int,
+                 allocation_statistics: List["AllocationStatistics"]):
         self.id: str = agent.id
         self.value: float = value
         self.non_colliding_value: float = non_colliding_value
         self.violations = violation_statistics
         self.total_reallocations = total_reallocations
+        self.allocations: List["AllocationStatistics"] = allocation_statistics
 
 
 class SpaceAgentStatistics(AgentStatistics, Stringify):
@@ -631,8 +655,10 @@ class SpaceAgentStatistics(AgentStatistics, Stringify):
                  non_colliding_value: float,
                  violation_statistics: "ViolationStatistics",
                  total_reallocations: int,
-                 space_statistics: Optional["SpaceStatistics"]):
-        super().__init__(space_agent, value, non_colliding_value, violation_statistics, total_reallocations)
+                 space_statistics: Optional["SpaceStatistics"],
+                 allocation_statistics: List["AllocationStatistics"]):
+        super().__init__(space_agent, value, non_colliding_value, violation_statistics, total_reallocations,
+                         allocation_statistics)
         self.space: Optional["SpaceStatistics"] = space_statistics
 
 
@@ -645,26 +671,36 @@ class PathAgentStatistics(AgentStatistics, Stringify):
                  total_reallocations: int,
                  path_statistics: Optional["PathStatistics"],
                  allocation_statistics: List["AllocationStatistics"]):
-        super().__init__(path_agent, value, non_colliding_value, violation_statistics, total_reallocations)
+        super().__init__(path_agent, value, non_colliding_value, violation_statistics, total_reallocations,
+                         allocation_statistics)
         self.path: Optional["PathStatistics"] = path_statistics
         self.time_in_air: int = path_agent.get_airtime()
-        self.allocations: List["AllocationStatistics"] = allocation_statistics
 
 
 class AllocationStatistics(Stringify):
     def __init__(self,
                  tick: int,
                  value: float,
+                 bid: Dict[str, str | int | float],
                  compute_time: int,
                  reason: str,
-                 colliding_agent_ids: Optional[List[str]],
-                 path_statistics: Optional["PathStatistics"]):
+                 explanation: str,
+                 colliding_agent_bids: Optional[Dict[str, Dict[str, str | int | float]]],
+                 displacing_agent_bids: Optional[Dict[str, Dict[str, str | int | float]]],
+                 path_statistics: Optional["PathStatistics"],
+                 space_statistics: Optional["SpaceStatistics"]):
         self.tick: int = tick
         self.value: float = value
+        self.bid: Dict[str, str | int | float] = bid
         self.reason: str = reason
-        self.colliding_agent_ids: List[str] = colliding_agent_ids if colliding_agent_ids is not None else []
+        self.explanation: str = explanation
+        self.colliding_agent_bids: Dict[
+            str, Dict[str, str | int | float]] = colliding_agent_bids if colliding_agent_bids is not None else {}
+        self.displacing_agent_bids: Dict[
+            str, Dict[str, str | int | float]] = displacing_agent_bids if displacing_agent_bids is not None else {}
         self.compute_time: int = compute_time
         self.path: Optional["PathStatistics"] = path_statistics
+        self.space: Optional["SpaceStatistics"] = space_statistics
 
 
 class ViolationStatistics(Stringify):

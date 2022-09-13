@@ -43,7 +43,7 @@
 
 <script setup>
 import logo from "../../assets/drone.png";
-import { Cube, FingerPrint, Fish, HappyOutline, GitBranch, Skull, CloudDownloadOutline } from "@vicons/ionicons5";
+import { Cube, FingerPrint, Fish, HappyOutline, GitBranch, CloudDownloadOutline, Skull } from "@vicons/ionicons5";
 
 import { computed } from "vue";
 import { useRouter } from "vue-router";
@@ -87,8 +87,8 @@ const stats = computed(() => {
       icon: GitBranch,
     },
     {
-      label: "Collisions",
-      value: simulation.statistics.totalNumberOfCollisions,
+      label: "Violations",
+      value: simulation.statistics.totalNumberOfViolations,
       icon: Skull,
     },
     {

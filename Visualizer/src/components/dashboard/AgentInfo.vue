@@ -251,7 +251,7 @@ const allocations = computed(() => {
       },
       {
         label: "Collisions",
-        value: stat.collidingAgentIds.length,
+        value: stat.collidingAgentBids.length,
         icon: Skull,
       },
       {

@@ -144,6 +144,9 @@ class AStar:
         return complete_path, collisions
 
     def is_valid_for_allocation(self, position: "Coordinate4D", agent: "PathAgent"):
+        if position.t < self.tick:
+            raise Exception(f"Cannot validate position in the past. Position: {position}, Tick: {self.tick}.")
+
         if self.environment.is_blocked(position, agent):
             return False, None
 
@@ -154,11 +157,13 @@ class AStar:
 
         colliding_agents = set()
 
+        flying = False
         if position.t == self.tick:
             my_pos = agent.get_position_at_tick(self.tick)
             if my_pos is not None and my_pos == position:
-                return True, colliding_agents
-            return False, None
+                flying = True
+            else:
+                return False, None
 
         max_intersecting_agents = self.environment.intersect_path_coordinate(position, agent)
         for intersecting_agent in max_intersecting_agents:
@@ -172,15 +177,23 @@ class AStar:
                     if distance <= max_near_radius:
                         true_intersection = True
                         break
+
                 if not true_intersection:
                     continue
 
+                if flying:
+                    colliding_agents.add(intersecting_agent)
+                    continue
+
                 other_bid = self.bid_tracker.get_last_bid_for_tick(self.tick, intersecting_agent, self.environment)
-                if other_bid is None or my_bid > other_bid:
+                if other_bid is None:
+                    raise Exception(f"Agent stuck: {intersecting_agent}")
+                if my_bid > other_bid:
                     other_pos = intersecting_agent.get_position_at_tick(self.tick)
                     if other_pos is not None:
                         # Make sure intersecting agent can dodge in time
-                        distance_to_clear = max_near_radius - position.inter_temporal_distance(other_pos)
+                        distance_to_clear = max(2 * max_near_radius - position.inter_temporal_distance(other_pos) + 1,
+                                                1)
                         time_to_clearance = distance_to_clear * intersecting_agent.speed
                         if time_to_clearance >= position.t - self.tick:
                             return False, None

@@ -2,7 +2,8 @@ from time import time_ns
 from typing import List, Tuple, Set, Optional, Dict, TYPE_CHECKING
 
 from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation, \
-    AllocationStatistics, AStar
+    AllocationHistory, AStar
+from Simulator.Coordinates.Coordinate4D import Coordinate4D
 from ..BidTracker.PriorityBidTracker import PriorityBidTracker
 from ..BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStrategy
 from ..BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
@@ -35,8 +36,21 @@ class PriorityAllocator(Allocator):
         return [PriorityPaymentRule]
 
     @staticmethod
+    def find_valid_tick(position: "Coordinate4D", astar: "AStar", bid: "PriorityPathBid", min_tick: int, max_tick: int):
+        if position.t < min_tick:
+            position.t = min_tick
+        while True:
+            valid, _ = astar.is_valid_for_allocation(position, bid.agent)
+            if valid:
+                break
+            position.t += 1
+            if position.t > max_tick:
+                return None
+        return position
+
+    @staticmethod
     def allocate_path(bid: "PriorityPathBid", environment: "Environment", astar: "AStar",
-                      tick: int) -> Tuple[Optional[List["PathSegment"]], Optional[Set["Agent"]]]:
+                      tick: int) -> Tuple[Optional[List["PathSegment"]], Optional[Set["Agent"]], str]:
         """
         Allocate a path for a given path-bid.
         Returns the allocated path and a list of agents that need to be reallocated, because they had a lower priority.
@@ -51,11 +65,15 @@ class PriorityAllocator(Allocator):
         start = a.to_3D()
         a = a.clone()
 
-        if bid.flying and a.t != tick:
-            print(f"Cannot teleport to {a} at tick {tick}.")
-            return None, None
+        if bid.flying:
+            if a.t != tick:
+                return None, None, f"Cannot teleport to {a} at tick {tick}."
 
-        if not bid.flying and a.t == tick:
+            valid, _ = astar.is_valid_for_allocation(a, bid.agent)
+            if not valid:
+                return None, None, f"Cannot escape {a}."
+
+        elif a.t == tick:
             a.t += 1
 
         time = 0
@@ -69,20 +87,18 @@ class PriorityAllocator(Allocator):
             b = b.clone()
 
             if environment.is_blocked_forever(a, bid.agent.near_radius):
-                print(f"Static blocker at start {a}.")
-                return None, None
+                return None, None, f"Static blocker at start {a}."
 
             if environment.is_blocked_forever(b, bid.agent.near_radius):
-                print(f"Static blocker at target {b}.")
-                return None, None
+                return None, None, f"Static blocker at target {b}."
 
-            valid, _ = astar.is_valid_for_allocation(a, bid.agent)
-            while a.t < tick or not valid:
-                a.t += 1
-                if a.t > environment.dimension.t or bid.flying:
-                    print(f"Start {a} is invalid until max tick {environment.dimension.t}.")
-                    return None, None
-                valid, _ = astar.is_valid_for_allocation(a, bid.agent)
+            a = PriorityAllocator.find_valid_tick(a, astar, bid, tick, environment.dimension.t)
+            if a is None:
+                return None, None, f"Start {a} is invalid until max tick {environment.dimension.t}."
+
+            b = PriorityAllocator.find_valid_tick(b, astar, bid, a.t, environment.dimension.t)
+            if b is None:
+                return None, None, f"Target {b} is invalid until max tick {environment.dimension.t}."
 
             ab_path, path_collisions = astar.astar(
                 a,
@@ -91,13 +107,11 @@ class PriorityAllocator(Allocator):
             )
 
             if len(ab_path) == 0:
-                print(f"No path {a} -> {b} found.")
-                return None, None
+                return None, None, f"No path {a} -> {b} found."
 
             time += ab_path[-1].t - ab_path[0].t
             if time > bid.battery:
-                print(f"Not enough battery left for path {a} -> {b}.")
-                return None, None
+                return None, None, f"Not enough battery left for path {a} -> {b}."
 
             optimal_path_segments.append(
                 PathSegment(start, end, count, ab_path))
@@ -110,7 +124,7 @@ class PriorityAllocator(Allocator):
             a = a.clone()
             a.t += stay
 
-        return optimal_path_segments, total_collisions
+        return optimal_path_segments, total_collisions, "Path allocated."
 
     def allocate_space(self, bid: "PrioritySpaceBid", environment: "Environment",
                        tick: int) -> Tuple[List["SpaceSegment"], Set["Agent"]]:
@@ -176,6 +190,7 @@ class PriorityAllocator(Allocator):
         """
         astar = AStar(environment, self.bid_tracker, tick)
         allocations: Dict["Agent", "Allocation"] = {}
+        displacements: Dict["Agent", Set["Agent"]] = {}
         agents_to_allocate = set(agents)
         while len(list(agents_to_allocate)) > 0:
             start_time = time_ns()
@@ -184,24 +199,24 @@ class PriorityAllocator(Allocator):
             bid = self.bid_tracker.request_new_bid(tick, agent, environment)
 
             if bid is None:
-                allocations[agent] = Allocation(agent, [],
-                                                AllocationStatistics(time_ns() - start_time,
-                                                                     str(AllocationReason.CRASH.value)))
-                continue
+                raise Exception(f"Agent is stuck: {agent}")
 
             # Path Agents
             if isinstance(bid, PriorityPathBid):
-                optimal_segments, collisions = self.allocate_path(bid, environment, astar, tick)
+                optimal_segments, collisions, explanation = self.allocate_path(bid, environment, astar, tick)
 
                 if optimal_segments is None:
                     allocations[agent] = Allocation(agent, [],
-                                                    AllocationStatistics(time_ns() - start_time,
-                                                                         str(AllocationReason.ALLOCATION_FAILED.value)))
+                                                    AllocationHistory(bid,
+                                                                      time_ns() - start_time,
+                                                                      AllocationReason.ALLOCATION_FAILED,
+                                                                      explanation))
                     continue
 
             # Space Agents
             elif isinstance(bid, PrioritySpaceBid):
                 optimal_segments, collisions = self.allocate_space(bid, environment, tick)
+                explanation = "Space allocated"
 
             else:
                 raise Exception(f"Invalid Bid: {bid}")
@@ -210,16 +225,34 @@ class PriorityAllocator(Allocator):
             agents_to_allocate = agents_to_allocate.union(collisions)
             for agent_to_remove in collisions:
                 print(f"reallocating: {agent_to_remove.id}")
+                if agent_to_remove not in displacements:
+                    displacements[agent_to_remove] = set()
+                displacements[agent_to_remove].add(agent)
                 environment.deallocate_agent(agent_to_remove, tick)
 
             # Allocate Agent
-            allocation_reason = str(AllocationReason.FIRST_ALLOCATION.value) if agent in agents else str(
-                AllocationReason.AGENT.value)
-            collision_ids = [collision.id for collision in collisions]
+            reason = AllocationReason.FIRST_ALLOCATION if agent in agents else AllocationReason.REALLOCATION
+            displacing_agent_bids = {}
+            if agent in displacements:
+                for displacing_agent in displacements[agent]:
+                    displacing_agent_bids[displacing_agent.id] = \
+                        self.bid_tracker.get_last_bid_for_tick(tick,
+                                                               displacing_agent,
+                                                               environment)
+            colliding_agent_bids = {}
+            for colliding_agent in collisions:
+                colliding_agent_bids[colliding_agent.id] = \
+                    self.bid_tracker.get_last_bid_for_tick(tick,
+                                                           colliding_agent,
+                                                           environment)
+                
             new_allocation = Allocation(agent, optimal_segments,
-                                        AllocationStatistics(time_ns() - start_time,
-                                                             allocation_reason,
-                                                             colliding_agent_ids=collision_ids))
+                                        AllocationHistory(bid,
+                                                          time_ns() - start_time,
+                                                          reason,
+                                                          explanation,
+                                                          colliding_agent_bids=colliding_agent_bids,
+                                                          displacing_agent_bids=displacing_agent_bids))
             allocations[agent] = new_allocation
             environment.allocate_segments_for_agents([new_allocation], tick)
 
