@@ -8,7 +8,7 @@
       :data="data"
       :pattern="pattern"
       key-field="id"
-      label-field="name"
+      label-field="displayName"
       children-field="agents"
       :node-props="nodeProps"
       :render-suffix="renderSuffix"

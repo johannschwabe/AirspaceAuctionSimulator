@@ -25,13 +25,16 @@ export default class Agent {
     this.violations = agentStats.violations.violations;
     this.totalViolations = agentStats.violations.total_violations;
 
-    this.pathStatistics = agentStats.path ? new PathStatistic(agentStats.path) : null;
-    this.allocationStatistics = agentStats.allocations.map((a) => new AllocationStatistic(a));
-
     this.reAllocationTimesteps = [];
-    this.violationsTimesteps = Object.values(this.violations).map((loc) => loc.t);
+    this.violationsTimesteps = Object.values(this.violations)
+      .flat()
+      .map((loc) => loc.t);
 
     this._simulation = simulation;
+  }
+
+  get displayName() {
+    return this.id;
   }
 
   /**

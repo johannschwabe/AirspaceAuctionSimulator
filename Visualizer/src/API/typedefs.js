@@ -141,6 +141,7 @@
  * @property {RawBid} bid
  * @property {string} reason
  * @property {string} explanation
+ * @property {string} explanation
  * @property {{string: RawBid}} colliding_agent_bids
  * @property {{string: RawBid}} displacing_agent_bids
  * @property {int} compute_time
@@ -150,7 +151,7 @@
 
 /**
  * @typedef {Object} ViolationStatistics
- * @property {{string: JSONTimeCoordinate}} violations
+ * @property {{string: JSONTimeCoordinate[]}} violations
  * @property {int} total_violations
  */
 

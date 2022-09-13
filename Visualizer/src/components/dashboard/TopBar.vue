@@ -48,8 +48,8 @@ import { Cube, FingerPrint, Fish, HappyOutline, GitBranch, CloudDownloadOutline,
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 
-import { downloadSimulation } from "@/API/api";
-import { useSimulationSingleton } from "@/scripts/simulation";
+import { downloadSimulation } from "@/API/api.js";
+import { useSimulationSingleton } from "@/scripts/simulation.js";
 
 const router = useRouter();
 const simulation = useSimulationSingleton();
