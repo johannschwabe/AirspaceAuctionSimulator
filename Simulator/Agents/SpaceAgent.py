@@ -2,10 +2,12 @@ from typing import TYPE_CHECKING, List, Dict, Optional, Any
 
 from .Agent import Agent
 from .AgentType import AgentType
+from ..Coordinates.Coordinate4D import Coordinate4D
+
+EPSILON = 0.001
 
 if TYPE_CHECKING:
     from ..Segments.SpaceSegment import SpaceSegment
-    from ..Coordinates.Coordinate4D import Coordinate4D
     from ..ValueFunction.ValueFunction import ValueFunction
     from ..Bids.BiddingStrategy import BiddingStrategy
 
@@ -23,6 +25,10 @@ class SpaceAgent(Agent):
         super().__init__(agent_id, bidding_strategy, value_function, config, _is_clone=_is_clone)
 
         self.blocks: List[List["Coordinate4D"]] = blocks
+        for block in self.blocks:
+            block[1].x -= EPSILON
+            block[1].y -= EPSILON
+            block[1].z -= EPSILON
         self.allocated_segments: List["SpaceSegment"] = []
 
     def add_allocated_segment(self, space_segment: "SpaceSegment"):

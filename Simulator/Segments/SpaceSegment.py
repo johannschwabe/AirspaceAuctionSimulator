@@ -24,9 +24,9 @@ class SpaceSegment(Segment):
     @property
     def coordinates(self) -> List["Coordinate4D"]:
         coordinates: List["Coordinate4D"] = []
-        for x in range(self._min.x, self._max.x):
-            for y in range(self._min.y, self._max.y):
-                for z in range(self._min.z, self._max.z):
+        for x in range(self._min.x, round(self._max.x)):
+            for y in range(self._min.y, round(self._max.y)):
+                for z in range(self._min.z, round(self._max.z)):
                     for t in range(self._min.t, self._max.t):
                         coordinates.append(Coordinate4D(x, y, z, t))
         return coordinates

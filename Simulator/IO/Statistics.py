@@ -81,6 +81,7 @@ class Statistics:
 
                 else:
                     raise Exception(f"Invalid Agent: {agent}")
+                print(f"{agent} stats done")
 
             owner_statistics.append(OwnerStatistics(owner,
                                                     agent_statistics,
@@ -490,11 +491,14 @@ class Statistics:
         for intersecting_agent in intersecting_agents:
             if intersecting_agent.id not in violations:
                 violations[intersecting_agent.id] = []
-            for space_coordinate in space_segment.coordinates:
-                for intersecting_segment in intersecting_agent.allocated_segments:
-                    if intersecting_segment.contains(space_coordinate):
-                        violations[intersecting_agent.id].append(space_coordinate)
-                        total_violations += 1
+            if isinstance(intersecting_agent, PathAgent):
+                for space_coordinate in space_segment.coordinates:
+                    for intersecting_segment in intersecting_agent.allocated_segments:
+                        if intersecting_segment.contains(space_coordinate):
+                            violations[intersecting_agent.id].append(space_coordinate)
+                            total_violations += 1
+            else:
+                pass  # Todo
 
         return ViolationStatistics(violations, total_violations)
 

@@ -17,7 +17,9 @@ class Coordinate4D(Coordinate3D):
         return {"x": self.x, "y": self.y, "z": self.z, "t": self.t}
 
     def __repr__(self) -> str:
-        return f"({self.x:3d}, {self.y:3d}, {self.z:3d}, {self.t:3d})"
+        if isinstance(self.x, int):
+            return f"({self.x:3d}, {self.y:3d}, {self.z:3d}, {self.t:3d})"
+        return f"({self.x:3.1f}, {self.y:3.1f}, {self.z:3.1f}, {self.t:3.1f})"
 
     def __eq__(self, other) -> bool:
         return self.x == other.x and \

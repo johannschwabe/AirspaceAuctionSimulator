@@ -7,6 +7,7 @@ from rtree.index import Property, Item
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
 from ..Blocker.BlockerType import BlockerType
+from ..Coordinates.Coordinate3D import Coordinate3D
 
 if TYPE_CHECKING:
     from ..Blocker.Blocker import Blocker
@@ -264,14 +265,35 @@ class Environment:
     def other_agents_in_space(self,
                               bottom_left: "Coordinate4D",
                               top_right: "Coordinate4D",
-                              agent: "SpaceAgent") -> Set["Agent"]:
+                              agent: "SpaceAgent",
+                              use_max_radius: bool = True) -> Set["Agent"]:
         """
         Returns a set of all agents in the given space that are not the given agent.
         """
-        intersections: Iterator[int] = self.tree.intersection(bottom_left.list_rep() + top_right.list_rep())
+        if use_max_radius:
+            max_radius_3d = Coordinate3D(self.max_near_radius, self.max_near_radius, self.max_near_radius)
+        else:
+            max_radius_3d = Coordinate3D(0, 0, 0)
+
+        adjusted_bottom_left: "Coordinate4D" = bottom_left - max_radius_3d
+        adjusted_top_right: "Coordinate4D" = top_right + max_radius_3d
+        intersections: Iterator[int] = self.tree.intersection(
+            adjusted_bottom_left.list_rep() + adjusted_top_right.list_rep())
         other_agents: List["Agent"] = [self.agents[intersection_id] for intersection_id in intersections if
                                        intersection_id != hash(agent)]
-        return set(other_agents)
+        true_collisions: set["Agent"] = set()
+        for agent in set(other_agents):
+            if isinstance(agent, PathAgent):
+                for tick in range(bottom_left.t, top_right.t + 1):
+                    agent_posi = agent.get_position_at_tick(tick)
+                    if not agent_posi:
+                        continue
+                    distance = agent_posi.distance_block([bottom_left, top_right])
+                    if distance <= agent.near_radius:
+                        true_collisions.add(agent)
+                        break
+
+        return true_collisions
 
     def intersect_space_segment(self, space_segment: "SpaceSegment", space_agent: "SpaceAgent") -> Set["Agent"]:
         """
