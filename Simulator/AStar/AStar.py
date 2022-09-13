@@ -5,6 +5,7 @@ from typing import List, TYPE_CHECKING, Set, Tuple
 from .Node import Node
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
+from ..Coordinates.Coordinate2D import Coordinate2D
 
 if TYPE_CHECKING:
     from ..Environment.Environment import Environment
@@ -204,6 +205,104 @@ class AStar:
         intersecting_agents = self.environment.intersect_path_coordinate(position, agent, use_max_radius=False)
         for intersecting_agent in intersecting_agents:
             if isinstance(intersecting_agent, SpaceAgent):
+                min_distance = math.inf
+                for block in intersecting_agent.blocks:
+                    front = block[0].x - position.x > 0
+                    below = block[0].y - position.y > 0
+                    left = block[0].z - position.z > 0
+                    behind = block[1].x - position.x < 0
+                    above = block[1].y - position.y < 0
+                    right = block[1].z - position.z < 0
+                    same_x = not front and not behind
+                    same_y = not above and not below
+                    same_z = not left and not right
+                    distance = 0
+                    if front and below and left:  # Bottom left below
+                        distance = position.distance(block[0], l2=True)[0]
+
+                    if front and above and left:  # Bottom left above
+                        distance = position.distance(Coordinate4D(block[0].x, block[1].y, block[0].z, 0), l2=True)[0]
+
+                    if front and same_y and left:  # Bottom left same
+                        distance = position.to_2D().distance(Coordinate2D(block[0].x, block[0].z), l2=True)
+
+                    if front and below and right:  # Bottom right below
+                        distance = position.distance(Coordinate4D(block[0].x, block[0].y, block[1].z, 0), l2=True)[0]
+
+                    if front and above and right:  # Bottom right above
+                        distance = position.distance(Coordinate4D(block[0].x, block[1].y, block[1].z, 0), l2=True)[0]
+
+                    if front and same_y and right:  # Bottom right same
+                        distance = position.to_2D().distance(Coordinate2D(block[0].x, block[1].z), l2=True)
+
+                    if behind and below and left:  # Top left below
+                        distance = position.distance(Coordinate4D(block[1].x, block[0].y, block[0].z, 0), l2=True)[0]
+
+                    if behind and above and left:  # Top left above
+                        distance = position.distance(Coordinate4D(block[1].x, block[1].y, block[0].z, 0), l2=True)[0]
+
+                    if behind and same_y and left:  # Top left same
+                        distance = position.to_2D().distance(Coordinate2D(block[1].x, block[0].z), l2=True)
+
+                    if behind and below and right:  # Top right below
+                        distance = position.distance(Coordinate4D(block[1].x, block[0].y, block[1].z, 0), l2=True)[0]
+
+                    if behind and above and right:  # Top right above
+                        distance = position.distance(Coordinate4D(block[1].x, block[1].y, block[1].z, 0), l2=True)[0]
+
+                    if behind and same_y and right:  # Top right same
+                        distance = position.to_2D().distance(Coordinate2D(block[1].x, block[1].z), l2=True)
+
+                    if same_x and above and left:  # Left side above
+                        distance = Coordinate2D(position.y, position.z).distance(Coordinate2D(block[1].y, block[0].z))
+
+                    if same_x and below and left:  # Left side below
+                        distance = Coordinate2D(position.y, position.z).distance(Coordinate2D(block[0].y, block[0].z))
+
+                    if same_x and same_y and left:  # Left side same
+                        distance = block[0].z - position.z
+
+                    if same_x and above and right:  # Right side above
+                        distance = Coordinate2D(position.y, position.z).distance(Coordinate2D(block[1].y, block[1].z))
+
+                    if same_x and below and right:  # Right side below
+                        distance = Coordinate2D(position.y, position.z).distance(Coordinate2D(block[0].y, block[1].z))
+
+                    if same_x and same_y and right:  # Right side same
+                        distance = position.z - block[1].z
+
+                    if front and above and same_z:  # front side above
+                        distance = Coordinate2D(position.x, position.y).distance(Coordinate2D(block[0].x, block[1].y))
+
+                    if front and below and same_z:  # front side below
+                        distance = Coordinate2D(position.x, position.y).distance(Coordinate2D(block[0].x, block[0].y))
+
+                    if front and same_y and same_z:  # front side same
+                        distance = block[0].x - position.x
+
+                    if behind and above and same_z:  # behind side above
+                        distance = Coordinate2D(position.x, position.y).distance(Coordinate2D(block[1].x, block[1].y))
+
+                    if behind and below and same_z:  # front side below
+                        distance = Coordinate2D(position.x, position.y).distance(Coordinate2D(block[1].x, block[0].y))
+
+                    if behind and same_y and same_z:  # front side same
+                        distance = position.x - block[1].x
+
+                    if same_x and above and same_z:  # above same
+                        distance = position.y - block[1].y
+
+                    if same_x and below and same_z:  # above same
+                        distance = block[0].y - position.y
+
+                    if same_x and same_y and same_z:  # contained
+                        distance = 0
+
+                    if min_distance > distance:
+                        min_distance = distance
+
+                if min_distance > agent.near_radius:
+                    continue
                 other_bid = self.bid_tracker.get_last_bid_for_tick(self.tick, intersecting_agent, self.environment)
                 if other_bid is None or my_bid > other_bid:
                     colliding_agents.add(intersecting_agent)
