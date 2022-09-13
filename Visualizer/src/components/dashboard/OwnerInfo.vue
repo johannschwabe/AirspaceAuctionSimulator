@@ -29,9 +29,9 @@ import Boxplot from "./Boxplot.vue";
 import { computed } from "vue";
 import { FingerPrint, Airplane, Timer, Happy } from "@vicons/ionicons5";
 
-import { useSimulationSingleton } from "@/scripts/simulation";
-import { useSimulationConfigStore } from "@/stores/simulationConfig";
-import { useComponentMapping } from "@/components/home/map/Map";
+import { useSimulationSingleton } from "@/scripts/simulation.js";
+import { useSimulationConfigStore } from "@/stores/simulationConfig.js";
+import { useComponentMapping } from "@/components/home/map/Map.js";
 import SimpleDataTable from "@/components/dashboard/SimpleDataTable.vue";
 
 const simulation = useSimulationSingleton();

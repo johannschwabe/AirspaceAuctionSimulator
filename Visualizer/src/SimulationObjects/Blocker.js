@@ -1,4 +1,4 @@
-import Coordinate3D from "./Coordinate3D";
+import Coordinate3D from "./Coordinate3D.js";
 
 export default class Blocker {
   /**

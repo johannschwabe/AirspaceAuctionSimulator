@@ -1,4 +1,4 @@
-import Path from "./Path";
+import Path from "./Path.js";
 
 export default class Branch {
   /**
@@ -11,5 +11,6 @@ export default class Branch {
     this.paths = rawBranch.paths.map((path) => new Path(path));
     this.value = allocationStats.value;
     this.reason = allocationStats.reason;
+    this.explanation = allocationStats.explanation;
   }
 }

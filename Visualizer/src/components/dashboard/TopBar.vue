@@ -43,21 +43,13 @@
 
 <script setup>
 import logo from "../../assets/drone.png";
-import {
-  Cube,
-  FingerPrint,
-  Fish,
-  HappyOutline,
-  GitBranch,
-  GitPullRequest,
-  CloudDownloadOutline,
-} from "@vicons/ionicons5";
+import { Cube, FingerPrint, Fish, HappyOutline, GitBranch, Skull, CloudDownloadOutline } from "@vicons/ionicons5";
 
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 
-import { downloadSimulation } from "@/API/api";
-import { useSimulationSingleton } from "@/scripts/simulation";
+import { downloadSimulation } from "@/API/api.js";
+import { useSimulationSingleton } from "@/scripts/simulation.js";
 
 const router = useRouter();
 const simulation = useSimulationSingleton();
@@ -97,7 +89,7 @@ const stats = computed(() => {
     {
       label: "Collisions",
       value: simulation.statistics.totalNumberOfCollisions,
-      icon: GitPullRequest,
+      icon: Skull,
     },
     {
       label: "Utility",
@@ -109,7 +101,7 @@ const stats = computed(() => {
       value: Math.round(simulation.statistics.totalNonCollidingValue * 100) / 100,
       icon: HappyOutline,
     },
-  ]
+  ];
 });
 </script>
 

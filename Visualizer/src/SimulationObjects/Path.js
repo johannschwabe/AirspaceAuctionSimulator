@@ -1,5 +1,7 @@
-import Coordinate3D from "./Coordinate3D";
 import { first, last } from "lodash-es";
+
+import Coordinate3D from "./Coordinate3D.js";
+
 export default class Path {
   /**
    * @param {JSONPath} rawPath
