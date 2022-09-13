@@ -47,8 +47,8 @@ import VueApexCharts from "vue3-apexcharts";
 import { reactive, ref, computed } from "vue";
 import { debounce } from "lodash-es";
 
-import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent } from "@/scripts/emitter";
-import { useSimulationSingleton } from "@/scripts/simulation";
+import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent } from "@/scripts/emitter.js";
+import { useSimulationSingleton } from "@/scripts/simulation.js";
 
 import {
   PlayOutline,
@@ -58,7 +58,7 @@ import {
   PlayBackOutline,
   PlayForwardOutline,
 } from "@vicons/ionicons5";
-import { ReallocationEvent } from "@/SimulationObjects/FlightEvent";
+import { FailedAllocationEvent, ReallocationEvent } from "@/SimulationObjects/FlightEvent.js";
 
 const simulation = useSimulationSingleton();
 
@@ -200,7 +200,7 @@ const agentFocussedEventSeries = () => {
   });
   const timelineReAllocations = Array(simulation.maxTick).fill(0);
   simulation.agentInFocus.events.forEach((event) => {
-    if (event instanceof ReallocationEvent && event.content !== "FIRST_ALLOCATION") {
+    if (event instanceof ReallocationEvent || event instanceof FailedAllocationEvent) {
       timelineReAllocations[event.tick] += 1;
     }
   });

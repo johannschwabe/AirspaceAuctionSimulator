@@ -1,7 +1,17 @@
 import Path from "./Path";
 import Branch from "./Branch";
-import { ArrivalEvent, FlightEvent, ReallocationEvent, TakeOffEvent } from "./FlightEvent";
+import {
+  allocationEventFactory,
+  ArrivalEvent,
+  FailedAllocationEvent,
+  FlightEvent,
+  ReallocationEvent,
+  TakeOffEvent,
+} from "./FlightEvent";
 import Agent from "./Agent";
+import { BRANCH_REASONS } from "@/API/enums";
+import PathStatistic from "@/SimulationObjects/PathStatistic";
+import AllocationStatistic from "@/SimulationObjects/AllocationStatistic";
 
 export default class PathAgent extends Agent {
   /**
@@ -23,7 +33,11 @@ export default class PathAgent extends Agent {
       const branchStats = agentStats.allocations.find((allocationStats) => allocationStats.tick === branch.tick);
       return new Branch(branch, branchStats);
     });
-    this.reAllocationTimesteps = this.branches.map((branch) => branch.tick);
+    this.reAllocationTimesteps = this.branches
+      .filter((branch) => branch.reason === BRANCH_REASONS.REALLOCATION)
+      .map((branch) => branch.tick);
+    this.pathStatistics = agentStats.path ? new PathStatistic(agentStats.path) : null;
+    this.allocationStatistics = agentStats.allocations.map((a) => new AllocationStatistic(a));
   }
 
   /**
@@ -41,14 +55,29 @@ export default class PathAgent extends Agent {
     });
     this.branches.forEach((branch) => {
       const reallocationLocation = branch.paths > 0 ? branch.paths[0].firstLocation : null;
-      const reallocationEvent = new ReallocationEvent(branch.tick, reallocationLocation, branch.reason);
+      const AllocationClass = allocationEventFactory(branch.reason);
+      const reallocationEvent = new AllocationClass(branch.tick, reallocationLocation, branch.explanation);
       events.push(reallocationEvent);
     });
     events.sort(FlightEvent.sortEventsFunction);
-    for (let i = 0; i < events.length - 1; i++) {
-      if (events[i + 1] instanceof TakeOffEvent) {
-        events[i].lineType = "dashed";
+    let isFlying = false;
+    events.forEach((event) => {
+      if (event instanceof TakeOffEvent) {
+        isFlying = true;
       }
+      if (event instanceof ArrivalEvent) {
+        isFlying = false;
+      }
+      if (!isFlying) {
+        event.lineType = "dashed";
+      }
+    });
+    if (
+      this.branches.length > 0 &&
+      this.branches[this.branches.length - 1].reason === BRANCH_REASONS.ALLOCATION_FAILED
+    ) {
+      const lastBranch = this.branches[this.branches.length - 1];
+      return events.filter((event) => event.tick < lastBranch.tick || event instanceof FailedAllocationEvent);
     }
     return events;
   }

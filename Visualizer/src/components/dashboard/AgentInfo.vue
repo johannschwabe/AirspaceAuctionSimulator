@@ -22,15 +22,25 @@
     :data="heightProfileData"
     v-if="heightProfileData"
   />
-  <template v-for="(allocation, index) in allocations" :key="`${simulation.agentInFocus.id}-${index}`">
-    <simple-data-table :title="`Allocation ${index + 1}`" :datapoints="allocation.allocationData" />
-    <simple-data-table :subtitle="`Path for Allocation ${index + 1}`" :datapoints="allocation.pathData" v-if="allocation.pathData.length > 0"/>
+  <template v-if="allocations">
+    <template v-for="(allocation, index) in allocations" :key="`${simulation.agentInFocus.id}-allocation-${index}`">
+      <simple-data-table :title="`Allocation ${index + 1}`" :datapoints="allocation.allocationData" />
+      <simple-data-table
+        :subtitle="`Path for Allocation ${index + 1}`"
+        :datapoints="allocation.pathData"
+        v-if="allocation.pathData.length > 0"
+      />
+    </template>
   </template>
-  <simple-data-table title="Violations" :datapoints="violationDatapoints" v-if="violationDatapoints.length > 0" />
+  <h3 v-if="violationData.length > 0">Airspace Violations</h3>
+  <template v-for="(violation, index) in violationData" :key="`${simulation.agentInFocus.id}-violation-${index}`">
+    <simple-data-table :subtitle="violation.subtitle" :datapoints="violation.datapoints" />
+  </template>
 </template>
 
 <script setup>
 import { computed } from "vue";
+
 import {
   FingerPrint,
   Airplane,
@@ -38,8 +48,6 @@ import {
   Speedometer,
   Happy,
   Timer,
-  RemoveCircle,
-  AlertCircle,
   InformationCircle,
   TrophyOutline,
   Remove,
@@ -56,6 +64,8 @@ import {
   Compass,
   Time,
   ChatboxEllipses,
+  GitBranch,
+  Skull,
   GitPullRequest,
 } from "@vicons/ionicons5";
 import { format, set } from "date-fns";
@@ -110,12 +120,12 @@ const datapoints = computed(() =>
     {
       label: "Reallocations",
       value: simulation.agentInFocus.totalReallocations,
-      icon: AlertCircle,
+      icon: GitBranch,
     },
     {
       label: "Violations",
       value: simulation.agentInFocus.totalViolations,
-      icon: RemoveCircle,
+      icon: GitPullRequest,
     },
     {
       label: "Battery",
@@ -218,8 +228,11 @@ function pathToDatapoints(path) {
     .map((d) => ({ ...d, value: Math.round(d.value * 10) / 10 }));
 }
 
-const allocations = computed(() =>
-  simulation.agentInFocus.allocationStatistics.map((stat) => ({
+const allocations = computed(() => {
+  if (!simulation.agentInFocus.allocationStatistics) {
+    return undefined;
+  }
+  return simulation.agentInFocus.allocationStatistics.map((stat) => ({
     allocationData: [
       {
         label: "tick",
@@ -238,8 +251,8 @@ const allocations = computed(() =>
       },
       {
         label: "Collisions",
-        value: stat.collidingAgentIds.length,
-        icon: GitPullRequest,
+        value: stat.collidingAgentBids.length,
+        icon: Skull,
       },
       {
         label: "Compute Time",
@@ -272,15 +285,39 @@ const allocations = computed(() =>
       },
     ],
     pathData: pathToDatapoints(stat.pathStatistics),
-  }))
-);
-
-const violationDatapoints = computed(() => {
-  return Object.entries(simulation.agentInFocus.violations).map(([agent_id, loc]) => ({
-    label: `Agent ${agent_id}`,
-    value: loc,
-    icon: GitPullRequest,
   }));
+});
+
+const violationData = computed(() => {
+  return Object.entries(simulation.agentInFocus.violations)
+    .map(([agent_id, locations]) => {
+      return locations.map((loc) => ({
+        ...loc,
+        agent: agent_id,
+      }));
+    })
+    .flat()
+    .reduce((acc, violation) => {
+      const subtitle = `Tick ${violation.t}`;
+      let entryIndex = acc.findIndex((v) => v.subtitle === subtitle);
+      if (entryIndex === -1) {
+        acc.push({
+          subtitle,
+          datapoints: [],
+        });
+        entryIndex = acc.length - 1;
+      }
+      const agent = simulation.agents.find((a) => a.id === violation.agent);
+      acc[entryIndex].datapoints.push({
+        label: `${agent.owner.name} > ${agent.id}`,
+        value: { x: violation.x, y: violation.y, z: violation.z },
+        icon: GitPullRequest,
+        onClick: () => {
+          simulation.focusOnAgent(agent);
+        },
+      });
+      return acc;
+    }, []);
 });
 
 const fillColor = (event) => {

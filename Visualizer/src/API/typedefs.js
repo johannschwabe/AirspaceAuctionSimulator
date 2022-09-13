@@ -88,7 +88,7 @@
  * @property {int} total_number_of_agents
  * @property {float} total_value
  * @property {float} total_non_colliding_value
- * @property {int} total_number_of_collisions
+ * @property {int} total_number_of_violations
  * @property {int} total_number_of_reallocations
  * @property {{int: int}} step_compute_time
  */
@@ -127,21 +127,31 @@
  * Path-Agent:
  * @property {int} [time_in_air]
  * @property {PathStatistics} [path]
- * @property {AllocationStatistics[]} [allocations]
+ * @property {RawAllocationStatistics[]} [allocations]
  */
 
 /**
- * @typedef {Object} AllocationStatistics
+ * @typedef {{string: string|number}} RawBid
+ */
+
+/**
+ * @typedef {Object} RawAllocationStatistics
  * @property {int} tick
  * @property {float} value
+ * @property {RawBid} bid
  * @property {string} reason
- * @property {string[]} colliding_agent_ids
+ * @property {string} explanation
+ * @property {string} explanation
+ * @property {{string: RawBid}} colliding_agent_bids
+ * @property {{string: RawBid}} displacing_agent_bids
  * @property {int} compute_time
+ * @property {PathStatistics} path
+ * @property {SpaceStatistics} space
  */
 
 /**
  * @typedef {Object} ViolationStatistics
- * @property {{string: JSONTimeCoordinate}} violations
+ * @property {{string: JSONTimeCoordinate[]}} violations
  * @property {int} total_violations
  */
 
