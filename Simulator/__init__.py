@@ -50,3 +50,5 @@ from .Segments.SpaceSegment import SpaceSegment
 from .Simulator import Simulator
 # Value Functions
 from .ValueFunction.ValueFunction import ValueFunction
+# helpers
+from .helpers.helpers import is_valid_for_allocation

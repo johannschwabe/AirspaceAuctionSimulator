@@ -1,10 +1,9 @@
 import heapq
-import math
 from typing import List, TYPE_CHECKING, Set, Tuple
 
 from .Node import Node
 from ..Agents.PathAgent import PathAgent
-from ..Agents.SpaceAgent import SpaceAgent
+from ..helpers.helpers import is_valid_for_allocation, distance_l2
 
 if TYPE_CHECKING:
     from ..Environment.Environment import Environment
@@ -73,7 +72,8 @@ class AStar:
             # Find non-occupied neighbor
             neighbors = current_node.adjacent_coordinates(self.environment.dimension, agent.speed)
             for next_neighbor in neighbors:
-                valid, collisions = self.is_valid_for_allocation(next_neighbor, agent)
+                valid, collisions = is_valid_for_allocation(self.tick, self.environment, self.bid_tracker,
+                                                            next_neighbor, agent)
                 if valid and next_neighbor.t <= self.environment.dimension.t:
                     neighbor = Node(next_neighbor, current_node, collisions)
 
@@ -82,7 +82,7 @@ class AStar:
                         continue
 
                     neighbor.g = current_node.g + self.g_sum
-                    neighbor.h = self.distance2(neighbor.position, end_node.position)
+                    neighbor.h = distance_l2(neighbor.position, end_node.position)
                     neighbor.f = neighbor.g + neighbor.h
 
                     if self.height_adjust > 0.:
@@ -126,7 +126,7 @@ class AStar:
             print(f"ASTAR failed: Distance {distance} is too great for agent with speed {agent.speed}.")
             return [], set()
 
-        valid, start_collisions = self.is_valid_for_allocation(start, agent)
+        valid, start_collisions = is_valid_for_allocation(self.tick, self.environment, self.bid_tracker, start, agent)
 
         if not valid:
             print(f"ASTAR failed: Start {start} is not valid.")
@@ -142,76 +142,3 @@ class AStar:
 
         print(f"ASTAR: {complete_path[0]} -> {complete_path[-1]},\tPathLen: {len(path):3d},\tSteps: {steps:3d}")
         return complete_path, collisions
-
-    def is_valid_for_allocation(self, position: "Coordinate4D", agent: "PathAgent"):
-        if position.t < self.tick:
-            raise Exception(f"Cannot validate position in the past. Position: {position}, Tick: {self.tick}.")
-
-        if self.environment.is_blocked(position, agent):
-            return False, None
-
-        my_bid = self.bid_tracker.get_last_bid_for_tick(self.tick, agent, self.environment)
-
-        if my_bid is None:
-            return False, None
-
-        colliding_agents = set()
-
-        flying = False
-        if position.t == self.tick:
-            my_pos = agent.get_position_at_tick(self.tick)
-            if my_pos is not None and my_pos == position:
-                flying = True
-            else:
-                return False, None
-
-        max_intersecting_agents = self.environment.intersect_path_coordinate(position, agent)
-        for intersecting_agent in max_intersecting_agents:
-            if isinstance(intersecting_agent, PathAgent):
-                max_near_radius = max(agent.near_radius, intersecting_agent.near_radius)
-                path_coordinates = intersecting_agent.get_positions_at_ticks(position.t, speed=agent.speed)
-                assert len(path_coordinates) > 0
-                true_intersection = False
-                for path_coordinate in path_coordinates:
-                    distance = position.inter_temporal_distance(path_coordinate, l2=True)
-                    if distance <= max_near_radius:
-                        true_intersection = True
-                        break
-
-                if not true_intersection:
-                    continue
-
-                if flying:
-                    colliding_agents.add(intersecting_agent)
-                    continue
-
-                other_pos = intersecting_agent.get_position_at_tick(self.tick)
-                if other_pos is not None:
-                    return False, None
-
-                other_bid = self.bid_tracker.get_last_bid_for_tick(self.tick, intersecting_agent, self.environment)
-                if other_bid is None:
-                    raise Exception(f"Agent stuck: {intersecting_agent}")
-                if my_bid > other_bid:
-                    colliding_agents.add(intersecting_agent)
-                else:
-                    return False, None
-
-        intersecting_agents = self.environment.intersect_path_coordinate(position, agent, use_max_radius=False)
-        for intersecting_agent in intersecting_agents:
-            if isinstance(intersecting_agent, SpaceAgent):
-                other_bid = self.bid_tracker.get_last_bid_for_tick(self.tick, intersecting_agent, self.environment)
-                if other_bid is None or my_bid > other_bid:
-                    colliding_agents.add(intersecting_agent)
-                else:
-                    return False, None
-
-        return True, colliding_agents
-
-    @staticmethod
-    def distance(start: "Coordinate4D", end: "Coordinate4D"):
-        return abs(start.x - end.x) + abs(start.y - end.y) + abs(start.z - end.z)
-
-    @staticmethod
-    def distance2(start: "Coordinate4D", end: "Coordinate4D"):
-        return math.pow((start.x - end.x) ** 2 + (start.y - end.y) ** 2 + (start.z - end.z) ** 2, 0.5)

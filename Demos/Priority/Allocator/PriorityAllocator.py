@@ -2,8 +2,7 @@ from time import time_ns
 from typing import List, Tuple, Set, Optional, Dict, TYPE_CHECKING
 
 from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation, \
-    AllocationHistory, AStar
-from Simulator.Coordinates.Coordinate4D import Coordinate4D
+    AllocationHistory, AStar, Coordinate4D, is_valid_for_allocation
 from ..BidTracker.PriorityBidTracker import PriorityBidTracker
 from ..BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStrategy
 from ..BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
@@ -35,12 +34,12 @@ class PriorityAllocator(Allocator):
     def compatible_payment_functions():
         return [PriorityPaymentRule]
 
-    @staticmethod
-    def find_valid_tick(position: "Coordinate4D", astar: "AStar", bid: "PriorityPathBid", min_tick: int, max_tick: int):
+    def find_valid_tick(self, tick: int, environment: "Environment", position: "Coordinate4D", bid: "PriorityPathBid",
+                        min_tick: int, max_tick: int):
         if position.t < min_tick:
             position.t = min_tick
         while True:
-            valid, _ = astar.is_valid_for_allocation(position, bid.agent)
+            valid, _ = is_valid_for_allocation(tick, environment, self.bid_tracker, position, bid.agent)
             if valid:
                 break
             position.t += 1
@@ -48,8 +47,7 @@ class PriorityAllocator(Allocator):
                 return None
         return position
 
-    @staticmethod
-    def allocate_path(bid: "PriorityPathBid", environment: "Environment", astar: "AStar",
+    def allocate_path(self, bid: "PriorityPathBid", environment: "Environment", astar: "AStar",
                       tick: int) -> Tuple[Optional[List["PathSegment"]], Optional[Set["Agent"]], str]:
         """
         Allocate a path for a given path-bid.
@@ -69,7 +67,7 @@ class PriorityAllocator(Allocator):
             if a.t != tick:
                 return None, None, f"Cannot teleport to {a} at tick {tick}."
 
-            valid, _ = astar.is_valid_for_allocation(a, bid.agent)
+            valid, _ = is_valid_for_allocation(tick, environment, self.bid_tracker, a, bid.agent)
             if not valid:
                 return None, None, f"Cannot escape {a}."
 
@@ -92,11 +90,11 @@ class PriorityAllocator(Allocator):
             if environment.is_blocked_forever(b, bid.agent.near_radius):
                 return None, None, f"Static blocker at target {b}."
 
-            a = PriorityAllocator.find_valid_tick(a, astar, bid, tick, environment.dimension.t)
+            a = self.find_valid_tick(tick, environment, a, bid, tick, environment.dimension.t)
             if a is None:
                 return None, None, f"Start {a} is invalid until max tick {environment.dimension.t}."
 
-            b = PriorityAllocator.find_valid_tick(b, astar, bid, a.t, environment.dimension.t)
+            b = self.find_valid_tick(tick, environment, b, bid, a.t, environment.dimension.t)
             if b is None:
                 return None, None, f"Target {b} is invalid until max tick {environment.dimension.t}."
 
@@ -245,7 +243,7 @@ class PriorityAllocator(Allocator):
                     self.bid_tracker.get_last_bid_for_tick(tick,
                                                            colliding_agent,
                                                            environment)
-                
+
             new_allocation = Allocation(agent, optimal_segments,
                                         AllocationHistory(bid,
                                                           time_ns() - start_time,

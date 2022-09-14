@@ -2,8 +2,7 @@ from time import time_ns
 from typing import List, Optional, Dict, TYPE_CHECKING, Tuple
 
 from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, \
-    AllocationHistory, Agent, BidTracker
-from Simulator.Coordinates.Coordinate4D import Coordinate4D
+    AllocationHistory, Agent, Coordinate4D, is_valid_for_allocation
 from ..BidTracker.FCFSBidTracker import FCFSBidTracker
 from ..BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
 from ..BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
@@ -39,12 +38,12 @@ class FCFSAllocator(Allocator):
         """
         return [FCFSSpaceBiddingStrategy, FCFSPathBiddingStrategy]
 
-    @staticmethod
-    def find_valid_tick(position: "Coordinate4D", astar: "AStar", bid: "FCFSPathBid", min_tick: int, max_tick: int):
+    def find_valid_tick(self, tick: int, environment: "Environment", position: "Coordinate4D", bid: "FCFSPathBid",
+                        min_tick: int, max_tick: int):
         if position.t < min_tick:
             position.t = min_tick
         while True:
-            valid, _ = astar.is_valid_for_allocation(position, bid.agent)
+            valid, _ = is_valid_for_allocation(tick, environment, self.bid_tracker, position, bid.agent)
             if valid:
                 break
             position.t += 1
@@ -52,8 +51,7 @@ class FCFSAllocator(Allocator):
                 return None
         return position
 
-    @staticmethod
-    def allocate_path(bid: "FCFSPathBid", environment: "Environment", astar: "AStar",
+    def allocate_path(self, bid: "FCFSPathBid", environment: "Environment", astar: "AStar",
                       tick: int) -> Tuple[Optional[List["PathSegment"]], str]:
         """
         AAllocate a path for a given path-bid.
@@ -83,11 +81,11 @@ class FCFSAllocator(Allocator):
             if environment.is_blocked_forever(b, bid.agent.near_radius):
                 return None, f"Static blocker at target {b}."
 
-            a = FCFSAllocator.find_valid_tick(a, astar, bid, tick, environment.dimension.t)
+            a = self.find_valid_tick(tick, environment, a, bid, tick, environment.dimension.t)
             if a is None:
                 return None, f"Start {a} is invalid until max tick {environment.dimension.t}."
 
-            b = FCFSAllocator.find_valid_tick(b, astar, bid, a.t, environment.dimension.t)
+            b = self.find_valid_tick(tick, environment, b, bid, a.t, environment.dimension.t)
             if b is None:
                 return None, f"Target {b} is invalid until max tick {environment.dimension.t}."
 
@@ -147,10 +145,14 @@ class FCFSAllocator(Allocator):
                 optimal_path_segments.append(SpaceSegment(lower, upper))
         return optimal_path_segments
 
-    def get_bid_tracker(self) -> BidTracker:
-        return self.bid_tracker
-
     def allocate(self, agents: List["Agent"], environment: "Environment", tick: int) -> Dict["Agent", "Allocation"]:
+        """
+
+        :param agents:
+        :param environment:
+        :param tick:
+        :return:
+        """
         astar = AStar(environment, self.bid_tracker, tick)
         allocations: Dict["Agent", "Allocation"] = {}
 

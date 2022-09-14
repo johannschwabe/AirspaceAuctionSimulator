@@ -11,6 +11,7 @@ from ..Coordinates.Coordinate2D import Coordinate2D
 from ..Owners.Owner import Owner
 from ..Segments.PathSegment import PathSegment
 from ..Segments.SpaceSegment import SpaceSegment
+from ..helpers.helpers import point_cuboid_distance
 
 if TYPE_CHECKING:
     from ..Coordinates.Coordinate4D import Coordinate4D
@@ -462,23 +463,32 @@ class Statistics:
                                                                                         include_speed=False,
                                                                                         use_max_radius=False)
             for intersecting_agent in intersecting_agents:
+                true_intersection = False
+
                 if isinstance(intersecting_agent, PathAgent):
                     encountered_agent_position = intersecting_agent.get_position_at_tick(coordinate.t)
+                    assert encountered_agent_position is not None
                     distance = coordinate.inter_temporal_distance(encountered_agent_position, l2=True)
                     if distance <= path_agent.near_radius:
-                        if intersecting_agent.id not in violations:
-                            violations[intersecting_agent.id] = []
-                        violations[intersecting_agent.id].append(coordinate)
-                        total_violations += 1
+                        true_intersection = True
 
                 elif isinstance(intersecting_agent, SpaceAgent):
-                    if intersecting_agent not in violations:
-                        violations[intersecting_agent.id] = []
-                    violations[intersecting_agent.id].append(coordinate)
-                    total_violations += 1
+                    encountered_agent_segments = intersecting_agent.get_segments_at_tick(coordinate.t)
+                    assert len(encountered_agent_segments) > 0
+                    for segment in encountered_agent_segments:
+                        distance = point_cuboid_distance(coordinate, segment.min, segment.max)
+                        if distance <= path_agent.near_radius:
+                            true_intersection = True
+                            break
 
                 else:
                     raise Exception(f"Invalid agent {intersecting_agent}")
+
+                if true_intersection:
+                    if intersecting_agent.id not in violations:
+                        violations[intersecting_agent.id] = []
+                    violations[intersecting_agent.id].append(coordinate)
+                    total_violations += 1
 
         return ViolationStatistics(violations, total_violations)
 

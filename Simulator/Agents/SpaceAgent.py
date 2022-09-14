@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Dict, Optional, Any
+from typing import TYPE_CHECKING, List, Dict, Optional, Any, Set
 
 from .Agent import Agent
 from .AgentType import AgentType
@@ -27,6 +27,19 @@ class SpaceAgent(Agent):
 
     def add_allocated_segment(self, space_segment: "SpaceSegment"):
         self.allocated_segments.append(space_segment)
+
+    def get_segments_at_tick(self, tick: int) -> Set["SpaceSegment"]:
+        segments = set()
+        for segment in self.allocated_segments:
+            if segment.max.t >= tick >= segment.min.t:
+                segments.add(segment)
+        return segments
+
+    def get_segments_at_ticks(self, tick: int, speed: int = 0) -> Set["SpaceSegment"]:
+        segments = set()
+        for tick in range(tick, tick + speed + 1):  # Include upper bound
+            segments.update(self.get_segments_at_tick(tick))
+        return segments
 
     def initialize_clone(self):
         clone = SpaceAgent(self.id, self.bidding_strategy, self.value_function, self.blocks,
