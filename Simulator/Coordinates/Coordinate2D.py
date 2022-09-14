@@ -19,10 +19,20 @@ class Coordinate2D:
                self.z == other.z
 
     def __add__(self, other) -> "Coordinate2D":
-        return Coordinate2D(self.x + other.x, self.z + other.z)
+        if isinstance(other, Coordinate2D):
+            return Coordinate2D(self.x + other.x, self.z + other.z)
+        elif isinstance(other, int):
+            return Coordinate2D(self.x + other, self.z + other)
+        else:
+            raise Exception(f"Addition is not defined for {other}")
 
     def __sub__(self, other) -> "Coordinate2D":
-        return Coordinate2D(self.x - other.x, self.z - other.z)
+        if isinstance(other, Coordinate2D):
+            return Coordinate2D(self.x - other.x, self.z - other.z)
+        elif isinstance(other, int):
+            return Coordinate2D(self.x - other, self.z - other)
+        else:
+            raise Exception(f"Subtraction is not defined for {other}")
 
     @property
     def area(self) -> int:

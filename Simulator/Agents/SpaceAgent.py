@@ -35,9 +35,9 @@ class SpaceAgent(Agent):
                 segments.add(segment)
         return segments
 
-    def get_segments_at_ticks(self, tick: int, speed: int = 0) -> Set["SpaceSegment"]:
+    def get_segments_at_ticks(self, min_tick: int, max_tick: int) -> Set["SpaceSegment"]:
         segments = set()
-        for tick in range(tick, tick + speed + 1):  # Include upper bound
+        for tick in range(min_tick, max_tick + 1):  # Include upper bound
             segments.update(self.get_segments_at_tick(tick))
         return segments
 

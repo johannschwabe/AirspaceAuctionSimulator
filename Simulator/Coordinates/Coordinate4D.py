@@ -1,6 +1,7 @@
 import math
 from typing import List, Tuple, Dict
 
+from .Coordinate2D import Coordinate2D
 from .Coordinate3D import Coordinate3D
 
 
@@ -71,16 +72,28 @@ class Coordinate4D(Coordinate3D):
         return Coordinate3D(self.x, self.y, self.z)
 
     def __add__(self, other) -> "Coordinate4D":
-        t_other = 0
-        if type(other).__name__ == "Coordinate4D":
-            t_other = other.t
-        return Coordinate4D(self.x + other.x, self.y + other.y, self.z + other.z, self.t + t_other)
+        if isinstance(other, Coordinate4D):
+            return Coordinate4D(self.x + other.x, self.y + other.y, self.z + other.z, self.t + other.t)
+        elif isinstance(other, Coordinate3D):
+            return Coordinate4D(self.x + other.x, self.y + other.y, self.z + other.z, self.t)
+        elif isinstance(other, Coordinate2D):
+            return Coordinate4D(self.x + other.x, self.y, self.z + other.z, self.t)
+        elif isinstance(other, int):
+            return Coordinate4D(self.x + other, self.y + other, self.z + other, self.t + other)
+        else:
+            raise Exception(f"Addition is not defined for {other}")
 
     def __sub__(self, other) -> "Coordinate4D":
-        t_other = 0
-        if type(other).__name__ == "Coordinate4D":
-            t_other = other.t
-        return Coordinate4D(self.x - other.x, self.y - other.y, self.z - other.z, self.t - t_other)
+        if isinstance(other, Coordinate4D):
+            return Coordinate4D(self.x - other.x, self.y - other.y, self.z - other.z, self.t - other.t)
+        elif isinstance(other, Coordinate3D):
+            return Coordinate4D(self.x - other.x, self.y - other.y, self.z - other.z, self.t)
+        elif isinstance(other, Coordinate2D):
+            return Coordinate4D(self.x - other.x, self.y, self.z - other.z, self.t)
+        elif isinstance(other, int):
+            return Coordinate4D(self.x - other, self.y - other, self.z - other, self.t - other)
+        else:
+            raise Exception(f"Subtraction is not defined for {other}")
 
     def distance(self, other, l2: bool = False) -> Tuple[float, int]:
         temp = 0

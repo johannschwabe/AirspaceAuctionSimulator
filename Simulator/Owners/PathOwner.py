@@ -43,7 +43,7 @@ class PathOwner(Owner):
     def generate_stop_coordinate(stop: "GridLocation", env: "Environment", t: int, near_radius: int) -> "Coordinate4D":
         coord = stop.generate_coordinates(env, t + 1)
 
-        while coord.y < env.min_height or env.is_blocked_forever(coord, near_radius):
+        while coord.y < env.min_height or env.is_coordinate_blocked_forever(coord, near_radius):
             coord.y += 1
             if coord.y > env.dimension.y:
                 coord.y = env.min_height

@@ -22,10 +22,24 @@ class Coordinate3D(Coordinate2D):
                self.z == other.z
 
     def __add__(self, other) -> "Coordinate3D":
-        return Coordinate3D(self.x + other.x, self.y + other.y, self.z + other.z)
+        if isinstance(other, Coordinate3D):
+            return Coordinate3D(self.x + other.x, self.y + other.y, self.z + other.z)
+        elif isinstance(other, Coordinate2D):
+            return Coordinate3D(self.x + other.x, self.y, self.z + other.z)
+        elif isinstance(other, int):
+            return Coordinate3D(self.x + other, self.y + other, self.z + other)
+        else:
+            raise Exception(f"Addition is not defined for {other}")
 
     def __sub__(self, other) -> "Coordinate3D":
-        return Coordinate3D(self.x - other.x, self.y - other.y, self.z - other.z)
+        if isinstance(other, Coordinate3D):
+            return Coordinate3D(self.x - other.x, self.y - other.y, self.z - other.z)
+        elif isinstance(other, Coordinate2D):
+            return Coordinate3D(self.x - other.x, self.y, self.z - other.z)
+        elif isinstance(other, int):
+            return Coordinate3D(self.x - other, self.y - other, self.z - other)
+        else:
+            raise Exception(f"Subtraction is not defined for {other}")
 
     @property
     def l1(self) -> int:

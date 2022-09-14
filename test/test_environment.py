@@ -137,7 +137,7 @@ class EnvironmentTest(unittest.TestCase):
         blocky2.id = 22
         blocky.add_to_tree(self.env.blocker_tree, self.env.dimension)
         blocky2.add_to_tree(self.env.blocker_tree, self.env.dimension)
-        intersecting_blockers = self.env.get_blockers(Coordinate4D(6, 6, 6, 100), 1, 1)
+        intersecting_blockers = self.env.get_blockers_at_coordinate(Coordinate4D(6, 6, 6, 100), 1, 1)
         intersecting_blockers_list = list(intersecting_blockers)
         self.assertEqual(len(intersecting_blockers_list), 2)
         self.assertIn(blocky.id, intersecting_blockers_list)
@@ -158,11 +158,11 @@ class EnvironmentTest(unittest.TestCase):
         self.env.blocker_dict[blocky2.id] = blocky2
         blocky.add_to_tree(self.env.blocker_tree, self.env.dimension)
         blocky2.add_to_tree(self.env.blocker_tree, self.env.dimension)
-        is_blocking = self.env.is_blocked(Coordinate4D(4, 4, 4, 10), agi)
+        is_blocking = self.env.is_coordinate_blocked(Coordinate4D(4, 4, 4, 10), agi)
         self.assertTrue(is_blocking)
 
-        is_blocked_forever = self.env.is_blocked_forever(Coordinate4D(1, 1, 1, 1), 1)
-        is_blocked_forever_2 = self.env.is_blocked_forever(Coordinate4D(10, 10, 10, 1), 1)
+        is_blocked_forever = self.env.is_coordinate_blocked_forever(Coordinate4D(1, 1, 1, 1), 1)
+        is_blocked_forever_2 = self.env.is_coordinate_blocked_forever(Coordinate4D(10, 10, 10, 1), 1)
         self.assertFalse(is_blocked_forever)
         self.assertTrue(is_blocked_forever_2)
 
@@ -256,7 +256,7 @@ class EnvironmentTest(unittest.TestCase):
 
         new_clear = self.env.new_clear()
         agi_2 = generate_path_agent()
-        self.assertTrue(new_clear.is_blocked(Coordinate4D(4, 4, 4, 4), agi_2))
+        self.assertTrue(new_clear.is_coordinate_blocked(Coordinate4D(4, 4, 4, 4), agi_2))
         self.assertFalse(new_clear.is_blocked_by_agent(Coordinate4D(11, 11, 11, 3), agi_2))
 
     def test_clone(self):
@@ -272,7 +272,7 @@ class EnvironmentTest(unittest.TestCase):
 
         new_clear = self.env.clone()
         agi_2 = generate_path_agent()
-        self.assertTrue(new_clear.is_blocked(Coordinate4D(4, 4, 4, 4), agi_2))
+        self.assertTrue(new_clear.is_coordinate_blocked(Coordinate4D(4, 4, 4, 4), agi_2))
         self.assertTrue(new_clear.is_blocked_by_agent(Coordinate4D(11, 11, 11, 3), agi_2))
 
 

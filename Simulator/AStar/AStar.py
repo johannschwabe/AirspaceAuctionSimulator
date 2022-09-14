@@ -3,7 +3,7 @@ from typing import List, TYPE_CHECKING, Set, Tuple
 
 from .Node import Node
 from ..Agents.PathAgent import PathAgent
-from ..helpers.helpers import is_valid_for_allocation, distance_l2
+from ..helpers.helpers import is_valid_for_path_allocation, distance_l2
 
 if TYPE_CHECKING:
     from ..Environment.Environment import Environment
@@ -72,8 +72,8 @@ class AStar:
             # Find non-occupied neighbor
             neighbors = current_node.adjacent_coordinates(self.environment.dimension, agent.speed)
             for next_neighbor in neighbors:
-                valid, collisions = is_valid_for_allocation(self.tick, self.environment, self.bid_tracker,
-                                                            next_neighbor, agent)
+                valid, collisions = is_valid_for_path_allocation(self.tick, self.environment, self.bid_tracker,
+                                                                 next_neighbor, agent)
                 if valid and next_neighbor.t <= self.environment.dimension.t:
                     neighbor = Node(next_neighbor, current_node, collisions)
 
@@ -126,7 +126,8 @@ class AStar:
             print(f"ASTAR failed: Distance {distance} is too great for agent with speed {agent.speed}.")
             return [], set()
 
-        valid, start_collisions = is_valid_for_allocation(self.tick, self.environment, self.bid_tracker, start, agent)
+        valid, start_collisions = is_valid_for_path_allocation(self.tick, self.environment, self.bid_tracker, start,
+                                                               agent)
 
         if not valid:
             print(f"ASTAR failed: Start {start} is not valid.")

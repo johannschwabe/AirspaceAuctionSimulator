@@ -8,72 +8,112 @@ from ..Coordinates.Coordinate4D import Coordinate4D
 from ..Environment.Environment import Environment
 
 
-def is_valid_for_allocation(allocation_tick: int, environment: "Environment", bid_tracker: "BidTracker",
-                            position: "Coordinate4D", agent: "PathAgent"):
-    if position.t < allocation_tick:
-        raise Exception(f"Cannot validate position in the past. Position: {position}, Tick: {allocation_tick}.")
+def is_valid_for_space_allocation(allocation_tick: int, environment: "Environment", bid_tracker: "BidTracker",
+                                  min_position: "Coordinate4D", max_position: "Coordinate4D",
+                                  space_agent: "SpaceAgent"):
+    if min_position.t < allocation_tick:
+        raise Exception(f"Cannot validate position in the past. Position: {min_position}, Tick: {allocation_tick}.")
 
-    if environment.is_blocked(position, agent):
+    if environment.is_space_blocked(min_position, max_position):
         return False, None
 
-    my_bid = bid_tracker.get_last_bid_for_tick(allocation_tick, agent, environment)
+    my_bid = bid_tracker.get_last_bid_for_tick(allocation_tick, space_agent, environment)
 
     if my_bid is None:
         return False, None
 
-    colliding_agents = set()
+    flying = False
+    if min_position.t == allocation_tick:
+        my_segments = space_agent.get_segments_at_tick(allocation_tick)
+        if len(my_segments) > 0:
+            for my_segment in my_segments:
+                if my_segment.min <= min_position and my_segment.max >= max_position:
+                    flying = True
+                    break
+        if not flying:
+            return False, None
+
+    true_intersecting_agents = environment.intersect_space_coordinates(min_position, max_position, space_agent,
+                                                                       use_max_radius=False)
+    max_intersecting_agents = environment.intersect_space_coordinates(min_position, max_position, space_agent)
+    for max_intersecting_agent in max_intersecting_agents:
+        if max_intersecting_agent not in true_intersecting_agents and isinstance(max_intersecting_agent, PathAgent):
+            path_coordinates = max_intersecting_agent.get_positions_at_ticks(min_position.t, max_position.t)
+            assert len(path_coordinates) > 0
+            for path_coordinate in path_coordinates:
+                distance = point_cuboid_distance(path_coordinate, min_position, max_position)
+                if distance <= max_intersecting_agent.near_radius:
+                    true_intersecting_agents.add(max_intersecting_agent)
+                    break
+
+    if not flying:
+        for true_intersecting_agent in true_intersecting_agents:
+            other_bid = bid_tracker.get_last_bid_for_tick(allocation_tick, true_intersecting_agent, environment)
+            if other_bid is None:
+                raise Exception(f"Agent stuck: {true_intersecting_agent}")
+
+            if my_bid <= other_bid:
+                return False, None
+
+    return True, true_intersecting_agents
+
+
+def is_valid_for_path_allocation(allocation_tick: int, environment: "Environment", bid_tracker: "BidTracker",
+                                 position: "Coordinate4D", path_agent: "PathAgent"):
+    if position.t < allocation_tick:
+        raise Exception(f"Cannot validate position in the past. Position: {position}, Tick: {allocation_tick}.")
+
+    if environment.is_coordinate_blocked(position, path_agent):
+        return False, None
+
+    my_bid = bid_tracker.get_last_bid_for_tick(allocation_tick, path_agent, environment)
+
+    if my_bid is None:
+        return False, None
 
     flying = False
     if position.t == allocation_tick:
-        my_pos = agent.get_position_at_tick(allocation_tick)
+        my_pos = path_agent.get_position_at_tick(allocation_tick)
         if my_pos is not None and my_pos == position:
             flying = True
         else:
             return False, None
 
-    max_intersecting_agents = environment.intersect_path_coordinate(position, agent)
-    for intersecting_agent in max_intersecting_agents:
-        true_intersection = False
-
-        if isinstance(intersecting_agent, PathAgent):
-            max_near_radius = max(agent.near_radius, intersecting_agent.near_radius)
-            path_coordinates = intersecting_agent.get_positions_at_ticks(position.t, speed=agent.speed)
+    true_intersecting_agents = set()
+    max_intersecting_agents = environment.intersect_path_coordinate(position, path_agent)
+    for max_intersecting_agent in max_intersecting_agents:
+        if isinstance(max_intersecting_agent, PathAgent):
+            max_near_radius = max(path_agent.near_radius, max_intersecting_agent.near_radius)
+            path_coordinates = max_intersecting_agent.get_positions_at_ticks(position.t, position.t + path_agent.speed)
             assert len(path_coordinates) > 0
             for path_coordinate in path_coordinates:
                 distance = position.inter_temporal_distance(path_coordinate, l2=True)
                 if distance <= max_near_radius:
-                    true_intersection = True
+                    true_intersecting_agents.add(max_intersecting_agent)
                     break
 
-        elif isinstance(intersecting_agent, SpaceAgent):
-            segments = intersecting_agent.get_segments_at_ticks(allocation_tick, agent.speed)
+        elif isinstance(max_intersecting_agent, SpaceAgent):
+            segments = max_intersecting_agent.get_segments_at_ticks(position.t, position.t + path_agent.speed)
             assert len(segments) > 0
             for segment in segments:
                 distance = point_cuboid_distance(position, segment.min, segment.max)
-                if distance <= agent.near_radius:
-                    true_intersection = True
+                if distance <= path_agent.near_radius:
+                    true_intersecting_agents.add(max_intersecting_agent)
                     break
 
         else:
-            raise Exception(f"Invalid agent {intersecting_agent}")
+            raise Exception(f"Invalid agent {max_intersecting_agent}")
 
-        if not true_intersection:
-            continue
+    if not flying:
+        for true_intersecting_agent in true_intersecting_agents:
+            other_bid = bid_tracker.get_last_bid_for_tick(allocation_tick, true_intersecting_agent, environment)
+            if other_bid is None:
+                raise Exception(f"Agent stuck: {true_intersecting_agent}")
 
-        if flying:
-            colliding_agents.add(intersecting_agent)
-            continue
+            if my_bid <= other_bid:
+                return False, None
 
-        other_bid = bid_tracker.get_last_bid_for_tick(allocation_tick, intersecting_agent, environment)
-        if other_bid is None:
-            raise Exception(f"Agent stuck: {intersecting_agent}")
-
-        if my_bid > other_bid:
-            colliding_agents.add(intersecting_agent)
-        else:
-            return False, None
-
-    return True, colliding_agents
+    return True, true_intersecting_agents
 
 
 def distance_l1(start: "Coordinate4D", end: "Coordinate4D"):

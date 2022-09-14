@@ -51,4 +51,5 @@ from .Simulator import Simulator
 # Value Functions
 from .ValueFunction.ValueFunction import ValueFunction
 # helpers
-from .helpers.helpers import is_valid_for_allocation
+from .helpers.helpers import is_valid_for_path_allocation
+from .helpers.helpers import is_valid_for_space_allocation

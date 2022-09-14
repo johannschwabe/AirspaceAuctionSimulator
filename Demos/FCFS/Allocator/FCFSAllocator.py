@@ -2,7 +2,7 @@ from time import time_ns
 from typing import List, Optional, Dict, TYPE_CHECKING, Tuple
 
 from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, \
-    AllocationHistory, Agent, Coordinate4D, is_valid_for_allocation
+    AllocationHistory, Agent, Coordinate4D, is_valid_for_path_allocation
 from ..BidTracker.FCFSBidTracker import FCFSBidTracker
 from ..BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
 from ..BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
@@ -43,7 +43,7 @@ class FCFSAllocator(Allocator):
         if position.t < min_tick:
             position.t = min_tick
         while True:
-            valid, _ = is_valid_for_allocation(tick, environment, self.bid_tracker, position, bid.agent)
+            valid, _ = is_valid_for_path_allocation(tick, environment, self.bid_tracker, position, bid.agent)
             if valid:
                 break
             position.t += 1
@@ -75,10 +75,10 @@ class FCFSAllocator(Allocator):
             end = b.to_3D()
             b = b.clone()
 
-            if environment.is_blocked_forever(a, bid.agent.near_radius):
+            if environment.is_coordinate_blocked_forever(a, bid.agent.near_radius):
                 return None, f"Static blocker at start {a}."
 
-            if environment.is_blocked_forever(b, bid.agent.near_radius):
+            if environment.is_coordinate_blocked_forever(b, bid.agent.near_radius):
                 return None, f"Static blocker at target {b}."
 
             a = self.find_valid_tick(tick, environment, a, bid, tick, environment.dimension.t)

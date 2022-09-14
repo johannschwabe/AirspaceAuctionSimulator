@@ -47,9 +47,9 @@ class PathAgent(Agent):
                 return segment.coordinates[index]
         return None
 
-    def get_positions_at_ticks(self, tick: int, speed: int = 0) -> List["Coordinate4D"]:
+    def get_positions_at_ticks(self, min_tick: int, max_tick: int) -> List["Coordinate4D"]:
         positions = []
-        for tick in range(tick, tick + speed + 1):  # Include upper bound
+        for tick in range(min_tick, max_tick + 1):  # Include upper bound
             position = self.get_position_at_tick(tick)
             if position is not None:
                 positions.append(position)

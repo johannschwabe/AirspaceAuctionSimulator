@@ -42,7 +42,7 @@ class OwnerTest(unittest.TestCase):
         self.env.blocker_dict[blocky.id] = blocky
         stop = PathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)), self.env, 4, 1)
         self.assertTrue(stop.y >= self.env.min_height)
-        self.assertFalse(self.env.is_blocked_forever(stop, 1))
+        self.assertFalse(self.env.is_coordinate_blocked_forever(stop, 1))
 
     def test_generate_stop_coordinates_2(self):
         blocky = StaticBlocker(Coordinate3D(0, 0, 0), Coordinate3D(100, 100, 100))
@@ -50,7 +50,7 @@ class OwnerTest(unittest.TestCase):
         blocky.add_to_tree(self.env.blocker_tree, Coordinate4D(0, 0, 0, 1000))
         self.env.blocker_dict[blocky.id] = blocky
         stop = PathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)), self.env, 4, 1)
-        self.assertTrue(self.env.is_blocked_forever(stop, 1))
+        self.assertTrue(self.env.is_coordinate_blocked_forever(stop, 1))
 
     def test_generate_agents_path(self):
         stops = self.path_owner.generate_agents(0, self.env)
