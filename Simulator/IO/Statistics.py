@@ -366,10 +366,10 @@ class Statistics:
             intersections = tree.intersection(space_segment.tree_rep(), objects="raw")
             for intersecting_space_segment in intersections:
                 assert isinstance(intersecting_space_segment, SpaceSegment)
-                intersecting_space_min, intersecting_space_max = space_segment.intersect(
+                intersection_volume = space_segment.intersection_volume(
                     intersecting_space_segment)
-                intersecting_volume += (intersecting_space_max - intersecting_space_min).volume
-                intersecting_area += (intersecting_space_max - intersecting_space_min).area
+                intersecting_volume += intersection_volume.volume
+                intersecting_area += intersection_volume.area
 
             tree.insert(hash(space_segment), space_segment.tree_rep(), obj=space_segment)
 
