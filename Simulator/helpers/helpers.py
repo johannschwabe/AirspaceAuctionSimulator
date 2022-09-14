@@ -32,7 +32,7 @@ def find_valid_space_tick(tick: int, environment: "Environment", bid_tracker: "B
                           max_tick: int) -> Optional[int]:
     min_pos_clone = min_position.clone()
     agent = bid.agent
-    assert isinstance(agent, PathAgent)
+    assert isinstance(agent, SpaceAgent)
     if min_pos_clone.t < min_tick:
         min_pos_clone.t = min_tick
     while True:
