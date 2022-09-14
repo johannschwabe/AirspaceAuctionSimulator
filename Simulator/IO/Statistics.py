@@ -81,8 +81,10 @@ class Statistics:
                 compute_time = sum([allocation.history.compute_time for allocation in
                                     self.simulation.history.allocations[agent].values()])
                 compute_time_aggr += compute_time
+                print(agent)
                 nr_reallocations_caused = sum([len(reallocation.history.colliding_agent_bids) for reallocation in
-                                               self.simulation.history.allocations[agent].values()])
+                                               self.simulation.history.allocations[agent].values() if
+                                               reallocation.history.colliding_agent_bids])
                 nr_reallocations_caused_aggr += nr_reallocations_caused
 
                 if isinstance(agent, PathAgent):

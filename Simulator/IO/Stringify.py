@@ -52,7 +52,7 @@ class Stringify:
         """
         recall = lambda o: Stringify.to_dict(o, ignore_keys=ignore_keys, date_format=date_format)
         valid_entry = lambda k, v: not callable(v) and (
-                isinstance(k, int) or not k.startswith('_')) and k not in ignore_keys
+            isinstance(k, int) or not k.startswith('_')) and k not in ignore_keys
         # Call .json() for Stringifys
         if not stop_recursion and isinstance(obj, Stringify):
             return obj.as_dict(ignore_keys=ignore_keys, date_format=date_format)
@@ -61,12 +61,12 @@ class Stringify:
             return obj.strftime(date_format)
         # Convert tick
         if isinstance(obj, float):
-            if obj == math.nan:
-                return "NaN"
+            if obj is math.nan:
+                return None
             if obj == math.inf:
-                return 1e500
+                return None
             if obj == -math.inf:
-                return -1e500
+                return None
             return obj
         # Convert enumerations
         if isinstance(obj, Enum):
