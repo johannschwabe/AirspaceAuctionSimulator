@@ -107,12 +107,9 @@ def is_valid_for_path_allocation(allocation_tick: int, environment: "Environment
     if my_bid is None:
         return False, None
 
-    flying = False
     if position.t == allocation_tick:
         my_pos = path_agent.get_position_at_tick(allocation_tick)
-        if my_pos is not None and my_pos == position:
-            flying = True
-        else:
+        if my_pos is None or my_pos != position:
             return False, None
 
     true_intersecting_agents = set()
@@ -140,14 +137,13 @@ def is_valid_for_path_allocation(allocation_tick: int, environment: "Environment
         else:
             raise Exception(f"Invalid agent {max_intersecting_agent}")
 
-    if not flying:
-        for true_intersecting_agent in true_intersecting_agents:
-            other_bid = bid_tracker.get_last_bid_for_tick(allocation_tick, true_intersecting_agent, environment)
-            if other_bid is None:
-                raise Exception(f"Agent stuck: {true_intersecting_agent}")
+    for true_intersecting_agent in true_intersecting_agents:
+        other_bid = bid_tracker.get_last_bid_for_tick(allocation_tick, true_intersecting_agent, environment)
+        if other_bid is None:
+            raise Exception(f"Agent stuck: {true_intersecting_agent}")
 
-            if my_bid <= other_bid:
-                return False, None
+        if my_bid <= other_bid:
+            return False, None
 
     return True, true_intersecting_agents
 
