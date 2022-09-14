@@ -1,11 +1,16 @@
-from typing import Optional
+from typing import Optional, Iterator, TYPE_CHECKING
+
+from rtree import Index
+from rtree.index import Item, Property
 
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
-from ..BidTracker.BidTracker import BidTracker
-from ..Bids.Bid import Bid
-from ..Coordinates.Coordinate4D import Coordinate4D
-from ..Environment.Environment import Environment
+
+if TYPE_CHECKING:
+    from ..BidTracker.BidTracker import BidTracker
+    from ..Bids.Bid import Bid
+    from ..Coordinates.Coordinate4D import Coordinate4D
+    from ..Environment.Environment import Environment
 
 
 def find_valid_path_tick(tick: int, environment: "Environment", bid_tracker: "BidTracker", position: "Coordinate4D",
@@ -144,3 +149,20 @@ def is_valid_for_path_allocation(allocation_tick: int, environment: "Environment
             return False, None
 
     return True, true_intersecting_agents
+
+
+def setup_rtree(data: Optional[Iterator["Item"]] = None) -> Index:
+    """
+    Returns a rtree instance with 4 dimensions.
+    """
+    props = Property()
+    props.dimension = 4
+    if data is None:
+        return Index(properties=props)
+    else:
+        return Index(_generate_data(data), properties=props)
+
+
+def _generate_data(data: Iterator["Item"]):
+    for item in data:
+        yield item.id, item.bbox, item.object

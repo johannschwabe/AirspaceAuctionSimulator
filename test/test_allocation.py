@@ -10,7 +10,7 @@ class AllocationTest(unittest.TestCase):
     def test_get_real_allocation(self):
         agi = generate_path_agent()
         agi.id = "notAClone"
-        new_allocation = self.allocation.get_real_allocation(agi)
+        new_allocation = self.allocation.get_allocation_with_agent(agi)
         self.assertNotEqual(new_allocation.agent.id, self.allocation.agent.id)
 
     def test_nr_voxels(self):

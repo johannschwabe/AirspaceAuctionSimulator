@@ -7,7 +7,7 @@ class CoordinatesTest(unittest.TestCase):
     def test_2D(self):
         aa = Coordinate2D(20, 42)
         self.assertDictEqual(aa.to_dict(), {"x": 20, "z": 42})
-        self.assertEqual(str(aa), "(20, 42)")
+        self.assertEqual(str(aa), "(20.00, 42.00)")
         bb = Coordinate2D(20, 42)
         self.assertEqual(aa, bb)
         cc = Coordinate2D(20, 43)
@@ -27,7 +27,7 @@ class CoordinatesTest(unittest.TestCase):
     def test_3D(self):
         aa = Coordinate3D(25, 12, 22)
         self.assertDictEqual(aa.to_dict(), {"x": 25, "y": 12, "z": 22})
-        self.assertEqual(str(aa), "(25, 12, 22)")
+        self.assertEqual(str(aa), "(25.00, 12.00, 22.00)")
         bb = Coordinate3D(25, 12, 22)
         self.assertEqual(aa, bb)
         cc = Coordinate3D(25, 11, 22)
@@ -47,7 +47,7 @@ class CoordinatesTest(unittest.TestCase):
     def test_4D(self):
         aa = Coordinate4D(21, 1, 19, 8)
         self.assertDictEqual(aa.to_dict(), {"x": 21, "y": 1, "z": 19, "t": 8})
-        self.assertEqual(str(aa), "( 21,   1,  19,   8)")
+        self.assertEqual(str(aa), "( 21.00,   1.00,  19.00,   8)")
         bb = Coordinate4D(21, 1, 19, 8)
         self.assertEqual(aa, bb)
         cc = Coordinate4D(21, 1, 19, 9)
@@ -66,8 +66,8 @@ class CoordinatesTest(unittest.TestCase):
         self.assertEqual(aa, aa.clone())
         self.assertNotEqual(id(aa), id(aa.clone()))
         ff = Coordinate3D(21, 1, 19)
-        self.assertEqual(Coordinate4D.from_3d(ff, 8), aa)
-        self.assertEqual(ff, aa.to_inter_temporal())
+        self.assertEqual(Coordinate4D.from_3D(ff, 8), aa)
+        self.assertEqual(ff, aa.to_3D())
         self.assertListEqual(aa.list_rep(), [21, 1, 19, 8])
         self.assertListEqual(aa.tree_query_cube_rep(2, 4), [19, -1, 17, 8, 23, 3, 21, 12])
         self.assertEqual(aa.distance(cc), 0)

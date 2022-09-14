@@ -2,17 +2,21 @@ import random
 
 from Demos.FCFS.BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
 from Demos.FCFS.BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
+from Demos.FCFS.Bids.FCFSPathBid import FCFSPathBid
 from Demos.FCFS.ValueFunction.FCFSPathValueFunction import FCFSPathValueFunction
 from Demos.FCFS.ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction
 from Simulator import Allocation, AllocationReason, AllocationHistory, Coordinate4D, Coordinate3D, PathAgent, \
-    PathSegment, SpaceAgent
-from Simulator.Segments.SpaceSegment import SpaceSegment
+    PathSegment, SpaceAgent, SpaceSegment
+
+
+def generate_path_bid():
+    return FCFSPathBid(generate_path_agent(), [], [], 0)
 
 
 def generate_path_agent():
     return PathAgent(f"AgentName{random.randint(0, 100000)}",
                      FCFSPathBiddingStrategy(),
-                     FCFSPathValueFunction({}),
+                     FCFSPathValueFunction(),
                      [Coordinate4D(2, 2, 2, 2), Coordinate4D(30, 30, 30, 30)],
                      [0], )
 
@@ -20,12 +24,12 @@ def generate_path_agent():
 def generate_space_agent():
     return SpaceAgent(f"AgentName{random.randint(0, 100000)}",
                       FCFSSpaceBiddingStrategy(),
-                      FCFSSpaceValueFunction({}),
+                      FCFSSpaceValueFunction(),
                       [[Coordinate4D(40, 40, 40, 20), Coordinate4D(60, 60, 60, 70)]])
 
 
 def generate_path_segment(base: Coordinate4D):
-    start = base.to_inter_temporal()
+    start = base.to_3D()
     return PathSegment(start, start + Coordinate3D(3, 3, 3), 0, [
         base,
         base + Coordinate4D(0, 0, 1, 1),
@@ -47,7 +51,7 @@ def generate_space_segment(base: Coordinate4D):
 
 
 def generate_allocation_statistics():
-    return AllocationHistory(500, AllocationReason.FIRST_ALLOCATION, "first allocation", [])
+    return AllocationHistory(generate_path_bid(), 500, AllocationReason.FIRST_ALLOCATION, "first allocation")
 
 
 def generate_path_allocation():

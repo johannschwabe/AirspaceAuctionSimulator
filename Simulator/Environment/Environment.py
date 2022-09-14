@@ -2,11 +2,11 @@ import math
 from typing import List, Dict, TYPE_CHECKING, Set, Iterator, Optional
 
 from rtree import Index
-from rtree.index import Property, Item
 
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
 from ..Blocker.BlockerType import BlockerType
+from ..helpers.helpers import setup_rtree
 
 if TYPE_CHECKING:
     from ..Blocker.Blocker import Blocker
@@ -35,32 +35,15 @@ class Environment:
             blockers = []
         self.blocker_dict: Dict[int, "Blocker"] = {}
         self._blocker_id = 0
-        self.blocker_tree = self._setup_rtree()
+        self.blocker_tree = setup_rtree()
         for blocker in blockers:
             blocker.id = self._get_blocker_id()
             self.blocker_dict[blocker.id] = blocker
             blocker.add_to_tree(self.blocker_tree, self.dimension)
 
-        self.tree = self._setup_rtree()
+        self.tree = setup_rtree()
         self.agents: Dict[int, "Agent"] = {}
         self.max_near_radius = 0
-
-    @staticmethod
-    def _generate_data(data: Iterator["Item"]):
-        for item in data:
-            yield item.id, item.bbox, item.object
-
-    @staticmethod
-    def _setup_rtree(data: Optional[Iterator["Item"]] = None) -> Index:
-        """
-        Returns a rtree instance with 4 dimensions.
-        """
-        props = Property()
-        props.dimension = 4
-        if data is None:
-            return Index(properties=props)
-        else:
-            return Index(Environment._generate_data(data), properties=props)
 
     def _get_blocker_id(self) -> int:
         """
@@ -356,10 +339,10 @@ class Environment:
         """
         if len(self.tree) > 0:
             all_items = self.tree.intersection(self.tree.bounds, objects=True)
-            cloned_tree: "Index" = self._setup_rtree(all_items)
+            cloned_tree: "Index" = setup_rtree(all_items)
 
         else:
-            cloned_tree: "Index" = self._setup_rtree()
+            cloned_tree: "Index" = setup_rtree()
 
         cloned = Environment(self.dimension,
                              min_height=self.min_height,
