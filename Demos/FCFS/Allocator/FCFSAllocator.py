@@ -146,6 +146,7 @@ class FCFSAllocator(Allocator):
         allocations: Dict["Agent", "Allocation"] = {}
 
         for agent in agents:
+            print(f"allocating: {agent}")
             start_time = time_ns()
             bid = self.bid_tracker.request_new_bid(tick, agent, environment)
 

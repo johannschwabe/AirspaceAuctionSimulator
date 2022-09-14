@@ -177,6 +177,7 @@ class PriorityAllocator(Allocator):
             start_time = time_ns()
             agent = max(agents_to_allocate, key=lambda _agent: self.priority(_agent, tick, environment))
             agents_to_allocate.remove(agent)
+            print(f"allocating: {agent}")
             bid = self.bid_tracker.request_new_bid(tick, agent, environment)
 
             if bid is None:
