@@ -76,7 +76,7 @@ class PathOwner(Owner):
 
                 stay = random.randint(0, 100)
                 stays.append(stay)
-                distance = locations[-1].inter_temporal_distance(next_location)
+                distance = locations[-1].distance(next_location)
                 travel_time = math.ceil(distance) * self.speed
                 total_travel_time += travel_time
                 next_location.t = min(locations[-1].t + travel_time + stay + random.randint(0, 100),

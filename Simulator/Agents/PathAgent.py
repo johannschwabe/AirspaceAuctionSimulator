@@ -95,7 +95,7 @@ class PathAgent(Agent):
                 min_index = max(min_t - segment.min.t, 0)
                 max_index = min(max_t - segment.min.t, len(segment.coordinates) - 1)
                 for coordinate in segment.coordinates[min_index:max_index]:
-                    distance = coordinate.inter_temporal_distance(other_coordinate)
+                    distance = coordinate.distance(other_coordinate)
                     if distance == 0:
                         return True
                     if distance <= self.near_radius or distance <= other_agent.near_radius:

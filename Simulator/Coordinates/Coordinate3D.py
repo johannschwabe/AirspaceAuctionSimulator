@@ -6,15 +6,15 @@ from .Coordinate2D import Coordinate2D
 
 class Coordinate3D(Coordinate2D):
 
-    def __init__(self, x: int, y: int, z: int):
+    def __init__(self, x: float, y: float, z: float):
         super().__init__(x, z)
-        self.y: int = y
+        self.y: float = y
 
-    def to_dict(self) -> Dict[str, int]:
+    def to_dict(self) -> Dict[str, float]:
         return {"x": self.x, "y": self.y, "z": self.z}
 
     def __repr__(self) -> str:
-        return f"({self.x}, {self.y}, {self.z})"
+        return f"({self.x:6.2f}, {self.y:6.2f}, {self.z:6.2f})"
 
     def __eq__(self, other) -> bool:
         return self.x == other.x and \
@@ -26,7 +26,7 @@ class Coordinate3D(Coordinate2D):
             return Coordinate3D(self.x + other.x, self.y + other.y, self.z + other.z)
         elif isinstance(other, Coordinate2D):
             return Coordinate3D(self.x + other.x, self.y, self.z + other.z)
-        elif isinstance(other, int):
+        elif isinstance(other, float):
             return Coordinate3D(self.x + other, self.y + other, self.z + other)
         else:
             raise Exception(f"Addition is not defined for {other}")
@@ -36,13 +36,13 @@ class Coordinate3D(Coordinate2D):
             return Coordinate3D(self.x - other.x, self.y - other.y, self.z - other.z)
         elif isinstance(other, Coordinate2D):
             return Coordinate3D(self.x - other.x, self.y, self.z - other.z)
-        elif isinstance(other, int):
+        elif isinstance(other, float):
             return Coordinate3D(self.x - other, self.y - other, self.z - other)
         else:
             raise Exception(f"Subtraction is not defined for {other}")
 
     @property
-    def l1(self) -> int:
+    def l1(self) -> float:
         return abs(self.x) + abs(self.y) + abs(self.z)
 
     @property
@@ -50,7 +50,7 @@ class Coordinate3D(Coordinate2D):
         return math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
     @property
-    def volume(self) -> int:
+    def volume(self) -> float:
         return self.x * self.y * self.z
 
     def to_2D(self) -> Coordinate2D:

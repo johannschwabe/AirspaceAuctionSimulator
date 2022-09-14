@@ -60,7 +60,7 @@ class OwnerTest(unittest.TestCase):
         self.assertEqual(len(self.path_owner.agents), 1)
         self.assertEqual(len(stops_2[0].locations), 2)
         self.assertGreaterEqual(stops_2[0].locations[-1].t - stops_2[0].locations[-0].t,
-                                stops_2[0].locations[-1].inter_temporal_distance(stops_2[0].locations[0]) * stops_2[
+                                stops_2[0].locations[-1].distance(stops_2[0].locations[0]) * stops_2[
                                     0].speed)
 
     def test_generate_stop_coordinate(self):

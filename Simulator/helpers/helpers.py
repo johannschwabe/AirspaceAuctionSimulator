@@ -120,7 +120,7 @@ def is_valid_for_path_allocation(allocation_tick: int, environment: "Environment
             path_coordinates = max_intersecting_agent.get_positions_at_ticks(position.t, position.t + path_agent.speed)
             assert len(path_coordinates) > 0
             for path_coordinate in path_coordinates:
-                distance = position.inter_temporal_distance(path_coordinate, l2=True)
+                distance = position.distance(path_coordinate, l2=True)
                 if distance <= max_near_radius:
                     true_intersecting_agents.add(max_intersecting_agent)
                     break

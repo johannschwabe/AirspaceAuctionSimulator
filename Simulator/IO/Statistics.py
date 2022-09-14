@@ -275,8 +275,8 @@ class Statistics:
         if len(path) == 0:
             return None
 
-        l1_distance: int = int(path[0].min.inter_temporal_distance(path[-1].max))
-        l2_distance: float = path[0].min.inter_temporal_distance(path[-1].max, l2=True)
+        l1_distance: int = int(path[0].min.distance(path[-1].max))
+        l2_distance: float = path[0].min.distance(path[-1].max, l2=True)
         l1_ground_distance: int = int(Coordinate2D.distance(path[0].min, path[-1].max))
         l2_ground_distance: float = Coordinate2D.distance(path[0].min, path[-1].max, l2=True)
         height_difference: int = path[-1].max.y - path[0].min.y
@@ -468,7 +468,7 @@ class Statistics:
                 if isinstance(intersecting_agent, PathAgent):
                     encountered_agent_position = intersecting_agent.get_position_at_tick(coordinate.t)
                     assert encountered_agent_position is not None
-                    distance = coordinate.inter_temporal_distance(encountered_agent_position, l2=True)
+                    distance = coordinate.distance(encountered_agent_position, l2=True)
                     if distance <= path_agent.near_radius:
                         true_intersection = True
 

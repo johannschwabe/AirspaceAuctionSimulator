@@ -119,7 +119,7 @@ class AStar:
             print(f"Too late to allocate start {start} at tick {self.tick}.")
             return [], set()
 
-        distance = start.inter_temporal_distance(end)
+        distance = start.distance(end)
         time_left = self.environment.dimension.t - start.t
 
         if distance * agent.speed > time_left:
