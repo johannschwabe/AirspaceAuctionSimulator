@@ -366,9 +366,10 @@ class Statistics:
             intersections = tree.intersection(space_segment.tree_rep(), objects="raw")
             for intersecting_space_segment in intersections:
                 assert isinstance(intersecting_space_segment, SpaceSegment)
-                intersecting_space: "Coordinate4D" = space_segment.intersect(intersecting_space_segment)[1]
-                intersecting_volume += intersecting_space.volume
-                intersecting_area += intersecting_space.area
+                intersecting_space_min, intersecting_space_max = space_segment.intersect(
+                    intersecting_space_segment)
+                intersecting_volume += (intersecting_space_max - intersecting_space_min).volume
+                intersecting_area += (intersecting_space_max - intersecting_space_min).area
 
             tree.insert(hash(space_segment), space_segment.tree_rep(), obj=space_segment)
 
@@ -521,12 +522,13 @@ class Statistics:
                 intersecting_agents_segments = intersecting_agent.get_segments_at_ticks(space_segment.min.t,
                                                                                         space_segment.max.t)
                 for segment in intersecting_agents_segments:
-                    intersecting_position, intersecting_volume = segment.intersect(space_segment)
-                    if intersecting_volume > Coordinate4D(0, 0, 0, 0):
-                        intersection_point = intersecting_volume + intersecting_volume / 2
+                    intersecting_min, intersecting_max = segment.intersecting_space(space_segment)
+                    if (intersecting_max - intersecting_min).volume > 0:
+                        intersection_point = (intersecting_min + intersecting_max) / 2
 
-                        for t in range(intersecting_volume.t):
-                            violations[intersecting_agent.id].append(intersection_point + Coordinate4D(0, 0, 0, t))
+                        for t in range(intersecting_max.t - intersecting_min.t):
+                            violations[intersecting_agent.id].append(
+                                Coordinate4D.from_3D(intersection_point, intersecting_min.t + t))
                             total_violations += 1
         return ViolationStatistics(violations, total_violations)
 
