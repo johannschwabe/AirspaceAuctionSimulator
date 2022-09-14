@@ -79,7 +79,9 @@ const doFocusUpdate = () => {
 
 function focusOnAgent({ agentInFocus: agent }) {
   focusAgentInvisible = !simulation.agentInFocus.isActiveAtTick(simulation.tick);
-  if (focusAgentInvisible) { return; }
+  if (focusAgentInvisible) {
+    return;
+  }
   if (agent instanceof SpaceAgent) {
     const space = agent.spaces.find((s) => s.isActiveAtTick(simulation.tick));
     focusOnSpaceAgent({ agent, space });
@@ -183,7 +185,7 @@ onMounted(() => {
 <style scoped>
 canvas {
   width: 100%;
-  height: 950px;
+  height: 1050px;
   outline: none;
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }
