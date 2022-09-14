@@ -1,12 +1,18 @@
 <template>
   <n-form ref="formRef" :model="simulationConfig" :rules="rules">
     <!-- Model Name -->
-    <n-form-item path="name" label="Model Name">
+    <n-form-item path="name">
+      <template #label>
+        <help v-bind="hName">Model Name</help>
+      </template>
       <n-input v-model:value="simulationConfig.name" type="text" placeholder="Unique Model Name" />
     </n-form-item>
 
     <!-- Model Description -->
-    <n-form-item path="description" label="Model Description">
+    <n-form-item>
+      <template #label>
+        <help v-bind="hDescription">Model Description</help>
+      </template>
       <n-input
         v-model:value="simulationConfig.description"
         type="textarea"
@@ -18,21 +24,48 @@
     <map-selector />
 
     <!-- Model Timesteps -->
-    <n-form-item path="dimension.t" label="Timesteps">
+    <n-form-item>
+      <template #label>
+        <help v-bind="hTimesteps">Timesteps</help>
+      </template>
       <n-slider show-tooltip v-model:value="simulationConfig.map.timesteps" :min="300" :max="4000" :step="10" />
     </n-form-item>
 
-    <!-- Model Allocator -->
-    <n-form-item path="allocator" label="Allocator">
-      <n-select
-        v-model:value="simulationConfig.allocator"
-        :options="simulationConfig.availableAllocatorsOptions"
-        placeholder="Select Allocator"
-      />
-    </n-form-item>
+    <n-grid cols="2" x-gap="10">
+      <n-gi>
+        <!-- Model Allocator -->
+        <n-form-item>
+          <template #label>
+            <help v-bind="hAllocator">Allocator</help>
+          </template>
+          <n-select
+            v-model:value="simulationConfig.allocator"
+            :options="simulationConfig.availableAllocatorsOptions"
+            placeholder="Select Allocator"
+            v-on:update:value="emitAllocatorSwitched"
+          />
+        </n-form-item>
+      </n-gi>
+      <n-gi>
+        <!-- Model Payment Rule -->
+        <n-form-item>
+          <template #label>
+            <help v-bind="hPaymentRule">Payment Rule</help>
+          </template>
+          <n-select
+            v-model:value="simulationConfig.paymentRule"
+            :options="simulationConfig.availablePaymentRulesOptions"
+            placeholder="Select Payment Rule"
+          />
+        </n-form-item>
+      </n-gi>
+    </n-grid>
 
     <!-- Model Owners -->
-    <n-form-item path="owners" label="Owners">
+    <n-form-item>
+      <template #label>
+        <help v-bind="hOwners">Owners</help>
+      </template>
       <owner />
     </n-form-item>
   </n-form>
@@ -40,7 +73,12 @@
   <!-- Upload and Download of configuration file -->
   <n-grid cols="2" x-gap="10">
     <n-grid-item>
-      <n-upload :custom-request="uploadConfiguration" accept="application/json" :on-preview="uploadConfiguration">
+      <n-upload
+        :custom-request="uploadConfiguration"
+        accept="application/json"
+        :on-preview="uploadConfiguration"
+        class="upload"
+      >
         <n-button block tertiary :type="simulationConfig.isEmpty ? 'primary' : 'tertiary'">
           Upload Simulation Configuration
           <template #icon>
@@ -118,7 +156,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { nextTick, onUnmounted, ref } from "vue";
 import { useMessage, useLoadingBar } from "naive-ui";
 import { useRouter } from "vue-router";
 import { CloudDownloadOutline, ArrowForwardOutline, CloudUploadOutline } from "@vicons/ionicons5";
@@ -126,6 +164,8 @@ import { saveAs } from "file-saver";
 
 import Owner from "./owner/Owner.vue";
 import MapSelector from "./map/MapSelector.vue";
+import Help from "../common/help/help.vue";
+
 import Simulation from "../../SimulationObjects/Simulation.js";
 
 import { postSimulation, downloadSimulation } from "../../API/api.js";
@@ -136,9 +176,18 @@ import {
   setSimulationSingleton,
 } from "@/scripts/simulation";
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import {
+  emitConfigLoaded,
+  onAllocatorSwitched,
+  offAllocatorSwitched,
+  emitAllocatorSwitched,
+} from "../../scripts/emitter.js";
+import { hName, hDescription, hTimesteps, hAllocator, hPaymentRule, hOwners } from "../common/help/texts.js";
 
 const simulationConfig = useSimulationConfigStore();
-
+if (!simulationConfig.availableAllocators || simulationConfig.availableAllocators.length === 0) {
+  simulationConfig.loadAvailableAllocators();
+}
 const message = useMessage();
 const loadingBar = useLoadingBar();
 const router = useRouter();
@@ -154,7 +203,8 @@ const loadingForSeconds = ref(0);
 const loadingInterval = ref(undefined);
 const finished = ref(false);
 
-const canRecoverSimulation = ref(hasSimulationSingleton() || canRecoverSimulationSingleton());
+const canRecoverSimulation = ref(hasSimulationSingleton());
+canRecoverSimulationSingleton().then((val) => (canRecoverSimulation.value = canRecoverSimulation.value || val));
 
 const rules = {
   name: [
@@ -202,7 +252,14 @@ const downloadConfiguration = () => {
 
   saveAs(fileToSave, `${simulationConfig.name}-config.json`);
 };
-
+onAllocatorSwitched(() => {
+  nextTick(() => {
+    simulationConfig.updateSupportedBiddingStrategies();
+  });
+});
+onUnmounted(() => {
+  offAllocatorSwitched();
+});
 /**
  * Upload an existing simulation configuration File
  * @param {UploadCustomRequestOptions} upload
@@ -211,7 +268,9 @@ const uploadConfiguration = (upload) => {
   const fileReader = new FileReader();
   fileReader.onload = async (event) => {
     const data = JSON.parse(event.target.result);
-    simulationConfig.overwrite(data);
+    const config = data.config ?? data;
+    simulationConfig.overwrite(config);
+    emitConfigLoaded();
   };
   fileReader.onerror = () => {
     loadingBar.error();
@@ -231,12 +290,12 @@ const simulate = () => {
       startLoading();
       postSimulation(simulationConfig.generateConfigJson())
         .then((data) => {
-          const simulation = new Simulation(data);
+          const simulation = new Simulation(data.simulation, data.config, data.statistics);
+          setSimulationConfig(data.config);
           return simulation.load();
         })
         .then((simulation) => {
           setSimulationSingleton(simulation);
-          setSimulationConfig(simulation);
           loadingBar.finish();
           message.success("Simulation Created!");
           finished.value = true;
@@ -245,6 +304,7 @@ const simulate = () => {
           loadingBar.error();
           message.error(e.message);
           errorText.value = e.message;
+          console.error(e);
           throw new Error(e);
         })
         .finally(() => {
@@ -256,5 +316,8 @@ const simulate = () => {
   });
 };
 </script>
-
-<style scoped></style>
+<style scoped>
+.upload :deep(.n-upload-trigger) {
+  width: 100%;
+}
+</style>

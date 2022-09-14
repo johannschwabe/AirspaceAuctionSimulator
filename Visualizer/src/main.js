@@ -61,6 +61,7 @@ import {
   NH1,
   NH2,
   NH3,
+  NTooltip,
 } from "naive-ui";
 
 const naive = create({
@@ -117,6 +118,7 @@ const naive = create({
     NH1,
     NH2,
     NH3,
+    NTooltip,
   ],
 });
 

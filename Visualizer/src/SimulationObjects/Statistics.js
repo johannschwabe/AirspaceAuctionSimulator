@@ -1,12 +1,15 @@
 export default class Statistics {
   /**
-   * @param {RawStatistics} rawStatistics
+   * @param {SimulationStatistics} statistics
    */
-  constructor(rawStatistics) {
-    this.totalNumberOfOwners = rawStatistics.total_number_of_owners;
-    this.totalNumberOfAgents = rawStatistics.total_number_of_agents;
-    this.totalAchievedWelfare = rawStatistics.total_achieved_welfare;
-    this.totalNumberOfCollisions = rawStatistics.total_number_of_collisions;
-    this.totalNumberOfReallocations = rawStatistics.total_number_of_reallocations;
+  constructor(statistics) {
+    this.totalNumberOfOwners = statistics.total_number_of_owners;
+    this.totalNumberOfAgents = statistics.total_number_of_agents;
+    this.totalValue = statistics.total_value;
+    this.totalNonCollidingValue = statistics.total_non_colliding_value;
+    this.totalNumberOfViolations = statistics.total_number_of_violations;
+    this.totalNumberOfReallocations = statistics.total_number_of_reallocations;
+    this.computeTimes = Object.values(statistics.step_compute_time);
+    this.totalComputeTime = this.computeTimes.reduce((acc, curr) => acc + curr, 0);
   }
 }

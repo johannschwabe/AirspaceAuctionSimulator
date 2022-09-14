@@ -8,7 +8,9 @@ const TICK_EVENT = "tick";
 const AGENTS_SELECTED_EVENT = "agents-selected";
 const AGENT_FOCUS_ON_EVENT = "focus-on-agent";
 const AGENT_FOCUS_OFF_EVENT = "focus-off-agent";
-const ALL_EVENTS = [AGENTS_SELECTED_EVENT, AGENT_FOCUS_ON_EVENT, AGENT_FOCUS_OFF_EVENT];
+const CONFIG_LOADED = "config-loaded";
+const ALLOCATOR_SWITCHED = "allocator-switched";
+const ALL_EVENTS = [AGENTS_SELECTED_EVENT, AGENT_FOCUS_ON_EVENT, AGENT_FOCUS_OFF_EVENT, CONFIG_LOADED];
 
 export function emitTickEvent(tick) {
   emitter.emit(TICK_EVENT, tick);
@@ -18,8 +20,8 @@ export function emitAgentsSelectedEvent(selectedIds) {
   emitter.emit(AGENTS_SELECTED_EVENT, selectedIds);
 }
 
-export function emitFocusOnAgent(agent) {
-  emitter.emit(AGENT_FOCUS_ON_EVENT, agent);
+export function emitFocusOnAgent(agentInFocus, previousAgentInFocus) {
+  emitter.emit(AGENT_FOCUS_ON_EVENT, { agentInFocus, previousAgentInFocus });
 }
 
 export function emitFocusOffAgent(agent) {
@@ -56,6 +58,30 @@ export function offFocusOnAgent() {
 
 export function offFocusOffAgent() {
   emitter.off(AGENT_FOCUS_OFF_EVENT);
+}
+
+export function onConfigLoaded(callback) {
+  emitter.on(CONFIG_LOADED, callback);
+}
+
+export function offConfigLoaded() {
+  emitter.off(CONFIG_LOADED);
+}
+
+export function emitConfigLoaded() {
+  emitter.emit(CONFIG_LOADED);
+}
+
+export function onAllocatorSwitched(callback) {
+  emitter.on(ALLOCATOR_SWITCHED, callback);
+}
+
+export function offAllocatorSwitched() {
+  emitter.off(ALLOCATOR_SWITCHED);
+}
+
+export function emitAllocatorSwitched() {
+  emitter.emit(ALLOCATOR_SWITCHED);
 }
 
 export function offAll() {

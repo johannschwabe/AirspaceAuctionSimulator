@@ -1,15 +1,17 @@
-import Coordinate3D from "./Coordinate3D";
 import { first, last } from "lodash-es";
+
+import Coordinate3D from "./Coordinate3D.js";
+
 export default class Path {
   /**
-   * @param {RawPath} rawPath
+   * @param {JSONPath} rawPath
    */
   constructor(rawPath) {
     /**
      * @type {Object<int, Coordinate3D>}
      */
     this.ticks = {};
-    Object.entries(rawPath.t).forEach(([t, loc]) => {
+    Object.entries(rawPath.positions).forEach(([t, loc]) => {
       const [x, y, z] = loc;
       this.ticks[t] = new Coordinate3D(x, y, z);
     });
@@ -69,7 +71,7 @@ export default class Path {
         rawPath[t] = loc.toArrayCoordinate();
       });
     });
-    return new Path({ t: rawPath });
+    return new Path({ positions: rawPath });
   }
 
   /**
@@ -93,7 +95,7 @@ export default class Path {
       }
       if (!distinct_path && off_segment) {
         segment_ticks[tick] = coordinate;
-        const path_segment = new Path({ t: {} });
+        const path_segment = new Path({ positions: {} });
         path_segment.ticks = segment_ticks;
         path_segments.push(path_segment);
         segment_ticks = {};

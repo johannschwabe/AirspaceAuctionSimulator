@@ -9,38 +9,54 @@ if TYPE_CHECKING:
 
 class PathSegment(Segment):
     def __init__(self, start: "Coordinate3D", end: "Coordinate3D", index: int, coordinates: List["Coordinate4D"]):
-        self.coordinates: List["Coordinate4D"] = coordinates
+        self._coordinates: List["Coordinate4D"] = coordinates
         self.start: "Coordinate3D" = start
         self.end: "Coordinate3D" = end
         self.index: int = index
 
     def join(self, other: "PathSegment"):
-        self.coordinates.extend(other.coordinates)
+        join_index = 0
+        if other.min == self.max:
+            join_index = 1
+        else:
+            assert other.min.t == self.max.t + 1
+
+        self.coordinates.extend(other.coordinates[join_index:])
 
     def same(self, other: "PathSegment"):
         same_index = self.index == other.index
-        same_end = self.end == other.end
-        if same_index and not same_end:
-            print(f"Same index ({self.index} == {other.index}) but not same end ({self.end} != {other.end})")
-        return same_index and same_end
+        if same_index:
+            assert self.end == other.end
+        return same_index
 
     @property
-    def min(self):
+    def coordinates(self) -> List["Coordinate4D"]:
+        return self._coordinates
+
+    @property
+    def nr_voxels(self) -> int:
+        return len(self.coordinates)
+
+    @property
+    def min(self) -> "Coordinate4D":
         return self.coordinates[0]
 
     @property
-    def max(self):
+    def max(self) -> "Coordinate4D":
         return self.coordinates[-1]
 
     def clone(self):
         return PathSegment(self.start.clone(), self.end.clone(), self.index, [x.clone() for x in self.coordinates])
 
+    def contains(self, coordinate: "Coordinate4D") -> bool:
+        return coordinate in self.coordinates
+
     def split_temporal(self, t: int) -> Tuple["PathSegment", "PathSegment"]:
-        t_index = t - self.coordinates[0].t
+        t_index = t - self.min.t
         first_segment = self.clone()
-        first_segment.coordinates = first_segment.coordinates[:t_index + 1]
+        first_segment._coordinates = first_segment.coordinates[:t_index + 1]
 
         second_segment = self.clone()
-        second_segment.coordinates = second_segment.coordinates[t_index + 1:]
+        second_segment._coordinates = second_segment.coordinates[t_index + 1:]
 
         return first_segment, second_segment

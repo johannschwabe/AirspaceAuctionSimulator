@@ -1,142 +1,213 @@
 /**
- * @typedef {{x: int, y: int, z: int}} RawCoordinate
+ * @typedef {Object} JSONResponse
+ * @property {JSONConfig} config
+ * @property {SimulationStatistics} statistics
+ * @property {JSONSimulation} simulation
+ * @property {int} statistics_compute_time
+ * @property {int} simulation_compute_time
+ */
+
+/*
+ * Simulation
  */
 
 /**
- * @typedef {{x: int, y: int, z: int, t: int}} RawTimeCoordinate
+ * @typedef {{x: int, y: int, z: int}} JSONCoordinate
  */
 
 /**
- * @typedef {Array<x: int, y: int, z: int>} RawArrayCoordinate
+ * @typedef {{x: int, y: int, z: int, t: int}} JSONTimeCoordinate
  */
 
 /**
- * @typedef {{t: RawArrayCoordinate}} RawTimeArrayCoordinate
+ * @typedef {Array<x: int, y: int, z: int>} JSONArrayCoordinate
  */
 
 /**
- * @typedef {Object} RawPath
- * @property {RawTimeArrayCoordinate} t
+ * @typedef {Object} JSONPath
+ * @property {{int: JSONArrayCoordinate}} positions
  */
 
 /**
- * @typedef {string} RawCollisionReason
+ * @typedef {Object} JSONSpace
+ * @property {JSONTimeCoordinate} min
+ * @property {JSONTimeCoordinate} max
  */
 
 /**
- * @typedef {string} RawReason
- */
-
-/**
- * @typedef {Object} RawCollision
- * @property {RawReason} reason
- * @property {int} agent_id
- * @property {int} blocker_id
- */
-
-/**
- * @typedef {Object} RawBranch
+ * @typedef {Object} JSONBranch
  * @property {int} tick
- * @property {RawPath[]} paths
- * @property {float} value
- * @property {RawCollision} reason
+ * @property {JSONPath[]} paths
  */
 
 /**
- * @typedef {Object} RawAgent
+ * @typedef {Object} JSONAgent
  * @property {string} agent_type
- * @property {string} allocation_type
  * @property {string} id
- * @property {string} name
- * @property {int} speed
- * @property {int} near_radius
- * @property {int} far_radius
- * @property {float} utility
- * @property {int} battery
- * @property {int} time_in_air
- * @property {float} non_colliding_utility
- * @property {int} near_field_intersections
- * @property {int} far_field_intersections
- * @property {int} near_field_violations
- * @property {int} far_field_violations
- * @property {int} bid
- * @property {int} owner_id
- * @property {string} owner_name
- * @property {RawPath[]} paths
- * @property {RawBranch[]} branches
- * @property {{min: RawTimeCoordinate, max: RawTimeCoordinate}[]} spaces
+ * Space-Agent:
+ * @property {JSONSpace[]} [spaces]
+ * Path-Agent:
+ * @property {int} [speed]
+ * @property {int} [near_radius]
+ * @property {int} [battery]
+ * @property {JSONPath[]} [paths]
+ * @property {JSONBranch[]} [branches]
  */
 
 /**
- * @typedef {Object} RawOwner
+ * @typedef {Object} JSONOwner
  * @property {string} name
  * @property {string} id
  * @property {string} color
- * @property {RawAgent[]} agents
- * @property {int} total_time_in_air
- * @property {int} total_bid_value
- * @property {float} mean_bid_value
- * @property {float} median_bid_value
- * @property {float} max_bid_value
- * @property {float} min_bid_value
- * @property {float[]} bid_quantiles
- * @property {float[]} bid_outliers
- * @property {int} total_utility
- * @property {float} mean_utility
- * @property {float} median_utility
- * @property {float} max_utility
- * @property {float} min_utility
- * @property {float[]} utility_quantiles
- * @property {float[]} utility_outliers
- * @property {int} number_of_agents
- * @property {int} number_of_ab_agents
- * @property {int} number_of_aba_agents
- * @property {int} number_of_abc_agents
- * @property {int} number_of_stationary_agents
+ * @property {JSONAgent[]} agents
  */
 
 /**
- * @typedef {Object} RawBlocker
+ * @typedef {Object} JSONBlocker
  * @property {string} id
  * @property {string} blocker_type
- * @property {RawPath | undefined} [path]
- * @property {RawCoordinate | undefined} [location]
- * @property {RawCoordinate} dimension
+ * @property {JSONTimeCoordinate[]} [locations]
+ * @property {JSONCoordinate} [location]
+ * @property {JSONCoordinate} dimension
  */
 
 /**
- * @typedef {Object} RawSimpleCoordinate
+ * @typedef {Object} JSONEnvironment
+ * @property {JSONTimeCoordinate} dimensions
+ * @property {JSONBlocker[]} blockers
+ */
+
+/*
+ * Statistics
+ */
+
+/**
+ * @typedef {Object} SimulationStatistics
+ * @property {OwnerStatistics[]} owners
+ * @property {int} total_number_of_owners
+ * @property {int} total_number_of_agents
+ * @property {float} total_value
+ * @property {float} total_non_colliding_value
+ * @property {int} total_number_of_violations
+ * @property {int} total_number_of_reallocations
+ * @property {{int: int}} step_compute_time
+ */
+
+/**
+ * @typedef {Object} OwnerStatistics
+ * @property {string} id
+ * @property {AgentStatistics[]} agents
+ * @property {int} total_time_in_air
+ * @property {ValueStatistics} values
+ * @property {ValueStatistics} non_colliding_values
+ * @property {int} number_of_agents
+ */
+
+/**
+ * @typedef {Object} ValueStatistics
+ * @property {float[]} values
+ * @property {float} total
+ * @property {float} mean
+ * @property {float} median
+ * @property {float} max
+ * @property {float} min
+ * @property {float[]} quartiles
+ * @property {float[]} outliers
+ */
+
+/**
+ * @typedef {Object} AgentStatistics
+ * @property {string} id
+ * @property {float} value
+ * @property {float} non_colliding_value
+ * @property {ViolationStatistics} violations
+ * @property {int} total_reallocations
+ * Space-Agent:
+ * @property {SpaceStatistics} [space]
+ * Path-Agent:
+ * @property {int} [time_in_air]
+ * @property {PathStatistics} [path]
+ * @property {RawAllocationStatistics[]} [allocations]
+ */
+
+/**
+ * @typedef {{string: string|number}} RawBid
+ */
+
+/**
+ * @typedef {Object} RawAllocationStatistics
+ * @property {int} tick
+ * @property {float} value
+ * @property {RawBid} bid
+ * @property {string} reason
+ * @property {string} explanation
+ * @property {string} explanation
+ * @property {{string: RawBid}} colliding_agent_bids
+ * @property {{string: RawBid}} displacing_agent_bids
+ * @property {int} compute_time
+ * @property {PathStatistics} path
+ * @property {SpaceStatistics} space
+ */
+
+/**
+ * @typedef {Object} ViolationStatistics
+ * @property {{string: JSONTimeCoordinate[]}} violations
+ * @property {int} total_violations
+ */
+
+/**
+ * @typedef {Object} SpaceStatistics
+ * @property {int} volume
+ * @property {float} mean_volume
+ * @property {int} median_volume
+ * @property {float} mean_height
+ * @property {int} median_height
+ * @property {int} area
+ * @property {float} mean_area
+ * @property {int} median_area
+ * @property {float} mean_time
+ * @property {int} median_time
+ * @property {float} mean_height_above_ground
+ * @property {int} median_height_above_ground
+ */
+
+/**
+ * @typedef {Object} PathStatistics
+ * @property {int} l1_distance
+ * @property {float} l2_distance
+ * @property {int} l1_ground_distance
+ * @property {float} l2_ground_distance
+ * @property {int} height_difference
+ * @property {int} time_difference
+ * @property {int} ascent
+ * @property {int} descent
+ * @property {int} distance_traveled
+ * @property {int} ground_distance_traveled
+ * @property {float} mean_height
+ * @property {int} median_height
+ * @property {int[]} heights
+ */
+
+/*
+ * Config
+ */
+
+/**
+ * @typedef {Object} JSONSimpleCoordinate
  * @property {number} lat
  * @property {number} long
  */
 
 /**
- * @typedef {Object} RawMap
- * @property {RawSimpleCoordinate} coordinates
+ * @typedef {Object} JSONMap
+ * @property {JSONSimpleCoordinate} coordinates
  * @property {string} locationName
  * @property {int} neighbouringTiles
  * @property {int} resolution
- * @property {RawSimpleCoordinate} bottomLeftCoordinate
- * @property {int[][]} tiles
  */
 
 /**
- * @typedef {Object} RawEnvironment
- * @property {RawTimeCoordinate} dimensions
- * @property {RawBlocker[]} blockers
- */
-
-/**
- * @typedef {Object} RawStatistics
- * @property {int} total_number_of_owners
- * @property {int} total_number_of_agents
- * @property {int} total_achieved_welfare
- * @property {int} total_number_of_collisions
- * @property {int} total_number_of_reallocations
- */
-
-/**
- * @typedef {Object} RawMeta
+ * @typedef {Object} JSONMeta
  * @property {string} key
  * @property {string} name
  * @property {string} description
@@ -145,7 +216,7 @@
  */
 
 /**
- * @typedef {Object} RawAvailableOwner
+ * @typedef {Object} JSONAvailableOwner
  * @property {string} label
  * @property {string} name
  * @property {string} description
@@ -153,25 +224,23 @@
  * @property {string} allocator
  * @property {int} minLocations
  * @property {int} maxLocations
- * @property {RawMeta[]} meta
+ * @property {JSONMeta[]} meta
  */
 
 /**
- * @typedef {Object} RawConfig
+ * @typedef {Object} JSONConfig
  * @property {string} name
  * @property {string} description
  * @property {string} allocator
- * @property {dimension} RawTimeCoordinate
- * @property {RawMap} map
- * @property {RawOwner[]} owners
+ * @property {dimension} JSONTimeCoordinate
+ * @property {JSONMap} map
+ * @property {JSONOwner[]} owners
  * @property {string[]} availableAllocators
- * @property {RawAvailableOwner[]} availableOwnersForAllocator
+ * @property {JSONAvailableOwner[]} availableOwnersForAllocator
  */
 
 /**
- * @typedef {Object} RawSimulation
- * @property {RawConfig} config
- * @property {RawEnvironment} environment
- * @property {RawStatistics} statistics
- * @property {RawOwner[]} owners
+ * @typedef {Object} JSONSimulation
+ * @property {JSONEnvironment} environment
+ * @property {JSONOwner[]} owners
  */

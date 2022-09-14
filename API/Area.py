@@ -16,10 +16,15 @@ class Area:
     and the grid size in meters
     """
 
-    def __init__(self, bottom_left_ll: "APIWorldCoordinates", top_right_ll: "APIWorldCoordinates", resolution: int):
+    def __init__(self, bottom_left_ll: "APIWorldCoordinates", top_right_ll: "APIWorldCoordinates", resolution: int,
+                 min_height: int = 0):
         self.bottom_left = LongLatCoordinate(bottom_left_ll.long, bottom_left_ll.lat)
         self.top_right = LongLatCoordinate(top_right_ll.long, top_right_ll.lat)
         self.resolution = resolution
+        self.min_height = min_height
+
+    def __repr__(self):
+        return f"Area<tr={self.top_right}, bl={self.bottom_left}, r={self.resolution}>"
 
     @property
     def dimension(self):

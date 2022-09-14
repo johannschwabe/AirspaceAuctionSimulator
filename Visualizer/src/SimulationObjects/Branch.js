@@ -1,15 +1,16 @@
-import Path from "./Path";
-import Collision from "./Collision";
+import Path from "./Path.js";
 
 export default class Branch {
   /**
    *
-   * @param {RawBranch} rawBranch
+   * @param {JSONBranch} rawBranch
+   * @param {RawAllocationStatistics} allocationStats
    */
-  constructor(rawBranch) {
+  constructor(rawBranch, allocationStats) {
     this.tick = rawBranch.tick;
     this.paths = rawBranch.paths.map((path) => new Path(path));
-    this.value = rawBranch.value;
-    this.collision = new Collision(rawBranch.reason);
+    this.value = allocationStats.value;
+    this.reason = allocationStats.reason;
+    this.explanation = allocationStats.explanation;
   }
 }

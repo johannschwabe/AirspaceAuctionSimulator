@@ -1,52 +1,56 @@
 import PathAgent from "./PathAgent";
 import SpaceAgent from "./SpaceAgent";
-import { AgentType } from "../API/enums";
+import { AgentType } from "../API/enums.js";
 
 export default class Owner {
   /**
-   * @param {RawOwner} rawOwner
+   * @param {JSONOwner} rawOwner
    * @param {Simulation} simulation
+   * @param {OwnerStatistics} ownerStats
    */
-  constructor(rawOwner, simulation) {
+  constructor(rawOwner, simulation, ownerStats) {
     this.name = rawOwner.name;
     this.id = rawOwner.id;
     this.color = rawOwner.color;
-    this.totalTimeInAir = rawOwner.total_time_in_air;
-    this.totalBidValue = rawOwner.total_bid_value;
-    this.meanBidValue = rawOwner.mean_bid_value;
-    this.medianBidValue = rawOwner.median_bid_value;
-    this.maxBidValue = rawOwner.max_bid_value;
-    this.minBidValue = rawOwner.min_bid_value;
-    this.bidQuantiles = rawOwner.bid_quantiles;
-    this.bidOutliers = rawOwner.bid_outliers;
-    this.totalUtility = rawOwner.total_utility;
-    this.meanUtility = rawOwner.mean_utility;
-    this.medianUtility = rawOwner.median_utility;
-    this.minUtility = rawOwner.max_utility;
-    this.maxUtility = rawOwner.min_utility;
-    this.utilityQuantiles = rawOwner.utility_quantiles;
-    this.utilityOutliers = rawOwner.utility_outliers;
-    this.numberOfAgents = rawOwner.number_of_agents;
-    this.numberOfABAgents = rawOwner.number_of_ab_agents;
-    this.numberOfABAAgents = rawOwner.number_of_aba_agents;
-    this.numberOfABCAgents = rawOwner.number_of_abc_agents;
-    this.numberOfStationaryAgents = rawOwner.number_of_stationary_agents;
+    this.totalTimeInAir = ownerStats.total_time_in_air;
+    this.numberOfAgents = ownerStats.number_of_agents;
+
+    this.totalUtility = ownerStats.values.total;
+    this.meanUtility = ownerStats.values.mean;
+    this.medianUtility = ownerStats.values.median;
+    this.minUtility = ownerStats.values.min;
+    this.maxUtility = ownerStats.values.max;
+    this.utilityQuartiles = ownerStats.values.quartiles;
+    this.utilityOutliers = ownerStats.values.outliers;
+
+    this.totalNonCollidingUtility = ownerStats.non_colliding_values.total;
+    this.meanNonCollidingUtility = ownerStats.non_colliding_values.mean;
+    this.medianNonCollidingUtility = ownerStats.non_colliding_values.median;
+    this.minNonCollidingUtility = ownerStats.non_colliding_values.min;
+    this.maxNonCollidingUtility = ownerStats.non_colliding_values.max;
+    this.nonCollidingUtilityQuartiles = ownerStats.non_colliding_values.quartiles;
+    this.nonCollidingUtilityOutliers = ownerStats.non_colliding_values.outliers;
 
     /**
      * All agents belonging to this owner
      * @type {PathAgent|SpaceAgent[]}
      */
     this.agents = rawOwner.agents.map((agent) => {
+      const agentStats = ownerStats.agents.find((agentStat) => agentStat.id === agent.id);
       switch (agent.agent_type) {
         case AgentType.SPACE:
-          return new SpaceAgent(agent, this, simulation);
+          return new SpaceAgent(agent, this, simulation, agentStats);
         case AgentType.PATH:
-          return new PathAgent(agent, this, simulation);
+          return new PathAgent(agent, this, simulation, agentStats);
         default:
           throw new Error("Invalid agent type!");
       }
     });
 
     this._simulation = simulation;
+  }
+
+  get displayName() {
+    return this.name;
   }
 }

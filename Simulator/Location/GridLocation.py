@@ -1,3 +1,4 @@
+import math
 import random
 from typing import Optional, TYPE_CHECKING
 
@@ -19,9 +20,9 @@ class GridLocation:
     def generate_coordinates(self, env: "Environment", t: int):
         if self.stop_type == GridLocationType.RANDOM.value:
             dimensions = env.dimension
-            coord = Coordinate4D(random.randint(0, dimensions.x - 1),
+            coord = Coordinate4D(random.randint(0, math.floor(dimensions.x) - 1),
                                  env.min_height,
-                                 random.randint(0, dimensions.z - 1),
+                                 random.randint(0, math.floor(dimensions.z) - 1),
                                  t)
         elif self.stop_type == GridLocationType.POSITION.value:
             coord = Coordinate4D(self.position.x, env.min_height, self.position.z, t)

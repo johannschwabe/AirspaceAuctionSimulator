@@ -6,8 +6,8 @@
 import VueApexCharts from "vue3-apexcharts";
 import { reactive } from "vue";
 
-import { useSimulationSingleton } from "@/scripts/simulation";
-import { onAgentsSelected, onTick } from "@/scripts/emitter";
+import { useSimulationSingleton } from "@/scripts/simulation.js";
+import { onAgentsSelected, onTick } from "@/scripts/emitter.js";
 
 const props = defineProps({
   title: String,
@@ -75,8 +75,8 @@ const chartOptions = {
 const series = reactive([]);
 
 // Fill series with zeroes
-const dimXlength = simulation.dimensions[props.dimX] / props.buckets;
-const dimYlength = simulation.dimensions[props.dimY] / props.buckets;
+const dimXlength = (simulation.dimensions[props.dimX] + 1) / props.buckets;
+const dimYlength = (simulation.dimensions[props.dimY] + 1) / props.buckets;
 
 for (let bucket = 0; bucket < props.buckets; bucket++) {
   series.push({
@@ -105,7 +105,7 @@ const updateState = () => {
         for (let y = min[props.dimY]; y <= max[props.dimY]; y++) {
           const dim1 = Math.floor(x / dimXlength);
           const dim2 = Math.floor(y / dimYlength);
-          if (dim2 >= series.length || dim1 >= series[0].data.length) {
+          if (dim2 >= series.length || dim1 >= series[0].data.length || dim2 < 0 || dim1 < 0) {
             continue;
           }
           series[dim2].data[dim1] += 1;

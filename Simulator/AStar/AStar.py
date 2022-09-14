@@ -1,51 +1,31 @@
 import heapq
-import math
-from typing import List, TYPE_CHECKING, Set, Optional, Tuple
+from typing import List, TYPE_CHECKING, Set, Tuple
 
 from .Node import Node
+from ..Agents.PathAgent import PathAgent
+from ..helpers.helpers import is_valid_for_path_allocation
 
 if TYPE_CHECKING:
     from ..Environment.Environment import Environment
     from ..Coordinates.Coordinate4D import Coordinate4D
-    from ..Agents.PathAgent import PathAgent
     from ..Agents.Agent import Agent
+    from ..BidTracker.BidTracker import BidTracker
 
 
 class AStar:
     def __init__(self,
                  environment: "Environment",
+                 bid_tracker: "BidTracker",
+                 tick: int = -1,
                  max_iter: int = 100_000,
-                 g_sum: float = 0.1,
-                 height_adjust: bool = True):
+                 g_sum: float = 0.2,
+                 height_adjust: float = 0.05):
         self.environment: "Environment" = environment
+        self.tick: int = tick
         self.max_iter: int = max_iter
         self.g_sum: float = g_sum
-        self.height_adjust: bool = height_adjust
-
-    def valid_start(self,
-                    start: "Coordinate4D",
-                    agent: "PathAgent",
-                    in_air: bool) -> tuple[Optional["Coordinate4D"], set["Agent"]]:
-        valid_start: "Coordinate4D" = start.clone()
-
-        if in_air and not self.is_valid_for_allocation(valid_start, agent):
-            print("In air start is not valid")
-            return None, set()
-
-        if self.environment.is_blocked_forever(valid_start, agent.near_radius, agent.speed):
-            print("Static Blocker at start")
-            return None, set()
-
-        valid, collisions = self.is_valid_for_allocation(valid_start, agent)
-        while not valid and valid_start.t < self.environment.dimension.t:
-            valid_start.t += 1
-            valid, collisions = self.is_valid_for_allocation(valid_start, agent)
-
-        if not valid:
-            print("No valid start in environment t-dimension found.")
-            return None, set()
-
-        return valid_start, collisions
+        self.height_adjust: float = height_adjust
+        self.bid_tracker: "BidTracker" = bid_tracker
 
     # Implementation based on https://www.annytab.com/a-star-search-algorithm-in-python/
     def astar_loop(self,
@@ -68,7 +48,7 @@ class AStar:
 
         total_collisions = set()
 
-        while len(open_nodes) > 0 and steps < self.max_iter:
+        while len(open_nodes) > 0 and (self.max_iter == -1 or steps < self.max_iter):
             steps += 1
 
             current_node = heapq.heappop(heap)
@@ -79,7 +59,7 @@ class AStar:
             # Target reached
             if current_node.position.inter_temporal_equal(end_node.position):
                 reverse_path = []
-                while not current_node.position.inter_temporal_equal(start_node.position):
+                while not current_node.position == start_node.position:
                     reverse_path.append(current_node.position)
                     total_collisions = total_collisions.union(current_node.collisions)
                     current_node = current_node.parent
@@ -92,20 +72,22 @@ class AStar:
             # Find non-occupied neighbor
             neighbors = current_node.adjacent_coordinates(self.environment.dimension, agent.speed)
             for next_neighbor in neighbors:
-                valid, collisions = self.is_valid_for_allocation(next_neighbor, agent)
+                valid, collisions = is_valid_for_path_allocation(self.tick, self.environment, self.bid_tracker,
+                                                                 next_neighbor, agent)
                 if valid and next_neighbor.t <= self.environment.dimension.t:
-                    neighbor = Node(next_neighbor, current_node, set())
+                    neighbor = Node(next_neighbor, current_node, collisions)
 
                     # Closed node
                     if hash(neighbor) in closed_nodes:
                         continue
 
                     neighbor.g = current_node.g + self.g_sum
-                    neighbor.h = self.distance2(neighbor.position, end_node.position)
+                    neighbor.h = neighbor.position.distance(end_node.position, l2=True)
                     neighbor.f = neighbor.g + neighbor.h
 
-                    if self.height_adjust:
-                        neighbor.f -= neighbor.position.y / self.environment.dimension.y * 0.05 * neighbor.h
+                    if self.height_adjust > 0.:
+                        neighbor.f -= neighbor.position.y / self.environment.dimension.y * \
+                                      self.height_adjust * neighbor.h
 
                     if hash(neighbor) in open_nodes:
                         if open_nodes[hash(neighbor)].f > neighbor.f:
@@ -115,10 +97,8 @@ class AStar:
                         heapq.heappush(heap, neighbor)
         return path, steps, total_collisions
 
-    def complete_path(self, path: List["Coordinate4D"], steps: int, agent: "PathAgent"):
-        if len(path) == 0:
-            print(f"ASTAR failed: {'MaxIter' if steps == self.max_iter else 'No valid Allocation'}")
-
+    @staticmethod
+    def complete_path(path: List["Coordinate4D"], agent: "PathAgent"):
         wait_coords: List["Coordinate4D"] = []
         for near_coord in path:
             for t in range(1, agent.speed):
@@ -128,51 +108,38 @@ class AStar:
 
         complete_path = path + wait_coords
         complete_path.sort(key=lambda x: x.t)
-        print(f"PathLen: {len(path)}, steps: {steps}")
         return complete_path
 
-    def astar(
-        self,
-        start: "Coordinate4D",
-        end: "Coordinate4D",
-        agent: "PathAgent",
-        in_air: bool = False,
-    ) -> Tuple[List["Coordinate4D"], set["Agent"]]:
+    def astar(self,
+              start: "Coordinate4D",
+              end: "Coordinate4D",
+              agent: "PathAgent") -> Tuple[List["Coordinate4D"], set["Agent"]]:
 
-        distance = start.inter_temporal_distance(end)
-        time_left = self.environment.dimension.t - start.t
-
-        if distance > time_left:
+        if start.t < self.tick:
+            print(f"Too late to allocate start {start} at tick {self.tick}.")
             return [], set()
 
-        valid_start, start_collisions = self.valid_start(start, agent, in_air)
+        distance = start.distance(end)
+        time_left = self.environment.dimension.t - start.t
 
-        if valid_start is None:
-            return [], start_collisions
+        if distance * agent.speed > time_left:
+            print(f"ASTAR failed: Distance {distance} is too great for agent with speed {agent.speed}.")
+            return [], set()
 
-        path, steps, collisions = self.astar_loop(valid_start, end, agent, start_collisions)
+        valid, start_collisions = is_valid_for_path_allocation(self.tick, self.environment, self.bid_tracker, start,
+                                                               agent)
 
-        complete_path = self.complete_path(path, steps, agent)
+        if not valid:
+            print(f"ASTAR failed: Start {start} is not valid.")
+            return [], set()
+
+        path, steps, collisions = self.astar_loop(start, end, agent, start_collisions)
+
+        if len(path) == 0:
+            print(f"ASTAR failed: {'MaxIter' if steps == self.max_iter else 'No valid Allocation'}")
+            return [], set()
+
+        complete_path = self.complete_path(path, agent)
+
+        print(f"ASTAR: {complete_path[0]} -> {complete_path[-1]},\tPathLen: {len(path):3d},\tSteps: {steps:3d}")
         return complete_path, collisions
-
-    def is_valid_for_allocation(self, position: "Coordinate4D", agent: "PathAgent"):
-        return self.environment.is_valid_for_allocation(position, agent), set()
-
-    @staticmethod
-    def distance(start: "Coordinate4D", end: "Coordinate4D"):
-        return abs(start.x - end.x) + abs(start.y - end.y) + abs(start.z - end.z)
-
-    @staticmethod
-    def distance15(start: "Coordinate4D", end: "Coordinate4D"):
-        return math.pow(abs(start.x - end.x) ** 2 + abs(start.y - end.y) ** 2 + abs(start.z - end.z) ** 2, 0.333)
-
-    @staticmethod
-    def distance2(start: "Coordinate4D", end: "Coordinate4D"):
-        return math.pow((start.x - end.x) ** 2 + (start.y - end.y) ** 2 + (start.z - end.z) ** 2, 0.5)
-
-    @staticmethod
-    def distance3(start: "Coordinate4D", end: "Coordinate4D"):
-        return math.pow((start.x - end.x) ** 4 + (start.y - end.y) ** 4 + (start.z - end.z) ** 4, 1 / 4)
-
-    def distance12(self, start: "Coordinate4D", end: "Coordinate4D"):
-        return (self.distance(start, end) + self.distance2(start, end)) / 2

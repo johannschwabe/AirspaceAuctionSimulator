@@ -1,7 +1,7 @@
 <template>
-  <n-grid cols="2" :x-gap="24">
+  <n-grid cols="5" :x-gap="24">
     <!-- LEFT PART: UPLOAD EXISTING SIMULATION -->
-    <n-grid-item span="1">
+    <n-grid-item :span="2" style="padding-left: 24px">
       <div class="center">
         <section-text
           title="Upload Simulation"
@@ -13,7 +13,7 @@
     </n-grid-item>
 
     <!-- RIGHT PART: CONFIGURE NEW SIMULATION -->
-    <n-grid-item span="1">
+    <n-grid-item :span="3" style="padding-right: 24px">
       <div class="center">
         <section-text
           title="Simulate Scenario"
@@ -51,7 +51,8 @@ import { canRecoverSimulationSingleton, hasSimulationSingleton } from "@/scripts
 const router = useRouter();
 const loadingBar = useLoadingBar();
 
-const canRecoverSimulation = ref(hasSimulationSingleton() || canRecoverSimulationSingleton());
+const canRecoverSimulation = ref(hasSimulationSingleton());
+canRecoverSimulationSingleton().then((val) => (canRecoverSimulation.value = canRecoverSimulation.value || val));
 
 // The dashboard will recover the simulationt that can be recovered through localStorage
 const recoverSession = () => {
@@ -66,7 +67,6 @@ const ignoreRecoverableSession = () => {
 <style>
 .center {
   width: 100%;
-  max-width: 750px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;

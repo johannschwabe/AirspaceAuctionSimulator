@@ -3,8 +3,8 @@ import random
 from time import time_ns
 
 from API import APIWorldCoordinates, EnvironmentGen, MapTile, Area
-from Demos import FCFSPathAgent
-from Simulator import AStar, Coordinate4D, GridLocation, GridLocationType, PathOwner, Environment
+from Demos.FCFS import FCFSPathBiddingStrategy, FCFSBidTracker
+from Simulator import AStar, Coordinate4D, GridLocation, GridLocationType, PathOwner, Environment, PathAgent
 
 map_height = 30
 time_steps = 20000
@@ -14,7 +14,7 @@ def setup():
     random.seed(0)
     area = Area(APIWorldCoordinates(lat=47.3685943521338, long=8.536376953124991),
                 APIWorldCoordinates(lat=47.376034633497596, long=8.547363281249993),
-                1)
+                2)
     size = area.dimension
     dimensions = Coordinate4D(math.floor(size[0]),
                               math.floor(map_height / area.resolution),
@@ -42,24 +42,24 @@ def readCoords(filename: str):
 
 
 def writeCoords(environment: Environment, filename: str):
-    astar = AStar(environment, max_iter=100_000_000, g_sum=1., height_adjust=False)
+    astar = AStar(environment, FCFSBidTracker(), max_iter=-1, g_sum=1., height_adjust=0.)
     f = open(filename, "w")
     nr_tests = 20
     for index in range(nr_tests):
         print(f"Test {index}")
         start = PathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)),
-                                                   environment, 0, 1, 1)
+                                                   environment, 0, 1)
         end = PathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)),
                                                  environment,
-                                                 0, 1, 1)
-        agent = FCFSPathAgent("agent-id", [start, end], [])
+                                                 0, 1)
+        agent = PathAgent("agent-id", FCFSPathBiddingStrategy(), [start, end], [])
         res, _ = astar.astar(start, end, agent)
         f.write(f"{start.x},{start.y},{start.z},{start.t}-{end.x},{end.y},{end.z},{end.t}-{len(res)}\n")
     f.close()
 
 
 def testCoords(environment: Environment, g_sum, height_adjust):
-    astar = AStar(environment, max_iter=1_000_000, g_sum=g_sum, height_adjust=height_adjust)
+    astar = AStar(environment, FCFSBidTracker(), max_iter=-1, g_sum=g_sum, height_adjust=height_adjust)
     nr_tests = 20
     nr_success = 0
     start_t = time_ns()
@@ -70,7 +70,7 @@ def testCoords(environment: Environment, g_sum, height_adjust):
     for segment in segments:
         start = segment["start"]
         end = segment["end"]
-        agent = FCFSPathAgent("agent-id", [start, end], [])
+        agent = PathAgent("agent-id", FCFSPathBiddingStrategy(), [start, end], [])
         res, _ = astar.astar(segment["start"], segment["end"], agent)
         if len(res) > 0:
             nr_success += 1
@@ -86,23 +86,29 @@ def testCoords(environment: Environment, g_sum, height_adjust):
 
 def write():
     environment = setup()
-    writeCoords(environment, "Development/optimal_paths.txt")
+    writeCoords(environment, "optimal_paths.txt")
 
 
 def test():
     environment = setup()
     print("BASE")
-    testCoords(environment, 0.1, True)
+    testCoords(environment, 0.1, 0.05)
     print()
     print("VARIANT: g-sum: 0.05")
-    testCoords(environment, 0.05, True)
+    testCoords(environment, 0.05, 0.05)
     print()
     print("VARIANT: g-sum: 0.2")
-    testCoords(environment, 0.2, True)
+    testCoords(environment, 0.2, 0.05)
     print()
-    print("VARIANT: no height adjust")
-    testCoords(environment, 0.1, False)
+    print("VARIANT: height-adjust: 0.")
+    testCoords(environment, 0.1, 0.)
+    print()
+    print("VARIANT: height-adjust: 0.1")
+    testCoords(environment, 0.1, 0.1)
+    print()
+    print("VARIANT: height-adjust: 0.01")
+    testCoords(environment, 0.1, 0.01)
 
 
 if __name__ == "__main__":
-    test()
+    write()

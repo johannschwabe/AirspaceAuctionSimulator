@@ -1,13 +1,13 @@
 import "../API/typedefs.js";
 
-import { useSimulationStore } from "../stores/simulation";
+import { useSimulationStore } from "../stores/simulation.js";
 
 import Coordinate4D from "./Coordinate4D";
 import Statistics from "./Statistics";
 import Owner from "./Owner";
 import MapTile from "./MapTile";
-import { emitFocusOffAgent, emitFocusOnAgent, onAgentsSelected, onTick } from "../scripts/emitter";
-import { BlockerType } from "../API/enums";
+import { emitFocusOffAgent, emitFocusOnAgent, onAgentsSelected, onTick } from "../scripts/emitter.js";
+import { BlockerType } from "../API/enums.js";
 import StaticBlocker from "./StaticBlocker";
 import DynamicBlocker from "./DynamicBlocker";
 import PathAgent from "./PathAgent";
@@ -15,13 +15,15 @@ import SpaceAgent from "./SpaceAgent";
 
 export default class Simulation {
   /**
-   * @param {RawSimulation} rawSimulation
+   * @param {JSONSimulation} jsonSimulation
+   * @param {JSONConfig} jsonConfig
+   * @param {SimulationStatistics} simulationStats
    */
-  constructor(rawSimulation) {
+  constructor(jsonSimulation, jsonConfig, simulationStats) {
     this._simulationStore = useSimulationStore();
 
-    this.name = rawSimulation.config.name;
-    this.description = rawSimulation.config.description;
+    this.name = jsonConfig.name;
+    this.description = jsonConfig.description;
 
     /**
      * Simulated dimension. Note: The dimension t describes how long new agents
@@ -29,23 +31,23 @@ export default class Simulation {
      * @type {Coordinate4D}
      */
     this.dimensions = new Coordinate4D(
-      rawSimulation.environment.dimensions.x,
-      rawSimulation.environment.dimensions.y,
-      rawSimulation.environment.dimensions.z,
-      rawSimulation.environment.dimensions.t
+      jsonSimulation.environment.dimensions.x,
+      jsonSimulation.environment.dimensions.y,
+      jsonSimulation.environment.dimensions.z,
+      jsonSimulation.environment.dimensions.t
     );
 
     /**
      * Object containing statistics about the simulation
      * @type {Statistics}
      */
-    this.statistics = new Statistics(rawSimulation.statistics);
+    this.statistics = new Statistics(simulationStats);
 
     /**
      * Blockers living in the simulated environment
      * @type {Blocker[]}
      */
-    this.blockers = rawSimulation.environment.blockers.map((blocker) => {
+    this.blockers = jsonSimulation.environment.blockers.map((blocker) => {
       switch (blocker.blocker_type) {
         case BlockerType.DYNAMIC:
           return new DynamicBlocker(blocker);
@@ -60,7 +62,10 @@ export default class Simulation {
      * All owners that were simulated
      * @type {Owner[]}
      */
-    this.owners = rawSimulation.owners.map((owner) => new Owner(owner, this));
+    this.owners = jsonSimulation.owners.map((owner) => {
+      const ownerStats = simulationStats.owners.find((ownerStat) => ownerStat.id === owner.id);
+      return new Owner(owner, this, ownerStats);
+    });
 
     /**
      * Flattened list of all agents belonging to any owner
@@ -112,13 +117,13 @@ export default class Simulation {
     /**
      * @type {MapTile[]}
      */
-    this.mapTiles = rawSimulation.config.map.tiles.map(
+    this.mapTiles = jsonConfig.map.tiles.map(
       (tile) =>
         new MapTile(
           tile,
-          rawSimulation.config.map.resolution,
-          rawSimulation.config.map.subselection?.bottomLeft || rawSimulation.config.map.bottomLeftCoordinate,
-          rawSimulation.config.map.subselection?.topRight || rawSimulation.config.map.topRightCoordinate
+          jsonConfig.map.resolution,
+          jsonConfig.map.subselection?.bottomLeft || jsonConfig.map.bottomLeftCoordinate,
+          jsonConfig.map.subselection?.topRight || jsonConfig.map.topRightCoordinate
         )
     );
 
@@ -129,10 +134,16 @@ export default class Simulation {
     this.timeline = [];
 
     /**
-     * Holds a list of events at each timestep
-     * @type {*[]}
+     * Stores how many agents got reallocated at each possible tick
+     * @type {int[]}
      */
-    this.timelineEvents = [];
+    this.timelineReAllocations = [];
+
+    /**
+     * Stores how many agents violated the airspace of another agent at each possible tick
+     * @type {int[]}
+     */
+    this.timelineViolations = [];
 
     /**
      * The maximum tick at which any active agent is still active / flying
@@ -245,6 +256,8 @@ export default class Simulation {
 
   updateTimeline() {
     const agentsPerTick = {};
+    const reAllocationsPerTick = {};
+    const violationsPerTick = {};
     let maxTick = 0;
     this.selectedAgents.forEach((agent) => {
       agent.flyingTicks.forEach((tick) => {
@@ -256,12 +269,34 @@ export default class Simulation {
           maxTick = parseInt(tick, 10);
         }
       });
+      agent.reAllocationTimesteps.forEach((tick) => {
+        if (!(tick in reAllocationsPerTick)) {
+          reAllocationsPerTick[tick] = 0;
+        }
+        reAllocationsPerTick[tick] += 1;
+      });
+      agent.violationsTimesteps.forEach((tick) => {
+        if (!(tick in violationsPerTick)) {
+          violationsPerTick[tick] = 0;
+        }
+        violationsPerTick[tick] += 1;
+      });
     });
     const timeline = Array(maxTick).fill(0);
+    const timelineReAllocations = Array(maxTick).fill(0);
+    const timelineViolations = Array(maxTick).fill(0);
     Object.entries(agentsPerTick).forEach(([tick, numberOfAgents]) => {
       timeline[tick] = numberOfAgents;
     });
+    Object.entries(reAllocationsPerTick).forEach(([tick, numberOfReallocations]) => {
+      timelineReAllocations[tick] = numberOfReallocations;
+    });
+    Object.entries(violationsPerTick).forEach(([tick, numberOfViolations]) => {
+      timelineViolations[tick] = numberOfViolations;
+    });
     this.timeline = timeline;
+    this.timelineReAllocations = timelineReAllocations;
+    this.timelineViolations = timelineViolations;
     this.maxTick = maxTick;
   }
 
@@ -270,14 +305,15 @@ export default class Simulation {
    * @param {PathAgent} agent
    */
   focusOnAgent(agent) {
-    if (this.agentInFocus === agent || !agent.isActiveAtTick(this.tick)) {
+    if (this.agentInFocus === agent) {
       return;
     }
+    const previousAgentInFocus = this.agentInFocus;
     this._simulationStore.agentInFocus = true;
     this._simulationStore.agentInFocusId = agent.id;
     this._simulationStore.ownerInFocusId = agent.owner.id;
     this.agentInFocus = agent;
-    emitFocusOnAgent(agent);
+    emitFocusOnAgent(agent, previousAgentInFocus);
   }
 
   focusOff() {

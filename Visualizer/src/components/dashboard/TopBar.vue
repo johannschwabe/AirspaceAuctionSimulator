@@ -43,40 +43,32 @@
 
 <script setup>
 import logo from "../../assets/drone.png";
-import {
-  Cube,
-  FingerPrint,
-  Fish,
-  HappyOutline,
-  GitBranch,
-  GitPullRequest,
-  CloudDownloadOutline,
-} from "@vicons/ionicons5";
+import { Cube, FingerPrint, Fish, HappyOutline, GitBranch, CloudDownloadOutline, Skull } from "@vicons/ionicons5";
 
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 
-import { downloadSimulation } from "@/API/api";
-import { useSimulationSingleton } from "@/scripts/simulation";
+import { downloadSimulation } from "@/API/api.js";
+import { useSimulationSingleton } from "@/scripts/simulation.js";
 
 const router = useRouter();
 const simulation = useSimulationSingleton();
 
+const dim = computed(() => {
+  const { x, y, z } = simulation.dimensions;
+  return `${x}/${y}/${z}`;
+});
+
 const stats = computed(() => {
   return [
     {
-      label: "Dimension X",
-      value: simulation.dimensions.x,
+      label: "Dimensions",
+      value: dim.value,
       icon: Cube,
     },
     {
-      label: "Dimension Y",
-      value: simulation.dimensions.y,
-      icon: Cube,
-    },
-    {
-      label: "Dimension Z",
-      value: simulation.dimensions.z,
+      label: "Timesteps",
+      value: simulation.dimensions.t,
       icon: Cube,
     },
     {
@@ -90,19 +82,24 @@ const stats = computed(() => {
       icon: Fish,
     },
     {
-      label: "Welfare",
-      value: simulation.statistics.totalAchievedWelfare,
-      icon: HappyOutline,
-    },
-    {
-      label: "Collisions",
-      value: simulation.statistics.totalNumberOfCollisions,
-      icon: GitPullRequest,
-    },
-    {
       label: "Re-Allocations",
       value: simulation.statistics.totalNumberOfReallocations,
       icon: GitBranch,
+    },
+    {
+      label: "Violations",
+      value: simulation.statistics.totalNumberOfViolations,
+      icon: Skull,
+    },
+    {
+      label: "Utility",
+      value: Math.round(simulation.statistics.totalValue * 100) / 100,
+      icon: HappyOutline,
+    },
+    {
+      label: "Non-Colliding Utility",
+      value: Math.round(simulation.statistics.totalNonCollidingValue * 100) / 100,
+      icon: HappyOutline,
     },
   ];
 });

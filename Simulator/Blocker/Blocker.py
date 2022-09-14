@@ -11,10 +11,13 @@ class Blocker(ABC):
     blocker_type: str
 
     def __init__(self, dimension: "Coordinate3D"):
+        assert dimension.x > 0
+        assert dimension.y > 0
+        assert dimension.z > 0
         self.dimension: Coordinate3D = dimension
         self.id: int = -1
 
-    def is_blocking(self, _coord: "Coordinate4D", _radius: int) -> bool:
+    def is_blocking(self, _coord: "Coordinate4D", _radius: float) -> bool:
         return True
 
     def is_box_blocking(self, _bottom_left: "Coordinate4D", _top_right: "Coordinate4D") -> bool:

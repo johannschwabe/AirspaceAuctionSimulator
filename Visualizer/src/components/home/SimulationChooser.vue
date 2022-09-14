@@ -15,28 +15,28 @@ const loadingBar = useLoadingBar();
 const router = useRouter();
 
 const options = [
-  {
-    type: "group",
-    label: "UBS",
-    key: "ubs",
-    children: [
-      {
-        label: "UBS Paradeplatz",
-        value: "UBS",
-      },
-    ],
-  },
-  {
-    type: "group",
-    label: "Grossmünster",
-    key: "GB",
-    children: [
-      {
-        label: "Grossmünster",
-        value: "Grossmünster",
-      },
-    ],
-  },
+  // {
+  //   type: "group",
+  //   label: "UBS",
+  //   key: "ubs",
+  //   children: [
+  //     {
+  //       label: "UBS Paradeplatz",
+  //       value: "UBS",
+  //     },
+  //   ],
+  // },
+  // {
+  //   type: "group",
+  //   label: "Grossmünster",
+  //   key: "GB",
+  //   children: [
+  //     {
+  //       label: "Grossmünster",
+  //       value: "Grossmünster",
+  //     },
+  //   ],
+  // },
 ];
 
 const selectedModel = ref(null);
@@ -54,11 +54,11 @@ watch(selectedModel, () => {
       }
     })
     .then(async (data) => {
-      persistSimulation(data);
-      const simulation = new Simulation(data);
+      await persistSimulation(data);
+      const simulation = new Simulation(data.simulation);
       await simulation.load();
       setSimulationSingleton(simulation);
-      setSimulationConfig(simulation);
+      setSimulationConfig(data.config);
       await router.push({ name: "dashboard" });
     });
 });

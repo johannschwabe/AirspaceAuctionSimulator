@@ -1,5 +1,14 @@
 <template>
   <div ref="mapRoot" :style="{ width: `${size.width}px`, height: `${size.height}px` }" class="map" />
+  <n-form-item style="margin-top: 5px">
+    <template #label>
+      <help v-bind="hPositonMap">
+        <span style="font-style: italic">
+          Click on map to place location marker
+        </span>
+      </help>
+    </template>
+  </n-form-item>
 </template>
 
 <script setup>
@@ -7,6 +16,8 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { restorePositionFeatures, useBaseLayer, useMap, usePositionInteraction, usePositionLayer } from "./Map";
 import { Collection } from "ol";
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import Help from "@/components/common/help/help.vue";
+import { hPositonMap } from "@/components/common/help/texts";
 
 const props = defineProps({
   ownerIndex: {
@@ -36,7 +47,6 @@ const owner = computed(() => {
 });
 
 onMounted(() => {
-  console.log("mounting");
   restorePositionFeatures(features, owner.value.locations[props.locationIndex].points);
   render();
   if (!props.disabled) {

@@ -6,8 +6,8 @@
 import VueApexCharts from "vue3-apexcharts";
 
 import { reactive, ref } from "vue";
-import { useSimulationSingleton } from "@/scripts/simulation";
-import { onAgentsSelected } from "@/scripts/emitter";
+import { useSimulationSingleton } from "@/scripts/simulation.js";
+import { onAgentsSelected } from "@/scripts/emitter.js";
 
 const simulation = useSimulationSingleton();
 
@@ -31,7 +31,7 @@ const chartOptions = reactive({
   stroke: {
     curve: "smooth",
   },
-  colors: ["#6381e2", "#63e2b7"],
+  colors: ["#63e2b7", "#6381e2"],
   xaxis: {
     labels: { show: false },
     axisTicks: { show: false },
@@ -48,32 +48,34 @@ const chartOptions = reactive({
 
 const series = reactive([
   {
-    name: "Optimal Welfare",
+    name: "Achieved Utility",
     data: [],
   },
   {
-    name: "Achieved Welfare",
+    name: "Non-Colliding Utility",
     data: [],
   },
 ]);
 
 const updateSeries = () => {
-  const optimalWelfare = Array(simulation.maxTick + 1).fill(0);
-  const achievedWelfare = Array(simulation.maxTick + 1).fill(0);
+  const nonCollidingUtility = Array(simulation.maxTick + 1).fill(0);
+  const utility = Array(simulation.maxTick + 1).fill(0);
 
   simulation.selectedAgents.forEach((agent) => {
     const arrivalTick = agent.veryLastTick;
-    optimalWelfare[arrivalTick] += agent.nonCollidingUtility;
-    achievedWelfare[arrivalTick] += agent.utility;
+    if (arrivalTick) {
+      utility[arrivalTick] += agent.utility;
+      nonCollidingUtility[arrivalTick] += agent.nonCollidingUtility;
+    }
   });
 
   for (let i = 1; i <= simulation.maxTick; i++) {
-    optimalWelfare[i] = optimalWelfare[i - 1] + optimalWelfare[i];
-    achievedWelfare[i] = achievedWelfare[i - 1] + achievedWelfare[i];
+    utility[i] = utility[i - 1] + utility[i];
+    nonCollidingUtility[i] = nonCollidingUtility[i - 1] + nonCollidingUtility[i];
   }
 
-  series[0].data = optimalWelfare.map((y, x) => ({ x, y }));
-  series[1].data = achievedWelfare.map((y, x) => ({ x, y }));
+  series[0].data = utility.map((y, x) => ({ x, y }));
+  series[1].data = nonCollidingUtility.map((y, x) => ({ x, y }));
 };
 
 onAgentsSelected(() => {

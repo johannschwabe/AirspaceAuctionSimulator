@@ -1,150 +1,85 @@
-import statistics
 from abc import ABC
-from typing import Dict, List, TYPE_CHECKING
+from typing import Dict, List, TYPE_CHECKING, Any
 
 from .Stringify import Stringify
+from .. import Simulator
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
+from ..Allocations.Allocation import Allocation
 from ..Blocker.BuildingBlocker import BuildingBlocker
 from ..Blocker.DynamicBlocker import DynamicBlocker
 from ..Blocker.StaticBlocker import StaticBlocker
-from ..Statistics.Statistics import Statistics
+from ..Owners.Owner import Owner
+from ..Segments.PathSegment import PathSegment
 
 if TYPE_CHECKING:
-    from ..Coordinates import Coordinate4D
-    from ..Allocations.AllocationReason import AllocationReason
+    from ..Coordinates.Coordinate4D import Coordinate4D
+    from ..Coordinates.Coordinate3D import Coordinate3D
     from ..Agents.Agent import Agent
     from ..Blocker.Blocker import Blocker
-    from ..History.HistoryAgent import HistoryAgent
-    from ..Segments.PathSegment import PathSegment
-    from ..Simulator import Simulator
+    from ..Segments.SpaceSegment import SpaceSegment
+    from ..Environment.Environment import Environment
 
 
 class JSONPath(Stringify):
-    def __init__(self, path: "PathSegment"):
-        self.t: Dict[str, List[int, int, int]] = {}
+    def __init__(self, path_segment: "PathSegment"):
+        self.positions: Dict[int, List[int, int, int]] = {}
+        for coordinate in path_segment.coordinates:
+            self.positions[coordinate.t] = [coordinate.x, coordinate.y, coordinate.z]
 
-        for coord in path.coordinates:
-            self.t[str(int(coord.t))] = [coord.x, coord.y, coord.z]
 
-
-class JSONCollision(Stringify):
-    def __init__(self, reason: "AllocationReason", agent_id: int = -1, blocker_id: int = -1):
-        self.reason: "AllocationReason" = reason
-        self.agent_id: int = agent_id
-        self.blocker_id: int = blocker_id
+class JSONSpace(Stringify):
+    def __init__(self, space: "SpaceSegment"):
+        self.min = space.min
+        self.max = space.max
 
 
 class JSONBranch(Stringify):
-    def __init__(self, tick: int, paths: List["JSONPath"], value: float, reason: "JSONCollision", compute_time: int):
+    def __init__(self, tick: int, paths: List["JSONPath"]):
         self.tick: int = tick
         self.paths: List["JSONPath"] = paths
-        self.value: float = value
-        self.reason: "JSONCollision" = reason
-        self.compute_time: int = compute_time
 
 
 class JSONAgent(ABC):
     def __init__(
         self,
         agent: "Agent",
-        non_colliding_utility: float,
-        owner_id: str,
-        owner_name: str,
     ):
         self.agent_type: str = agent.agent_type
         self.id: str = agent.id
-        self.utility: float = agent.get_allocated_value()
-
-        self.non_colliding_utility: float = non_colliding_utility
-
-        self.owner_id: str = owner_id
-        self.owner_name: str = owner_name
-        self.name: str = f"{self.owner_name}-{self.agent_type}-{agent.id}"
 
 
 class JSONSpaceAgent(JSONAgent, Stringify):
     def __init__(
         self,
         agent: "SpaceAgent",
-        non_colliding_utility: float,
-        owner_id: str,
-        owner_name: str,
     ):
-        super().__init__(agent, non_colliding_utility, owner_id, owner_name)
-        self.spaces = agent.allocated_segments
+        super().__init__(agent)
+        self.spaces: List["JSONSpace"] = [JSONSpace(space) for space in agent.allocated_segments]
 
 
 class JSONPathAgent(JSONAgent, Stringify):
     def __init__(
         self,
-        history_agent: "HistoryAgent",
         agent: "PathAgent",
-        non_colliding_utility: float,
-        near_field_intersections: int,
-        near_field_violations: int,
-        owner_id: str,
-        owner_name: str,
-        path_stats: Dict[str, float | int]
+        branches: List["JSONBranch"]
     ):
-        super().__init__(agent, non_colliding_utility, owner_id, owner_name)
+        super().__init__(agent)
         self.speed: int = agent.speed
         self.near_radius: int = agent.near_radius
         self.battery: int = agent.battery
-        self.time_in_air: int = agent.get_airtime()
-
-        self.near_field_intersections: int = near_field_intersections
-        self.near_field_violations: int = near_field_violations
-
         self.paths: List["JSONPath"] = [JSONPath(path) for path in agent.allocated_segments]
-
-        self.branches: List["JSONBranch"] = []
-
-        self.average_height = path_stats["avg_height"]
-        self.median_height = path_stats["med_height"]
-        self.ascend = path_stats["asc"]
-        self.descend = path_stats["desc"]
-        self.distance = path_stats["dist"]
-        self.nr_reallocations = len(self.branches)
-
-        for key, value in list(history_agent.past_allocations.items()):
-            branch_paths: List["JSONPath"] = [JSONPath(path) for path in value["path"]]
-            self.branches.append(JSONBranch(
-                key,
-                branch_paths,
-                agent.value_for_segments(value["path"]),
-                JSONCollision(value["reason"]),
-                value["time"]
-            ))
+        self.branches = branches
 
 
 class JSONOwner(Stringify):
-    def __init__(self, name: str, owner_id: str, color: str, agents: List["JSONAgent"]):
-        self.name: str = name
-        self.id: str = owner_id
-        self.color: str = color
+    def __init__(self,
+                 owner: "Owner",
+                 agents: List["JSONAgent"]):
+        self.name: str = owner.name
+        self.id: str = owner.id
+        self.color: str = owner.color
         self.agents: List["JSONAgent"] = agents
-        self.total_time_in_air: int = sum(
-            [agent.time_in_air if isinstance(agent, JSONPathAgent) else 0 for agent in self.agents])
-
-        utility = [agent.utility for agent in self.agents]
-        self.total_utility: int = sum(utility)
-        self.mean_utility: float = statistics.mean(utility)
-        self.median_utility: float = statistics.median(utility)
-        self.max_utility: float = max(utility)
-        self.min_utility: float = min(utility)
-        if len(utility) < 2:
-            self.utility_quantiles = [0] * 4
-        else:
-            self.utility_quantiles: List[float] = statistics.quantiles(utility)
-        self.utility_outliers: List[float] = [w for w in utility if
-                                              w < self.utility_quantiles[0] or w > self.utility_quantiles[-1]]
-        self.bid_quantiles = [0] * 4
-
-        self.number_of_agents: int = len(self.agents)
-        self.number_per_type = {}
-        for agent in self.agents:
-            self.number_per_type[agent.agent_type] = self.number_per_type.get(agent.agent_type, 0) + 1
 
 
 class JSONBlocker(Stringify):
@@ -154,14 +89,14 @@ class JSONBlocker(Stringify):
         if isinstance(blocker, DynamicBlocker):
             self.locations: List["Coordinate4D"] = blocker.locations
         elif isinstance(blocker, StaticBlocker):
-            self.location: "Coordinate4D" = blocker.location
+            self.location: "Coordinate3D" = blocker.location
         self.dimension = blocker.dimension
 
 
 class JSONEnvironment(Stringify):
-    def __init__(self, dimensions: "Coordinate4D", blockers: List["Blocker"]):
-        self.dimensions: "Coordinate4D" = dimensions
-        self.blockers: List["JSONBlocker"] = [JSONBlocker(blocker) for blocker in blockers if
+    def __init__(self, environment: "Environment"):
+        self.dimensions: "Coordinate4D" = environment.dimension
+        self.blockers: List["JSONBlocker"] = [JSONBlocker(blocker) for blocker in environment.blocker_dict.values() if
                                               not isinstance(blocker, BuildingBlocker)]
 
 
@@ -178,63 +113,56 @@ class JSONStatistics(Stringify):
 class JSONSimulation(Stringify):
     def __init__(self,
                  environment: "JSONEnvironment",
-                 jsonStatistics: "JSONStatistics",
                  owners: List["JSONOwner"],
-                 total_compute_time: int,
-                 step_compute_time: Dict[int, int]):
+                 ):
         self.environment: "JSONEnvironment" = environment
-        self.statistics: "JSONStatistics" = jsonStatistics
         self.owners: List["JSONOwner"] = owners
-        self.compute_time: int = total_compute_time
-        self.step_compute_time: Dict[int, int] = step_compute_time
 
 
-def build_json(simulator: "Simulator", total_compute_time: int):
-    env = simulator.environment
-    history = simulator.history
-    stats = Statistics(simulator)
-    close_encounters = stats.close_encounters()
-    nr_collisions = 0
-    json_env = JSONEnvironment(env.dimension, list(env.blocker_dict.values()))
-    owners: List["JSONOwner"] = []
-    for owner in history.owners:
-        agents: List["JSONAgent"] = []
-        non_colliding_values = _calculate_non_colliding_values(owner.agents, stats)
+def get_json_branches_path_agent(path_agent: "PathAgent",
+                                 allocations: Dict["Agent", Dict[int, "Allocation"]]) -> List["JSONBranch"]:
+    json_allocations: List["JSONBranch"] = []
+    for tick, allocation in allocations[path_agent].items():
+        json_path_segments: List["JSONPath"] = []
+        for path_segment in allocation.segments:
+            assert isinstance(path_segment, PathSegment)
+            json_path_segments.append(JSONPath(path_segment))
+
+        json_allocations.append(JSONBranch(tick, json_path_segments))
+    return json_allocations
+
+
+def get_json_owners(simulation: "Simulator"):
+    json_owners: List["JSONOwner"] = []
+    for owner in simulation.owners:
+        json_agents: List["JSONAgent"] = []
         for agent in owner.agents:
             if isinstance(agent, PathAgent):
-                path_stats = stats.path_statistics(agent.get_allocated_coords())
-                agents.append(JSONPathAgent(
-                    history.agents[agent],
+                branches: List["JSONBranch"] = get_json_branches_path_agent(agent, simulation.history.allocations)
+                json_agents.append(JSONPathAgent(
                     agent,
-                    non_colliding_values[agent],
-                    close_encounters[agent.id]["total_near_field_intersection"],
-                    close_encounters[agent.id]["total_near_field_violations"],
-                    owner.id,
-                    owner.name,
-                    path_stats,
+                    branches
                 ))
+
             elif isinstance(agent, SpaceAgent):
-                agents.append(JSONSpaceAgent(
+                json_agents.append(JSONSpaceAgent(
                     agent,
-                    stats.non_colliding_value(agent),
-                    owner.id,
-                    owner.name,
                 ))
-            nr_collisions += close_encounters[agent.id][
-                "total_near_field_violations"]  # todo different collision metric
-        owners.append(JSONOwner(owner.name, owner.id, owner.color, agents))
-    json_stats = JSONStatistics(len(simulator.owners), len(env.agents), stats.total_agents_welfare(), nr_collisions,
-                                0)  # TODO reallocations
-    json_simulation = JSONSimulation(json_env, json_stats, owners, total_compute_time,
-                                     history.compute_times)
-    return json_simulation.as_dict()
+
+            else:
+                raise Exception(f"Invalid Agent: {agent}")
+
+        json_owners.append(JSONOwner(owner, json_agents))
+
+    return json_owners
 
 
-def _calculate_non_colliding_values(agents: List["Agent"], stats: "Statistics"):
-    res = {}
-    non_colliding_values = []
-    for agent in agents:
-        non_colliding_values.append(stats.non_colliding_value(agent))
-    for agent, non_colliding_value in zip(agents, non_colliding_values):
-        res[agent] = non_colliding_value
-    return res
+def build_json_simulation(simulation: "Simulator") -> "JSONSimulation":
+    json_environment = JSONEnvironment(simulation.environment)
+    json_owners = get_json_owners(simulation)
+    return JSONSimulation(json_environment,
+                          json_owners)
+
+
+def get_simulation_dict(simulation: "Simulator") -> Dict[str, Any]:
+    return build_json_simulation(simulation).as_dict()

@@ -2,20 +2,17 @@
 Run server using >>> uvicorn API:app --reload
 App runs on 'https://localhost:8000/'
 """
-import math
 import random
 import time
-from typing import List, Optional
+import traceback
+from typing import Any, Dict
 
 from fastapi import HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from pydantic.fields import Field
 
-from Simulator import Coordinate4D, build_json
-from .Area import Area
-from .Generator.Generator import Generator
-from .Generator.MapTile import MapTile
+from Simulator import Simulator, get_simulation_dict, get_statistics_dict
+from .Runners import run_from_config
+from .Types import APISimulationConfig
 from .config import available_allocators
 
 app = FastAPI()
@@ -38,71 +35,19 @@ app.add_middleware(
 )
 
 
-class APIWorldCoordinates(BaseModel):
-    long: float
-    lat: float
-
-
-class APIWeightedCoordinate(BaseModel):
-    lat: float
-    long: float
-    value: float
-
-
-class APISubselection(BaseModel):
-    bottomLeft: Optional["APIWorldCoordinates"] = Field(None)
-    topRight: Optional["APIWorldCoordinates"] = Field(None)
-
-
-class APILocations(BaseModel):
-    type: str
-    points: List[APIWeightedCoordinate]
-
-
-class APIOwner(BaseModel):
-    color: str
-    name: str
-    agents: int
-    minLocations: int
-    maxLocations: int
-    type: str
-    classname: str
-    allocator: str
-    locations: List[APILocations]
-
-
-class APIMap(BaseModel):
-    coordinates: APIWorldCoordinates
-    locationName: str
-    neighbouringTiles: int
-    bottomLeftCoordinate: APIWorldCoordinates
-    topRightCoordinate: APIWorldCoordinates
-    subselection: APISubselection
-    resolution: int
-    tiles: List[List[int]]
-    height: int
-    timesteps: int
-
-
-class APIAvailableOwner(BaseModel):
-    label: str
-    classname: str
-    description: str
-    ownerType: str
-    allocator: str
-    minLocations: int
-    maxLocations: int
-    meta: List[object]
-
-
-class APISimulationConfig(BaseModel):
-    name: str
-    description: str
-    allocator: str
-    map: APIMap
-    owners: List[APIOwner]
-    availableAllocators: List[str]
-    availableOwnersForAllocator: List[APIAvailableOwner]
+def build_json(config: Dict[str, Any], simulator: "Simulator", simulation_duration: int):
+    simulation_json = get_simulation_dict(simulator)
+    statistics_start_time = time.time_ns()
+    statistics = get_statistics_dict(simulator)
+    statistics_end_time = time.time_ns()
+    statistics_duration = statistics_end_time - statistics_start_time
+    statistics_compute_time = statistics_duration
+    simulation_compute_time = simulation_duration
+    return {"config": config,
+            "simulation": simulation_json,
+            "statistics": statistics,
+            "statistics_compute_time": statistics_compute_time,
+            "simulation_compute_time": simulation_compute_time}
 
 
 @app.get("/allocators")
@@ -110,50 +55,57 @@ def get_allocators():
     return [_allocator.__name__ for _allocator in available_allocators]
 
 
-@app.get("/owners/{allocator_name}")
-def get_owners_for_allocator(allocator_name):
-    allocators = list(filter(lambda x: (x.__name__ == allocator_name), available_allocators))
+@app.get("/valueFunctions/{allocator}/{bidding_strategy}")
+def get_value_functions(allocator, bidding_strategy):
+    allocators = list(filter(lambda x: (x.__name__ == allocator), available_allocators))
     if len(allocators) != 1:
         return []
-    allocator = allocators[0]
-    return [{"classname": owner.__name__,
-             "label": owner.label,
-             "meta": owner.meta,
-             "description": owner.description,
-             "ownerType": owner.allocation_type,
-             "minLocations": owner.min_locations,
-             "maxLocations": owner.max_locations
-             } for owner in allocator.compatible_owner()]
+    selected_allocator = allocators[0]
+    bidding_strategies = list(
+        filter(lambda x: (x.__name__ == bidding_strategy), selected_allocator.compatible_bidding_strategies()))
+    if len(bidding_strategies) != 1:
+        return []
+    selected_bidding_strategy = bidding_strategies[0]
+    return [{"classname": value_function.__name__,
+             "label": value_function.label,
+             "description": value_function.description} for value_function in
+            selected_bidding_strategy.compatible_value_functions()]
+
+
+@app.get("/biddingStrategies/{allocator}")
+def get_strategies_for_allocator(allocator):
+    print(available_allocators[0])
+    allocators = list(filter(lambda x: (x.__name__ == allocator), available_allocators))
+    if len(allocators) != 1:
+        return []
+    selected_allocator = allocators[0]
+    compatible_bidding_strategies = selected_allocator.compatible_bidding_strategies()
+    return [{"classname": bidding_strategy.__name__,
+             "label": bidding_strategy.label,
+             "description": bidding_strategy.description,
+             "strategyType": bidding_strategy.allocation_type,
+             "minLocations": bidding_strategy.min_locations,
+             "maxLocations": bidding_strategy.max_locations,
+             "meta": bidding_strategy.meta()
+             } for bidding_strategy in compatible_bidding_strategies]
 
 
 @app.post("/simulation")
-def read_root(config: APISimulationConfig):
-    if config.map.subselection.bottomLeft and config.map.subselection.topRight:
-        area = Area(config.map.subselection.bottomLeft, config.map.subselection.topRight, config.map.resolution)
-    else:
-        area = Area(config.map.bottomLeftCoordinate, config.map.topRightCoordinate, config.map.resolution)
-
-    size = area.dimension
-
-    dimensions = Coordinate4D(math.floor(size[0]),
-                              math.floor(config.map.height / area.resolution),
-                              math.floor(size[1]),
-                              config.map.timesteps)
-
-    maptiles = [MapTile(tile, area) for tile in config.map.tiles]
-
-    allocators = list(filter(lambda x: (x.__name__ == config.allocator), available_allocators))
-    if len(allocators) != 1:
-        raise HTTPException(status_code=404, detail="allocator not found")
-    allocator = allocators[0]()
-
-    random.seed(2)
-    g = Generator(config.owners, dimensions, maptiles, allocator, area)
-    start_time = time.time_ns()
-    g.simulate()
-    end_time = time.time_ns()
-    duration = int((end_time - start_time) / 1e9)
+def simulate(config: APISimulationConfig):
+    try:
+        generator, duration = run_from_config(config)
+    except ValueError as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=404, detail=str(e))
     print("--Simulation Completed--")
-    json = build_json(g.simulator, duration)
-    json["config"] = config
-    return json
+    return build_json(config.dict(), generator.simulator, duration)
+
+
+@app.get("/paymentRules/{allocator}")
+def compatible_payment_rules(allocator):
+    allocators = list(filter(lambda x: (x.__name__ == allocator), available_allocators))
+    if len(allocators) != 1:
+        return []
+    selected_allocator = allocators[0]
+    return [{"classname": payment_function.__name__, "label": payment_function.label} for payment_function in
+            selected_allocator.compatible_payment_functions()]

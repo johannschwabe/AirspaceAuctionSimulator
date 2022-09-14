@@ -1,35 +1,97 @@
 <template>
-  <div>
-    <vue-apex-charts type="bar" height="75" :options="agentChartOptions" :series="agentSeries" />
-    <div style="margin-top: -30px">
-      <vue-apex-charts type="bar" height="75" :options="eventChartOptions" :series="eventSeries" />
-    </div>
-    <div style="padding: 0 15px 0 35px; margin-top: -85px; z-index: 100000">
-      <n-slider
+  <div class="flex">
+    <div class="flex">
+      <n-button quaternary circle v-for="control in controls" @click="control.action">
+        <template #icon>
+          <n-icon :component="control.icon" />
+        </template>
+      </n-button>
+      <n-input-number
+        round
+        size="small"
+        :show-button="false"
+        :min="0"
+        :max="maxTick + 1"
         :value="currentTick"
         @update:value="updateTick"
-        :min="0"
-        :max="maxTick"
-        show-tooltip
-        placement="bottom"
+        style="max-width: 50px"
       />
+    </div>
+    <div style="flex-grow: 1">
+      <vue-apex-charts ref="timelineChart" type="bar" height="75" :options="agentChartOptions" :series="agentSeries" />
+      <div style="margin-top: -30px">
+        <vue-apex-charts
+          ref="collisionsChart"
+          type="bar"
+          height="75"
+          :options="eventChartOptions"
+          :series="eventSeries"
+        />
+      </div>
+      <div style="padding: 0 15px 0 35px; margin-top: -85px; z-index: 100000">
+        <n-slider
+          :value="currentTick"
+          @update:value="updateTick"
+          :min="0"
+          :max="maxTick"
+          show-tooltip
+          placement="bottom"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import VueApexCharts from "vue3-apexcharts";
-import { reactive, ref } from "vue";
+import { reactive, ref, computed } from "vue";
 import { debounce } from "lodash-es";
 
-import { onAgentsSelected } from "@/scripts/emitter";
-import { useSimulationSingleton } from "@/scripts/simulation";
+import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent } from "@/scripts/emitter.js";
+import { useSimulationSingleton } from "@/scripts/simulation.js";
+
+import {
+  PlayOutline,
+  PauseOutline,
+  PlaySkipForwardOutline,
+  PlaySkipBackOutline,
+  PlayBackOutline,
+  PlayForwardOutline,
+} from "@vicons/ionicons5";
+import { FailedAllocationEvent, ReallocationEvent } from "@/SimulationObjects/FlightEvent.js";
 
 const simulation = useSimulationSingleton();
 
-const maxTick = ref(simulation.maxTick - 1);
+const timelineChart = ref(null);
 
+const maxTick = ref(simulation.maxTick - 1);
 const currentTick = ref(simulation.tick);
+
+let interval;
+
+const playing = ref(false);
+const controls = computed(() => [
+  {
+    icon: PlaySkipBackOutline,
+    action: firstTick,
+  },
+  {
+    icon: PlayBackOutline,
+    action: previousTick,
+  },
+  {
+    icon: playing.value ? PauseOutline : PlayOutline,
+    action: playing.value ? pause : play,
+  },
+  {
+    icon: PlayForwardOutline,
+    action: nextTick,
+  },
+  {
+    icon: PlaySkipForwardOutline,
+    action: lastTick,
+  },
+]);
 
 const agentChartOptions = {
   chart: {
@@ -40,15 +102,21 @@ const agentChartOptions = {
     zoom: { enabled: false },
     animations: { enabled: false },
   },
+  plotOptions: {
+    bar: {
+      distributed: true, // this line is mandatory
+    },
+  },
   theme: {
     mode: "dark",
   },
   dataLabels: {
     enabled: false,
   },
-  colors: ["#2a947d"],
+  colors: getBaselineColor(),
   stroke: { show: false },
   grid: { show: false },
+  legend: { show: false },
   xaxis: {
     labels: { show: false },
     axisTicks: { show: false },
@@ -71,9 +139,6 @@ const eventChartOptions = {
     zoom: { enabled: false },
     animations: { enabled: false },
   },
-  legend: {
-    show: false,
-  },
   theme: {
     mode: "dark",
   },
@@ -88,6 +153,7 @@ const eventChartOptions = {
   colors: ["#942a2a", "#94762a"],
   stroke: { show: false },
   grid: { show: false },
+  legend: { show: false },
   xaxis: {
     labels: { show: false },
     axisTicks: { show: false },
@@ -109,12 +175,12 @@ const agentSeries = reactive([
 
 const eventSeries = reactive([
   {
-    name: "# Collisions",
-    data: simulation.timeline.map((y, x) => ({ x, y: -Math.floor(y / 5) })),
+    name: "# Violations",
+    data: simulation.timelineViolations.map((y, x) => ({ x, y: -y })),
   },
   {
     name: "# Reallocations",
-    data: simulation.timeline.map((y, x) => ({ x, y: -Math.floor(y / 4) })),
+    data: simulation.timelineReAllocations.map((y, x) => ({ x, y: -y })),
   },
 ]);
 
@@ -123,14 +189,25 @@ const updateAgentSeries = () => {
 };
 
 const updateEventSeries = () => {
-  eventSeries[0].data = simulation.timeline.map((y, x) => ({ x, y: -y }));
-  eventSeries[1].data = simulation.timeline.map((y, x) => ({ x, y: -y }));
+  eventSeries[0].data = simulation.timelineViolations.map((y, x) => ({ x, y: -y }));
+  eventSeries[1].data = simulation.timelineReAllocations.map((y, x) => ({ x, y: -y }));
 };
 
-function updateTick(t) {
-  currentTick.value = t;
-  setTick();
-}
+const agentFocussedEventSeries = () => {
+  const timelineViolations = Array(simulation.maxTick).fill(0);
+  simulation.agentInFocus.violationsTimesteps.forEach((tick) => {
+    timelineViolations[tick] += 1;
+  });
+  const timelineReAllocations = Array(simulation.maxTick).fill(0);
+  simulation.agentInFocus.events.forEach((event) => {
+    if (event instanceof ReallocationEvent || event instanceof FailedAllocationEvent) {
+      timelineReAllocations[event.tick] += 1;
+    }
+  });
+  eventSeries[0].data = timelineViolations.map((y, x) => ({ x, y: -y }));
+  eventSeries[1].data = timelineReAllocations.map((y, x) => ({ x, y: -y }));
+};
+
 const setTick = debounce(
   () => {
     simulation.tick = currentTick.value;
@@ -139,11 +216,92 @@ const setTick = debounce(
   { leading: false }
 );
 
+function updateTick(t) {
+  currentTick.value = t;
+  setTick();
+}
+
+function firstTick() {
+  currentTick.value = 0;
+  setTick();
+}
+
+function lastTick() {
+  currentTick.value = simulation.maxTick - 1;
+  setTick();
+}
+
+function previousTick() {
+  if (currentTick.value >= 0) {
+    currentTick.value = simulation.tick - 1;
+    setTick();
+  }
+}
+
+function nextTick() {
+  if (currentTick.value < simulation.maxTick) {
+    currentTick.value = simulation.tick + 1;
+    setTick();
+  }
+}
+
+function play() {
+  playing.value = true;
+  interval = setInterval(() => {
+    nextTick();
+    if (currentTick.value === simulation.maxTick) {
+      pause();
+    }
+  }, 500);
+}
+
+function pause() {
+  playing.value = false;
+  clearInterval(interval);
+}
+
 onAgentsSelected(() => {
   maxTick.value = simulation.maxTick;
   updateAgentSeries();
   updateEventSeries();
 });
+
+function getTimelineColors(lightColor, darkColor) {
+  return Array.from({ length: simulation.timeline.length }).map((_, i) => {
+    if (simulation.agentInFocus)
+      if (i < simulation.agentInFocus.veryFirstTick || i > simulation.agentInFocus.veryLastTick) return darkColor;
+    return lightColor;
+  });
+}
+function getBaselineColor() {
+  return Array.from({ length: simulation.timeline.length }).map((_) => "#2a947d");
+}
+
+function updateChartColor() {
+  timelineChart.value.updateOptions({
+    colors: getTimelineColors("#2a947d", "#0f332a"),
+  });
+}
+function baselineChartColor() {
+  timelineChart.value.updateOptions({
+    colors: getBaselineColor(),
+  });
+}
+onFocusOnAgent(() => {
+  updateChartColor();
+  agentFocussedEventSeries();
+});
+onFocusOffAgent(() => {
+  baselineChartColor();
+  updateEventSeries();
+});
 </script>
 
-<style scoped></style>
+<style scoped>
+.flex {
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+  justify-content: center;
+}
+</style>

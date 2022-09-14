@@ -70,10 +70,9 @@ export const usePositionLayer = (features) => {
  */
 export const restoreHeatmapFeatures = (features, points) => {
   features.clear();
-
   points
     .map((coord) => {
-      return new Feature(new Point(fromLonLat([coord.lat, coord.long])));
+      return new Feature(new Point(fromLonLat([coord.long, coord.lat])));
     })
     .flat()
     .forEach((feat) => features.push(feat));
@@ -110,7 +109,6 @@ export const useMap = (mapRoot, layers, subselection = false) => {
    */
   const extent = computed(() => {
     if (subselection && simulationConfig.map.subselection?.bottomLeft && simulationConfig.map.subselection?.topRight) {
-      console.log([simulationConfig.map.subselection.bottomLeft]);
       return boundingExtent([
         fromLonLat([
           simulationConfig.map.subselection.bottomLeft.long,
@@ -160,7 +158,7 @@ export const useMap = (mapRoot, layers, subselection = false) => {
    * @type {ComputedRef<number>}
    */
   const zoom = computed(() => {
-    return Math.floor(15 / Math.sqrt(simulationConfig.map.tiles.length));
+    return Math.floor(15 / (1 + 2 * simulationConfig.map.neighbouringTiles));
   });
 
   const size = computed(() => {

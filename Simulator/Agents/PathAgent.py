@@ -1,15 +1,16 @@
-from abc import ABC
-from typing import Optional, TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Dict, Optional, Any
 
-from ..Agents.Agent import Agent
-from ..Agents.AgentType import AgentType
+from .Agent import Agent
+from .AgentType import AgentType
 
 if TYPE_CHECKING:
+    from ..ValueFunction.ValueFunction import ValueFunction
     from ..Segments.PathSegment import PathSegment
     from ..Coordinates.Coordinate4D import Coordinate4D
+    from ..Bids.BiddingStrategy import BiddingStrategy
 
 
-class PathAgent(Agent, ABC):
+class PathAgent(Agent):
     DEFAULT_NEAR_RADIUS = 1
     DEFAULT_SPEED = 1
     DEFAULT_BATTERY = 100_000
@@ -18,14 +19,17 @@ class PathAgent(Agent, ABC):
 
     def __init__(self,
                  agent_id: str,
+                 bidding_strategy: "BiddingStrategy",
+                 value_function: "ValueFunction",
                  locations: List["Coordinate4D"],
                  stays: List[int],
+                 config: Optional[Dict[str, Any]] = None,
                  speed: Optional[int] = None,
                  battery: Optional[int] = None,
-                 near_radius: Optional[int] = None,
+                 near_radius: Optional[float] = None,
                  _is_clone: bool = False):
 
-        super().__init__(agent_id, _is_clone=_is_clone)
+        super().__init__(agent_id, bidding_strategy, value_function, config, _is_clone=_is_clone)
 
         self.locations: List["Coordinate4D"] = locations
         self.stays: List[int] = stays
@@ -34,12 +38,46 @@ class PathAgent(Agent, ABC):
         self.battery: int = battery if battery is not None else self.DEFAULT_BATTERY
         self.near_radius = near_radius if near_radius is not None else self.DEFAULT_NEAR_RADIUS
 
+        assert self.near_radius >= 1
+
         self.allocated_segments: List["PathSegment"] = []
+
+    def get_position_at_tick(self, tick: int) -> Optional["Coordinate4D"]:
+        for segment in self.allocated_segments:
+            if segment.max.t >= tick >= segment.min.t:
+                index = tick - segment.min.t
+                return segment.coordinates[index]
+        return None
+
+    def get_positions_at_ticks(self, min_tick: int, max_tick: int) -> List["Coordinate4D"]:
+        positions = []
+        for tick in range(min_tick, max_tick + 1):  # Include upper bound
+            position = self.get_position_at_tick(tick)
+            if position is not None:
+                positions.append(position)
+        return positions
+
+    def initialize_clone(self):
+        clone = PathAgent(self.id,
+                          self.bidding_strategy,
+                          self.value_function,
+                          self.locations,
+                          self.stays,
+                          config=self.config,
+                          speed=self.speed,
+                          battery=self.battery,
+                          near_radius=self.near_radius,
+                          _is_clone=True)
+        return clone
 
     def get_airtime(self) -> int:
         airtime = 0
+        prev_max = None
         for path_segment in self.allocated_segments:
             airtime += path_segment.max.t - path_segment.min.t
+            if prev_max is None or prev_max != path_segment.min:
+                airtime += 1  # Start tick if not already counted in last segment.
+            prev_max = path_segment.max
         return airtime
 
     def add_allocated_segment(self, path_segment: "PathSegment"):
@@ -59,34 +97,9 @@ class PathAgent(Agent, ABC):
                 min_index = max(min_t - segment.min.t, 0)
                 max_index = min(max_t - segment.min.t, len(segment.coordinates) - 1)
                 for coordinate in segment.coordinates[min_index:max_index]:
-                    distance = coordinate.inter_temporal_distance(other_coordinate)
+                    distance = coordinate.distance(other_coordinate)
                     if distance == 0:
                         return True
-                    if distance < self.near_radius or distance < other_agent.near_radius:
+                    if distance <= self.near_radius or distance <= other_agent.near_radius:
                         return True
         return False
-
-    def value_for_segments(self, path_segments: List["PathSegment"]) -> float:
-        if len(path_segments) == 0:
-            return 0.
-
-        if len(path_segments) != len(self.locations) - 1:
-            print(f"Crash {self}: Not all locations reached")
-            return -1.
-
-        value = 1.
-        time = 0
-        for path, location in zip(path_segments, self.locations[1:]):
-            destination = path.max
-            if not destination.inter_temporal_equal(location):
-                print(f"Crash {self}: no further path found")
-                return -1.
-
-            time += destination.t - path.min.t
-            value -= max(destination.t - location.t, 0) / 100
-
-        if time > self.battery:
-            print(f"Crash {self}: empty battery")
-            return -1.
-
-        return round(max(0., value), 2)

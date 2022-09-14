@@ -17,7 +17,7 @@ class Heatmap:
         self.sparse = sparse
         self.matrix = matrix
 
-    def generate_coordinate(self):
+    def assemble_tombola(self) -> List[Coordinate2D]:
         tombola: List[Coordinate2D] = []
         if self.heatmap_type == HeatmapType.INVERSE_SPARSE.value:
             for item in self.inverse_sparse.items():
@@ -33,4 +33,8 @@ class Heatmap:
                     if val > 0:
                         for i in range(0, int(val * 10)):
                             tombola.append(Coordinate2D(x, z))
+        return tombola
+
+    def generate_coordinate(self):
+        tombola = self.assemble_tombola()
         return random.choice(tombola)

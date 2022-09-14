@@ -1,5 +1,4 @@
-from abc import ABC
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Dict, Optional, Any, Set
 
 from .Agent import Agent
 from .AgentType import AgentType
@@ -7,16 +6,21 @@ from .AgentType import AgentType
 if TYPE_CHECKING:
     from ..Segments.SpaceSegment import SpaceSegment
     from ..Coordinates.Coordinate4D import Coordinate4D
+    from ..ValueFunction.ValueFunction import ValueFunction
+    from ..Bids.BiddingStrategy import BiddingStrategy
 
 
-class SpaceAgent(Agent, ABC):
+class SpaceAgent(Agent):
     agent_type: str = AgentType.SPACE.value
 
     def __init__(self,
                  agent_id: str,
+                 bidding_strategy: "BiddingStrategy",
+                 value_function: "ValueFunction",
                  blocks: List[List["Coordinate4D"]],
+                 config: Optional[Dict[str, Any]] = None,
                  _is_clone: bool = False):
-        super().__init__(agent_id, _is_clone=_is_clone)
+        super().__init__(agent_id, bidding_strategy, value_function, config, _is_clone=_is_clone)
 
         self.blocks: List[List["Coordinate4D"]] = blocks
         self.allocated_segments: List["SpaceSegment"] = []
@@ -24,18 +28,20 @@ class SpaceAgent(Agent, ABC):
     def add_allocated_segment(self, space_segment: "SpaceSegment"):
         self.allocated_segments.append(space_segment)
 
-    def value_for_segments(self, segments: List["SpaceSegment"]) -> float:
-        sum_segments = 0.0
-        for segment in segments:
-            sum_segments += (segment.max.x - segment.min.x) * \
-                            (segment.max.y - segment.min.y) * \
-                            (segment.max.z - segment.min.z) * \
-                            (segment.max.t - segment.min.t)
-        sum_blocks = 0.0
-        for block in self.blocks:
-            sum_blocks += (block[1].x - block[0].x) * \
-                          (block[1].y - block[0].y) * \
-                          (block[1].z - block[0].z) * \
-                          (block[1].t - block[0].t)
+    def get_segments_at_tick(self, tick: int) -> Set["SpaceSegment"]:
+        segments = set()
+        for segment in self.allocated_segments:
+            if segment.max.t >= tick >= segment.min.t:
+                segments.add(segment)
+        return segments
 
-        return sum_segments / sum_blocks
+    def get_segments_at_ticks(self, min_tick: int, max_tick: int) -> Set["SpaceSegment"]:
+        segments = set()
+        for tick in range(min_tick, max_tick + 1):  # Include upper bound
+            segments.update(self.get_segments_at_tick(tick))
+        return segments
+
+    def initialize_clone(self):
+        clone = SpaceAgent(self.id, self.bidding_strategy, self.value_function, self.blocks,
+                           config=self.config, _is_clone=True)
+        return clone
