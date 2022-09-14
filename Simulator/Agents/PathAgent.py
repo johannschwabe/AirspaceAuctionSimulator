@@ -47,9 +47,9 @@ class PathAgent(Agent):
                 return segment.coordinates[index]
         return None
 
-    def get_positions_at_ticks(self, tick: int, speed: int = 0) -> List["Coordinate4D"]:
+    def get_positions_at_ticks(self, min_tick: int, max_tick: int) -> List["Coordinate4D"]:
         positions = []
-        for tick in range(tick, tick + speed + 1):  # Include upper bound
+        for tick in range(min_tick, max_tick + 1):  # Include upper bound
             position = self.get_position_at_tick(tick)
             if position is not None:
                 positions.append(position)
@@ -95,7 +95,7 @@ class PathAgent(Agent):
                 min_index = max(min_t - segment.min.t, 0)
                 max_index = min(max_t - segment.min.t, len(segment.coordinates) - 1)
                 for coordinate in segment.coordinates[min_index:max_index]:
-                    distance = coordinate.inter_temporal_distance(other_coordinate)
+                    distance = coordinate.distance(other_coordinate)
                     if distance == 0:
                         return True
                     if distance <= self.near_radius or distance <= other_agent.near_radius:

@@ -22,6 +22,15 @@ class FCFSPathBid(Bid):
     def __lt__(self, other):
         return False
 
+    def __ge__(self, other):
+        return True
+
+    def __le__(self, other):
+        return True
+
+    def __eq__(self, other):
+        return True
+
     def to_dict(self) -> Dict[str, str | int | float]:
         return {
             "locations": json.dumps([[location.x, location.y, location.z, location.t] for location in self.locations]),

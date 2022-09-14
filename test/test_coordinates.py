@@ -70,4 +70,4 @@ class CoordinatesTest(unittest.TestCase):
         self.assertEqual(ff, aa.to_inter_temporal())
         self.assertListEqual(aa.list_rep(), [21, 1, 19, 8])
         self.assertListEqual(aa.tree_query_cube_rep(2, 4), [19, -1, 17, 8, 23, 3, 21, 12])
-        self.assertEqual(aa.inter_temporal_distance(cc), 0)
+        self.assertEqual(aa.distance(cc), 0)

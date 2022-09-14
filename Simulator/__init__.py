@@ -50,3 +50,8 @@ from .Segments.SpaceSegment import SpaceSegment
 from .Simulator import Simulator
 # Value Functions
 from .ValueFunction.ValueFunction import ValueFunction
+# helpers
+from .helpers.helpers import find_valid_path_tick
+from .helpers.helpers import find_valid_space_tick
+from .helpers.helpers import is_valid_for_path_allocation
+from .helpers.helpers import is_valid_for_space_allocation
