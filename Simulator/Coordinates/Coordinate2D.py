@@ -21,7 +21,7 @@ class Coordinate2D:
     def __add__(self, other) -> "Coordinate2D":
         if isinstance(other, Coordinate2D):
             return Coordinate2D(self.x + other.x, self.z + other.z)
-        elif isinstance(other, float):
+        elif isinstance(other, float) or isinstance(other, int):
             return Coordinate2D(self.x + other, self.z + other)
         else:
             raise Exception(f"Addition is not defined for {other}")
@@ -29,7 +29,7 @@ class Coordinate2D:
     def __sub__(self, other) -> "Coordinate2D":
         if isinstance(other, Coordinate2D):
             return Coordinate2D(self.x - other.x, self.z - other.z)
-        elif isinstance(other, float):
+        elif isinstance(other, float) or isinstance(other, int):
             return Coordinate2D(self.x - other, self.z - other)
         else:
             raise Exception(f"Subtraction is not defined for {other}")
