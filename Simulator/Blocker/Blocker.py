@@ -6,8 +6,6 @@ if TYPE_CHECKING:
     from ..Coordinates.Coordinate3D import Coordinate3D
     from rtree import Index
 
-EPSILON = 0.001
-
 
 class Blocker(ABC):
     blocker_type: str

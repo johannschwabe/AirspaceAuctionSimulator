@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Tuple, TYPE_CHECKING, List
+from typing import Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..Coordinates.Coordinate4D import Coordinate4D
@@ -8,11 +8,6 @@ if TYPE_CHECKING:
 class Segment(ABC):
     @abstractmethod
     def clone(self):
-        pass
-
-    @property
-    @abstractmethod
-    def coordinates(self) -> List["Coordinate4D"]:
         pass
 
     @abstractmethod

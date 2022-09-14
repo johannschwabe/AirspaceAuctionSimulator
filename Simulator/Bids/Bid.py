@@ -18,5 +18,17 @@ class Bid(ABC):
         pass
 
     @abstractmethod
+    def __ge__(self, other):
+        pass
+
+    @abstractmethod
+    def __le__(self, other):
+        pass
+
+    @abstractmethod
+    def __eq__(self, other):
+        pass
+
+    @abstractmethod
     def to_dict(self) -> Dict[str, str | int | float]:
         pass

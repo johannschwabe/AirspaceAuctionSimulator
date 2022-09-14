@@ -210,7 +210,7 @@ class Environment:
                 res.append(temporary_allocation.get_allocation_with_agent(self.agents[agent_hash]))
         return res
 
-    def get_blockers(self, coord: "Coordinate4D", radius: int, speed: int) -> Set["Blocker"]:
+    def get_blockers_at_coordinate(self, coord: "Coordinate4D", radius: int, speed: int) -> Set["Blocker"]:
         """
         Returns a list of all blocker IDs that intersect a qube around the given coordinate with size 2 * radius.
         All time steps from coordinate.t to coordinate.t + speed are considered.
@@ -218,24 +218,51 @@ class Environment:
         blocker_ids = set(self.blocker_tree.intersection(coord.tree_query_cube_rep(radius, speed)))
         return set([self.blocker_dict[blocker_id] for blocker_id in blocker_ids])
 
-    def is_blocked(self, coord: "Coordinate4D", agent: "PathAgent") -> bool:
+    def get_blockers_in_space(self, min_coord: "Coordinate4D", max_coord: "Coordinate4D") -> Set["Blocker"]:
+        """
+        Returns a list of all blocker IDs that intersect a space.
+        """
+        blocker_ids = set(self.blocker_tree.intersection(min_coord.list_rep() + max_coord.list_rep()))
+        return set([self.blocker_dict[blocker_id] for blocker_id in blocker_ids])
+
+    def is_coordinate_blocked(self, coord: "Coordinate4D", agent: "PathAgent") -> bool:
         """
         Returns True if there is a blocker at the given coordinate or in its radius.
         All time steps from coordinate.t to coordinate.t + speed are considered.
         The radius is abstracted by a qube around the given coordinate with size 2 * radius.
         """
-        for blocker in self.get_blockers(coord, agent.near_radius, agent.speed):
+        for blocker in self.get_blockers_at_coordinate(coord, agent.near_radius, agent.speed):
             if blocker.is_blocking(coord, agent.near_radius):
                 return True
         return False
 
-    def is_blocked_forever(self, coordinate: "Coordinate4D", radius: int) -> bool:
+    def is_space_blocked(self, min_coord: "Coordinate4D", max_coord: "Coordinate4D") -> bool:
+        """
+        Returns True if there is a blocker in the given space.
+        """
+        for blocker in self.get_blockers_in_space(min_coord, max_coord):
+            if blocker.is_box_blocking(min_coord, max_coord):
+                return True
+        return False
+
+    def is_coordinate_blocked_forever(self, coordinate: "Coordinate4D", radius: int) -> bool:
         """
         Returns True if there is a static blocker at the given coordinate or in its radius.
         The radius is abstracted by a qube around the given coordinate with size 2 * radius.
         """
-        for blocker in self.get_blockers(coordinate, radius, 0):
+        for blocker in self.get_blockers_at_coordinate(coordinate, radius, 0):
             if blocker.blocker_type == BlockerType.STATIC.value and blocker.is_blocking(coordinate, radius):
+                return True
+        return False
+
+    def is_space_blocked_forever(self, min_coordinate: "Coordinate4D", max_coordinate: "Coordinate4D") -> bool:
+        """
+        Returns True if there is a static blocker at the given coordinate or in its radius.
+        The radius is abstracted by a qube around the given coordinate with size 2 * radius.
+        """
+        for blocker in self.get_blockers_in_space(min_coordinate, max_coordinate):
+            if blocker.blocker_type == BlockerType.STATIC.value and blocker.is_box_blocking(min_coordinate,
+                                                                                            max_coordinate):
                 return True
         return False
 
@@ -280,6 +307,22 @@ class Environment:
         agent_hashes = set(self.tree.intersection(space_segment.tree_rep()))
         return set([self.agents[agent_hash] for agent_hash in agent_hashes if agent_hash != hash(space_agent)])
 
+    def intersect_space_coordinates(self,
+                                    min_coords: "Coordinate4D",
+                                    max_coords: "Coordinate4D",
+                                    space_agent: "SpaceAgent",
+                                    use_max_radius: bool = True) -> Set["Agent"]:
+        """
+        Returns all other agents intersecting with the given coordinate.
+        The radius is abstracted by a qube around the given coordinate with size 2 * radius.
+        """
+        min_corner = min_coords - self.max_near_radius if use_max_radius else min_coords
+        max_corner = max_coords + self.max_near_radius if use_max_radius else max_coords
+        min_corner.t = min_coords.t
+        max_corner.t = max_coords.t
+        agent_hashes = set(self.tree.intersection(min_corner.list_rep() + max_corner.list_rep()))
+        return set([self.agents[agent_hash] for agent_hash in agent_hashes if agent_hash != hash(space_agent)])
+
     def intersect_path_coordinate(self,
                                   coords: "Coordinate4D",
                                   path_agent: "PathAgent",
@@ -291,7 +334,7 @@ class Environment:
         The radius is abstracted by a qube around the given coordinate with size 2 * radius.
         """
         speed: int = path_agent.speed if include_speed else 0
-        radius: int = self.max_near_radius if use_max_radius else path_agent.near_radius
+        radius: int = max(path_agent.near_radius, self.max_near_radius) if use_max_radius else path_agent.near_radius
         agent_hashes = set(self.tree.intersection(coords.tree_query_cube_rep(radius, speed)))
         return set([self.agents[agent_hash] for agent_hash in agent_hashes if agent_hash != hash(path_agent)])
 

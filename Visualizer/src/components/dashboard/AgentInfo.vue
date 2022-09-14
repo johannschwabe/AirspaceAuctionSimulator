@@ -125,7 +125,7 @@ const datapoints = computed(() =>
     {
       label: "Violations",
       value: simulation.agentInFocus.totalViolations,
-      icon: GitPullRequest,
+      icon: Skull,
     },
     {
       label: "Battery",

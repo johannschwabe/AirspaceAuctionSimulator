@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from .Blocker import Blocker, EPSILON
+from .Blocker import Blocker
 from .BlockerType import BlockerType
 from ..Coordinates.Coordinate4D import Coordinate4D
 
@@ -20,9 +20,6 @@ class StaticBlocker(Blocker):
         assert self.id > -1
         max_pos_3d = self.location + self.dimension
         max_pos_4d = Coordinate4D.from_3D(max_pos_3d, dimension.t)
-        max_pos_4d.x -= EPSILON
-        max_pos_4d.y -= EPSILON
-        max_pos_4d.z -= EPSILON
         min_pos_4d = Coordinate4D.from_3D(self.location, 0)
         tree_rep = min_pos_4d.list_rep() + max_pos_4d.list_rep()
         tree.insert(self.id, tree_rep)

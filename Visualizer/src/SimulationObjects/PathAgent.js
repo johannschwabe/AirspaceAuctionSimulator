@@ -1,13 +1,6 @@
 import Path from "./Path";
 import Branch from "./Branch";
-import {
-  allocationEventFactory,
-  ArrivalEvent,
-  FailedAllocationEvent,
-  FlightEvent,
-  ReallocationEvent,
-  TakeOffEvent,
-} from "./FlightEvent";
+import { allocationEventFactory, ArrivalEvent, FailedAllocationEvent, FlightEvent, TakeOffEvent } from "./FlightEvent";
 import Agent from "./Agent";
 import { BRANCH_REASONS } from "@/API/enums";
 import PathStatistic from "@/SimulationObjects/PathStatistic";

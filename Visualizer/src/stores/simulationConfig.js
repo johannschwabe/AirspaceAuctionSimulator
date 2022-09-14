@@ -187,16 +187,18 @@ export const useSimulationConfigStore = defineStore("simulationConfig", () => {
   const availablePaymentRules = reactive([]);
   watchEffect(async () => {
     const allocatorName = allocator.value;
-    const paymentRulesSupportedByAllocator = await getPaymentRulesSupportedByAllocator(allocatorName);
-    availablePaymentRules.splice(0);
-    paymentRulesSupportedByAllocator.forEach((paymentRule) => {
-      availablePaymentRules.push({
-        label: paymentRule.label,
-        classname: paymentRule.classname,
+    if (allocatorName) {
+      const paymentRulesSupportedByAllocator = await getPaymentRulesSupportedByAllocator(allocatorName);
+      availablePaymentRules.splice(0);
+      paymentRulesSupportedByAllocator.forEach((paymentRule) => {
+        availablePaymentRules.push({
+          label: paymentRule.label,
+          classname: paymentRule.classname,
+        });
       });
-    });
-    if (availablePaymentRules.length > 0) {
-      paymentRule.value = availablePaymentRules[0].classname;
+      if (availablePaymentRules.length > 0) {
+        paymentRule.value = availablePaymentRules[0].classname;
+      }
     }
   });
 
