@@ -2,7 +2,8 @@ from time import time_ns
 from typing import List, Tuple, Set, Optional, Dict, TYPE_CHECKING
 
 from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation, \
-    AllocationHistory, AStar, Coordinate4D, is_valid_for_path_allocation, is_valid_for_space_allocation
+    AllocationHistory, AStar, is_valid_for_path_allocation, is_valid_for_space_allocation
+from Simulator.helpers.helpers import find_valid_path_tick, find_valid_space_tick
 from ..BidTracker.PriorityBidTracker import PriorityBidTracker
 from ..BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStrategy
 from ..BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
@@ -33,34 +34,6 @@ class PriorityAllocator(Allocator):
     @staticmethod
     def compatible_payment_functions():
         return [PriorityPaymentRule]
-
-    def find_valid_path_tick(self, tick: int, environment: "Environment", position: "Coordinate4D",
-                             bid: "PriorityPathBid",
-                             min_tick: int, max_tick: int):
-        if position.t < min_tick:
-            position.t = min_tick
-        while True:
-            valid, _ = is_valid_for_path_allocation(tick, environment, self.bid_tracker, position, bid.agent)
-            if valid:
-                break
-            position.t += 1
-            if position.t > max_tick:
-                return None
-        return position
-
-    def find_valid_space_tick(self, tick: int, environment: "Environment", min_position: "Coordinate4D",
-                              max_position: "Coordinate4D", bid: "PrioritySpaceBid", min_tick: int, max_tick: int):
-        if min_position.t < min_tick:
-            min_position.t = min_tick
-        while True:
-            valid, _ = is_valid_for_space_allocation(tick, environment, self.bid_tracker, min_position, max_position,
-                                                     bid.agent)
-            if valid:
-                break
-            min_position.t += 1
-            if min_position.t > max_tick or min_position.t > max_position.t:
-                return None
-        return min_position
 
     def allocate_path(self, bid: "PriorityPathBid", environment: "Environment", astar: "AStar",
                       tick: int) -> Tuple[Optional[List["PathSegment"]], Optional[Set["Agent"]], str]:
@@ -105,13 +78,15 @@ class PriorityAllocator(Allocator):
             if environment.is_coordinate_blocked_forever(b, bid.agent.near_radius):
                 return None, None, f"Static blocker at target {b}."
 
-            a = self.find_valid_path_tick(tick, environment, a, bid, tick, environment.dimension.t)
-            if a is None:
+            a_t = find_valid_path_tick(tick, environment, self.bid_tracker, a, bid, tick, environment.dimension.t)
+            if a_t is None:
                 return None, None, f"Start {a} is invalid until max tick {environment.dimension.t}."
+            a.t = a_t
 
-            b = self.find_valid_path_tick(tick, environment, b, bid, a.t, environment.dimension.t)
-            if b is None:
+            b_t = find_valid_path_tick(tick, environment, self.bid_tracker, b, bid, a.t, environment.dimension.t)
+            if b_t is None:
                 return None, None, f"Target {b} is invalid until max tick {environment.dimension.t}."
+            b.t = b_t
 
             ab_path, path_collisions = astar.astar(
                 a,
@@ -140,7 +115,7 @@ class PriorityAllocator(Allocator):
         return optimal_path_segments, total_collisions, "Path allocated."
 
     def allocate_space(self, bid: "PrioritySpaceBid", environment: "Environment",
-                       tick: int) -> Tuple[Optional[List["SpaceSegment"]], Optional[Set["Agent"]], str]:
+                       tick: int) -> Tuple[List["SpaceSegment"], Optional[Set["Agent"]], str]:
         """
         Allocate spaces for a given space-bid.
         Returns the allocated spaces and a list of agents that need to be reallocated,
@@ -160,9 +135,12 @@ class PriorityAllocator(Allocator):
             if environment.is_space_blocked_forever(lower, upper):
                 continue
 
-            lower = self.find_valid_space_tick(tick, environment, lower, upper, bid, tick, environment.dimension.t)
-            if lower is None:
+            t = find_valid_space_tick(tick, environment, self.bid_tracker, lower, upper, bid, tick,
+                                      environment.dimension.t)
+            if t is None:
                 continue
+
+            lower.t = t
 
             valid, block_collisions = is_valid_for_space_allocation(tick, environment, self.bid_tracker, lower, upper,
                                                                     bid.agent)

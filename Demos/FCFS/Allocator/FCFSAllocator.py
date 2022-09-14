@@ -2,7 +2,8 @@ from time import time_ns
 from typing import List, Optional, Dict, TYPE_CHECKING, Tuple
 
 from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, \
-    AllocationHistory, Agent, Coordinate4D, is_valid_for_path_allocation
+    AllocationHistory, Agent
+from Simulator.helpers.helpers import find_valid_path_tick, find_valid_space_tick, is_valid_for_space_allocation
 from ..BidTracker.FCFSBidTracker import FCFSBidTracker
 from ..BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
 from ..BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
@@ -38,19 +39,6 @@ class FCFSAllocator(Allocator):
         """
         return [FCFSSpaceBiddingStrategy, FCFSPathBiddingStrategy]
 
-    def find_valid_tick(self, tick: int, environment: "Environment", position: "Coordinate4D", bid: "FCFSPathBid",
-                        min_tick: int, max_tick: int):
-        if position.t < min_tick:
-            position.t = min_tick
-        while True:
-            valid, _ = is_valid_for_path_allocation(tick, environment, self.bid_tracker, position, bid.agent)
-            if valid:
-                break
-            position.t += 1
-            if position.t > max_tick:
-                return None
-        return position
-
     def allocate_path(self, bid: "FCFSPathBid", environment: "Environment", astar: "AStar",
                       tick: int) -> Tuple[Optional[List["PathSegment"]], str]:
         """
@@ -81,13 +69,15 @@ class FCFSAllocator(Allocator):
             if environment.is_coordinate_blocked_forever(b, bid.agent.near_radius):
                 return None, f"Static blocker at target {b}."
 
-            a = self.find_valid_tick(tick, environment, a, bid, tick, environment.dimension.t)
-            if a is None:
+            a_t = find_valid_path_tick(tick, environment, self.bid_tracker, a, bid, tick, environment.dimension.t)
+            if a_t is None:
                 return None, f"Start {a} is invalid until max tick {environment.dimension.t}."
+            a.t = a_t
 
-            b = self.find_valid_tick(tick, environment, b, bid, a.t, environment.dimension.t)
-            if b is None:
+            b_t = find_valid_path_tick(tick, environment, self.bid_tracker, b, bid, a.t, environment.dimension.t)
+            if b_t is None:
                 return None, f"Target {b} is invalid until max tick {environment.dimension.t}."
+            b.t = b_t
 
             ab_path, _ = astar.astar(
                 a,
@@ -114,36 +104,38 @@ class FCFSAllocator(Allocator):
 
         return optimal_path_segments, "Path allocated."
 
-    @staticmethod
-    def allocate_space(bid: "FCFSSpaceBid", environment: "Environment", tick: int) -> List["SpaceSegment"]:
+    def allocate_space(self, bid: "FCFSSpaceBid", environment: "Environment",
+                       tick: int) -> Tuple[List["SpaceSegment"], str]:
         """
         Allocate spaces for a given space-bid.
-        Returns `[]` if no valid spaces could be allocated.
+        Returns the allocated spaces and a list of agents that need to be reallocated,
+        because they had a lower priority.
+        Returns `[], set()` if no valid spaces could be allocated.
         :param bid:
         :param environment:
         :param tick:
         :return:
         """
-        optimal_path_segments = []
+        possible_space_segments = []
         for block in bid.blocks:
             lower = block[0].clone()
             upper = block[1].clone()
 
-            invalid_block = False
-            while lower.t <= tick:
-                lower.t += 1
-                if lower.t > environment.dimension.t or lower.t > upper.t:
-                    print(f"Lower {lower} is invalid until tick {min(environment.dimension.t, upper.t)}.")
-                    invalid_block = True
-                    break
-
-            if invalid_block:
+            if environment.is_space_blocked_forever(lower, upper):
                 continue
 
-            intersecting_agents = environment.other_agents_in_space(lower, upper, bid.agent)
-            if len(intersecting_agents) == 0:
-                optimal_path_segments.append(SpaceSegment(lower, upper))
-        return optimal_path_segments
+            t = find_valid_space_tick(tick, environment, self.bid_tracker, lower, upper, bid, tick,
+                                      environment.dimension.t)
+            if t is None:
+                continue
+
+            lower.t = t
+
+            valid, _ = is_valid_for_space_allocation(tick, environment, self.bid_tracker, lower, upper, bid.agent)
+            if valid:
+                possible_space_segments.append(SpaceSegment(lower, upper))
+
+        return possible_space_segments, "Space allocated."
 
     def allocate(self, agents: List["Agent"], environment: "Environment", tick: int) -> Dict["Agent", "Allocation"]:
         """
@@ -177,8 +169,7 @@ class FCFSAllocator(Allocator):
 
             # Space Agents
             elif isinstance(bid, FCFSSpaceBid):
-                optimal_segments = self.allocate_space(bid, environment, tick)
-                explanation = "Space allocated."
+                optimal_segments, explanation = self.allocate_space(bid, environment, tick)
 
             else:
                 raise Exception(f"Invalid Bid: {bid}")

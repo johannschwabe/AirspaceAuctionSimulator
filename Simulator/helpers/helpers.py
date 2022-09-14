@@ -1,11 +1,48 @@
 import math
+from typing import Optional
 
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
 from ..BidTracker.BidTracker import BidTracker
+from ..Bids.Bid import Bid
 from ..Coordinates.Coordinate3D import Coordinate3D
 from ..Coordinates.Coordinate4D import Coordinate4D
 from ..Environment.Environment import Environment
+
+
+def find_valid_path_tick(tick: int, environment: "Environment", bid_tracker: "BidTracker", position: "Coordinate4D",
+                         bid: "Bid", min_tick: int, max_tick: int) -> Optional[int]:
+    pos_clone = position.clone()
+    agent = bid.agent
+    assert isinstance(agent, PathAgent)
+    if pos_clone.t < min_tick:
+        pos_clone.t = min_tick
+    while True:
+        valid, _ = is_valid_for_path_allocation(tick, environment, bid_tracker, pos_clone, agent)
+        if valid:
+            break
+        pos_clone.t += 1
+        if pos_clone.t > max_tick:
+            return None
+    return pos_clone.t
+
+
+def find_valid_space_tick(tick: int, environment: "Environment", bid_tracker: "BidTracker",
+                          min_position: "Coordinate4D", max_position: "Coordinate4D", bid: "Bid", min_tick: int,
+                          max_tick: int) -> Optional[int]:
+    min_pos_clone = min_position.clone()
+    agent = bid.agent
+    assert isinstance(agent, PathAgent)
+    if min_pos_clone.t < min_tick:
+        min_pos_clone.t = min_tick
+    while True:
+        valid, _ = is_valid_for_space_allocation(tick, environment, bid_tracker, min_pos_clone, max_position, agent)
+        if valid:
+            break
+        min_pos_clone.t += 1
+        if min_pos_clone.t > max_tick or min_pos_clone.t > max_position.t:
+            return None
+    return min_pos_clone.t
 
 
 def is_valid_for_space_allocation(allocation_tick: int, environment: "Environment", bid_tracker: "BidTracker",
