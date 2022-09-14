@@ -6,7 +6,7 @@ from .Coordinate3D import Coordinate3D
 
 
 class Coordinate4D(Coordinate3D):
-    def __init__(self, x: int, y: int, z: int, t: int):
+    def __init__(self, x: int | float, y: int | float, z: int | float, t: int):
         super().__init__(x, y, z)
         self.t: int = t
 
@@ -14,7 +14,7 @@ class Coordinate4D(Coordinate3D):
     def from_3D(coord_3d: "Coordinate3D", t: int) -> "Coordinate4D":
         return Coordinate4D(coord_3d.x, coord_3d.y, coord_3d.z, t)
 
-    def to_dict(self) -> Dict[str, int]:
+    def to_dict(self) -> Dict[str, int | float]:
         return {"x": self.x, "y": self.y, "z": self.z, "t": self.t}
 
     def __repr__(self) -> str:
@@ -94,6 +94,14 @@ class Coordinate4D(Coordinate3D):
             return Coordinate4D(self.x - other, self.y - other, self.z - other, self.t - other)
         else:
             raise Exception(f"Subtraction is not defined for {other}")
+
+    def __mul__(self, other):
+        if isinstance(other, Coordinate4D):
+            return Coordinate4D(self.x * other.x, self.y * other.y, self.z * other.z, self.t * other.t)
+        if isinstance(other, int):
+            return Coordinate4D(self.x * other, self.y * other, self.z * other, self.t * other)
+        else:
+            raise Exception(f"Multiplication is not definded for {self.__class__} and {other.__class__}")
 
     def distance(self, other, l2: bool = False) -> Tuple[float, int]:
         temp = 0

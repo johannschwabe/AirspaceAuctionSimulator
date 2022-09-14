@@ -51,9 +51,9 @@ class SpaceSegment(Segment):
     def contains(self, coordinate: "Coordinate4D") -> bool:
         return self.min <= coordinate < self.max
 
-    def intersect(self, other: "SpaceSegment") -> "Coordinate4D":
+    def intersect(self, other: "SpaceSegment") -> "Tuple[Coordinate4D,Coordinate4D]":
         if not (self.min < other.max and other.min < self.max):
-            return Coordinate4D(0, 0, 0, 0)
+            return Coordinate4D(0, 0, 0, 0), Coordinate4D(0, 0, 0, 0)
         min_x = self.min.x if self.min.x > other.min.x else other.min.x
         max_x = self.max.x if self.max.x < other.max.x else other.max.x
         x = max_x - min_x
@@ -66,7 +66,7 @@ class SpaceSegment(Segment):
         min_t = self.min.t if self.min.t > other.min.t else other.min.t
         max_t = self.max.t if self.max.t < other.max.t else other.max.t
         t = max_t - min_t
-        return Coordinate4D(x, y, z, t)
+        return Coordinate4D(min_x, min_y, min_z, min_t), Coordinate4D(x, y, z, t),
 
     def clone(self) -> "SpaceSegment":
         return SpaceSegment(self.min.clone(), self.max.clone())
