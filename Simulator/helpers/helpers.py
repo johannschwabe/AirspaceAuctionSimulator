@@ -59,9 +59,9 @@ def is_valid_for_space_allocation(allocation_tick: int, environment: "Environmen
     if my_bid is None:
         return False, None
 
-    flying = False
     if min_position.t == allocation_tick:
         my_segments = space_agent.get_segments_at_tick(allocation_tick)
+        flying = False
         if len(my_segments) > 0:
             for my_segment in my_segments:
                 if my_segment.min <= min_position and my_segment.max >= max_position:
@@ -83,14 +83,13 @@ def is_valid_for_space_allocation(allocation_tick: int, environment: "Environmen
                     true_intersecting_agents.add(max_intersecting_agent)
                     break
 
-    if not flying:
-        for true_intersecting_agent in true_intersecting_agents:
-            other_bid = bid_tracker.get_last_bid_for_tick(allocation_tick, true_intersecting_agent, environment)
-            if other_bid is None:
-                raise Exception(f"Agent stuck: {true_intersecting_agent}")
+    for true_intersecting_agent in true_intersecting_agents:
+        other_bid = bid_tracker.get_last_bid_for_tick(allocation_tick, true_intersecting_agent, environment)
+        if other_bid is None:
+            raise Exception(f"Agent stuck: {true_intersecting_agent}")
 
-            if my_bid <= other_bid:
-                return False, None
+        if my_bid <= other_bid:
+            return False, None
 
     return True, true_intersecting_agents
 
