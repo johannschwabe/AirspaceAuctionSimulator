@@ -47,11 +47,11 @@ def find_valid_space_tick(tick: int, environment: "Environment", bid_tracker: "B
 
 def is_valid_for_space_allocation(allocation_tick: int, environment: "Environment", bid_tracker: "BidTracker",
                                   min_position: "Coordinate4D", max_position: "Coordinate4D",
-                                  space_agent: "SpaceAgent"):
+                                  space_agent: "SpaceAgent", avoid_blockers: bool = False):
     if min_position.t < allocation_tick:
         raise Exception(f"Cannot validate position in the past. Position: {min_position}, Tick: {allocation_tick}.")
 
-    if environment.is_space_blocked(min_position, max_position):
+    if avoid_blockers and environment.is_space_blocked(min_position, max_position):
         return False, None
 
     my_bid = bid_tracker.get_last_bid_for_tick(allocation_tick, space_agent, environment)

@@ -121,9 +121,6 @@ class FCFSAllocator(Allocator):
             lower = block[0].clone()
             upper = block[1].clone()
 
-            if environment.is_space_blocked_forever(lower, upper):
-                continue
-
             t = find_valid_space_tick(tick, environment, self.bid_tracker, lower, upper, bid, tick,
                                       environment.dimension.t)
             if t is None:
