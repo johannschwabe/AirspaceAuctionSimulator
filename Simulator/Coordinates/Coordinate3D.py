@@ -26,7 +26,7 @@ class Coordinate3D(Coordinate2D):
             return Coordinate3D(self.x + other.x, self.y + other.y, self.z + other.z)
         elif isinstance(other, Coordinate2D):
             return Coordinate3D(self.x + other.x, self.y, self.z + other.z)
-        elif isinstance(other, float):
+        elif isinstance(other, float) or isinstance(other, int):
             return Coordinate3D(self.x + other, self.y + other, self.z + other)
         else:
             raise Exception(f"Addition is not defined for {other}")
@@ -36,10 +36,26 @@ class Coordinate3D(Coordinate2D):
             return Coordinate3D(self.x - other.x, self.y - other.y, self.z - other.z)
         elif isinstance(other, Coordinate2D):
             return Coordinate3D(self.x - other.x, self.y, self.z - other.z)
-        elif isinstance(other, float):
+        elif isinstance(other, float) or isinstance(other, int):
             return Coordinate3D(self.x - other, self.y - other, self.z - other)
         else:
             raise Exception(f"Subtraction is not defined for {other}")
+
+    def __mul__(self, other):
+        if isinstance(other, Coordinate3D):
+            return Coordinate3D(self.x * other.x, self.y * other.y, self.z * other.z)
+        if isinstance(other, int) or isinstance(other, float):
+            return Coordinate3D(self.x * other, self.y * other, self.z * other)
+        else:
+            raise Exception(f"Multiplication is not definded for {self.__class__} and {other.__class__}")
+
+    def __truediv__(self, other):
+        if isinstance(other, Coordinate3D):
+            return Coordinate3D(self.x / other.x, self.y / other.y, self.z / other.z)
+        if isinstance(other, int) or isinstance(other, float):
+            return Coordinate3D(self.x / other, self.y / other, self.z / other)
+        else:
+            raise Exception(f"Multiplication is not definded for {self.__class__} and {other.__class__}")
 
     @property
     def l1(self) -> float:

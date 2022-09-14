@@ -34,6 +34,22 @@ class Coordinate2D:
         else:
             raise Exception(f"Subtraction is not defined for {other}")
 
+    def __mul__(self, other):
+        if isinstance(other, Coordinate2D):
+            return Coordinate2D(self.x * other.x, self.z * other.z)
+        if isinstance(other, int) or isinstance(other, float):
+            return Coordinate2D(self.x * other, self.z * other)
+        else:
+            raise Exception(f"Multiplication is not definded for {self.__class__} and {other.__class__}")
+
+    def __truediv__(self, other):
+        if isinstance(other, Coordinate2D):
+            return Coordinate2D(self.x / other.x, self.z / other.z)
+        if isinstance(other, int) or isinstance(other, float):
+            return Coordinate2D(self.x / other, self.z / other)
+        else:
+            raise Exception(f"Multiplication is not definded for {self.__class__} and {other.__class__}")
+
     @property
     def area(self) -> float:
         return self.x * self.z

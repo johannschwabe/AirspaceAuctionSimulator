@@ -366,9 +366,10 @@ class Statistics:
             intersections = tree.intersection(space_segment.tree_rep(), objects="raw")
             for intersecting_space_segment in intersections:
                 assert isinstance(intersecting_space_segment, SpaceSegment)
-                intersecting_space: "Coordinate4D" = space_segment.intersect(intersecting_space_segment)
-                intersecting_volume += intersecting_space.volume
-                intersecting_area += intersecting_space.area
+                intersection_volume = space_segment.intersection_volume(
+                    intersecting_space_segment)
+                intersecting_volume += intersection_volume.volume
+                intersecting_area += intersection_volume.area
 
             tree.insert(hash(space_segment), space_segment.tree_rep(), obj=space_segment)
 
@@ -509,12 +510,26 @@ class Statistics:
         for intersecting_agent in intersecting_agents:
             if intersecting_agent.id not in violations:
                 violations[intersecting_agent.id] = []
-            for space_coordinate in space_segment.coordinates:
-                for intersecting_segment in intersecting_agent.allocated_segments:
-                    if intersecting_segment.contains(space_coordinate):
-                        violations[intersecting_agent.id].append(space_coordinate)
+            if isinstance(intersecting_agent, PathAgent):
+                intersecting_agents_coords = intersecting_agent.get_positions_at_ticks(space_segment.min.t,
+                                                                                       space_segment.max.t)
+                for possible_collision in intersecting_agents_coords:
+                    if space_segment.contains(possible_collision):
+                        violations[intersecting_agent.id].append(possible_collision)
                         total_violations += 1
 
+            elif isinstance(intersecting_agent, SpaceAgent):
+                intersecting_agents_segments = intersecting_agent.get_segments_at_ticks(space_segment.min.t,
+                                                                                        space_segment.max.t)
+                for segment in intersecting_agents_segments:
+                    intersecting_min, intersecting_max = segment.intersecting_space(space_segment)
+                    if (intersecting_max - intersecting_min).volume > 0:
+                        intersection_point = (intersecting_min + intersecting_max) / 2
+
+                        for t in range(intersecting_max.t - intersecting_min.t):
+                            violations[intersecting_agent.id].append(
+                                Coordinate4D.from_3D(intersection_point, intersecting_min.t + t))
+                            total_violations += 1
         return ViolationStatistics(violations, total_violations)
 
     def get_total_violations(self) -> int:

@@ -78,7 +78,7 @@ class Coordinate4D(Coordinate3D):
             return Coordinate4D(self.x + other.x, self.y + other.y, self.z + other.z, self.t)
         elif isinstance(other, Coordinate2D):
             return Coordinate4D(self.x + other.x, self.y, self.z + other.z, self.t)
-        elif isinstance(other, float):
+        elif isinstance(other, float) or isinstance(other, int):
             return Coordinate4D(self.x + other, self.y + other, self.z + other, self.t)
         else:
             raise Exception(f"Addition is not defined for {other}")
@@ -90,10 +90,18 @@ class Coordinate4D(Coordinate3D):
             return Coordinate4D(self.x - other.x, self.y - other.y, self.z - other.z, self.t)
         elif isinstance(other, Coordinate2D):
             return Coordinate4D(self.x - other.x, self.y, self.z - other.z, self.t)
-        elif isinstance(other, float):
+        elif isinstance(other, float) or isinstance(other, int):
             return Coordinate4D(self.x - other, self.y - other, self.z - other, self.t)
         else:
             raise Exception(f"Subtraction is not defined for {other}")
+
+    def __mul__(self, other):
+        if isinstance(other, Coordinate4D):
+            return Coordinate4D(self.x * other.x, self.y * other.y, self.z * other.z, self.t * other.t)
+        if isinstance(other, int):
+            return Coordinate4D(self.x * other, self.y * other, self.z * other, self.t * other)
+        else:
+            raise Exception(f"Multiplication is not definded for {self.__class__} and {other.__class__}")
 
     @property
     def l1(self) -> float:
