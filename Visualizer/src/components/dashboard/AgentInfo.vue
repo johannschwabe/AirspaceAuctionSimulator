@@ -252,7 +252,7 @@ const allocations = computed(() => {
       {
         label: "Collisions",
         value: stat.collidingAgentBids.length,
-        icon: Skull,
+        icon: GitPullRequest,
       },
       {
         label: "Compute Time",

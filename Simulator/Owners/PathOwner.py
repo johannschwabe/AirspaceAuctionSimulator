@@ -28,11 +28,12 @@ class PathOwner(Owner):
                  creation_ticks: List[int],
                  bidding_strategy: "BiddingStrategy",
                  value_function: "ValueFunction",
-                 near_radius: int,
+                 near_radius: float,
                  battery: int,
                  speed: int,
                  meta: Dict[str, Any] | NoneType = None):
         super().__init__(owner_id, bidding_strategy, value_function, name, color, meta if meta else {})
+        assert near_radius >= 1
         self.creation_ticks = creation_ticks
         self.stops = stops
         self.near_radius = near_radius
@@ -40,7 +41,8 @@ class PathOwner(Owner):
         self.speed = speed
 
     @staticmethod
-    def generate_stop_coordinate(stop: "GridLocation", env: "Environment", t: int, near_radius: int) -> "Coordinate4D":
+    def generate_stop_coordinate(stop: "GridLocation", env: "Environment", t: int,
+                                 near_radius: float) -> "Coordinate4D":
         coord = stop.generate_coordinates(env, t + 1)
 
         while coord.y < env.min_height or env.is_coordinate_blocked_forever(coord, near_radius):

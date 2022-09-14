@@ -3,9 +3,6 @@ import statistics
 from abc import ABC
 from typing import TYPE_CHECKING, List, Dict, Optional, Any
 
-from rtree import Index
-from rtree.index import Property
-
 from .Stringify import Stringify
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
@@ -13,6 +10,7 @@ from ..Coordinates.Coordinate2D import Coordinate2D
 from ..Owners.Owner import Owner
 from ..Segments.PathSegment import PathSegment
 from ..Segments.SpaceSegment import SpaceSegment
+from ..helpers.helpers import setup_rtree
 
 if TYPE_CHECKING:
     from ..Coordinates.Coordinate4D import Coordinate4D
@@ -264,13 +262,13 @@ class Statistics:
         """
         delta = path_segment.max - path_segment.min
 
-        l1_distance: int = delta.to_3D().l1
+        l1_distance: float = delta.to_3D().l1
         l2_distance: float = delta.to_3D().l2
-        l1_ground_distance: int = delta.to_2D().l1
+        l1_ground_distance: float = delta.to_2D().l1
         l2_ground_distance: float = delta.to_2D().l2
-        height_difference: int = path_segment.max.y - path_segment.min.y
+        height_difference: float = path_segment.max.y - path_segment.min.y
         time_difference: int = path_segment.max.t - path_segment.min.t
-        heights: List[int] = []
+        heights: List[float] = []
         ascent: int = 0
         descent: int = 0
         distance_traveled: int = 0
@@ -293,7 +291,7 @@ class Statistics:
             previous_coordinate = coordinate
 
         mean_height: float = statistics.mean(heights)
-        median_height: int = statistics.median(heights)
+        median_height: float = statistics.median(heights)
 
         return PathStatistics(l1_distance,
                               l2_distance,
@@ -318,16 +316,16 @@ class Statistics:
         if len(path) == 0:
             return None
 
-        l1_distance: int = int(path[0].min.distance(path[-1].max))
+        l1_distance: float = int(path[0].min.distance(path[-1].max))
         l2_distance: float = path[0].min.distance(path[-1].max, l2=True)
-        l1_ground_distance: int = int(Coordinate2D.distance(path[0].min, path[-1].max))
+        l1_ground_distance: float = int(Coordinate2D.distance(path[0].min, path[-1].max))
         l2_ground_distance: float = Coordinate2D.distance(path[0].min, path[-1].max, l2=True)
-        height_difference: int = path[-1].max.y - path[0].min.y
-        heights: List[int] = []
-        ascent: int = 0
-        descent: int = 0
-        distance_traveled: int = 0
-        ground_distance_traveled: int = 0
+        height_difference: float = path[-1].max.y - path[0].min.y
+        heights: List[float] = []
+        ascent: float = 0
+        descent: float = 0
+        distance_traveled: float = 0
+        ground_distance_traveled: float = 0
         for path_segment in path:
             path_segment_statistics = Statistics.path_segment_statistics(path_segment)
             heights.extend(path_segment_statistics.heights)
@@ -337,7 +335,7 @@ class Statistics:
             ground_distance_traveled += path_segment_statistics.ground_distance_traveled
 
         mean_height: float = statistics.mean(heights)
-        median_height: int = statistics.median(heights)
+        median_height: float = statistics.median(heights)
 
         return PathStatistics(l1_distance,
                               l2_distance,
@@ -373,15 +371,6 @@ class Statistics:
                                       height_above_ground)
 
     @staticmethod
-    def _setup_rtree() -> Index:
-        """
-        Returns a rtree instance with 4 dimensions.
-        """
-        props = Property()
-        props.dimension = 4
-        return Index(properties=props)
-
-    @staticmethod
     def spaces_statistics(spaces: List["SpaceSegment"]) -> Optional["SpaceStatistics"]:
         """
         Create statistics for spaces (list of space-segments).
@@ -401,7 +390,7 @@ class Statistics:
         times = []
         heights_above_ground = []
 
-        tree = Statistics._setup_rtree()
+        tree = setup_rtree()
 
         for space_segment in spaces:
             intersections = tree.intersection(space_segment.tree_rep(), objects="raw")
@@ -582,72 +571,72 @@ class Statistics:
 
 class PathStatistics(Stringify):
     def __init__(self,
-                 l1_distance: int,
+                 l1_distance: float,
                  l2_distance: float,
-                 l1_ground_distance: int,
+                 l1_ground_distance: float,
                  l2_ground_distance: float,
-                 height_difference: int,
-                 ascent: int,
-                 descent: int,
-                 distance_traveled: int,
-                 ground_distance_traveled: int,
+                 height_difference: float,
+                 ascent: float,
+                 descent: float,
+                 distance_traveled: float,
+                 ground_distance_traveled: float,
                  mean_height: float,
-                 median_height: int,
-                 heights: List[int]):
-        self.l1_distance: int = l1_distance
+                 median_height: float,
+                 heights: List[float]):
+        self.l1_distance: float = l1_distance
         self.l2_distance: float = l2_distance
-        self.l1_ground_distance: int = l1_ground_distance
+        self.l1_ground_distance: float = l1_ground_distance
         self.l2_ground_distance: float = l2_ground_distance
-        self.height_difference: int = height_difference
-        self.ascent: int = ascent
-        self.descent: int = descent
-        self.distance_traveled: int = distance_traveled
-        self.ground_distance_traveled: int = ground_distance_traveled
+        self.height_difference: float = height_difference
+        self.ascent: float = ascent
+        self.descent: float = descent
+        self.distance_traveled: float = distance_traveled
+        self.ground_distance_traveled: float = ground_distance_traveled
         self.mean_height: float = mean_height
-        self.median_height: int = median_height
-        self.heights: List[int] = heights
+        self.median_height: float = median_height
+        self.heights: List[float] = heights
 
 
 class SpaceSegmentStatistics(Stringify):
     def __init__(self,
-                 volume: int,
-                 height: int,
-                 area: int,
+                 volume: float,
+                 height: float,
+                 area: float,
                  time: int,
-                 height_above_ground: int):
-        self.volume: int = volume
-        self.height: int = height
-        self.area: int = area
+                 height_above_ground: float):
+        self.volume: float = volume
+        self.height: float = height
+        self.area: float = area
         self.time: int = time
-        self.height_above_ground: int = height_above_ground
+        self.height_above_ground: float = height_above_ground
 
 
 class SpaceStatistics(Stringify):
     def __init__(self,
-                 volume: int,
+                 volume: float,
                  mean_volume: float,
-                 median_volume: int,
+                 median_volume: float,
                  mean_height: float,
-                 median_height: int,
-                 area: int,
+                 median_height: float,
+                 area: float,
                  mean_area: float,
-                 median_area: int,
+                 median_area: float,
                  mean_time: float,
                  median_time: int,
                  mean_height_above_ground: float,
-                 median_height_above_ground: int):
-        self.volume: int = volume
+                 median_height_above_ground: float):
+        self.volume: float = volume
         self.mean_volume: float = mean_volume
-        self.median_volume: int = median_volume
+        self.median_volume: float = median_volume
         self.mean_height: float = mean_height
-        self.median_height: int = median_height
-        self.area: int = area
+        self.median_height: float = median_height
+        self.area: float = area
         self.mean_area: float = mean_area
-        self.median_area: int = median_area
+        self.median_area: float = median_area
         self.mean_time: float = mean_time
         self.median_time: int = median_time
         self.mean_height_above_ground: float = mean_height_above_ground
-        self.median_height_above_ground: int = median_height_above_ground
+        self.median_height_above_ground: float = median_height_above_ground
 
 
 class SimulationStatistics(Stringify):

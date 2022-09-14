@@ -9,7 +9,7 @@
     <n-divider />
 
     <div class="nav-margin">
-      <n-grid cols="12">
+      <n-grid cols="12" style="max-height: 1050px">
         <!-- Left Part -->
         <n-grid-item span="2">
           <n-grid cols="1">
