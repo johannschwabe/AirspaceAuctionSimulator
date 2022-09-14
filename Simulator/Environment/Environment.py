@@ -334,7 +334,7 @@ class Environment:
         The radius is abstracted by a qube around the given coordinate with size 2 * radius.
         """
         speed: int = path_agent.speed if include_speed else 0
-        radius: int = self.max_near_radius if use_max_radius else path_agent.near_radius
+        radius: int = max(path_agent.near_radius, self.max_near_radius) if use_max_radius else path_agent.near_radius
         agent_hashes = set(self.tree.intersection(coords.tree_query_cube_rep(radius, speed)))
         return set([self.agents[agent_hash] for agent_hash in agent_hashes if agent_hash != hash(path_agent)])
 
