@@ -3,7 +3,7 @@ from typing import List, TYPE_CHECKING, Set, Tuple
 
 from .Node import Node
 from ..Agents.PathAgent import PathAgent
-from ..helpers.helpers import is_valid_for_path_allocation, distance_l2
+from ..helpers.helpers import is_valid_for_path_allocation
 
 if TYPE_CHECKING:
     from ..Environment.Environment import Environment
@@ -82,7 +82,7 @@ class AStar:
                         continue
 
                     neighbor.g = current_node.g + self.g_sum
-                    neighbor.h = distance_l2(neighbor.position, end_node.position)
+                    neighbor.h = neighbor.position.distance(end_node.position, l2=True)
                     neighbor.f = neighbor.g + neighbor.h
 
                     if self.height_adjust > 0.:

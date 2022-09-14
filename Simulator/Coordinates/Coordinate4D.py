@@ -111,8 +111,5 @@ class Coordinate4D(Coordinate3D):
     def l2(self) -> float:
         return math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2 + self.t ** 2)
 
-    def distance(self, other: Coordinate3D, l2: bool = False) -> float:
-        return super().distance(other, l2)
-
     def clone(self) -> "Coordinate4D":
         return Coordinate4D(self.x, self.y, self.z, self.t)

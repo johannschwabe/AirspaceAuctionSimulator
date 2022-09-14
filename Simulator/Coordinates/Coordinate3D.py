@@ -78,5 +78,32 @@ class Coordinate3D(Coordinate2D):
         else:
             return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z - other.z)
 
+    def distance_to_space(self, space_min: "Coordinate3D", space_max: "Coordinate3D"):
+        # x
+        if self.x < space_min.x:
+            x = space_min.x
+        elif self.x > space_max.x:
+            x = space_max.x
+        else:
+            x = self.x
+
+        # y
+        if self.y < space_min.y:
+            y = space_min.y
+        elif self.y > space_max.y:
+            y = space_max.y
+        else:
+            y = self.y
+
+        # z
+        if self.z < space_min.z:
+            z = space_min.z
+        elif self.z > space_max.z:
+            z = space_max.z
+        else:
+            z = self.z
+
+        return math.sqrt(math.pow(x - self.x, 2) + math.pow(y - self.y, 2) + math.pow(z - self.z, 2))
+
     def clone(self) -> "Coordinate3D":
         return Coordinate3D(self.x, self.y, self.z)

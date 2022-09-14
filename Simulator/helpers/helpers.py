@@ -1,11 +1,9 @@
-import math
 from typing import Optional
 
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
 from ..BidTracker.BidTracker import BidTracker
 from ..Bids.Bid import Bid
-from ..Coordinates.Coordinate3D import Coordinate3D
 from ..Coordinates.Coordinate4D import Coordinate4D
 from ..Environment.Environment import Environment
 
@@ -78,7 +76,7 @@ def is_valid_for_space_allocation(allocation_tick: int, environment: "Environmen
             path_coordinates = max_intersecting_agent.get_positions_at_ticks(min_position.t, max_position.t)
             assert len(path_coordinates) > 0
             for path_coordinate in path_coordinates:
-                distance = point_cuboid_distance(path_coordinate, min_position, max_position)
+                distance = path_coordinate.distance_to_space(min_position, max_position)
                 if distance <= max_intersecting_agent.near_radius:
                     true_intersecting_agents.add(max_intersecting_agent)
                     break
@@ -129,7 +127,7 @@ def is_valid_for_path_allocation(allocation_tick: int, environment: "Environment
             segments = max_intersecting_agent.get_segments_at_ticks(position.t, position.t + path_agent.speed)
             assert len(segments) > 0
             for segment in segments:
-                distance = point_cuboid_distance(position, segment.min, segment.max)
+                distance = position.distance_to_space(segment.min, segment.max)
                 if distance <= path_agent.near_radius:
                     true_intersecting_agents.add(max_intersecting_agent)
                     break
@@ -146,39 +144,3 @@ def is_valid_for_path_allocation(allocation_tick: int, environment: "Environment
             return False, None
 
     return True, true_intersecting_agents
-
-
-def distance_l1(start: "Coordinate4D", end: "Coordinate4D"):
-    return abs(start.x - end.x) + abs(start.y - end.y) + abs(start.z - end.z)
-
-
-def distance_l2(start: "Coordinate4D", end: "Coordinate4D"):
-    return math.pow((start.x - end.x) ** 2 + (start.y - end.y) ** 2 + (start.z - end.z) ** 2, 0.5)
-
-
-def point_cuboid_distance(point: "Coordinate3D", cube_min: "Coordinate3D", cube_max: "Coordinate3D"):
-    # x
-    if point.x < cube_min.x:
-        x = cube_min.x
-    elif point.x > cube_max.x:
-        x = cube_max.x
-    else:
-        x = point.x
-
-    # y
-    if point.y < cube_min.y:
-        y = cube_min.y
-    elif point.y > cube_max.y:
-        y = cube_max.y
-    else:
-        y = point.y
-
-    # z
-    if point.z < cube_min.z:
-        z = cube_min.z
-    elif point.z > cube_max.z:
-        z = cube_max.z
-    else:
-        z = point.z
-
-    return math.sqrt(math.pow(x - point.x, 2) + math.pow(y - point.y, 2) + math.pow(z - point.z, 2))

@@ -11,7 +11,6 @@ from ..Coordinates.Coordinate2D import Coordinate2D
 from ..Owners.Owner import Owner
 from ..Segments.PathSegment import PathSegment
 from ..Segments.SpaceSegment import SpaceSegment
-from ..helpers.helpers import point_cuboid_distance
 
 if TYPE_CHECKING:
     from ..Coordinates.Coordinate4D import Coordinate4D
@@ -477,7 +476,7 @@ class Statistics:
                     encountered_agent_segments = intersecting_agent.get_segments_at_tick(coordinate.t)
                     assert len(encountered_agent_segments) > 0
                     for segment in encountered_agent_segments:
-                        distance = point_cuboid_distance(coordinate, segment.min, segment.max)
+                        distance = coordinate.distance_to_space(segment.min, segment.max)
                         if distance <= path_agent.near_radius:
                             true_intersection = True
                             break
