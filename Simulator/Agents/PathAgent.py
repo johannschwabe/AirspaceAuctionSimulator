@@ -26,7 +26,7 @@ class PathAgent(Agent):
                  config: Optional[Dict[str, Any]] = None,
                  speed: Optional[int] = None,
                  battery: Optional[int] = None,
-                 near_radius: Optional[int] = None,
+                 near_radius: Optional[float] = None,
                  _is_clone: bool = False):
 
         super().__init__(agent_id, bidding_strategy, value_function, config, _is_clone=_is_clone)
@@ -37,6 +37,8 @@ class PathAgent(Agent):
         self.speed: int = speed if speed is not None else self.DEFAULT_SPEED
         self.battery: int = battery if battery is not None else self.DEFAULT_BATTERY
         self.near_radius = near_radius if near_radius is not None else self.DEFAULT_NEAR_RADIUS
+
+        assert self.near_radius >= 1
 
         self.allocated_segments: List["PathSegment"] = []
 

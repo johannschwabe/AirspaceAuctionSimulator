@@ -1,7 +1,9 @@
 import unittest
 
+from Demos.FCFS.BidTracker.FCFSBidTracker import FCFSBidTracker
 from Simulator import Environment, Coordinate4D, SpaceSegment, StaticBlocker, Coordinate3D
 from Simulator.Blocker.DynamicBlocker import DynamicBlocker
+from Simulator.helpers.helpers import is_valid_for_path_allocation, setup_rtree
 from test.EnvHelpers import generate_path_agent, generate_path_segment, generate_space_agent, \
     generate_path_allocation, generate_space_allocation
 
@@ -11,7 +13,7 @@ class EnvironmentTest(unittest.TestCase):
         self.env = Environment(Coordinate4D(100, 100, 100, 1000))
 
     def test_rtree_setup(self):
-        newRTree = Environment.setup_rtree()
+        newRTree = setup_rtree()
         self.assertTrue(newRTree.properties.dimension == 4)
 
     def test_get_blocker_id(self):
@@ -137,11 +139,13 @@ class EnvironmentTest(unittest.TestCase):
         blocky2.id = 22
         blocky.add_to_tree(self.env.blocker_tree, self.env.dimension)
         blocky2.add_to_tree(self.env.blocker_tree, self.env.dimension)
+        self.env.blocker_dict[blocky.id] = blocky
+        self.env.blocker_dict[blocky2.id] = blocky2
         intersecting_blockers = self.env.get_blockers_at_coordinate(Coordinate4D(6, 6, 6, 100), 1, 1)
         intersecting_blockers_list = list(intersecting_blockers)
         self.assertEqual(len(intersecting_blockers_list), 2)
-        self.assertIn(blocky.id, intersecting_blockers_list)
-        self.assertIn(blocky2.id, intersecting_blockers_list)
+        self.assertIn(blocky, intersecting_blockers_list)
+        self.assertIn(blocky2, intersecting_blockers_list)
 
     def test_is_blocked(self):
         agi = generate_path_agent()
@@ -184,26 +188,15 @@ class EnvironmentTest(unittest.TestCase):
         agi_1.add_allocated_segment(segment2)
         res = self.env.have_intersections_collision(Coordinate4D(3, 3, 5, 6),
                                                     agi_2,
-                                                    [hash(agi_1), hash(agi_3)], [hash(agi_3)])
+                                                    {hash(agi_1), hash(agi_3)},
+                                                    {hash(agi_3)})
 
         self.assertTrue(res)
         res2 = self.env.have_intersections_collision(Coordinate4D(3, 3, 5, 6),
                                                      agi_2,
-                                                     [hash(agi_3), hash(agi_1)], [hash(agi_1)])
+                                                     {hash(agi_3), hash(agi_1)},
+                                                     {hash(agi_1)})
         self.assertFalse(res2)
-
-    def test_is_blocked_by_agent(self):
-        agi = generate_path_agent()
-        agi_2 = generate_path_agent()
-        path_segment = generate_path_segment(Coordinate4D(3, 3, 3, 3))
-        self.env.allocate_path_segment_for_agent(agi, path_segment)
-        self.env.add_agent(agi)
-        self.assertTrue(self.env.is_blocked_by_agent(Coordinate4D(3, 3, 5, 6), agi_2))
-        self.assertTrue(self.env.is_blocked_by_agent(Coordinate4D(4, 3, 5, 6), agi_2))
-        self.assertFalse(self.env.is_blocked_by_agent(Coordinate4D(5, 3, 5, 6), agi_2))
-        agi.near_radius = 4
-        self.env.max_near_radius = 4
-        self.assertTrue(self.env.is_blocked_by_agent(Coordinate4D(5, 3, 5, 6), agi_2))
 
     def test_is_space_blocked(self):
         blocky = StaticBlocker(Coordinate3D(3, 3, 3), Coordinate3D(10, 10, 10))
@@ -226,9 +219,12 @@ class EnvironmentTest(unittest.TestCase):
         self.env.add_agent(agi)
 
         agi_2 = generate_path_agent()
-        self.assertFalse(self.env.is_valid_for_allocation(Coordinate4D(4, 4, 4, 4), agi_2))
-        self.assertFalse(self.env.is_valid_for_allocation(Coordinate4D(11, 11, 13, 5), agi_2))
-        self.assertTrue(self.env.is_valid_for_allocation(Coordinate4D(11, 11, 14, 25), agi_2))
+        self.assertFalse(
+            is_valid_for_path_allocation(0, self.env, FCFSBidTracker(), Coordinate4D(4, 4, 4, 4), agi_2)[0])
+        self.assertFalse(
+            is_valid_for_path_allocation(0, self.env, FCFSBidTracker(), Coordinate4D(11, 11, 13, 5), agi_2)[0])
+        self.assertTrue(
+            is_valid_for_path_allocation(0, self.env, FCFSBidTracker(), Coordinate4D(11, 11, 14, 25), agi_2)[0])
 
     def test_other_agents_in_space(self):
         agi = generate_path_agent()
@@ -257,7 +253,6 @@ class EnvironmentTest(unittest.TestCase):
         new_clear = self.env.new_clear()
         agi_2 = generate_path_agent()
         self.assertTrue(new_clear.is_coordinate_blocked(Coordinate4D(4, 4, 4, 4), agi_2))
-        self.assertFalse(new_clear.is_blocked_by_agent(Coordinate4D(11, 11, 11, 3), agi_2))
 
     def test_clone(self):
         blocky = StaticBlocker(Coordinate3D(3, 3, 3), Coordinate3D(7, 7, 7))
@@ -273,7 +268,6 @@ class EnvironmentTest(unittest.TestCase):
         new_clear = self.env.clone()
         agi_2 = generate_path_agent()
         self.assertTrue(new_clear.is_coordinate_blocked(Coordinate4D(4, 4, 4, 4), agi_2))
-        self.assertTrue(new_clear.is_blocked_by_agent(Coordinate4D(11, 11, 11, 3), agi_2))
 
 
 if __name__ == '__main__':

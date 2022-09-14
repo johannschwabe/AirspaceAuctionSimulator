@@ -193,7 +193,7 @@ class Environment:
                 res.append(temporary_allocation.get_allocation_with_agent(self.agents[agent_hash]))
         return res
 
-    def get_blockers_at_coordinate(self, coord: "Coordinate4D", radius: int, speed: int) -> Set["Blocker"]:
+    def get_blockers_at_coordinate(self, coord: "Coordinate4D", radius: float, speed: int) -> Set["Blocker"]:
         """
         Returns a list of all blocker IDs that intersect a qube around the given coordinate with size 2 * radius.
         All time steps from coordinate.t to coordinate.t + speed are considered.
@@ -228,7 +228,7 @@ class Environment:
                 return True
         return False
 
-    def is_coordinate_blocked_forever(self, coordinate: "Coordinate4D", radius: int) -> bool:
+    def is_coordinate_blocked_forever(self, coordinate: "Coordinate4D", radius: float) -> bool:
         """
         Returns True if there is a static blocker at the given coordinate or in its radius.
         The radius is abstracted by a qube around the given coordinate with size 2 * radius.

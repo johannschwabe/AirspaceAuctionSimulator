@@ -19,7 +19,7 @@ class OwnerTest(unittest.TestCase):
                                      GridLocation(str(GridLocationType.RANDOM.value))],
                                     [10],
                                     FCFSPathBiddingStrategy(),
-                                    FCFSPathValueFunction({}),
+                                    FCFSPathValueFunction(),
                                     1, 1000, 1, {})
         self.space_owner = SpaceOwner("Test Space Owner",
                                       "Bluberatus",
@@ -31,7 +31,7 @@ class OwnerTest(unittest.TestCase):
                                       [10],
                                       Coordinate4D(3, 3, 1, 10),
                                       FCFSSpaceBiddingStrategy(),
-                                      FCFSSpaceValueFunction({}),
+                                      FCFSSpaceValueFunction(),
                                       {})
         self.env = Environment(Coordinate4D(100, 100, 100, 1000), min_height=10)
 

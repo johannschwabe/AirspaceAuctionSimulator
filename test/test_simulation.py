@@ -15,20 +15,27 @@ class SimulationTest(unittest.TestCase):
         self.env = Environment(Coordinate4D(10, 1, 10, 200), self.blockers)
 
     def test_tick(self):
-        owners = [PathOwner("po_1", "Ghettobox", "#123456",
-                            [GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(4, 3)),
-                             GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(6, 6))],
-                            [3], PriorityPathBiddingStrategy(), PriorityPathValueFunction({}), near_radius=1,
-                            battery=100, speed=1, meta={"priority": 0.1}),
+        owners = [PathOwner("po_1",
+                            "Ghettobox",
+                            "#123456",
+                            [GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(3, 3)),
+                             GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(7, 7))],
+                            [3],
+                            PriorityPathBiddingStrategy(),
+                            PriorityPathValueFunction(),
+                            near_radius=1,
+                            battery=100,
+                            speed=1,
+                            meta={"priority": 0.1}),
                   PathOwner("po_2", "SCHMITTAG", "#654321",
-                            [GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(6, 6)),
-                             GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(4, 3))],
-                            [4], PriorityPathBiddingStrategy(), PriorityPathValueFunction({}), near_radius=1,
+                            [GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(6, 7)),
+                             GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(3, 3))],
+                            [4], PriorityPathBiddingStrategy(), PriorityPathValueFunction(), near_radius=1,
                             battery=100, speed=1, meta={"priority": 0.2}),
                   PathOwner("po_3", "EHHHH", "#999999",
                             [GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(1, 8)),
-                             GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(3, 0))],
-                            [5], PriorityPathBiddingStrategy(), PriorityPathValueFunction({}), near_radius=1,
+                             GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(4, 0))],
+                            [5], PriorityPathBiddingStrategy(), PriorityPathValueFunction(), near_radius=1,
                             battery=100, speed=5, meta={"priority": 0.2})
                   ]
         mechi = Mechanism(PriorityAllocator(), PriorityPaymentRule(0.02))
@@ -39,10 +46,10 @@ class SimulationTest(unittest.TestCase):
         simi.tick()
         simi.tick()
         self.assertEqual(len(self.env.agents), 1)
-        self.assertIn(Coordinate4D(4, 0, 6, 7), self.env.agents[hash('po_1-0')].get_allocated_coords())
+        self.assertIn(Coordinate4D(4, 0, 6, 8), self.env.agents[hash('po_1-0')].allocated_segments[0].coordinates)
         simi.tick()
         self.assertEqual(len(self.env.agents), 2)
-        self.assertIn(Coordinate4D(4, 0, 6, 7), self.env.agents[hash('po_2-0')].get_allocated_coords())
-        self.assertNotIn(Coordinate4D(4, 0, 6, 7), self.env.agents[hash('po_1-0')].get_allocated_coords())
+        self.assertIn(Coordinate4D(4, 0, 6, 8), self.env.agents[hash('po_2-0')].allocated_segments[0].coordinates)
+        self.assertNotIn(Coordinate4D(4, 0, 6, 8), self.env.agents[hash('po_1-0')].allocated_segments[0].coordinates)
         simi.tick()
         self.assertEqual(len(self.env.agents), 3)
