@@ -12,7 +12,16 @@ class Coordinate2D:
         return {"x": self.x, "z": self.z}
 
     def __repr__(self) -> str:
-        return f"({self.x}, {self.z})"
+        if isinstance(self.x, int):
+            str_x = f"{self.x:3d}"
+        else:
+            str_x = f"{self.x:6.2f}"
+
+        if isinstance(self.z, int):
+            str_z = f"{self.z:3d}"
+        else:
+            str_z = f"{self.x:6.2f}"
+        return f"({str_x}, {str_z})"
 
     def __eq__(self, other) -> bool:
         return self.x == other.x and \

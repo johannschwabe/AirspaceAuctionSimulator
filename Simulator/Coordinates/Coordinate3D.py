@@ -14,7 +14,21 @@ class Coordinate3D(Coordinate2D):
         return {"x": self.x, "y": self.y, "z": self.z}
 
     def __repr__(self) -> str:
-        return f"({self.x}, {self.y}, {self.z})"
+        if isinstance(self.x, int):
+            str_x = f"{self.x:3d}"
+        else:
+            str_x = f"{self.x:6.2f}"
+
+        if isinstance(self.y, int):
+            str_y = f"{self.y:3d}"
+        else:
+            str_y = f"{self.y:6.2f}"
+
+        if isinstance(self.z, int):
+            str_z = f"{self.z:3d}"
+        else:
+            str_z = f"{self.x:6.2f}"
+        return f"({str_x}, {str_y}, {str_z})"
 
     def __eq__(self, other) -> bool:
         return self.x == other.x and \
