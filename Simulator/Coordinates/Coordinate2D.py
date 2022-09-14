@@ -4,15 +4,24 @@ from typing import Dict
 
 class Coordinate2D:
 
-    def __init__(self, x: int, z: int):
-        self.x: int = x
-        self.z: int = z
+    def __init__(self, x: int | float, z: int | float):
+        self.x: int | float = x
+        self.z: int | float = z
 
-    def to_dict(self) -> Dict[str, int]:
+    def to_dict(self) -> Dict[str, int | float]:
         return {"x": self.x, "z": self.z}
 
     def __repr__(self) -> str:
-        return f"({self.x}, {self.z})"
+        if isinstance(self.x, int):
+            str_x = f"{self.x:3d}"
+        else:
+            str_x = f"{self.x:6.2f}"
+
+        if isinstance(self.z, int):
+            str_z = f"{self.z:3d}"
+        else:
+            str_z = f"{self.x:6.2f}"
+        return f"({str_x}, {str_z})"
 
     def __eq__(self, other) -> bool:
         return self.x == other.x and \
@@ -33,6 +42,22 @@ class Coordinate2D:
             return Coordinate2D(self.x - other, self.z - other)
         else:
             raise Exception(f"Subtraction is not defined for {other}")
+
+    def __mul__(self, other):
+        if isinstance(other, Coordinate2D):
+            return Coordinate2D(self.x * other.x, self.z * other.z)
+        if isinstance(other, int) or isinstance(other, float):
+            return Coordinate2D(self.x * other, self.z * other)
+        else:
+            raise Exception(f"Multiplication is not definded for {self.__class__} and {other.__class__}")
+
+    def __truediv__(self, other):
+        if isinstance(other, Coordinate2D):
+            return Coordinate2D(self.x / other.x, self.z / other.z)
+        if isinstance(other, int) or isinstance(other, float):
+            return Coordinate2D(self.x / other, self.z / other)
+        else:
+            raise Exception(f"Multiplication is not definded for {self.__class__} and {other.__class__}")
 
     @property
     def area(self) -> int:
