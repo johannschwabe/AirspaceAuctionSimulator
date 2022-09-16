@@ -1,3 +1,4 @@
+import math
 import statistics
 from abc import ABC
 from typing import TYPE_CHECKING, List, Dict, Optional, Any
@@ -45,17 +46,49 @@ class Statistics:
                                     self.simulation.history.total_reallocations,
                                     self.simulation.history.compute_times)
 
+    def get_path_locations_delay(self, path_agent: "PathAgent"):
+        # 1e500 is parsed by JS to Infinity
+        delayed_arrivals = [math.inf] * (len(path_agent.locations) - 1)
+        for _index, target in enumerate(path_agent.locations[1:]):
+            if len(path_agent.allocated_segments) > _index:
+                reached = path_agent.allocated_segments[_index]
+                if reached.max.inter_temporal_equal(target):
+                    delayed_arrivals[_index] = reached.max.t - target.t
+        delayed_starts = [math.inf] * (len(path_agent.locations) - 1)
+
+        for _index, target in enumerate(path_agent.locations[:-1]):
+            if len(path_agent.allocated_segments) > _index:
+                reached = path_agent.allocated_segments[_index]
+                delayed_starts[_index] = reached.min.t - target.t - path_agent.stays[_index]
+        rel_delayed_arrivals = [math.inf] * (len(path_agent.locations) - 1)
+        for _index in range(len(path_agent.locations) - 1):
+            rel_delayed_arrivals[_index] = delayed_arrivals[_index] - delayed_starts[_index]
+        return delayed_starts, delayed_arrivals, rel_delayed_arrivals
+
     def get_owner_statistics(self) -> List["OwnerStatistics"]:
         owner_statistics: List["OwnerStatistics"] = []
         for owner in self.simulation.owners:
             agent_statistics: List["AgentStatistics"] = []
+            compute_time_aggr = 0
+            nr_reallocations_caused_aggr = 0
             for agent in owner.agents:
                 agent_value = self.get_value_for_agent(agent)
                 non_colliding_agent_value = self.get_non_colliding_value_for_agent(agent)
                 violations = self.get_agent_violations(agent)
                 total_reallocations: int = self.simulation.history.reallocations[agent]
+                compute_time = sum([allocation.history.compute_time for allocation in
+                                    self.simulation.history.allocations[agent].values()])
+                compute_time_aggr += compute_time
+                print(agent)
+                nr_reallocations_caused = sum([len(reallocation.history.colliding_agent_bids) for reallocation in
+                                               self.simulation.history.allocations[agent].values() if
+                                               reallocation.history.colliding_agent_bids])
+                nr_reallocations_caused_aggr += nr_reallocations_caused
+
                 if isinstance(agent, PathAgent):
                     path_statistics = self.path_statistics(agent.allocated_segments)
+                    battery_unused: int = agent.battery - agent.get_airtime()
+                    delayed_starts, delayed_arrivals, rel_delayed_arrivals = self.get_path_locations_delay(agent)
                     agent_statistics.append(PathAgentStatistics(
                         agent,
                         agent_value,
@@ -64,6 +97,12 @@ class Statistics:
                         total_reallocations,
                         path_statistics,
                         self.get_allocation_statistics_for_agent(agent),
+                        compute_time,
+                        nr_reallocations_caused,
+                        battery_unused,
+                        delayed_starts,
+                        delayed_arrivals,
+                        rel_delayed_arrivals
                     ))
 
                 elif isinstance(agent, SpaceAgent):
@@ -75,6 +114,8 @@ class Statistics:
                         violations,
                         total_reallocations,
                         space_statistics,
+                        compute_time,
+                        nr_reallocations_caused,
                         self.get_allocation_statistics_for_agent(agent),
                     ))
 
@@ -84,7 +125,10 @@ class Statistics:
             owner_statistics.append(OwnerStatistics(owner,
                                                     agent_statistics,
                                                     self.get_values_for_owner(owner),
-                                                    self.get_non_colliding_values_for_owner(owner)))
+                                                    self.get_non_colliding_values_for_owner(owner),
+                                                    compute_time_aggr,
+                                                    nr_reallocations_caused_aggr)
+                                    )
 
         return owner_statistics
 
@@ -254,7 +298,6 @@ class Statistics:
                               l1_ground_distance,
                               l2_ground_distance,
                               height_difference,
-                              time_difference,
                               ascent,
                               descent,
                               distance_traveled,
@@ -278,7 +321,6 @@ class Statistics:
         l1_ground_distance: float = int(Coordinate2D.distance(path[0].min, path[-1].max))
         l2_ground_distance: float = Coordinate2D.distance(path[0].min, path[-1].max, l2=True)
         height_difference: float = path[-1].max.y - path[0].min.y
-        time_difference: int = path[-1].max.t - path[0].min.t
         heights: List[float] = []
         ascent: float = 0
         descent: float = 0
@@ -300,7 +342,6 @@ class Statistics:
                               l1_ground_distance,
                               l2_ground_distance,
                               height_difference,
-                              time_difference,
                               ascent,
                               descent,
                               distance_traveled,
@@ -535,7 +576,6 @@ class PathStatistics(Stringify):
                  l1_ground_distance: float,
                  l2_ground_distance: float,
                  height_difference: float,
-                 time_difference: int,
                  ascent: float,
                  descent: float,
                  distance_traveled: float,
@@ -548,7 +588,6 @@ class PathStatistics(Stringify):
         self.l1_ground_distance: float = l1_ground_distance
         self.l2_ground_distance: float = l2_ground_distance
         self.height_difference: float = height_difference
-        self.time_difference: int = time_difference
         self.ascent: float = ascent
         self.descent: float = descent
         self.distance_traveled: float = distance_traveled
@@ -645,7 +684,9 @@ class OwnerStatistics(Stringify):
                  owner: "Owner",
                  agent_statistics: List["AgentStatistics"],
                  value_statistics: ValueStatistics,
-                 non_colliding_value_statistics: ValueStatistics):
+                 non_colliding_value_statistics: ValueStatistics,
+                 compute_time: int,
+                 nr_reallocations_caused_aggr: int):
         self.id: str = owner.id
         self.agents = agent_statistics
         self.total_time_in_air: int = sum(
@@ -653,6 +694,10 @@ class OwnerStatistics(Stringify):
         self.values = value_statistics
         self.non_colliding_values = non_colliding_value_statistics
         self.number_of_agents: int = len(self.agents)
+        self.compute_time = compute_time
+        self.nr_reallocations_caused = nr_reallocations_caused_aggr
+        self.nr_battery_overused = sum([agent_statistic.battery_unused < 0 for agent_statistic in agent_statistics if
+                                        isinstance(agent_statistic, PathAgentStatistics)])
 
 
 class AgentStatistics(ABC):
@@ -662,12 +707,16 @@ class AgentStatistics(ABC):
                  non_colliding_value: float,
                  violation_statistics: "ViolationStatistics",
                  total_reallocations: int,
+                 compute_time: int,
+                 nr_reallocations_caused: int,
                  allocation_statistics: List["AllocationStatistics"]):
         self.id: str = agent.id
         self.value: float = value
         self.non_colliding_value: float = non_colliding_value
         self.violations = violation_statistics
         self.total_reallocations = total_reallocations
+        self.compute_time = compute_time
+        self.nr_reallocations_caused = nr_reallocations_caused
         self.allocations: List["AllocationStatistics"] = allocation_statistics
 
 
@@ -679,9 +728,12 @@ class SpaceAgentStatistics(AgentStatistics, Stringify):
                  violation_statistics: "ViolationStatistics",
                  total_reallocations: int,
                  space_statistics: Optional["SpaceStatistics"],
-                 allocation_statistics: List["AllocationStatistics"]):
+                 compute_time: int,
+                 nr_reallocations_caused: int,
+                 allocation_statistics: List["AllocationStatistics"]
+                 ):
         super().__init__(space_agent, value, non_colliding_value, violation_statistics, total_reallocations,
-                         allocation_statistics)
+                         compute_time, nr_reallocations_caused, allocation_statistics)
         self.space: Optional["SpaceStatistics"] = space_statistics
 
 
@@ -693,11 +745,22 @@ class PathAgentStatistics(AgentStatistics, Stringify):
                  violation_statistics: "ViolationStatistics",
                  total_reallocations: int,
                  path_statistics: Optional["PathStatistics"],
-                 allocation_statistics: List["AllocationStatistics"]):
+                 allocation_statistics: List["AllocationStatistics"],
+                 compute_time: int,
+                 nr_reallocations_caused: int,
+                 battery_unused: int,
+                 delayed_starts: List[int | float],
+                 delayed_arrivals: List[int | float],
+                 re_delayed_arrivals: List[int | float]):
         super().__init__(path_agent, value, non_colliding_value, violation_statistics, total_reallocations,
-                         allocation_statistics)
+                         compute_time, nr_reallocations_caused, allocation_statistics)
         self.path: Optional["PathStatistics"] = path_statistics
         self.time_in_air: int = path_agent.get_airtime()
+        self.allocations: List["AllocationStatistics"] = allocation_statistics
+        self.battery_unused: int = battery_unused
+        self.delayed_starts = delayed_starts
+        self.delayed_arrivals = delayed_arrivals
+        self.re_delayed_arrivals = re_delayed_arrivals
 
 
 class AllocationStatistics(Stringify):

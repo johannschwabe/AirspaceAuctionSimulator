@@ -15,7 +15,7 @@ random.seed(4)
 dimensions = Coordinate4D(40, 40, 40, 1000)
 allocation_period = 100
 space_dimensions = Coordinate4D(7, 7, 7, 10)
-nr_agents = 10
+nr_agents = 30
 
 
 def setup_empty():
@@ -23,9 +23,9 @@ def setup_empty():
     return Environment(dimensions, blockers=[blocker], allocation_period=allocation_period)
 
 
-resolution = 2
-bottom_left_coordinate = APIWorldCoordinates(lat=47.3685943521338, long=8.536376953124991)
-top_right_coordinate = APIWorldCoordinates(lat=47.376034633497596, long=8.547363281249993)
+resolution = 3
+bottom_left_coordinate = APIWorldCoordinates(lat=47.3695943521338, long=8.539376953124991)
+top_right_coordinate = APIWorldCoordinates(lat=47.371034633497596, long=8.541363281249993)
 map_height = 40
 time_steps = 1000
 
@@ -129,7 +129,7 @@ def color_generator():
 
 if __name__ == "__main__":
     environment = setup_map()
-    simulatorAligator = fcfsSimulation(environment)
+    simulatorAligator = prioritySimulation(environment)
 
     start = time.time_ns()
     while simulatorAligator.tick():
