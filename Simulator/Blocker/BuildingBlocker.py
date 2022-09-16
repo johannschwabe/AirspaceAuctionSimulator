@@ -1,3 +1,4 @@
+import math
 from typing import List, TYPE_CHECKING
 
 from shapely.geometry import Polygon, Point, box
@@ -15,12 +16,19 @@ class BuildingBlocker(StaticBlocker):
         self.points = vertices
         self.holes = holes
         self.polygon = Polygon(vertices, holes)
-        
+
     def is_blocking(self, coord: "Coordinate4D", radius: int = 0):
         point = Point(coord.x, coord.z)
         if radius == 0:
             return self.polygon.intersects(point)
-        near_bound = point.buffer(radius)
+        max_height = self.location.y + self.dimension.y
+        min_height = self.location.y
+        if coord.y > max_height or coord.y < min_height:
+            corrected_radius = math.sqrt(
+                math.pow(radius, 2) - math.pow(max(max_height - coord.y, coord.y - min_height), 2))
+        else:
+            corrected_radius = radius
+        near_bound = point.buffer(corrected_radius)
         return self.polygon.intersects(near_bound)
 
     def is_box_blocking(self, bottom_left: "Coordinate4D", top_right: "Coordinate4D") -> bool:
