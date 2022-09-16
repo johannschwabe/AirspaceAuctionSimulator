@@ -146,6 +146,12 @@ export default class Simulation {
     this.timelineViolations = [];
 
     /**
+     * Stores how many agents violated the airspace of a blocker at each possible tick
+     * @type {int[]}
+     */
+    this.timelineBlockerViolations = [];
+
+    /**
      * The maximum tick at which any active agent is still active / flying
      * @type {number}
      */
@@ -258,6 +264,7 @@ export default class Simulation {
     const agentsPerTick = {};
     const reAllocationsPerTick = {};
     const violationsPerTick = {};
+    const blockerViolationsPerTick = {};
     let maxTick = 0;
     this.selectedAgents.forEach((agent) => {
       agent.flyingTicks.forEach((tick) => {
@@ -281,10 +288,18 @@ export default class Simulation {
         }
         violationsPerTick[tick] += 1;
       });
+
+      agent.blockerViolationsTimesteps.forEach((tick) => {
+        if (!(tick in blockerViolationsPerTick)) {
+          blockerViolationsPerTick[tick] = 0;
+        }
+        blockerViolationsPerTick[tick] += 1;
+      });
     });
     const timeline = Array(maxTick).fill(0);
     const timelineReAllocations = Array(maxTick).fill(0);
     const timelineViolations = Array(maxTick).fill(0);
+    const timelineBlockerViolations = Array(maxTick).fill(0);
     Object.entries(agentsPerTick).forEach(([tick, numberOfAgents]) => {
       timeline[tick] = numberOfAgents;
     });
@@ -294,9 +309,13 @@ export default class Simulation {
     Object.entries(violationsPerTick).forEach(([tick, numberOfViolations]) => {
       timelineViolations[tick] = numberOfViolations;
     });
+    Object.entries(blockerViolationsPerTick).forEach(([tick, numberOfViolations]) => {
+      timelineBlockerViolations[tick] = numberOfViolations;
+    });
     this.timeline = timeline;
     this.timelineReAllocations = timelineReAllocations;
     this.timelineViolations = timelineViolations;
+    this.timelineBlockerViolations = timelineBlockerViolations;
     this.maxTick = maxTick;
   }
 

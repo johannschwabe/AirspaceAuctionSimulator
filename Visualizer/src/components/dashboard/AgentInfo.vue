@@ -124,7 +124,7 @@ const datapoints = computed(() =>
     },
     {
       label: "Violations",
-      value: simulation.agentInFocus.totalViolations,
+      value: simulation.agentInFocus.totalViolations + simulation.agentInFocus.totalBlockerViolations,
       icon: Skull,
     },
     {

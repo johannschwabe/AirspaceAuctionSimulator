@@ -150,7 +150,7 @@ const eventChartOptions = {
       formatter: (t) => Math.abs(t),
     },
   },
-  colors: ["#942a2a", "#94762a"],
+  colors: ["#942a2a", "#94762a", "#bd249a"],
   stroke: { show: false },
   grid: { show: false },
   legend: { show: false },
@@ -182,6 +182,10 @@ const eventSeries = reactive([
     name: "# Reallocations",
     data: simulation.timelineReAllocations.map((y, x) => ({ x, y: -y })),
   },
+  {
+    name: "# Blocker violations",
+    data: simulation.timelineBlockerViolations.map((y, x) => ({ x, y: -y })),
+  },
 ]);
 
 const updateAgentSeries = () => {
@@ -191,6 +195,7 @@ const updateAgentSeries = () => {
 const updateEventSeries = () => {
   eventSeries[0].data = simulation.timelineViolations.map((y, x) => ({ x, y: -y }));
   eventSeries[1].data = simulation.timelineReAllocations.map((y, x) => ({ x, y: -y }));
+  eventSeries[2].data = simulation.timelineBlockerViolations.map((y, x) => ({ x, y: -y }));
 };
 
 const agentFocussedEventSeries = () => {
@@ -204,8 +209,13 @@ const agentFocussedEventSeries = () => {
       timelineReAllocations[event.tick] += 1;
     }
   });
+  const timelineBlockerViolations = Array(simulation.maxTick).fill(0);
+  simulation.agentInFocus.blockerViolationsTimesteps.forEach((tick) => {
+    timelineBlockerViolations[tick] += 1;
+  });
   eventSeries[0].data = timelineViolations.map((y, x) => ({ x, y: -y }));
   eventSeries[1].data = timelineReAllocations.map((y, x) => ({ x, y: -y }));
+  eventSeries[2].data = timelineBlockerViolations.map((y, x) => ({ x, y: -y }));
 };
 
 const setTick = debounce(
