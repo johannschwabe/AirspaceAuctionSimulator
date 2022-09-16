@@ -128,6 +128,10 @@
  * @property {int} [time_in_air]
  * @property {PathStatistics} [path]
  * @property {RawAllocationStatistics[]} [allocations]
+ * @property {int} battery_unused
+ * @property {int[]} delayed_starts
+ * @property {int[]} delayed_arrivals
+ * @property {int[]} re_delayed_arrivals
  */
 
 /**
@@ -153,6 +157,8 @@
  * @typedef {Object} ViolationStatistics
  * @property {{string: JSONTimeCoordinate[]}} violations
  * @property {int} total_violations
+ * @property {{int: JSONTimeCoordinate[]}} blocker_violations
+ * @property {int} total_blocker_violations
  * @property {boolean} incomplete_allocation
  */
 
