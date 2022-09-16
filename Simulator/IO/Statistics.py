@@ -79,7 +79,6 @@ class Statistics:
                 compute_time = sum([allocation.history.compute_time for allocation in
                                     self.simulation.history.allocations[agent].values()])
                 compute_time_aggr += compute_time
-                print(agent)
                 nr_reallocations_caused = sum([len(reallocation.history.colliding_agent_bids) for reallocation in
                                                self.simulation.history.allocations[agent].values() if
                                                reallocation.history.colliding_agent_bids])
@@ -532,7 +531,7 @@ class Statistics:
                                                                                            path_agent.near_radius, 0)
             for blocker in blocker_intersections:
                 if blocker.is_blocking(coordinate, path_agent.near_radius):
-                    if path_agent.id not in blocker_violations:
+                    if blocker.id not in blocker_violations:
                         blocker_violations[blocker.id] = []
                     blocker_violations[blocker.id].append(coordinate)
                     total_blocker_violations += 1

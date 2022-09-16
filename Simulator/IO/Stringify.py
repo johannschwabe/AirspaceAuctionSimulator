@@ -27,7 +27,6 @@ class Stringify:
             self.as_dict(ignore_keys=ignore_keys, date_format=date_format),
             sort_keys=False,
             indent=4,
-            allow_nan=True
         )
 
     def __getitem__(self, name: str) -> any:
