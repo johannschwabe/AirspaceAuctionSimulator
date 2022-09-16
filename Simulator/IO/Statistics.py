@@ -764,9 +764,9 @@ class PathAgentStatistics(AgentStatistics, Stringify):
                  compute_time: int,
                  nr_reallocations_caused: int,
                  battery_unused: int,
-                 delayed_starts: List[int | float],
-                 delayed_arrivals: List[int | float],
-                 re_delayed_arrivals: List[int | float]):
+                 delayed_starts: List[int],
+                 delayed_arrivals: List[int],
+                 re_delayed_arrivals: List[int]):
         super().__init__(path_agent, value, non_colliding_value, violation_statistics, total_reallocations,
                          compute_time, nr_reallocations_caused, allocation_statistics)
         self.path: Optional["PathStatistics"] = path_statistics
