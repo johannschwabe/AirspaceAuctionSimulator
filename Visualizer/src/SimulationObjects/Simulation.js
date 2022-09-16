@@ -146,6 +146,12 @@ export default class Simulation {
     this.timelineViolations = [];
 
     /**
+     * Stores how many agents violated the airspace of a blocker at each possible tick
+     * @type {int[]}
+     */
+    this.timelineBlockerViolations = [];
+
+    /**
      * The maximum tick at which any active agent is still active / flying
      * @type {number}
      */

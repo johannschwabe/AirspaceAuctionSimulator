@@ -1,5 +1,4 @@
 import json
-import math
 from datetime import datetime
 from enum import Enum
 from typing import Tuple
@@ -28,6 +27,7 @@ class Stringify:
             self.as_dict(ignore_keys=ignore_keys, date_format=date_format),
             sort_keys=False,
             indent=4,
+            allow_nan=True
         )
 
     def __getitem__(self, name: str) -> any:
@@ -59,15 +59,6 @@ class Stringify:
         # Convert dates to strings
         if isinstance(obj, datetime):
             return obj.strftime(date_format)
-        # Convert tick
-        if isinstance(obj, float):
-            if obj is math.nan:
-                return None
-            if obj == math.inf:
-                return None
-            if obj == -math.inf:
-                return None
-            return obj
         # Convert enumerations
         if isinstance(obj, Enum):
             return obj.name

@@ -24,11 +24,18 @@ export default class Agent {
 
     this.violations = agentStats.violations.violations;
     this.totalViolations = agentStats.violations.total_violations;
+    this.totalBlockerViolations = agentStats.violations.total_blocker_violations;
+    this.blockerViolations = agentStats.violations.blocker_violations;
 
     this.reAllocationTimesteps = [];
     this.violationsTimesteps = Object.values(this.violations)
       .flat()
       .map((loc) => loc.t);
+    this.blockerViolationsTimesteps = this.blockerViolations
+      ? Object.values(this.blockerViolations)
+          .flat()
+          .map((loc) => loc.t)
+      : [];
 
     this._simulation = simulation;
   }

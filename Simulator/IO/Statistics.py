@@ -1,4 +1,3 @@
-import math
 import statistics
 from abc import ABC
 from typing import TYPE_CHECKING, List, Dict, Optional, Any
@@ -47,22 +46,23 @@ class Statistics:
                                     self.simulation.history.compute_times)
 
     def get_path_locations_delay(self, path_agent: "PathAgent"):
-        # 1e500 is parsed by JS to Infinity
-        delayed_arrivals = [math.inf] * (len(path_agent.locations) - 1)
+        dnf = self.simulation.environment.dimension.t + 2
+        delayed_arrivals = [dnf] * (len(path_agent.locations) - 1)
         for _index, target in enumerate(path_agent.locations[1:]):
             if len(path_agent.allocated_segments) > _index:
                 reached = path_agent.allocated_segments[_index]
                 if reached.max.inter_temporal_equal(target):
                     delayed_arrivals[_index] = reached.max.t - target.t
-        delayed_starts = [math.inf] * (len(path_agent.locations) - 1)
+        delayed_starts = [dnf] * (len(path_agent.locations) - 1)
 
         for _index, target in enumerate(path_agent.locations[:-1]):
             if len(path_agent.allocated_segments) > _index:
                 reached = path_agent.allocated_segments[_index]
                 delayed_starts[_index] = reached.min.t - target.t - path_agent.stays[_index]
-        rel_delayed_arrivals = [math.inf] * (len(path_agent.locations) - 1)
+        rel_delayed_arrivals = [dnf] * (len(path_agent.locations) - 1)
         for _index in range(len(path_agent.locations) - 1):
-            rel_delayed_arrivals[_index] = delayed_arrivals[_index] - delayed_starts[_index]
+            if delayed_arrivals[_index] < dnf and delayed_starts[_index] < dnf:
+                rel_delayed_arrivals[_index] = delayed_arrivals[_index] - delayed_starts[_index]
         return delayed_starts, delayed_arrivals, rel_delayed_arrivals
 
     def get_owner_statistics(self) -> List["OwnerStatistics"]:
@@ -439,8 +439,8 @@ class Statistics:
                                median_height_above_ground)
 
     @staticmethod
-    def merge_violations(violations: Dict[str, List["Coordinate4D"]],
-                         new_violations: Dict[str, List["Coordinate4D"]]):
+    def merge_violations(violations: Dict[str | int, List["Coordinate4D"]],
+                         new_violations: Dict[str | int, List["Coordinate4D"]]):
         for key, value in new_violations.items():
             if key in violations:
                 violations[key].extend(value)
@@ -456,13 +456,17 @@ class Statistics:
         if agent not in self.violations:
 
             violations: Dict[str, List["Coordinate4D"]] = {}
+            blocker_violations: Dict[int, List["Coordinate4D"]] = {}
             total_violations: int = 0
+            total_blocker_violations: int = 0
 
             if isinstance(agent, PathAgent):
                 for segment in agent.allocated_segments:
                     segment_violations = self.path_segment_violations(agent, segment)
                     self.merge_violations(violations, segment_violations.violations)
+                    self.merge_violations(blocker_violations, segment_violations.blocker_violations)
                     total_violations += segment_violations.total_violations
+                    total_blocker_violations += segment_violations.total_blocker_violations
 
             elif isinstance(agent, SpaceAgent):
                 for segment in agent.allocated_segments:
@@ -473,7 +477,8 @@ class Statistics:
             else:
                 raise Exception(f"Invalid Agent: {agent}")
 
-            agent_violations = ViolationStatistics(violations, total_violations)
+            agent_violations = ViolationStatistics(violations, total_violations, blocker_violations,
+                                                   total_blocker_violations)
             self.violations[agent] = agent_violations
 
         return self.violations[agent]
@@ -486,7 +491,9 @@ class Statistics:
         :return:
         """
         violations: Dict[str, List["Coordinate4D"]] = {}
+        blocker_violations: Dict[int, List["Coordinate4D"]] = {}
         total_violations: int = 0
+        total_blocker_violations: int = 0
 
         for coordinate in path_segment.coordinates:
             intersecting_agents = self.simulation.environment.intersect_path_coordinate(coordinate,
@@ -521,7 +528,16 @@ class Statistics:
                     violations[intersecting_agent.id].append(coordinate)
                     total_violations += 1
 
-        return ViolationStatistics(violations, total_violations)
+            blocker_intersections = self.simulation.environment.get_blockers_at_coordinate(coordinate,
+                                                                                           path_agent.near_radius, 0)
+            for blocker in blocker_intersections:
+                if blocker.is_blocking(coordinate, path_agent.near_radius):
+                    if path_agent.id not in blocker_violations:
+                        blocker_violations[blocker.id] = []
+                    blocker_violations[blocker.id].append(coordinate)
+                    total_blocker_violations += 1
+
+        return ViolationStatistics(violations, total_violations, blocker_violations, total_blocker_violations)
 
     def space_segment_violations(self, space_agent: "SpaceAgent",
                                  space_segment: "SpaceSegment") -> "ViolationStatistics":
@@ -565,7 +581,8 @@ class Statistics:
     def get_total_violations(self) -> int:
         total_violations: int = 0
         for agent in self.simulation.environment.agents.values():
-            total_violations += self.get_agent_violations(agent).total_violations
+            total_violations += self.get_agent_violations(agent).total_violations + self.get_agent_violations(
+                agent).total_blocker_violations
         return total_violations
 
 
@@ -792,9 +809,13 @@ class AllocationStatistics(Stringify):
 class ViolationStatistics(Stringify):
     def __init__(self,
                  violations: Dict[str, List["Coordinate4D"]],
-                 total_violations: int):
+                 total_violations: int,
+                 blocker_violations: Optional[Dict[int, List["Coordinate4D"]]] = None,
+                 total_blocker_violations: Optional[int] = 0):
         self.violations: Dict[str, List["Coordinate4D"]] = violations
         self.total_violations: int = total_violations
+        self.blocker_violations: Optional[Dict[int, List["Coordinate4D"]]] = blocker_violations
+        self.total_blocker_violations: int = total_blocker_violations
 
 
 def get_statistics_dict(simulation: "Simulator") -> Dict[str, Any]:
