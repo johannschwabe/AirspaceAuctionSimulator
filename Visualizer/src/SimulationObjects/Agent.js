@@ -25,6 +25,8 @@ export default class Agent {
     this.violations = agentStats.violations.violations;
     this.totalViolations = agentStats.violations.total_violations;
 
+    this.incompleAllocation = agentStats.violations.incomplete_allocation;
+
     this.reAllocationTimesteps = [];
     this.violationsTimesteps = Object.values(this.violations)
       .flat()

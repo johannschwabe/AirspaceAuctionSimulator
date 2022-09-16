@@ -153,6 +153,7 @@
  * @typedef {Object} ViolationStatistics
  * @property {{string: JSONTimeCoordinate[]}} violations
  * @property {int} total_violations
+ * @property {boolean} incomplete_allocation
  */
 
 /**
