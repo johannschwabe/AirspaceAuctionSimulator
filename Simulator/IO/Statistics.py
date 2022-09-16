@@ -46,23 +46,22 @@ class Statistics:
                                     self.simulation.history.compute_times)
 
     def get_path_locations_delay(self, path_agent: "PathAgent"):
-        dnf = self.simulation.environment.dimension.t + 2
-        delayed_arrivals = [dnf] * (len(path_agent.locations) - 1)
+        delayed_arrivals = []
         for _index, target in enumerate(path_agent.locations[1:]):
             if len(path_agent.allocated_segments) > _index:
                 reached = path_agent.allocated_segments[_index]
                 if reached.max.inter_temporal_equal(target):
-                    delayed_arrivals[_index] = reached.max.t - target.t
-        delayed_starts = [dnf] * (len(path_agent.locations) - 1)
+                    delayed_arrivals.append(reached.max.t - target.t)
+        delayed_starts = []
 
         for _index, target in enumerate(path_agent.locations[:-1]):
             if len(path_agent.allocated_segments) > _index:
                 reached = path_agent.allocated_segments[_index]
-                delayed_starts[_index] = reached.min.t - target.t - path_agent.stays[_index]
-        rel_delayed_arrivals = [dnf] * (len(path_agent.locations) - 1)
+                delayed_starts.append(reached.min.t - target.t - path_agent.stays[_index])
+        rel_delayed_arrivals = []
         for _index in range(len(path_agent.locations) - 1):
-            if delayed_arrivals[_index] < dnf and delayed_starts[_index] < dnf:
-                rel_delayed_arrivals[_index] = delayed_arrivals[_index] - delayed_starts[_index]
+            if _index < len(delayed_arrivals) and _index < len(delayed_starts):
+                rel_delayed_arrivals.append(delayed_arrivals[_index] - delayed_starts[_index])
         return delayed_starts, delayed_arrivals, rel_delayed_arrivals
 
     def get_owner_statistics(self) -> List["OwnerStatistics"]:
