@@ -155,7 +155,7 @@
 
 /**
  * @typedef {Object} ViolationStatistics
- * @property {{string: JSONTimeCoordinate[]}} violationsx
+ * @property {{string: JSONTimeCoordinate[]}} violations
  * @property {int} total_violations
  * @property {{int: JSONTimeCoordinate[]}} blocker_violations
  * @property {int} total_blocker_violations
