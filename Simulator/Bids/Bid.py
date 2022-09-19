@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Any
 
 if TYPE_CHECKING:
     from ..Agents.Agent import Agent
@@ -30,5 +30,5 @@ class Bid(ABC):
         pass
 
     @abstractmethod
-    def to_dict(self) -> Dict[str, str | int | float]:
+    def to_dict(self) -> Dict[str, Any]:
         pass

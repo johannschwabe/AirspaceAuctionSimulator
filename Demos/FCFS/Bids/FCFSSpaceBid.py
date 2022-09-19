@@ -1,5 +1,4 @@
-import json
-from typing import List, Dict
+from typing import List, Dict, Any
 
 from Simulator import Bid, SpaceAgent, Coordinate4D
 
@@ -27,8 +26,15 @@ class FCFSSpaceBid(Bid):
     def __eq__(self, other):
         return True
 
-    def to_dict(self) -> Dict[str, str | int | float]:
+    def to_dict(self) -> Dict[str, Any]:
         return {
-            "blocks": json.dumps([{"min": [block[0].x, block[0].y, block[0].z, block[0].t],
-                                   "max": [block[1].x, block[1].y, block[1].z, block[1].t]} for block in self.blocks]),
+            "data": {
+                "blocks": [{"min": [block[0].x, block[0].y, block[0].z, block[0].t],
+                            "max": [block[1].x, block[1].y, block[1].z, block[1].t]} for block in self.blocks],
+            },
+            "display": {
+                "area": "\n".join([
+                    f"min: {int(block[0].x)}, {int(block[0].y)}, {int(block[0].z)}, {block[0].t}, max: {int(block[1].x)}, {int(block[1].y)}, {int(block[1].z)}, {block[1].t}"
+                    for block in self.blocks])
+            }
         }
