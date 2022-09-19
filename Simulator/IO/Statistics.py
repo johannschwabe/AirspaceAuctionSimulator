@@ -53,12 +53,10 @@ class Statistics:
                 if reached.max.inter_temporal_equal(target):
                     delayed_arrivals.append(reached.max.t - target.t)
         delayed_starts = []
-
-        stays = [0] + path_agent.stays
         for _index, target in enumerate(path_agent.locations[:-1]):
             if len(path_agent.allocated_segments) > _index:
                 reached = path_agent.allocated_segments[_index]
-                delayed_starts.append(reached.min.t - target.t - stays[_index])
+                delayed_starts.append(reached.min.t - target.t - path_agent.stays[_index])
         rel_delayed_arrivals = []
         for _index in range(len(path_agent.locations) - 1):
             if _index < len(delayed_arrivals) and _index < len(delayed_starts):
