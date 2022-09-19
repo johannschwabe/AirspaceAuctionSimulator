@@ -15,6 +15,6 @@ export default class AllocationStatistic {
     this.collidingAgentBids = allocationStatistic.colliding_agent_bids;
     this.displacingAgentBids = allocationStatistic.displacing_agent_bids;
     this.pathStatistics = allocationStatistic.path ? new PathStatistic(allocationStatistic.path) : null;
-    this.spaceStatistics = allocationStatistic.space;
+    this.spaceStatistics = allocationStatistic.space;  // TODO
   }
 }

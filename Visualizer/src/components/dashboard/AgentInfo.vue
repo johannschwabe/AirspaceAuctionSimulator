@@ -30,10 +30,26 @@
         :datapoints="allocation.pathData"
         v-if="allocation.pathData.length > 0"
       />
+      <simple-data-table
+        v-for="collidingBid in allocation.collidingBids"
+        :key="`${simulation.agentInFocus.id}-allocation-${index}-bid-${collidingBid.key}`"
+        :subtitle="collidingBid.subtitle"
+        :datapoints="collidingBid.datapoints"
+      />
+      <simple-data-table
+        v-for="displayingBid in allocation.displayingBids"
+        :key="`${simulation.agentInFocus.id}-allocation-${index}-bid-${displayingBid.key}`"
+        :subtitle="displayingBid.subtitle"
+        :datapoints="displayingBid.datapoints"
+      />
     </template>
   </template>
-  <h3 v-if="violationData.length > 0">Airspace Violations</h3>
-  <template v-for="(violation, index) in violationData" :key="`${simulation.agentInFocus.id}-violation-${index}`">
+  <h3 v-if="agentViolations.length > 0">Agent Violations ({{ simulation.agentInFocus.totalViolations }})</h3>
+  <template v-for="(violation, index) in agentViolations" :key="`${simulation.agentInFocus.id}-agent-violation-${index}`">
+    <simple-data-table :subtitle="violation.subtitle" :datapoints="violation.datapoints" />
+  </template>
+  <h3 v-if="blockerViolations.length > 0">Blocker Violations ({{ simulation.agentInFocus.totalBlockerViolations }})</h3>
+  <template v-for="(violation, index) in blockerViolations" :key="`${simulation.agentInFocus.id}-blocker-violation-${index}`">
     <simple-data-table :subtitle="violation.subtitle" :datapoints="violation.datapoints" />
   </template>
 </template>
@@ -67,6 +83,9 @@ import {
   GitBranch,
   Skull,
   GitPullRequest,
+  BatteryFull,
+  Hourglass,
+  Pricetag,
 } from "@vicons/ionicons5";
 import { format, set } from "date-fns";
 
@@ -123,6 +142,11 @@ const datapoints = computed(() =>
       icon: GitBranch,
     },
     {
+      label: "Incomplete Allocations",
+      value: simulation.agentInFocus.incompleAllocation,
+      icon: GitBranch,
+    },
+    {
       label: "Violations",
       value: simulation.agentInFocus.totalViolations + simulation.agentInFocus.totalBlockerViolations,
       icon: Skull,
@@ -130,6 +154,11 @@ const datapoints = computed(() =>
     {
       label: "Battery",
       value: simulation.agentInFocus.battery,
+      icon: BatteryFull,
+    },
+    {
+      label: "Battery Unused",
+      value: simulation.agentInFocus.batteryUnused,
       icon: BatteryHalf,
     },
     {
@@ -141,6 +170,21 @@ const datapoints = computed(() =>
       label: "Time in Air",
       value: simulation.agentInFocus.timeInAir,
       icon: Timer,
+    },
+    {
+      label: "Delayed Starts",
+      value: simulation.agentInFocus.delayedStarts,
+      icon: Hourglass,
+    },
+    {
+      label: "Delayed Starts",
+      value: simulation.agentInFocus.delayedArrivals,
+      icon: Hourglass,
+    },
+    {
+      label: "Delayed Starts",
+      value: simulation.agentInFocus.reDelayedArrivals,
+      icon: Hourglass,
     },
     {
       label: "Near Field Radius",
@@ -228,6 +272,15 @@ function pathToDatapoints(path) {
     .map((d) => ({ ...d, value: Math.round(d.value * 10) / 10 }));
 }
 
+function bidToDatapoints(bid) {
+  if (!bid) { return []; }
+  return Object.entries(bid.display).forEach(([label, value]) => ({
+    label,
+    value,
+    icon: Pricetag,
+  }))
+}
+
 const allocations = computed(() => {
   if (!simulation.agentInFocus.allocationStatistics) {
     return undefined;
@@ -285,10 +338,22 @@ const allocations = computed(() => {
       },
     ],
     pathData: pathToDatapoints(stat.pathStatistics),
+    collidingBids: Object.entries(stat.collidingAgentBids)
+      .map(([agent_id, bid]) => ({
+        subtitle: `Collision with Agent ${agent_id}`,
+        datapoints:  bidToDatapoints(bid),
+        key: agent_id,
+      })),
+    displayingBids: Object.entries(stat.displacingAgentBids)
+      .map(([agent_id, bid]) => ({
+        subtitle: `Collision with Agent ${agent_id}`,
+        datapoints:  bidToDatapoints(bid),
+        key: agent_id,
+      })),
   }));
 });
 
-const violationData = computed(() => {
+const agentViolations = computed(() => {
   return Object.entries(simulation.agentInFocus.violations)
     .map(([agent_id, locations]) => {
       return locations.map((loc) => ({
@@ -315,6 +380,28 @@ const violationData = computed(() => {
         onClick: () => {
           simulation.focusOnAgent(agent);
         },
+      });
+      return acc;
+    }, []);
+});
+
+const blockerViolations = computed(() => {
+  return Object.values(simulation.agentInFocus.blocker_violations)
+    .flat()
+    .reduce((acc, violation) => {
+      const subtitle = `Tick ${violation.t}`;
+      let entryIndex = acc.findIndex((v) => v.subtitle === subtitle);
+      if (entryIndex === -1) {
+        acc.push({
+          subtitle,
+          datapoints: [],
+        });
+        entryIndex = acc.length - 1;
+      }
+      acc[entryIndex].datapoints.push({
+        label: `Blocker`,
+        value: { x: violation.x, y: violation.y, z: violation.z },
+        icon: GitPullRequest,
       });
       return acc;
     }, []);

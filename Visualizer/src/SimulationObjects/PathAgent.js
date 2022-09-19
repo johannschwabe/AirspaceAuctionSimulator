@@ -20,15 +20,24 @@ export default class PathAgent extends Agent {
     this.nearRadius = rawAgent.near_radius;
     this.battery = rawAgent.battery;
     this.timeInAir = agentStats.time_in_air;
+
     this.paths = rawAgent.paths.map((path) => new Path(path));
     this.combinedPath = Path.join(this.paths);
+
+    this.batteryUnused = agentStats.battery_unused;
+    this.delayedStarts = agentStats.delayed_starts;
+    this.delayedArrivals = agentStats.delayed_arrivals;
+    this.reDelayedArrivals = agentStats.re_delayed_arrivals;
+
     this.branches = rawAgent.branches.map((branch) => {
       const branchStats = agentStats.allocations.find((allocationStats) => allocationStats.tick === branch.tick);
       return new Branch(branch, branchStats);
     });
+
     this.reAllocationTimesteps = this.branches
       .filter((branch) => branch.reason === BRANCH_REASONS.REALLOCATION)
       .map((branch) => branch.tick);
+
     this.pathStatistics = agentStats.path ? new PathStatistic(agentStats.path) : null;
     this.allocationStatistics = agentStats.allocations.map((a) => new AllocationStatistic(a));
   }
