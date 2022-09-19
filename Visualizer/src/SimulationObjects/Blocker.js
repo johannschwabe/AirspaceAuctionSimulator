@@ -9,6 +9,7 @@ export default class Blocker {
     this.id = rawBlocker.id;
     this.dimension = new Coordinate3D(rawBlocker.dimension.x, rawBlocker.dimension.y, rawBlocker.dimension.z);
     this.blocker_type = rawBlocker.blocker_type;
+    this.osm_id = rawBlocker.osm_id;
   }
 
   positionAtTick() {
