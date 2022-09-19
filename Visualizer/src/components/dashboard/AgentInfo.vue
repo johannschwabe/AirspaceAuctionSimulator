@@ -92,6 +92,7 @@ import { format, set } from "date-fns";
 import { useSimulationSingleton } from "@/scripts/simulation.js";
 import SimpleDataTable from "@/components/dashboard/SimpleDataTable.vue";
 import HeightProfile from "@/components/dashboard/HeightProfile.vue";
+import {isArray} from "lodash-es";
 
 const simulation = useSimulationSingleton();
 const datapoints = computed(() =>
@@ -177,12 +178,12 @@ const datapoints = computed(() =>
       icon: Hourglass,
     },
     {
-      label: "Delayed Starts",
+      label: "Delayed Arrivals",
       value: simulation.agentInFocus.delayedArrivals,
       icon: Hourglass,
     },
     {
-      label: "Delayed Starts",
+      label: "Re-Delayed Arrivals",
       value: simulation.agentInFocus.reDelayedArrivals,
       icon: Hourglass,
     },
@@ -191,7 +192,7 @@ const datapoints = computed(() =>
       value: simulation.agentInFocus.nearRadius,
       icon: InformationCircle,
     },
-  ].filter((d) => d.value)
+  ].filter((d) => d.value && (!isArray(d.value) || d.value.length > 0))
 );
 
 const pathDatapoints = computed(() => {
@@ -274,8 +275,8 @@ function pathToDatapoints(path) {
 
 function bidToDatapoints(bid) {
   if (!bid) { return []; }
-  return Object.entries(bid.display).forEach(([label, value]) => ({
-    label,
+  return Object.entries(bid.display).map(([label, value]) => ({
+    label: label.replace(/(^|\s)\S/g, (t) => t.toUpperCase()),
     value,
     icon: Pricetag,
   }))
@@ -304,7 +305,12 @@ const allocations = computed(() => {
       },
       {
         label: "Collisions",
-        value: stat.collidingAgentBids.length,
+        value: Object.keys(stat.collidingAgentBids).length,
+        icon: GitPullRequest,
+      },
+      {
+        label: "Displacements",
+        value: Object.keys(stat.displacingAgentBids).length,
         icon: GitPullRequest,
       },
       {
@@ -386,7 +392,7 @@ const agentViolations = computed(() => {
 });
 
 const blockerViolations = computed(() => {
-  return Object.values(simulation.agentInFocus.blocker_violations)
+  return Object.values(simulation.agentInFocus.blockerViolations)
     .flat()
     .reduce((acc, violation) => {
       const subtitle = `Tick ${violation.t}`;
