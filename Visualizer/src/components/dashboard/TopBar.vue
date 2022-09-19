@@ -56,7 +56,7 @@ const simulation = useSimulationSingleton();
 
 const dim = computed(() => {
   const { x, y, z } = simulation.dimensions;
-  return `${x}/${y}/${z}`;
+  return `${x.toFixed(1)}/${y.toFixed(1)}/${z.toFixed(1)}`;
 });
 
 const stats = computed(() => {
