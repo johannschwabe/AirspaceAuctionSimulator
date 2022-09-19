@@ -11,11 +11,13 @@ if TYPE_CHECKING:
 
 
 class BuildingBlocker(StaticBlocker):
-    def __init__(self, vertices: List[List[float]], bounds: List["Coordinate3D"], holes: List[List[List[float]]]):
+    def __init__(self, vertices: List[List[float]], bounds: List["Coordinate3D"], holes: List[List[List[float]]],
+                 osm_id=None):
         super().__init__(bounds[0], bounds[1] - bounds[0])
         self.points = vertices
         self.holes = holes
         self.polygon = Polygon(vertices, holes)
+        self.osm_id = osm_id
 
     def is_blocking(self, coord: "Coordinate4D", radius: int = 0):
         point = Point(coord.x, coord.z)
@@ -24,8 +26,9 @@ class BuildingBlocker(StaticBlocker):
         max_height = self.location.y + self.dimension.y
         min_height = self.location.y
         if coord.y > max_height or coord.y < min_height:
+            height_dif = max(coord.y - max_height, min_height - coord.y)
             corrected_radius = math.sqrt(
-                math.pow(radius, 2) - math.pow(max(max_height - coord.y, coord.y - min_height), 2))
+                math.pow(radius, 2) - math.pow(height_dif, 2))
         else:
             corrected_radius = radius
         near_bound = point.buffer(corrected_radius)

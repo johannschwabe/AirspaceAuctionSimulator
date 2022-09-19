@@ -159,6 +159,7 @@
  * @property {int} total_violations
  * @property {{int: JSONTimeCoordinate[]}} blocker_violations
  * @property {int} total_blocker_violations
+ * @property {boolean} incomplete_allocation
  */
 
 /**

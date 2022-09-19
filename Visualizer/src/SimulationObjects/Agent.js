@@ -27,6 +27,8 @@ export default class Agent {
     this.totalBlockerViolations = agentStats.violations.total_blocker_violations;
     this.blockerViolations = agentStats.violations.blocker_violations;
 
+    this.incompleAllocation = agentStats.violations.incomplete_allocation;
+
     this.reAllocationTimesteps = [];
     this.violationsTimesteps = Object.values(this.violations)
       .flat()

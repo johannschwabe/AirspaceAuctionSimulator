@@ -457,6 +457,7 @@ class Statistics:
             blocker_violations: Dict[int, List["Coordinate4D"]] = {}
             total_violations: int = 0
             total_blocker_violations: int = 0
+            incomplete_allocation = False
 
             if isinstance(agent, PathAgent):
                 for segment in agent.allocated_segments:
@@ -465,6 +466,11 @@ class Statistics:
                     self.merge_violations(blocker_violations, segment_violations.blocker_violations)
                     total_violations += segment_violations.total_violations
                     total_blocker_violations += segment_violations.total_blocker_violations
+
+                if len(agent.allocated_segments) > 0 and len(agent.allocated_segments[0].coordinates) > 0 and not \
+                    agent.allocated_segments[-1].max.inter_temporal_equal(agent.locations[-1]):
+                    incomplete_allocation = True
+                    total_violations += 1
 
             elif isinstance(agent, SpaceAgent):
                 for segment in agent.allocated_segments:
@@ -476,7 +482,7 @@ class Statistics:
                 raise Exception(f"Invalid Agent: {agent}")
 
             agent_violations = ViolationStatistics(violations, total_violations, blocker_violations,
-                                                   total_blocker_violations)
+                                                   total_blocker_violations, incomplete_allocation)
             self.violations[agent] = agent_violations
 
         return self.violations[agent]
@@ -809,11 +815,13 @@ class ViolationStatistics(Stringify):
                  violations: Dict[str, List["Coordinate4D"]],
                  total_violations: int,
                  blocker_violations: Optional[Dict[int, List["Coordinate4D"]]] = None,
-                 total_blocker_violations: Optional[int] = 0):
+                 total_blocker_violations: Optional[int] = 0,
+                 incomplete_allocation: bool = False):
         self.violations: Dict[str, List["Coordinate4D"]] = violations
         self.total_violations: int = total_violations
         self.blocker_violations: Optional[Dict[int, List["Coordinate4D"]]] = blocker_violations
         self.total_blocker_violations: int = total_blocker_violations
+        self.incomplete_allocation: bool = incomplete_allocation
 
 
 def get_statistics_dict(simulation: "Simulator") -> Dict[str, Any]:

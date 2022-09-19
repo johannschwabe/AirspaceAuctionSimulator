@@ -91,6 +91,7 @@ class JSONBlocker(Stringify):
         elif isinstance(blocker, StaticBlocker):
             self.location: "Coordinate3D" = blocker.location
         self.dimension = blocker.dimension
+        self.osm_id = blocker.osm_id if isinstance(blocker, BuildingBlocker) else 0
 
 
 class JSONEnvironment(Stringify):

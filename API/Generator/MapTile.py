@@ -4,8 +4,8 @@ import cloudscraper
 import mpmath as mp
 
 from Simulator import BuildingBlocker, Coordinate3D
-from ..LongLatCoordinate import LongLatCoordinate
 from ..Area import Area
+from ..LongLatCoordinate import LongLatCoordinate
 
 if TYPE_CHECKING:
     from ..Types import APIWorldCoordinates
@@ -89,7 +89,7 @@ class MapTile:
                 dimension = map_playfield_area.dimension
                 if dimension[0] < min_x or dimension[1] < min_z or max_x < 0 or max_z < 0:
                     continue
-                new_blocker = BuildingBlocker(coords, bounds, holes)
+                new_blocker = BuildingBlocker(coords, bounds, holes, building["id"])
                 res.append(new_blocker)
 
         self.blockers = res
@@ -168,7 +168,8 @@ class MapTile:
         return float((180 / mp.pi) * (mp.atan(0.5 * (mp.exp(n) - mp.exp(-n)))))
 
     @staticmethod
-    def tiles_from_coordinates(coordinates: "APIWorldCoordinates", neighbouring_tiles: int, resolution: int) -> List["MapTile"]:
+    def tiles_from_coordinates(coordinates: "APIWorldCoordinates", neighbouring_tiles: int, resolution: int) -> List[
+        "MapTile"]:
         """
         Given an input coordinate, returns a list of MapTiles centering that coordinate, including neighbouring
         maptiles according to the input parameters
