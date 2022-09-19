@@ -21,8 +21,8 @@ import PathAgent from "@/SimulationObjects/PathAgent.js";
 import SpaceAgent from "@/SimulationObjects/SpaceAgent.js";
 import { SSAORenderingPipeline } from "@babylonjs/core";
 
-const HEMISPHERE_LIGHT_INTENSITY = 1;
-const MAIN_LIGHT_INTENSITY = 1.3;
+const HEMISPHERE_LIGHT_INTENSITY = 0.8;
+const MAIN_LIGHT_INTENSITY = 1;
 const DRONE_TYPE = ["big_boye_drone", "camera_drone", "bowl_drone", "simple_drone", "package_drone"];
 
 let droneMeshes;
@@ -63,7 +63,7 @@ export function useScene({ engine }) {
 
 export function useBlockerMaterial({ scene }) {
   const blockerMaterial = new StandardMaterial("blocker-material", scene);
-  blockerMaterial.diffuseColor = Color3.FromHexString("#748193");
+  blockerMaterial.diffuseColor = Color3.FromHexString("#515d6e");
   blockerMaterial.maxSimultaneousLights = 10;
   blockerMaterial.alpha = 1;
   return blockerMaterial;
