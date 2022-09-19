@@ -63,7 +63,7 @@ export function useScene({ engine }) {
 
 export function useBlockerMaterial({ scene }) {
   const blockerMaterial = new StandardMaterial("blocker-material", scene);
-  blockerMaterial.diffuseColor = Color3.FromHexString("#748193");
+  blockerMaterial.diffuseColor = Color3.FromHexString("#555d67");
   blockerMaterial.maxSimultaneousLights = 10;
   blockerMaterial.alpha = 1;
   return blockerMaterial;
@@ -87,7 +87,7 @@ export function useCamera({ x, y, z, scene, canvas }) {
   camera.attachControl(canvas, true);
   camera.setTarget(target);
   camera.setPosition(new Vector3(0, Math.max(x, y, z), -z));
-  new SSAORenderingPipeline("ssaopipeline", scene, { ssaoRatio: 0.7, combineRatio: 1 });
+  new SSAORenderingPipeline("ssaopipeline", scene, { ssaoRatio: 1, combineRatio: 1 });
   scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssaopipeline", camera);
   return camera;
 }
