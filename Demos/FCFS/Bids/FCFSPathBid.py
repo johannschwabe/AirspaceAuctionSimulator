@@ -1,5 +1,4 @@
-import json
-from typing import List, Dict
+from typing import List, Dict, Any
 
 from Simulator import Bid, PathAgent, Coordinate4D
 
@@ -31,9 +30,19 @@ class FCFSPathBid(Bid):
     def __eq__(self, other):
         return True
 
-    def to_dict(self) -> Dict[str, str | int | float]:
+    def to_dict(self) -> Dict[str, Any]:
         return {
-            "locations": json.dumps([[location.x, location.y, location.z, location.t] for location in self.locations]),
-            "stays": self.stays,
-            "battery": self.battery
+            "data": {
+                "locations": [[location.x, location.y, location.z, location.t] for location in self.locations],
+                "stays": self.stays,
+                "battery": self.battery,
+            },
+            "display": {
+                "path": " -> ".join(
+                    f"{int(location.x)}, {int(location.y)}, {int(location.z)}, {int(location.t)}" for location in
+                    self.locations),
+                "battery": self.battery
+
+            }
+
         }
