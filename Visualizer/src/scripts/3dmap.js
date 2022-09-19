@@ -19,9 +19,10 @@ import { useSimulationSingleton } from "./simulation.js";
 import Path from "../SimulationObjects/Path.js";
 import PathAgent from "@/SimulationObjects/PathAgent.js";
 import SpaceAgent from "@/SimulationObjects/SpaceAgent.js";
+import { SSAORenderingPipeline } from "@babylonjs/core";
 
-const HEMISPHERE_LIGHT_INTENSITY = 0.1;
-const MAIN_LIGHT_INTENSITY = 1;
+const HEMISPHERE_LIGHT_INTENSITY = 1;
+const MAIN_LIGHT_INTENSITY = 1.3;
 const DRONE_TYPE = ["big_boye_drone", "camera_drone", "bowl_drone", "simple_drone", "package_drone"];
 
 let droneMeshes;
@@ -62,7 +63,7 @@ export function useScene({ engine }) {
 
 export function useBlockerMaterial({ scene }) {
   const blockerMaterial = new StandardMaterial("blocker-material", scene);
-  blockerMaterial.diffuseColor = Color3.FromHexString("#313336");
+  blockerMaterial.diffuseColor = Color3.FromHexString("#748193");
   blockerMaterial.maxSimultaneousLights = 10;
   blockerMaterial.alpha = 1;
   return blockerMaterial;
@@ -86,6 +87,8 @@ export function useCamera({ x, y, z, scene, canvas }) {
   camera.attachControl(canvas, true);
   camera.setTarget(target);
   camera.setPosition(new Vector3(0, Math.max(x, y, z), -z));
+  new SSAORenderingPipeline("ssaopipeline", scene, { ssaoRatio: 0.7, combineRatio: 1 });
+  scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssaopipeline", camera);
   return camera;
 }
 
