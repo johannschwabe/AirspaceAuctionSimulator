@@ -15,28 +15,17 @@ const loadingBar = useLoadingBar();
 const router = useRouter();
 
 const options = [
-  // {
-  //   type: "group",
-  //   label: "UBS",
-  //   key: "ubs",
-  //   children: [
-  //     {
-  //       label: "UBS Paradeplatz",
-  //       value: "UBS",
-  //     },
-  //   ],
-  // },
-  // {
-  //   type: "group",
-  //   label: "Grossmünster",
-  //   key: "GB",
-  //   children: [
-  //     {
-  //       label: "Grossmünster",
-  //       value: "Grossmünster",
-  //     },
-  //   ],
-  // },
+  {
+    type: "group",
+    label: "Grossmünster",
+    key: "GB",
+    children: [
+      {
+        label: "Grossmünster",
+        value: "Grossmünster-simulation",
+      },
+    ],
+  },
 ];
 
 const selectedModel = ref(null);
@@ -55,7 +44,7 @@ watch(selectedModel, () => {
     })
     .then(async (data) => {
       await persistSimulation(data);
-      const simulation = new Simulation(data.simulation);
+      const simulation = new Simulation(data.simulation, data.config, data.statistics);
       await simulation.load();
       setSimulationSingleton(simulation);
       setSimulationConfig(data.config);
