@@ -1,6 +1,8 @@
 <template>
-  <div ref="mapRoot" :style="{ width: `${size}px`, height: `${size}px` }" class="map" />
-  <slot />
+  <div>
+    <div ref="mapRoot" :style="{ width: `${size}px`, height: `${size}px` }" class="map" />
+    <slot />
+  </div>
 </template>
 
 <script setup>
@@ -15,11 +17,16 @@ import { fromExtent } from "ol/geom/Polygon";
 import { offConfigLoaded, onConfigLoaded } from "../../../scripts/emitter";
 
 const simulationConfig = useSimulationConfigStore();
-defineProps({
+const props = defineProps({
   size: {
     type: Number,
     required: false,
     default: 256,
+  },
+  disabled: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
 });
 
@@ -41,19 +48,21 @@ const rectangleInteraction = new Draw({
 onMounted(() => {
   fromConfig();
   render();
-  map.value.on("click", () => {
-    if (firstClick) {
-      features.clear();
-      firstClick = false;
-    } else {
-      const extent = features.item(0).getGeometry().getExtent();
-      const bottomLeft = [extent[0], extent[1]];
-      const topRight = [extent[2], extent[3]];
-      simulationConfig.setMapSubTile(toLonLat(bottomLeft), toLonLat(topRight));
-      firstClick = true;
-    }
-  });
-  map.value.addInteraction(rectangleInteraction);
+  if (!props.disabled) {
+    map.value.on("click", () => {
+      if (firstClick) {
+        features.clear();
+        firstClick = false;
+      } else {
+        const extent = features.item(0).getGeometry().getExtent();
+        const bottomLeft = [extent[0], extent[1]];
+        const topRight = [extent[2], extent[3]];
+        simulationConfig.setMapSubTile(toLonLat(bottomLeft), toLonLat(topRight));
+        firstClick = true;
+      }
+    });
+    map.value.addInteraction(rectangleInteraction);
+  }
 });
 onConfigLoaded(fromConfig);
 onUnmounted(offConfigLoaded);

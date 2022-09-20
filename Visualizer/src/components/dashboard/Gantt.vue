@@ -1,5 +1,16 @@
 <template>
-  <vue-apex-charts ref="chart" type="rangeBar" height="250" :options="chartOptions" :series="series" />
+  <n-h2 style="padding-left: 50px">Gannt Chart</n-h2>
+  <div class="gant-container">
+    <vue-apex-charts
+      ref="ganttChart"
+      type="rangeBar"
+      height="250"
+      :options="chartOptions"
+      :series="series"
+      @dataPointSelection="dataPointSelection"
+      @dataPointMouseEnter="dataPointMouseEnter"
+    />
+  </div>
 </template>
 
 <script setup>
@@ -11,7 +22,7 @@ import { onAgentsSelected } from "@/scripts/emitter.js";
 
 const simulation = useSimulationSingleton();
 
-const chart = ref(null);
+const ganttChart = ref(null);
 
 const chartOptions = {
   chart: {
@@ -31,12 +42,35 @@ const chartOptions = {
       distributed: true,
     },
   },
-  stroke: { show: false },
+  tooltip: {
+    shared: false,
+    x: {
+      formatter: (val) => {
+        return `Tick ${val}`;
+      },
+    },
+    y: {
+      formatter: (val) => {
+        return `Agent ${val}`;
+      },
+    },
+  },
+  // stroke: { show: false },
   grid: { show: false },
   xaxis: {
-    labels: { show: false },
-    axisTicks: { show: false },
-    axisBorder: { show: false },
+    min: 0,
+    max: simulation.maxTick,
+    axisBorder: {
+      color: "rgba(255, 255, 255, 0.09)",
+    },
+    axisTicks: {
+      color: "rgba(255, 255, 255, 0.09)",
+    },
+    labels: {
+      style: {
+        colors: "rgba(255, 255, 255, 0.19)",
+      },
+    },
   },
   yaxis: {
     labels: { show: false },
@@ -51,13 +85,22 @@ const series = [
   },
 ];
 
+function dataPointSelection(event, chartContext, config) {
+  const { dataPointIndex } = config;
+  const agentId = chartContext.data.twoDSeriesX[dataPointIndex];
+  const agent = simulation.agents.find((a) => a.id === agentId);
+  console.log("Focus on", agent.id);
+  simulation.focusOnAgent(agent);
+}
+
+function dataPointMouseEnter(event) {
+  event.path[0].style.cursor = "pointer";
+}
+
 const updateSeries = () => {
   const gantt = [];
   simulation.selectedAgents.forEach((agent) => {
     agent.segmentsStartEnd.forEach(([start, end]) => {
-      if (start === null || end === null) {
-        throw new Error("Invalid start or end of path!");
-      }
       gantt.push({
         x: agent.id,
         y: [start, end],
@@ -65,8 +108,7 @@ const updateSeries = () => {
       });
     });
   });
-  series[0].data = gantt;
-  chart.value.updateSeries(series);
+  ganttChart.value.updateSeries([{ data: gantt }]);
 };
 
 onAgentsSelected(() => {
@@ -80,4 +122,8 @@ onMounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.gant-container {
+  margin-left: 230px;
+}
+</style>

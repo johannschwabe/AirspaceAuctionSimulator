@@ -3,7 +3,7 @@
     <n-avatar :src="loadingGif" color="transparent" />
     <p>Loading...</p>
   </div>
-  <div v-else>
+  <div v-else id="dashbaord">
     <top-bar />
 
     <n-divider />
@@ -193,7 +193,7 @@ onUnmounted(() => {
   z-index: 2010;
 }
 .nav-margin {
-  margin-bottom: 80px;
+  margin-bottom: 100px;
 }
 #drawer-target {
   position: relative;

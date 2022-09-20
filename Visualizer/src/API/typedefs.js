@@ -165,18 +165,18 @@
 
 /**
  * @typedef {Object} SpaceStatistics
- * @property {int} volume TODO
- * @property {float} mean_volume TODO
- * @property {int} median_volume TODO
- * @property {float} mean_height TODO
- * @property {int} median_height TODO
- * @property {int} area TODO
- * @property {float} mean_area TODO
- * @property {int} median_area TODO
- * @property {float} mean_time TODO
- * @property {int} median_time TODO
- * @property {float} mean_height_above_ground TODO
- * @property {int} median_height_above_ground TODO
+ * @property {int} volume
+ * @property {float} mean_volume
+ * @property {int} median_volume
+ * @property {float} mean_height
+ * @property {int} median_height
+ * @property {int} area
+ * @property {float} mean_area
+ * @property {int} median_area
+ * @property {float} mean_time
+ * @property {int} median_time
+ * @property {float} mean_height_above_ground
+ * @property {int} median_height_above_ground
  */
 
 /**

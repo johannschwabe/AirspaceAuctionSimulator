@@ -12,6 +12,7 @@ import { Point } from "ol/geom";
 
 import PointSelectionMap from "@/components/home/map/PointSelectionMap.vue";
 import HeatmapMap from "@/components/home/map/HeatmapMap.vue";
+import ViewOnlyMap from "@/components/home/map/ViewOnlyMap.vue";
 
 const HEATMAP_SCORE_PER_CLICK = 0.1;
 
@@ -21,6 +22,17 @@ const HEATMAP_SCORE_PER_CLICK = 0.1;
 export const useComponentMapping = () => {
   return {
     random: "span",
+    position: PointSelectionMap,
+    heatmap: HeatmapMap,
+  };
+};
+
+/**
+ * @type {{random: ViewOnlyMap, heatmap: HeatmapMap, position: PointSelectionMap}}
+ */
+export const useComponentMappingWithRandomMap = () => {
+  return {
+    random: ViewOnlyMap,
     position: PointSelectionMap,
     heatmap: HeatmapMap,
   };

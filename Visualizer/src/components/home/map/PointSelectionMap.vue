@@ -1,14 +1,14 @@
 <template>
-  <div ref="mapRoot" :style="{ width: `${size.width}px`, height: `${size.height}px` }" class="map" />
-  <n-form-item style="margin-top: 5px">
-    <template #label>
-      <help v-bind="hPositonMap">
-        <span style="font-style: italic">
-          Click on map to place location marker
-        </span>
-      </help>
-    </template>
-  </n-form-item>
+  <div>
+    <div ref="mapRoot" :style="{ width: `${size.width}px`, height: `${size.height}px` }" class="map" />
+    <n-form-item style="margin-top: 5px">
+      <template #label>
+        <help v-bind="hPositonMap">
+          <span style="font-style: italic"> Click on map to place location marker </span>
+        </help>
+      </template>
+    </n-form-item>
+  </div>
 </template>
 
 <script setup>
