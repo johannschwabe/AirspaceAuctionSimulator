@@ -1,3 +1,4 @@
+import math
 from typing import Optional, Iterator, TYPE_CHECKING
 
 from rtree import Index
@@ -126,6 +127,9 @@ def is_valid_for_path_allocation(allocation_tick: int, environment: "Environment
                 distance = position.distance(path_coordinate, l2=True)
                 if distance <= max_near_radius:
                     true_intersecting_agents.add(max_intersecting_agent)
+                    if not path_agent_can_escape(path_coordinate, max_intersecting_agent, allocation_tick,
+                                                 max_near_radius):
+                        return False, None
                     break
 
         elif isinstance(max_intersecting_agent, SpaceAgent):
@@ -149,6 +153,21 @@ def is_valid_for_path_allocation(allocation_tick: int, environment: "Environment
             return False, None
 
     return True, true_intersecting_agents
+
+
+def path_agent_can_escape(intersecting_coordinate: "Coordinate4D", agent: "PathAgent", allocation_tick: int,
+                          max_near_radius: int):
+    time_to_collision = intersecting_coordinate.t - allocation_tick
+    current_agent_posi = agent.get_position_at_tick(allocation_tick)
+    if current_agent_posi is None:
+        return True
+    distance_to_collision = current_agent_posi.distance(intersecting_coordinate)
+    escape_distance = max_near_radius - distance_to_collision
+    if escape_distance < 0:
+        return True
+    nr_movements = math.floor(time_to_collision / agent.speed) - 1
+    can_escape = nr_movements > escape_distance
+    return can_escape
 
 
 def setup_rtree(data: Optional[Iterator["Item"]] = None) -> Index:
