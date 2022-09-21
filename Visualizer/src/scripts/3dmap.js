@@ -28,7 +28,6 @@ const DRONE_TYPE = ["big_boye_drone", "camera_drone", "bowl_drone", "simple_dron
 let droneMeshes;
 
 export async function getDroneInstance(scene, agent) {
-  console.log("Creating drone mesh for agent", agent);
   if (!droneMeshes) {
     const { meshes } = await SceneLoader.ImportMeshAsync("", "./3d/", "drones.glb", scene);
     droneMeshes = meshes.filter((mesh) => DRONE_TYPE.includes(mesh.name));
@@ -64,7 +63,7 @@ export function useScene({ engine }) {
 
 export function useBlockerMaterial({ scene }) {
   const blockerMaterial = new StandardMaterial("blocker-material", scene);
-  blockerMaterial.diffuseColor = Color3.FromHexString("#3e3f44");
+  blockerMaterial.diffuseColor = Color3.FromHexString("#515d6e");
   blockerMaterial.maxSimultaneousLights = 10;
   blockerMaterial.alpha = 1;
   return blockerMaterial;
