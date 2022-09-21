@@ -5,8 +5,9 @@ from API import APISimulationConfig, build_json, run_from_config
 
 random.seed(0)
 
-f = open("Timor-Leste-config.json", "r")
-config: APISimulationConfig = APISimulationConfig(**json.load(f))
+f = open("new-zealand-simulation.json", "r")
+converted = json.load(f)
+config: APISimulationConfig = APISimulationConfig(**converted["config"])
 f.close()
 
 generator, duration = run_from_config(config)
