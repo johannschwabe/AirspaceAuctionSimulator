@@ -390,6 +390,11 @@ const allocations = computed(() => {
         icon: Happy,
       },
       {
+        label: "Allocation competitions won",
+        value: Object.keys(stat.collidingAgentBids).length,
+        icon: GitPullRequest,
+      },
+      {
         label: "Compute Time",
         value: () => {
           const milliseconds = stat.compute_time / 1000;
