@@ -12,6 +12,7 @@ import { Point } from "ol/geom";
 
 import PointSelectionMap from "@/components/home/map/PointSelectionMap.vue";
 import HeatmapMap from "@/components/home/map/HeatmapMap.vue";
+import ViewOnlyMap from "@/components/home/map/ViewOnlyMap.vue";
 
 const HEATMAP_SCORE_PER_CLICK = 0.1;
 
@@ -21,6 +22,17 @@ const HEATMAP_SCORE_PER_CLICK = 0.1;
 export const useComponentMapping = () => {
   return {
     random: "span",
+    position: PointSelectionMap,
+    heatmap: HeatmapMap,
+  };
+};
+
+/**
+ * @type {{random: ViewOnlyMap, heatmap: HeatmapMap, position: PointSelectionMap}}
+ */
+export const useComponentMappingWithRandomMap = () => {
+  return {
+    random: ViewOnlyMap,
     position: PointSelectionMap,
     heatmap: HeatmapMap,
   };
@@ -95,8 +107,9 @@ export const restorePositionFeatures = (features, coordinate) => {
  * @param {ref<HTMLInputElement | null>} mapRoot - HTML Element to mount OL to
  * @param {(TileLayer|VectorLayer|Heatmap)[]} layers - Layers to display
  * @param {boolean} subselection - Show full extent or just the subselection
+ * @param {Number} width - width of map in pixels
  */
-export const useMap = (mapRoot, layers, subselection = false) => {
+export const useMap = (mapRoot, layers, subselection = false, width = 400) => {
   const simulationConfig = useSimulationConfigStore();
 
   // Holds OL Map object
@@ -163,7 +176,7 @@ export const useMap = (mapRoot, layers, subselection = false) => {
 
   const size = computed(() => {
     const ratio = (max.value[0] - min.value[0]) / (max.value[1] - min.value[1]);
-    return { width: 400, height: 400 / ratio };
+    return { width, height: width / ratio };
   });
 
   watch(extent, () => {

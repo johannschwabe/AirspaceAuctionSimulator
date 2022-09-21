@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import { isFunction, isNumber, isObject } from "lodash-es";
+import {isArray, isFunction, isNumber, isObject} from "lodash-es";
 
 const props = defineProps({
   title: { type: String, required: false },
@@ -43,6 +43,9 @@ function formatData(data) {
   }
   if (isFunction(data)) {
     return data();
+  }
+  if (isArray(data)) {
+    return data.join(", ");
   }
   if (isObject(data)) {
     let s = "";

@@ -26,4 +26,13 @@ body {
   max-width: 2100px;
   margin: 0 auto;
 }
+.n-drawer {
+  background-color: rgb(16, 16, 16);
+}
+#dashbaord .n-drawer {
+  background-color: rgba(16, 16, 16, 0.81);
+}
+#dashbaord .n-drawer .n-drawer-content .n-drawer-body-content-wrapper {
+  padding-right: 0 !important;
+}
 </style>

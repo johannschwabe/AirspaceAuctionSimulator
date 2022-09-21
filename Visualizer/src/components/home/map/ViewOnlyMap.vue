@@ -1,6 +1,8 @@
 <template>
-  <div ref="mapRoot" :style="{ width: `${size}px`, height: `${size}px` }" class="map" />
-  <slot />
+  <div>
+    <div ref="mapRoot" :style="{ width: `${size.width}px`, height: `${size.height}px` }" class="map" />
+    <slot />
+  </div>
 </template>
 
 <script setup>
@@ -15,11 +17,21 @@ import { fromExtent } from "ol/geom/Polygon";
 import { offConfigLoaded, onConfigLoaded } from "../../../scripts/emitter";
 
 const simulationConfig = useSimulationConfigStore();
-defineProps({
-  size: {
+const props = defineProps({
+  disabled: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  width: {
     type: Number,
     required: false,
-    default: 256,
+    default: 400,
+  },
+  subselection: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
 });
 
@@ -30,7 +42,7 @@ const baseLayer = useBaseLayer();
 const features = new Collection([]);
 const positionLayer = usePositionLayer(features);
 
-const { map, render } = useMap(mapRoot, [baseLayer, positionLayer]);
+const { map, render, size } = useMap(mapRoot, [baseLayer, positionLayer], props.subselection, props.width);
 
 const rectangleInteraction = new Draw({
   source: positionLayer.getSource(),
@@ -41,19 +53,21 @@ const rectangleInteraction = new Draw({
 onMounted(() => {
   fromConfig();
   render();
-  map.value.on("click", () => {
-    if (firstClick) {
-      features.clear();
-      firstClick = false;
-    } else {
-      const extent = features.item(0).getGeometry().getExtent();
-      const bottomLeft = [extent[0], extent[1]];
-      const topRight = [extent[2], extent[3]];
-      simulationConfig.setMapSubTile(toLonLat(bottomLeft), toLonLat(topRight));
-      firstClick = true;
-    }
-  });
-  map.value.addInteraction(rectangleInteraction);
+  if (!props.disabled) {
+    map.value.on("click", () => {
+      if (firstClick) {
+        features.clear();
+        firstClick = false;
+      } else {
+        const extent = features.item(0).getGeometry().getExtent();
+        const bottomLeft = [extent[0], extent[1]];
+        const topRight = [extent[2], extent[3]];
+        simulationConfig.setMapSubTile(toLonLat(bottomLeft), toLonLat(topRight));
+        firstClick = true;
+      }
+    });
+    map.value.addInteraction(rectangleInteraction);
+  }
 });
 onConfigLoaded(fromConfig);
 onUnmounted(offConfigLoaded);
@@ -85,7 +99,7 @@ function fromConfig() {
       Math.abs(topRightNewPM[0] - topRightCurrent[0]) > roundingError ||
       Math.abs(topRightNewPM[1] - topRightCurrent[1]) > roundingError;
   }
-  if (selectionChanged || nothingSelected) {
+  if (!props.subselection && (selectionChanged || nothingSelected)) {
     features.clear();
     features.push(
       new Feature({

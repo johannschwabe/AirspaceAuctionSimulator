@@ -50,8 +50,8 @@ const doBlockerUpdate = () => {
   updateBlockers({ scene, blockerCache, shadows, x, y, z, blockerMaterial });
 };
 
-const doDroneUpdate = () => {
-  updateDrones({ scene, droneCache, x, z, focusOnSpaceAgent, focusOnPathAgent });
+const doDroneUpdate = async () => {
+  await updateDrones({ scene, droneCache, x, z, focusOnSpaceAgent, focusOnPathAgent });
 };
 
 const doFocusUpdate = () => {
@@ -106,9 +106,9 @@ function focusOffAgent(agent) {
 }
 onFocusOffAgent(focusOffAgent);
 
-onTick(() => {
+onTick(async () => {
   doBlockerUpdate();
-  doDroneUpdate();
+  await doDroneUpdate();
   doFocusUpdate();
 });
 
@@ -116,7 +116,7 @@ onAgentsSelected(() => {
   doDroneUpdate();
 });
 
-onMounted(() => {
+onMounted(async () => {
   engine = useEngine({ canvas });
   scene = useScene({ engine });
   mainLight = useMainLight({ scene, x, y, z });
@@ -161,7 +161,7 @@ onMounted(() => {
     mapTiles: simulation.mapTiles,
     blockerMaterial,
   });
-  useDrones({
+  await useDrones({
     scene,
     droneCache,
     x,

@@ -3,15 +3,15 @@
     <n-avatar :src="loadingGif" color="transparent" />
     <p>Loading...</p>
   </div>
-  <div v-else>
+  <div v-else id="dashbaord">
     <top-bar />
 
     <n-divider />
 
     <div class="nav-margin">
-      <n-grid cols="12" style="max-height: 1050px">
+      <n-grid cols="12">
         <!-- Left Part -->
-        <n-grid-item span="2">
+        <n-grid-item span="2" id="agent-selector">
           <n-grid cols="1">
             <n-grid-item>
               <agent-selector />
@@ -112,9 +112,10 @@
 </template>
 
 <script setup>
-import { nextTick, onUnmounted, ref, shallowRef } from "vue";
+import { nextTick, onMounted, onUnmounted, ref, shallowRef } from "vue";
 import { useRouter } from "vue-router";
 import { useLoadingBar, useMessage } from "naive-ui";
+import PerfectScrollbar from "perfect-scrollbar";
 
 import loadingGif from "../assets/loading.gif";
 import TopBar from "../components/dashboard/TopBar.vue";
@@ -144,6 +145,12 @@ const simulation = shallowRef({});
 
 const simulationStore = useSimulationStore();
 
+let agentSelector;
+onUnmounted(() => {
+  agentSelector.destroy();
+  agentSelector = null;
+});
+
 if (!hasSimulationSingleton()) {
   loadSimulationSingleton()
     .then((simulationSingleton) => {
@@ -157,10 +164,12 @@ if (!hasSimulationSingleton()) {
       throw new Error(e);
     })
     .finally(() => {
+      loading.value = false;
       nextTick(() => {
+        const container = document.querySelector("#agent-selector");
+        agentSelector = new PerfectScrollbar(container);
         loadingBar.finish();
       });
-      loading.value = false;
     });
 } else {
   message.success("Simulation loaded!");
@@ -193,7 +202,7 @@ onUnmounted(() => {
   z-index: 2010;
 }
 .nav-margin {
-  margin-bottom: 80px;
+  margin-bottom: 100px;
 }
 #drawer-target {
   position: relative;
@@ -217,5 +226,10 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   color: #969696;
+}
+#agent-selector {
+  position: relative;
+  height: 950px;
+  overflow: hidden;
 }
 </style>

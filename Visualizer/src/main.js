@@ -1,5 +1,6 @@
 import "vfonts/Lato.css";
 import "vfonts/FiraCode.css";
+import "perfect-scrollbar/css/perfect-scrollbar.css";
 
 import { createApp } from "vue";
 import { createPinia } from "pinia";

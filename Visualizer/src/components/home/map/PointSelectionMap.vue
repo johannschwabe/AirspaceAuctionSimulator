@@ -1,14 +1,14 @@
 <template>
-  <div ref="mapRoot" :style="{ width: `${size.width}px`, height: `${size.height}px` }" class="map" />
-  <n-form-item style="margin-top: 5px">
-    <template #label>
-      <help v-bind="hPositonMap">
-        <span style="font-style: italic">
-          Click on map to place location marker
-        </span>
-      </help>
-    </template>
-  </n-form-item>
+  <div>
+    <div ref="mapRoot" :style="{ width: `${size.width}px`, height: `${size.height}px` }" class="map" />
+    <n-form-item style="margin-top: 5px">
+      <template #label>
+        <help v-bind="hPositonMap">
+          <span style="font-style: italic"> Click on map to place location marker </span>
+        </help>
+      </template>
+    </n-form-item>
+  </div>
 </template>
 
 <script setup>
@@ -32,6 +32,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  width: {
+    type: Number,
+    required: false,
+    default: 400,
+  },
 });
 const features = new Collection([]);
 const simulationConfig = useSimulationConfigStore();
@@ -40,7 +45,7 @@ const mapRoot = ref(null);
 const baseLayer = useBaseLayer();
 const positionLayer = usePositionLayer(features);
 
-const { render, size, map } = useMap(mapRoot, [baseLayer, positionLayer], true);
+const { render, size, map } = useMap(mapRoot, [baseLayer, positionLayer], true, props.width);
 
 const owner = computed(() => {
   return simulationConfig.owners[props.ownerIndex];

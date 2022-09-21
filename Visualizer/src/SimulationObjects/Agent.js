@@ -1,6 +1,3 @@
-import PathStatistic from "@/SimulationObjects/PathStatistic.js";
-import AllocationStatistic from "@/SimulationObjects/AllocationStatistic.js";
-
 export default class Agent {
   /**
    *
@@ -24,8 +21,8 @@ export default class Agent {
 
     this.violations = agentStats.violations.violations;
     this.totalViolations = agentStats.violations.total_violations;
-    this.totalBlockerViolations = agentStats.violations.total_blocker_violations;
     this.blockerViolations = agentStats.violations.blocker_violations;
+    this.totalBlockerViolations = agentStats.violations.total_blocker_violations;
 
     this.incompleAllocation = agentStats.violations.incomplete_allocation;
 

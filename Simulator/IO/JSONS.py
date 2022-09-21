@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 class JSONPath(Stringify):
     def __init__(self, path_segment: "PathSegment"):
-        self.positions: Dict[int, List[int, int, int]] = {}
+        self.positions: Dict[int, List[float, float, float]] = {}
         for coordinate in path_segment.coordinates:
             self.positions[coordinate.t] = [coordinate.x, coordinate.y, coordinate.z]
 

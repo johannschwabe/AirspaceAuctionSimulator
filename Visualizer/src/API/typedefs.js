@@ -123,19 +123,21 @@
  * @property {ViolationStatistics} violations
  * @property {int} total_reallocations
  * Space-Agent:
- * @property {SpaceStatistics} [space]
+ * @property {?SpaceStatistics} space
  * Path-Agent:
- * @property {int} [time_in_air]
- * @property {PathStatistics} [path]
- * @property {RawAllocationStatistics[]} [allocations]
- * @property {int} battery_unused
- * @property {int[]} delayed_starts
- * @property {int[]} delayed_arrivals
- * @property {int[]} re_delayed_arrivals
+ * @property {?RawAllocationStatistics[]} allocations
+ * @property {?PathStatistics} path
+ * @property {?int} time_in_air
+ * @property {?int} battery_unused
+ * @property {?int[]} delayed_starts
+ * @property {?int[]} delayed_arrivals
+ * @property {?int[]} re_delayed_arrivals
  */
 
 /**
- * @typedef {{string: string|number}} RawBid
+ * @typedef {object} RawBid
+ * @property {Object<string: Any>} data
+ * @property {{string: string|number|boolean}} display
  */
 
 /**
@@ -145,9 +147,8 @@
  * @property {RawBid} bid
  * @property {string} reason
  * @property {string} explanation
- * @property {string} explanation
- * @property {{string: RawBid}} colliding_agent_bids
- * @property {{string: RawBid}} displacing_agent_bids
+ * @property {{string: RawBid}} colliding_agent_bids - maps agent_ids to bids
+ * @property {{string: RawBid}} displacing_agent_bids - maps agent_ids to bids
  * @property {int} compute_time
  * @property {PathStatistics} path
  * @property {SpaceStatistics} space
@@ -239,7 +240,7 @@
  * @property {string} name
  * @property {string} description
  * @property {string} allocator
- * @property {dimension} JSONTimeCoordinate
+ * @property {JSONTimeCoordinate} dimensions
  * @property {JSONMap} map
  * @property {JSONOwner[]} owners
  * @property {string[]} availableAllocators
