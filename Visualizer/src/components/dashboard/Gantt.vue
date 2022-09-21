@@ -94,7 +94,7 @@ function dataPointSelection(event, chartContext, config) {
 }
 
 function dataPointMouseEnter(event) {
-  event.path[0].style.cursor = "pointer";
+  event.target.style.cursor = "pointer";
 }
 
 const updateSeries = () => {
