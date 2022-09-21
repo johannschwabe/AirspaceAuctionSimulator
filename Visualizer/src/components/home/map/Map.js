@@ -107,8 +107,9 @@ export const restorePositionFeatures = (features, coordinate) => {
  * @param {ref<HTMLInputElement | null>} mapRoot - HTML Element to mount OL to
  * @param {(TileLayer|VectorLayer|Heatmap)[]} layers - Layers to display
  * @param {boolean} subselection - Show full extent or just the subselection
+ * @param {Number} width - width of map in pixels
  */
-export const useMap = (mapRoot, layers, subselection = false) => {
+export const useMap = (mapRoot, layers, subselection = false, width = 400) => {
   const simulationConfig = useSimulationConfigStore();
 
   // Holds OL Map object
@@ -175,7 +176,7 @@ export const useMap = (mapRoot, layers, subselection = false) => {
 
   const size = computed(() => {
     const ratio = (max.value[0] - min.value[0]) / (max.value[1] - min.value[1]);
-    return { width: 400, height: 400 / ratio };
+    return { width, height: width / ratio };
   });
 
   watch(extent, () => {

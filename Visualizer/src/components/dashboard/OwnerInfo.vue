@@ -20,7 +20,15 @@
     <simple-data-table title="General Info" :datapoints="datapoints" />
     <h3 v-if="!simulationConfig.isEmpty && locations.length > 0">Stops</h3>
     <template v-for="(location, index) in locations" :key="index">
-      <component :is="componentMap[location.type]" :location="location" :size="180" disabled>
+      <component
+        :is="componentMap[location.type]"
+        :location="location"
+        :width="180"
+        :locationIndex="index"
+        :owner-index="ownerIndex"
+        subselection
+        disabled
+      >
         <p>Map type: {{ location.type }}</p>
       </component>
       <n-divider style="margin-top: 6px; margin-bottom: 6px" />
@@ -58,6 +66,10 @@ onUnmounted(() => {
 
 const owner = computed(() => {
   return simulationConfig.owners.find((o) => o.name === simulation.ownerInFocus.name);
+});
+
+const ownerIndex = computed(() => {
+  return simulationConfig.owners.findIndex((o) => o.name === simulation.ownerInFocus.name);
 });
 
 const locations = computed(() => {

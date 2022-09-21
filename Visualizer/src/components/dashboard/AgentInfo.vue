@@ -207,7 +207,7 @@ const datapoints = computed(() =>
       icon: Hourglass,
     },
     {
-      label: "Re-Delayed Arrivals",
+      label: "Relative Delayed Arrivals",
       value: simulation.agentInFocus.reDelayedArrivals,
       icon: Hourglass,
     },
@@ -390,12 +390,12 @@ const allocations = computed(() => {
         icon: Happy,
       },
       {
-        label: "Collisions",
+        label: "Allocation competitions won",
         value: Object.keys(stat.collidingAgentBids).length,
         icon: GitPullRequest,
       },
       {
-        label: "Displacements",
+        label: "Allocation competitions lost",
         value: Object.keys(stat.displacingAgentBids).length,
         icon: GitPullRequest,
       },
@@ -431,12 +431,12 @@ const allocations = computed(() => {
     ],
     pathData: pathToDatapoints(stat.pathStatistics),
     collidingBids: Object.entries(stat.collidingAgentBids).map(([agent_id, bid]) => ({
-      subtitle: `Collision with Agent ${agent_id}`,
+      subtitle: `Won allocation competition against Agent ${agent_id}`,
       datapoints: bidToDatapoints(bid),
       key: agent_id,
     })),
     displayingBids: Object.entries(stat.displacingAgentBids).map(([agent_id, bid]) => ({
-      subtitle: `Collision with Agent ${agent_id}`,
+      subtitle: `Lost allocation competition against Agent ${agent_id}`,
       datapoints: bidToDatapoints(bid),
       key: agent_id,
     })),

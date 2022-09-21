@@ -32,6 +32,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  width: {
+    type: Number,
+    required: false,
+    default: 400,
+  },
 });
 const features = new Collection([]);
 const simulationConfig = useSimulationConfigStore();
@@ -40,7 +45,7 @@ const mapRoot = ref(null);
 const baseLayer = useBaseLayer();
 const positionLayer = usePositionLayer(features);
 
-const { render, size, map } = useMap(mapRoot, [baseLayer, positionLayer], true);
+const { render, size, map } = useMap(mapRoot, [baseLayer, positionLayer], true, props.width);
 
 const owner = computed(() => {
   return simulationConfig.owners[props.ownerIndex];

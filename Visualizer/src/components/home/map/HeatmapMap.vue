@@ -33,6 +33,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  width: {
+    type: Number,
+    required: false,
+    default: 400,
+  },
 });
 const features = new Collection([]);
 const simulationConfig = useSimulationConfigStore();
@@ -44,7 +49,7 @@ const heatmapLayer = useHeatmapLayer(features);
 const owner = computed(() => {
   return simulationConfig.owners[props.ownerIndex];
 });
-const { render, map, size } = useMap(mapRoot, [baseLayer, heatmapLayer], true);
+const { render, map, size } = useMap(mapRoot, [baseLayer, heatmapLayer], true, props.width);
 
 onMounted(() => {
   restoreHeatmapFeatures(features, owner.value.locations[props.locationIndex].points);

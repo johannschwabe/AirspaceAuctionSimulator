@@ -89,7 +89,6 @@ function dataPointSelection(event, chartContext, config) {
   const { dataPointIndex } = config;
   const agentId = chartContext.data.twoDSeriesX[dataPointIndex];
   const agent = simulation.agents.find((a) => a.id === agentId);
-  console.log("Focus on", agent.id);
   simulation.focusOnAgent(agent);
 }
 

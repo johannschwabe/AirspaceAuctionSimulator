@@ -14,18 +14,18 @@ export default class SpaceAgent extends Agent {
   constructor(rawAgent, owner, simulation, agentStats) {
     super(rawAgent, owner, simulation, agentStats);
 
-    this.volume = agentStats.space.volume;
-    this.meanVolume = agentStats.space.mean_volume;
-    this.medianVolume = agentStats.space.median_volume;
-    this.meanHeight = agentStats.space.mean_height;
-    this.medianHeight = agentStats.space.median_height;
-    this.area = agentStats.space.area;
-    this.meanArea = agentStats.space.mean_area;
-    this.medianArea = agentStats.space.median_area;
-    this.meanTime = agentStats.space.mean_time;
-    this.medianTime = agentStats.space.median_time;
-    this.meanHeightAboveGround = agentStats.space.mean_height_above_ground;
-    this.medianHeightAboveGround = agentStats.space.median_height_above_ground;
+    this.volume = agentStats.space?.volume;
+    this.meanVolume = agentStats.space?.mean_volume;
+    this.medianVolume = agentStats.space?.median_volume;
+    this.meanHeight = agentStats.space?.mean_height;
+    this.medianHeight = agentStats.space?.median_height;
+    this.area = agentStats.space?.area;
+    this.meanArea = agentStats.space?.mean_area;
+    this.medianArea = agentStats.space?.median_area;
+    this.meanTime = agentStats.space?.mean_time;
+    this.medianTime = agentStats.space?.median_time;
+    this.meanHeightAboveGround = agentStats.space?.mean_height_above_ground;
+    this.medianHeightAboveGround = agentStats.space?.median_height_above_ground;
 
     /**
      * @type {Space[]}

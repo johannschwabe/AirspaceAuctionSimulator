@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div ref="mapRoot" :style="{ width: `${size}px`, height: `${size}px` }" class="map" />
+    <div ref="mapRoot" :style="{ width: `${size.width}px`, height: `${size.height}px` }" class="map" />
     <slot />
   </div>
 </template>
@@ -18,12 +18,17 @@ import { offConfigLoaded, onConfigLoaded } from "../../../scripts/emitter";
 
 const simulationConfig = useSimulationConfigStore();
 const props = defineProps({
-  size: {
+  disabled: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+  width: {
     type: Number,
     required: false,
-    default: 256,
+    default: 400,
   },
-  disabled: {
+  subselection: {
     type: Boolean,
     required: false,
     default: false,
@@ -37,7 +42,7 @@ const baseLayer = useBaseLayer();
 const features = new Collection([]);
 const positionLayer = usePositionLayer(features);
 
-const { map, render } = useMap(mapRoot, [baseLayer, positionLayer]);
+const { map, render, size } = useMap(mapRoot, [baseLayer, positionLayer], props.subselection, props.width);
 
 const rectangleInteraction = new Draw({
   source: positionLayer.getSource(),
@@ -94,7 +99,7 @@ function fromConfig() {
       Math.abs(topRightNewPM[0] - topRightCurrent[0]) > roundingError ||
       Math.abs(topRightNewPM[1] - topRightCurrent[1]) > roundingError;
   }
-  if (selectionChanged || nothingSelected) {
+  if (!props.subselection && (selectionChanged || nothingSelected)) {
     features.clear();
     features.push(
       new Feature({
