@@ -8,7 +8,6 @@
         :is="componentMap[locationType]"
         :locationIndex="props.locationIndex"
         :ownerIndex="props.ownerIndex"
-        :size="size"
       />
     </n-grid-item>
   </n-grid>

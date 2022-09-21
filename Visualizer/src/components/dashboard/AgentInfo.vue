@@ -1,45 +1,71 @@
 <template>
-  <n-timeline>
-    <n-timeline-item
-      v-for="(event, i) in simulation.agentInFocus.events"
-      :key="`${simulation.agentInFocus.id}-${i}`"
-      v-bind="event"
-    >
-      <template #icon>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-          <path :d="event.icon" :fill="fillColor(event)" />
-        </svg>
-      </template>
-    </n-timeline-item>
-  </n-timeline>
+  <div id="agent-drawer-container">
+    <n-timeline>
+      <n-timeline-item
+        v-for="(event, i) in simulation.agentInFocus.events"
+        :key="`${simulation.agentInFocus.id}-${i}`"
+        v-bind="event"
+      >
+        <template #icon>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <path :d="event.icon" :fill="fillColor(event)" />
+          </svg>
+        </template>
+      </n-timeline-item>
+    </n-timeline>
 
-  <n-divider style="margin-bottom: 6px" />
-  <simple-data-table title="General Info" :datapoints="datapoints" />
-  <simple-data-table title="Path info" :datapoints="pathDatapoints" />
-  <height-profile
-    label="Height profile"
-    :color="simulation.agentInFocus.color"
-    :data="heightProfileData"
-    v-if="heightProfileData"
-  />
-  <template v-if="allocations">
-    <template v-for="(allocation, index) in allocations" :key="`${simulation.agentInFocus.id}-allocation-${index}`">
-      <simple-data-table :title="`Allocation ${index + 1}`" :datapoints="allocation.allocationData" />
-      <simple-data-table
-        :subtitle="`Path for Allocation ${index + 1}`"
-        :datapoints="allocation.pathData"
-        v-if="allocation.pathData.length > 0"
-      />
+    <n-divider style="margin-bottom: 6px" />
+    <simple-data-table title="General Info" :datapoints="datapoints" />
+    <simple-data-table title="Path info" :datapoints="pathDatapoints" v-if="pathDatapoints.length > 0" />
+    <height-profile
+      label="Height profile"
+      :color="simulation.agentInFocus.color"
+      :data="heightProfileData"
+      v-if="heightProfileData"
+    />
+    <template v-if="allocations">
+      <template v-for="(allocation, index) in allocations" :key="`${simulation.agentInFocus.id}-allocation-${index}`">
+        <simple-data-table :title="`Allocation ${index + 1}`" :datapoints="allocation.allocationData" />
+        <simple-data-table
+          :subtitle="`Path for Allocation ${index + 1}`"
+          :datapoints="allocation.pathData"
+          v-if="allocation.pathData.length > 0"
+        />
+        <simple-data-table
+          v-for="collidingBid in allocation.collidingBids"
+          :key="`${simulation.agentInFocus.id}-allocation-${index}-bid-${collidingBid.key}`"
+          :subtitle="collidingBid.subtitle"
+          :datapoints="collidingBid.datapoints"
+        />
+        <simple-data-table
+          v-for="displayingBid in allocation.displayingBids"
+          :key="`${simulation.agentInFocus.id}-allocation-${index}-bid-${displayingBid.key}`"
+          :subtitle="displayingBid.subtitle"
+          :datapoints="displayingBid.datapoints"
+        />
+      </template>
     </template>
-  </template>
-  <h3 v-if="violationData.length > 0">Airspace Violations</h3>
-  <template v-for="(violation, index) in violationData" :key="`${simulation.agentInFocus.id}-violation-${index}`">
-    <simple-data-table :subtitle="violation.subtitle" :datapoints="violation.datapoints" />
-  </template>
+    <h3 v-if="agentViolations.length > 0">Agent Violations ({{ simulation.agentInFocus.totalViolations }})</h3>
+    <template
+      v-for="(violation, index) in agentViolations"
+      :key="`${simulation.agentInFocus.id}-agent-violation-${index}`"
+    >
+      <simple-data-table :subtitle="violation.subtitle" :datapoints="violation.datapoints" />
+    </template>
+    <h3 v-if="blockerViolations.length > 0">
+      Blocker Violations ({{ simulation.agentInFocus.totalBlockerViolations }})
+    </h3>
+    <template
+      v-for="(violation, index) in blockerViolations"
+      :key="`${simulation.agentInFocus.id}-blocker-violation-${index}`"
+    >
+      <simple-data-table :subtitle="violation.subtitle" :datapoints="violation.datapoints" />
+    </template>
+  </div>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, onMounted, onUnmounted } from "vue";
 
 import {
   FingerPrint,
@@ -67,12 +93,30 @@ import {
   GitBranch,
   Skull,
   GitPullRequest,
+  BatteryFull,
+  Hourglass,
+  Pricetag,
+  Cube,
+  TabletLandscape,
 } from "@vicons/ionicons5";
 import { format, set } from "date-fns";
+import PerfectScrollbar from "perfect-scrollbar";
+import { isArray, isNull, isUndefined } from "lodash-es";
 
 import { useSimulationSingleton } from "@/scripts/simulation.js";
+
 import SimpleDataTable from "@/components/dashboard/SimpleDataTable.vue";
 import HeightProfile from "@/components/dashboard/HeightProfile.vue";
+
+let agentScroller;
+onMounted(() => {
+  const container = document.querySelector("#agent-drawer-container");
+  agentScroller = new PerfectScrollbar(container);
+});
+onUnmounted(() => {
+  agentScroller.destroy();
+  agentScroller = null;
+});
 
 const simulation = useSimulationSingleton();
 const datapoints = computed(() =>
@@ -123,6 +167,11 @@ const datapoints = computed(() =>
       icon: GitBranch,
     },
     {
+      label: "Incomplete Allocations",
+      value: simulation.agentInFocus.incompleAllocation,
+      icon: GitBranch,
+    },
+    {
       label: "Violations",
       value: simulation.agentInFocus.totalViolations + simulation.agentInFocus.totalBlockerViolations,
       icon: Skull,
@@ -130,6 +179,11 @@ const datapoints = computed(() =>
     {
       label: "Battery",
       value: simulation.agentInFocus.battery,
+      icon: BatteryFull,
+    },
+    {
+      label: "Battery Unused",
+      value: simulation.agentInFocus.batteryUnused,
       icon: BatteryHalf,
     },
     {
@@ -143,11 +197,86 @@ const datapoints = computed(() =>
       icon: Timer,
     },
     {
+      label: "Delayed Starts",
+      value: simulation.agentInFocus.delayedStarts,
+      icon: Hourglass,
+    },
+    {
+      label: "Delayed Arrivals",
+      value: simulation.agentInFocus.delayedArrivals,
+      icon: Hourglass,
+    },
+    {
+      label: "Relative Delayed Arrivals",
+      value: simulation.agentInFocus.reDelayedArrivals,
+      icon: Hourglass,
+    },
+    {
       label: "Near Field Radius",
       value: simulation.agentInFocus.nearRadius,
       icon: InformationCircle,
     },
-  ].filter((d) => d.value)
+    {
+      label: "Volume",
+      value: simulation.agentInFocus.volume,
+      icon: Cube,
+    },
+    {
+      label: "Mean Volume",
+      value: simulation.agentInFocus.meanVolume,
+      icon: Cube,
+    },
+    {
+      label: "Median Volume",
+      value: simulation.agentInFocus.medianVolume,
+      icon: Cube,
+    },
+    {
+      label: "Median Height",
+      value: simulation.agentInFocus.meanHeight,
+      icon: Podium,
+    },
+    {
+      label: "Median Height",
+      value: simulation.agentInFocus.medianHeight,
+      icon: Podium,
+    },
+    {
+      label: "Area",
+      value: simulation.agentInFocus.area,
+      icon: TabletLandscape,
+    },
+    {
+      label: "Mean Area",
+      value: simulation.agentInFocus.meanArea,
+      icon: TabletLandscape,
+    },
+    {
+      label: "Median Area",
+      value: simulation.agentInFocus.medianArea,
+      icon: TabletLandscape,
+    },
+    {
+      label: "Mean Time",
+      value: simulation.agentInFocus.meanTime,
+      icon: Time,
+    },
+    {
+      label: "Median Time",
+      value: simulation.agentInFocus.medianTime,
+      icon: Time,
+    },
+    {
+      label: "Mean Height above Ground",
+      value: simulation.agentInFocus.meanHeightAboveGround,
+      icon: TrendingUp,
+    },
+    {
+      label: "Median Height above Ground",
+      value: simulation.agentInFocus.medianHeightAboveGround,
+      icon: TrendingUp,
+    },
+  ].filter((d) => !isUndefined(d.value) && !isNull(d.value) && (!isArray(d.value) || d.value.length > 0))
 );
 
 const pathDatapoints = computed(() => {
@@ -224,8 +353,19 @@ function pathToDatapoints(path) {
       icon: ArrowDown,
     },
   ]
-    .filter((d) => d.value)
+    .filter((d) => !isUndefined(d.value) && !isNull(d.value) && (!isArray(d.value) || d.value.length > 0))
     .map((d) => ({ ...d, value: Math.round(d.value * 10) / 10 }));
+}
+
+function bidToDatapoints(bid) {
+  if (!bid) {
+    return [];
+  }
+  return Object.entries(bid.display).map(([label, value]) => ({
+    label: label.replace(/(^|\s)\S/g, (t) => t.toUpperCase()),
+    value,
+    icon: Pricetag,
+  }));
 }
 
 const allocations = computed(() => {
@@ -250,8 +390,13 @@ const allocations = computed(() => {
         icon: Happy,
       },
       {
-        label: "Collisions",
-        value: stat.collidingAgentBids.length,
+        label: "Allocation competitions won",
+        value: Object.keys(stat.collidingAgentBids).length,
+        icon: GitPullRequest,
+      },
+      {
+        label: "Allocation competitions lost",
+        value: Object.keys(stat.displacingAgentBids).length,
         icon: GitPullRequest,
       },
       {
@@ -285,10 +430,20 @@ const allocations = computed(() => {
       },
     ],
     pathData: pathToDatapoints(stat.pathStatistics),
+    collidingBids: Object.entries(stat.collidingAgentBids).map(([agent_id, bid]) => ({
+      subtitle: `Won allocation competition against Agent ${agent_id}`,
+      datapoints: bidToDatapoints(bid),
+      key: agent_id,
+    })),
+    displayingBids: Object.entries(stat.displacingAgentBids).map(([agent_id, bid]) => ({
+      subtitle: `Lost allocation competition against Agent ${agent_id}`,
+      datapoints: bidToDatapoints(bid),
+      key: agent_id,
+    })),
   }));
 });
 
-const violationData = computed(() => {
+const agentViolations = computed(() => {
   return Object.entries(simulation.agentInFocus.violations)
     .map(([agent_id, locations]) => {
       return locations.map((loc) => ({
@@ -320,6 +475,28 @@ const violationData = computed(() => {
     }, []);
 });
 
+const blockerViolations = computed(() => {
+  return Object.values(simulation.agentInFocus.blockerViolations)
+    .flat()
+    .reduce((acc, violation) => {
+      const subtitle = `Tick ${violation.t}`;
+      let entryIndex = acc.findIndex((v) => v.subtitle === subtitle);
+      if (entryIndex === -1) {
+        acc.push({
+          subtitle,
+          datapoints: [],
+        });
+        entryIndex = acc.length - 1;
+      }
+      acc[entryIndex].datapoints.push({
+        label: `Blocker`,
+        value: { x: violation.x, y: violation.y, z: violation.z },
+        icon: GitPullRequest,
+      });
+      return acc;
+    }, []);
+});
+
 const fillColor = (event) => {
   return {
     default: "#a8a8a8",
@@ -331,4 +508,12 @@ const fillColor = (event) => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+#agent-drawer-container {
+  position: relative;
+  height: 950px;
+  width: 200px;
+  padding-right: 24px;
+  overflow: hidden;
+}
+</style>

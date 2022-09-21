@@ -250,7 +250,7 @@ const downloadConfiguration = () => {
     type: "application/json",
   });
 
-  saveAs(fileToSave, `${simulationConfig.name}-config.json`);
+  saveAs(fileToSave, `${simulationConfig.name.toLowerCase().replace(/ /g,"-")}-config.json`);
 };
 onAllocatorSwitched(() => {
   nextTick(() => {

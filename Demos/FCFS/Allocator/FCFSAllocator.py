@@ -58,7 +58,7 @@ class FCFSAllocator(Allocator):
         count = 0
         optimal_path_segments = []
 
-        for b, stay in zip(bid.locations[1:], bid.stays):
+        for _index, b in enumerate(bid.locations[1:]):
 
             end = b.to_3D()
             b = b.clone()
@@ -100,7 +100,8 @@ class FCFSAllocator(Allocator):
             a = ab_path[-1]
             start = a.to_3D()
             a = a.clone()
-            a.t += stay
+            if len(bid.stays) > _index:
+                a.t += bid.stays[_index]
 
         return optimal_path_segments, "Path allocated."
 

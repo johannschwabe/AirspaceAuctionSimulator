@@ -20,6 +20,9 @@ class Coordinate4D(Coordinate3D):
     def __repr__(self) -> str:
         return f"({self.x:6.2f}, {self.y:6.2f}, {self.z:6.2f}, {self.t:3d})"
 
+    def __str__(self):
+        return f"({self.x:3d}, {self.y:3d}, {self.z:3d}, {self.t:3d})"
+
     def __eq__(self, other) -> bool:
         return self.x == other.x and \
                self.y == other.y and \

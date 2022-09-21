@@ -1,14 +1,14 @@
 <template>
-  <div ref="mapRoot" :style="{ width: `${size.width}px`, height: `${size.height}px` }" class="map" />
-  <n-form-item style="margin-top: 5px">
-    <template #label>
-      <help v-bind="hHeatmap">
-        <span style="font-style: italic">
-          Draw on map to create Heatmap
-        </span>
-      </help>
-    </template>
-  </n-form-item>
+  <div>
+    <div ref="mapRoot" :style="{ width: `${size.width}px`, height: `${size.height}px` }" class="map" />
+    <n-form-item style="margin-top: 5px">
+      <template #label>
+        <help v-bind="hHeatmap">
+          <span style="font-style: italic"> Draw on map to create Heatmap </span>
+        </help>
+      </template>
+    </n-form-item>
+  </div>
 </template>
 
 <script setup>
@@ -33,6 +33,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  width: {
+    type: Number,
+    required: false,
+    default: 400,
+  },
 });
 const features = new Collection([]);
 const simulationConfig = useSimulationConfigStore();
@@ -44,7 +49,7 @@ const heatmapLayer = useHeatmapLayer(features);
 const owner = computed(() => {
   return simulationConfig.owners[props.ownerIndex];
 });
-const { render, map, size } = useMap(mapRoot, [baseLayer, heatmapLayer], true);
+const { render, map, size } = useMap(mapRoot, [baseLayer, heatmapLayer], true, props.width);
 
 onMounted(() => {
   restoreHeatmapFeatures(features, owner.value.locations[props.locationIndex].points);

@@ -18,7 +18,14 @@
       />
     </div>
     <div style="flex-grow: 1">
-      <vue-apex-charts ref="timelineChart" type="bar" height="75" :options="agentChartOptions" :series="agentSeries" />
+      <vue-apex-charts
+        ref="timelineChart"
+        type="bar"
+        height="75"
+        :options="agentChartOptions"
+        :series="agentSeries"
+        style="margin-left: 10px; margin-right: 10px"
+      />
       <div style="margin-top: -30px">
         <vue-apex-charts
           ref="collisionsChart"
@@ -64,7 +71,7 @@ const simulation = useSimulationSingleton();
 
 const timelineChart = ref(null);
 
-const maxTick = ref(simulation.maxTick - 1);
+const maxTick = ref(simulation.maxTick);
 const currentTick = ref(simulation.tick);
 
 let interval;
@@ -118,6 +125,8 @@ const agentChartOptions = {
   grid: { show: false },
   legend: { show: false },
   xaxis: {
+    min: 0,
+    max: simulation.maxTick,
     labels: { show: false },
     axisTicks: { show: false },
     axisBorder: { show: false },
@@ -279,8 +288,11 @@ onAgentsSelected(() => {
 function getTimelineColors(lightColor, darkColor) {
   return Array.from({ length: simulation.timeline.length }).map((_, i) => {
     if (simulation.agentInFocus)
-      if (i < simulation.agentInFocus.veryFirstTick || i > simulation.agentInFocus.veryLastTick) return darkColor;
-    return lightColor;
+      for (const element of simulation.agentInFocus.segmentsStartEnd) {
+        const [start, end] = element;
+        if (i > start && i < end) return lightColor;
+      }
+    return darkColor;
   });
 }
 function getBaselineColor() {

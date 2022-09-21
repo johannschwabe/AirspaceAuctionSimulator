@@ -84,7 +84,7 @@ class PathOwner(Owner):
                 next_location.t = min(locations[-1].t + travel_time + stay + random.randint(0, 100),
                                       environment.dimension.t)
                 locations.append(next_location)
-
+            stays.pop()
             agent = self.initialize_agent(locations, stays)
             res.append(agent)
             print(f"{agent} {' -> '.join([str(loc) for loc in locations])}")
