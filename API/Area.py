@@ -1,5 +1,5 @@
 import math
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from Simulator import Coordinate2D
 from .LongLatCoordinate import LongLatCoordinate
@@ -16,7 +16,7 @@ class Area:
     and the grid size in meters
     """
 
-    def __init__(self, bottom_left_ll: "APIWorldCoordinates", top_right_ll: "APIWorldCoordinates", resolution: int,
+    def __init__(self, bottom_left_ll: "APIWorldCoordinates", top_right_ll: "APIWorldCoordinates", resolution=1,
                  min_height: int = 0):
         self.bottom_left = LongLatCoordinate(bottom_left_ll.long, bottom_left_ll.lat)
         self.top_right = LongLatCoordinate(top_right_ll.long, top_right_ll.lat)
@@ -30,7 +30,7 @@ class Area:
     def dimension(self):
         return self.lon_lat_to_grid(self.top_right)
 
-    def lon_lat_to_grid(self, coords):
+    def lon_lat_to_grid(self, coords) -> List[float]:
         """
         Converts coordinates from longitude / latitude to our own "grid" coordinates. Resulting coordinates
         are floats that can be negative.
