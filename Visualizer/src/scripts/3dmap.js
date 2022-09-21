@@ -21,7 +21,7 @@ import PathAgent from "@/SimulationObjects/PathAgent.js";
 import SpaceAgent from "@/SimulationObjects/SpaceAgent.js";
 import { SSAORenderingPipeline } from "@babylonjs/core";
 
-const HEMISPHERE_LIGHT_INTENSITY = 0.5;
+const HEMISPHERE_LIGHT_INTENSITY = 0.6;
 const MAIN_LIGHT_INTENSITY = 1.3;
 const DRONE_TYPE = ["big_boye_drone", "camera_drone", "bowl_drone", "simple_drone", "package_drone"];
 
@@ -63,7 +63,7 @@ export function useScene({ engine }) {
 
 export function useBlockerMaterial({ scene }) {
   const blockerMaterial = new StandardMaterial("blocker-material", scene);
-  blockerMaterial.diffuseColor = Color3.FromHexString("#515d6e");
+  blockerMaterial.diffuseColor = Color3.FromHexString("#3a4441");
   blockerMaterial.maxSimultaneousLights = 10;
   blockerMaterial.alpha = 1;
   return blockerMaterial;
@@ -82,7 +82,7 @@ export function useMainLight({ scene, x, y, z }) {
 }
 
 export function useCamera({ x, y, z, scene, canvas }) {
-  const target = new Vector3(0, 0, 0);
+  const target = new Vector3(0, y / 2, 0);
   const camera = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, target, scene);
   camera.attachControl(canvas, true);
   camera.setTarget(target);
@@ -393,7 +393,7 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
     });
 
     // Focus camera to base again
-    const target = new Vector3(0, 0, 0);
+    const target = new Vector3(0, simulation.dimensions.y / 2, 0);
     camera.setTarget(target);
 
     focusCache.agent = undefined;
@@ -428,7 +428,7 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
     focusCache.pathLines = [];
 
     // Focus camera to base again
-    const target = new Vector3(0, y / 2, 0);
+    const target = new Vector3(0, simulation.dimensions.y / 2, 0);
     camera.setTarget(target);
 
     focusCache.agent = undefined;
