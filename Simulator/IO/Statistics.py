@@ -56,7 +56,11 @@ class Statistics:
         for _index, target in enumerate(path_agent.locations[:-1]):
             if len(path_agent.allocated_segments) > _index:
                 reached = path_agent.allocated_segments[_index]
-                delayed_starts.append(reached.min.t - target.t - path_agent.stays[_index])
+                if _index == 0 or len(path_agent.stays) < _index:
+                    stay = 0
+                else:
+                    stay = path_agent.stays[_index - 1]
+                delayed_starts.append(reached.min.t - target.t - stay)
         rel_delayed_arrivals = []
         for _index in range(len(path_agent.locations) - 1):
             if _index < len(delayed_arrivals) and _index < len(delayed_starts):
