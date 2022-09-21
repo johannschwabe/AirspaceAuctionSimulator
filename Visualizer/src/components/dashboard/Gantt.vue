@@ -18,7 +18,8 @@ import VueApexCharts from "vue3-apexcharts";
 import { nextTick, onMounted, ref } from "vue";
 
 import { useSimulationSingleton } from "@/scripts/simulation.js";
-import { onAgentsSelected } from "@/scripts/emitter.js";
+import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent } from "@/scripts/emitter.js";
+import { get, isUndefined, set } from "lodash-es";
 
 const simulation = useSimulationSingleton();
 
@@ -93,17 +94,20 @@ function dataPointSelection(event, chartContext, config) {
 }
 
 function dataPointMouseEnter(event) {
-  event.path[0].style.cursor = "pointer";
+  if (!isUndefined(get(event, "path[0].style.cursor"))) {
+    event.path[0].style.cursor = "pointer";
+  }
 }
 
-const updateSeries = () => {
+const updateSeries = (noFocus = false) => {
   const gantt = [];
   simulation.selectedAgents.forEach((agent) => {
     agent.segmentsStartEnd.forEach(([start, end]) => {
       gantt.push({
         x: agent.id,
         y: [start, end],
-        fillColor: agent.color,
+        fillColor:
+          noFocus || !simulation.agentInFocus || simulation.agentInFocus?.id === agent.id ? agent.color : "#5b5b5b",
       });
     });
   });
@@ -112,6 +116,12 @@ const updateSeries = () => {
 
 onAgentsSelected(() => {
   updateSeries();
+});
+onFocusOnAgent(() => {
+  updateSeries();
+});
+onFocusOffAgent(() => {
+  updateSeries(true);
 });
 
 onMounted(() => {

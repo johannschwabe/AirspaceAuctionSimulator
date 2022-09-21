@@ -83,7 +83,7 @@
     </n-grid-item>
 
     <n-grid-item span="3">
-      <view-only-map>
+      <view-only-map :width="224">
         <n-form-item style="margin-top: 5px">
           <template #label>
             <help v-bind="hMapSelection">

@@ -74,4 +74,7 @@ const ignoreRecoverableSession = () => {
   flex-direction: column;
   row-gap: 25px;
 }
+#home {
+  margin-bottom: 100px;
+}
 </style>
