@@ -19,7 +19,6 @@ import { nextTick, onMounted, ref } from "vue";
 
 import { useSimulationSingleton } from "@/scripts/simulation.js";
 import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent } from "@/scripts/emitter.js";
-import { get, isUndefined, set } from "lodash-es";
 
 const simulation = useSimulationSingleton();
 
@@ -94,9 +93,7 @@ function dataPointSelection(event, chartContext, config) {
 }
 
 function dataPointMouseEnter(event) {
-  if (!isUndefined(get(event, "path[0].style.cursor"))) {
-    event.path[0].style.cursor = "pointer";
-  }
+  event.target.style.cursor = "pointer";
 }
 
 const updateSeries = (noFocus = false) => {

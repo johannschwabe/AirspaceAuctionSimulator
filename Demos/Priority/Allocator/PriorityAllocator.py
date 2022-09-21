@@ -67,7 +67,7 @@ class PriorityAllocator(Allocator):
         optimal_path_segments = []
         total_collisions = set()
 
-        for b, stay in zip(bid.locations[1:], bid.stays):
+        for _index, b in enumerate(bid.locations[1:]):
 
             end = b.to_3D()
             b = b.clone()
@@ -110,7 +110,8 @@ class PriorityAllocator(Allocator):
             a = ab_path[-1]
             start = a.to_3D()
             a = a.clone()
-            a.t += stay
+            if len(bid.stays) > _index:
+                a.t += bid.stays[_index]
 
         return optimal_path_segments, total_collisions, "Path allocated."
 

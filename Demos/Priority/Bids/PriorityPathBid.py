@@ -41,7 +41,8 @@ class PriorityPathBid(Bid):
                 "locations": [[location.x, location.y, location.z, location.t] for location in self.locations],
                 "stays": self.stays,
                 "battery": self.battery,
-                "priority": self.priority
+                "priority": self.priority,
+                "flying": self.flying
             },
             "display": {
                 "path": " -> ".join(
