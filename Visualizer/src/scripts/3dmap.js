@@ -28,6 +28,7 @@ const DRONE_TYPE = ["big_boye_drone", "camera_drone", "bowl_drone", "simple_dron
 let droneMeshes;
 
 export async function getDroneInstance(scene, agent) {
+  console.log("Creating drone mesh for agent", agent);
   if (!droneMeshes) {
     const { meshes } = await SceneLoader.ImportMeshAsync("", "./3d/", "drones.glb", scene);
     droneMeshes = meshes.filter((mesh) => DRONE_TYPE.includes(mesh.name));
@@ -88,7 +89,7 @@ export function useCamera({ x, y, z, scene, canvas }) {
   camera.setTarget(target);
   camera.setPosition(new Vector3(0, Math.max(x, y, z), -z));
   camera.lowerRadiusLimit = 5;
-  camera.upperRadiusLimit  = 1000;
+  camera.upperRadiusLimit = 1000;
   new SSAORenderingPipeline("ssaopipeline", scene, { ssaoRatio: 1, combineRatio: 1 });
   scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssaopipeline", camera);
   return camera;
@@ -327,18 +328,16 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
       nearFieldMaterial.emissiveColor = Color3.FromHexString(agent.color);
     }
 
-    // Darken all other drones
-    Object.values(droneCache).forEach(({ meshes }) => {
-      if (meshes[0].material.name !== getMaterialName(agent)) {
-        meshes[0].material.alpha = 0.2;
-        if (meshes.length > 1) {
-          meshes[1].alpha = 0.1;
-        }
-      }
-    });
-
     // Highlight own agents branches
     if (!update) {
+      Object.values(droneCache).forEach(({ meshes }) => {
+        if (meshes[0].material.name !== getMaterialName(agent)) {
+          meshes[0].material.alpha = 0.2;
+          if (meshes.length > 1) {
+            meshes[1].alpha = 0.1;
+          }
+        }
+      });
       focusCache.pathLines.forEach((line) => {
         line.dispose();
       });
@@ -527,6 +526,11 @@ export function useDrones({ scene, droneCache, x, z, focusOnPathAgent, focusOnSp
       agentMesh.isPickable = true;
       agentMesh.actionManager = new ActionManager(scene);
 
+      if (simulation.agentInFocus && simulation.agentInFocus?.id !== agent.id) {
+        ownerMaterial.alpha = 0.2;
+        agentPathLine.alpha = 0.1;
+      }
+
       agentMesh.actionManager.registerAction(
         new ExecuteCodeAction(ActionManager.OnPickTrigger, () => focusOnPathAgent({ agent, agent_x, agent_y, agent_z }))
       );
@@ -545,20 +549,20 @@ export function useDrones({ scene, droneCache, x, z, focusOnPathAgent, focusOnSp
   });
 }
 
-export function updateDrones({ scene, droneCache, x, z, focusOnSpaceAgent, focusOnPathAgent }) {
+export async function updateDrones({ scene, droneCache, x, z, focusOnSpaceAgent, focusOnPathAgent }) {
   const simulation = useSimulationSingleton();
 
   // Remove unused meshes
   const activeUUIDs = simulation.activeAgentIDs;
   Object.entries(droneCache).forEach(([uuid, cache]) => {
-    if (!(uuid in activeUUIDs)) {
+    if (!activeUUIDs.includes(uuid)) {
       cache.meshes.forEach((mesh) => {
         mesh.dispose();
       });
       delete droneCache[uuid];
     }
   });
-  useDrones({ scene, droneCache, x, z, focusOnSpaceAgent, focusOnPathAgent });
+  await useDrones({ scene, droneCache, x, z, focusOnSpaceAgent, focusOnPathAgent });
 }
 
 export function updateFocus({ focusCache, focusOnSpaceAgent, focusOnPathAgent }) {
