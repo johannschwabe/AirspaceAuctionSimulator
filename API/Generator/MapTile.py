@@ -148,6 +148,7 @@ class MapTile:
     def zxy2lon(z: int, x: int, y: int) -> float:
         """
         Converts a raw maptile definition using z,x,y to the longitude of its anchor point at the top-left
+        Source: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_numbers_to_lon./lat._2
         :param z: Zoom
         :param x: horizontal index
         :param y: vertical index
@@ -161,6 +162,7 @@ class MapTile:
     def zxy2lat(z: int, x: int, y: int) -> float:
         """
         Converts a raw maptile definition using z,x,y to the latitude of its anchor point at the top-left
+        Source: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_numbers_to_lon./lat._2
         :param z: Zoom
         :param x: horizontal index
         :param y: vertical index
@@ -177,6 +179,7 @@ class MapTile:
         """
         Given an input coordinate, returns a list of MapTiles centering that coordinate, including neighbouring
         maptiles according to the input parameters
+        Source: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Lon./lat._to_tile_numbers_2
         :param coordinates: Coordinate that will be covered by the maptile at the center of the array
         :param neighbouring_tiles:
         :param resolution:
