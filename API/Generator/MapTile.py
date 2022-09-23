@@ -153,7 +153,9 @@ class MapTile:
         :param y: vertical index
         :return: longitude
         """
-        return x / 2 ** z * 360 - 180
+        n = 2.0 ** z
+        lon = x / n * 360.0 - 180.0
+        return lon
 
     @staticmethod
     def zxy2lat(z: int, x: int, y: int) -> float:
@@ -164,8 +166,10 @@ class MapTile:
         :param y: vertical index
         :return: latitude
         """
-        n = mp.pi - 2 * mp.pi * y / 2 ** z
-        return float((180 / mp.pi) * (mp.atan(0.5 * (mp.exp(n) - mp.exp(-n)))))
+        n = 2.0 ** z
+        lat_rad = mp.atan(mp.sinh(mp.pi * (1 - 2 * y / n)))
+        lat = mp.degrees(lat_rad)
+        return lat
 
     @staticmethod
     def tiles_from_coordinates(coordinates: "APIWorldCoordinates", neighbouring_tiles: int, resolution: int) -> List[
@@ -183,8 +187,8 @@ class MapTile:
         lat_rad = mp.radians(coordinates.lat)
         n = 2 ** 15
 
-        xtile = int(n * ((coordinates.long + 180) / 360))
-        ytile = int(n * (1 - (mp.log(mp.tan(lat_rad) + mp.sec(lat_rad)) / mp.pi)) / 2)
+        xtile = int((coordinates.long + 180.0) / 360.0 * n)
+        ytile = int((1.0 - mp.asinh(mp.tan(lat_rad)) / mp.pi) / 2.0 * n)
 
         tiles = []
         for i in range(-neighbouring_tiles, neighbouring_tiles + 1):
