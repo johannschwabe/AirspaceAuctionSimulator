@@ -171,7 +171,7 @@ class MapTile:
         n = 2.0 ** z
         lat_rad = mp.atan(mp.sinh(mp.pi * (1 - 2 * y / n)))
         lat = mp.degrees(lat_rad)
-        return lat
+        return float(lat)
 
     @staticmethod
     def tiles_from_coordinates(coordinates: "APIWorldCoordinates", neighbouring_tiles: int, resolution: int) -> List[
