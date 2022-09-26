@@ -11,13 +11,13 @@ from ..Blocker.DynamicBlocker import DynamicBlocker
 from ..Blocker.StaticBlocker import StaticBlocker
 from ..Owners.Owner import Owner
 from ..Segments.PathSegment import PathSegment
+from ..Segments.SpaceSegment import SpaceSegment
 
 if TYPE_CHECKING:
     from ..Coordinates.Coordinate4D import Coordinate4D
     from ..Coordinates.Coordinate3D import Coordinate3D
     from ..Agents.Agent import Agent
     from ..Blocker.Blocker import Blocker
-    from ..Segments.SpaceSegment import SpaceSegment
     from ..Environment.Environment import Environment
 
 
@@ -40,6 +40,12 @@ class JSONBranch(Stringify):
         self.paths: List["JSONPath"] = paths
 
 
+class JSONBlocks(Stringify):
+    def __init__(self, tick: int, spaces: List["JSONSpace"]):
+        self.tick: int = tick
+        self.spaces = spaces
+
+
 class JSONAgent(ABC):
     def __init__(
         self,
@@ -53,9 +59,11 @@ class JSONSpaceAgent(JSONAgent, Stringify):
     def __init__(
         self,
         agent: "SpaceAgent",
+        blocks: List["JSONBlocks"]
     ):
         super().__init__(agent)
-        self.spaces: List["JSONSpace"] = [JSONSpace(space) for space in agent.allocated_segments]
+        self.blocks = [JSONSpace(space) for space in agent.allocated_segments]
+        self.intermediate_allocations = blocks
 
 
 class JSONPathAgent(JSONAgent, Stringify):
@@ -69,7 +77,7 @@ class JSONPathAgent(JSONAgent, Stringify):
         self.near_radius: int = agent.near_radius
         self.battery: int = agent.battery
         self.paths: List["JSONPath"] = [JSONPath(path) for path in agent.allocated_segments]
-        self.branches = branches
+        self.intermediate_allocations = branches
 
 
 class JSONOwner(Stringify):
@@ -114,14 +122,16 @@ class JSONStatistics(Stringify):
 class JSONSimulation(Stringify):
     def __init__(self,
                  environment: "JSONEnvironment",
-                 owners: List["JSONOwner"],
+                 path_owners: List["JSONOwner"],
+                 space_owners: List["JSONOwner"],
                  ):
         self.environment: "JSONEnvironment" = environment
-        self.owners: List["JSONOwner"] = owners
+        self.path_owners: List["JSONOwner"] = path_owners
+        self.space_owners: List["JSONOwner"] = space_owners
 
 
-def get_json_branches_path_agent(path_agent: "PathAgent",
-                                 allocations: Dict["Agent", Dict[int, "Allocation"]]) -> List["JSONBranch"]:
+def get_json_intermediate_path_allocations(path_agent: "PathAgent",
+                                           allocations: Dict["Agent", Dict[int, "Allocation"]]) -> List["JSONBranch"]:
     json_allocations: List["JSONBranch"] = []
     for tick, allocation in allocations[path_agent].items():
         json_path_segments: List["JSONPath"] = []
@@ -133,36 +143,59 @@ def get_json_branches_path_agent(path_agent: "PathAgent",
     return json_allocations
 
 
+def get_json_intermediate_space_allocations(path_agent: "SpaceAgent",
+                                            allocations: Dict["Agent", Dict[int, "Allocation"]]) -> List["JSONBlocks"]:
+    json_allocations: List["JSONBlocks"] = []
+    for tick, allocation in allocations[path_agent].items():
+        json_space_segments: List["JSONSpace"] = []
+        for space_segment in allocation.segments:
+            assert isinstance(space_segment, SpaceSegment)
+            json_space_segments.append(JSONSpace(space_segment))
+
+        json_allocations.append(JSONBlocks(tick, json_space_segments))
+    return json_allocations
+
+
 def get_json_owners(simulation: "Simulator"):
-    json_owners: List["JSONOwner"] = []
+    json_path_owners: List["JSONOwner"] = []
+    json_space_owners: List["JSONOwner"] = []
     for owner in simulation.owners:
-        json_agents: List["JSONAgent"] = []
+        json_path_agents: List["JSONAgent"] = []
+        json_space_agents: List["JSONAgent"] = []
         for agent in owner.agents:
             if isinstance(agent, PathAgent):
-                branches: List["JSONBranch"] = get_json_branches_path_agent(agent, simulation.history.allocations)
-                json_agents.append(JSONPathAgent(
+                intermediate_allocations: List["JSONBranch"] = get_json_intermediate_path_allocations(agent,
+                                                                                                      simulation.history.allocations)
+                json_path_agents.append(JSONPathAgent(
                     agent,
-                    branches
+                    intermediate_allocations
                 ))
 
             elif isinstance(agent, SpaceAgent):
-                json_agents.append(JSONSpaceAgent(
+                intermediate_allocations: List["JSONBlocks"] = get_json_intermediate_space_allocations(agent,
+                                                                                                       simulation.history.allocations)
+                json_space_agents.append(JSONSpaceAgent(
                     agent,
+                    intermediate_allocations
                 ))
 
             else:
                 raise Exception(f"Invalid Agent: {agent}")
 
-        json_owners.append(JSONOwner(owner, json_agents))
-
-    return json_owners
+        if len(json_space_agents) > 0 and len(json_path_agents) == 0:
+            json_space_owners.append(JSONOwner(owner, json_space_agents))
+        elif len(json_path_agents) > 0 and len(json_space_agents) == 0:
+            json_path_owners.append(JSONOwner(owner, json_path_agents))
+        else:
+            raise Exception(f"Non Consistent Agenttype in Owner {owner}")
+    return json_path_owners, json_space_owners
 
 
 def build_json_simulation(simulation: "Simulator") -> "JSONSimulation":
     json_environment = JSONEnvironment(simulation.environment)
-    json_owners = get_json_owners(simulation)
+    json_path_owners, json_space_owners = get_json_owners(simulation)
     return JSONSimulation(json_environment,
-                          json_owners)
+                          json_path_owners, json_space_owners)
 
 
 def get_simulation_dict(simulation: "Simulator") -> Dict[str, Any]:

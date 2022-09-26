@@ -59,11 +59,20 @@ export default class Simulation {
     });
 
     /**
-     * All owners that were simulated
+     * Path owners that were simulated
      * @type {Owner[]}
      */
-    this.owners = jsonSimulation.owners.map((owner) => {
-      const ownerStats = simulationStats.owners.find((ownerStat) => ownerStat.id === owner.id);
+    this.path_owners = jsonSimulation.path_owners.map((owner) => {
+      const ownerStats = simulationStats.path_owners.find((ownerStat) => ownerStat.id === owner.id);
+      return new Owner(owner, this, ownerStats);
+    });
+
+    /**
+     * Path owners that were simulated
+     * @type {Owner[]}
+     */
+    this.space_owners = jsonSimulation.space_owners.map((owner) => {
+      const ownerStats = simulationStats.space_owners.find((ownerStat) => ownerStat.id === owner.id);
       return new Owner(owner, this, ownerStats);
     });
 
@@ -162,6 +171,10 @@ export default class Simulation {
     this.updateActiveAgents();
     this.updateActiveBlockers();
     this.updateTimeline();
+  }
+
+  get owners() {
+    return [...this.path_owners, ...this.space_owners];
   }
 
   get tick() {

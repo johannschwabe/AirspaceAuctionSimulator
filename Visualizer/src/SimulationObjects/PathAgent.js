@@ -1,10 +1,15 @@
 import Path from "./Path";
 import Branch from "./Branch";
-import { allocationEventFactory, ArrivalEvent, FailedAllocationEvent, FlightEvent, TakeOffEvent } from "./FlightEvent";
+import {
+  pathAllocationEventFactory,
+  ArrivalEvent,
+  FailedAllocationEvent,
+  FlightEvent,
+  TakeOffEvent,
+} from "./FlightEvent";
 import Agent from "./Agent";
 import { BRANCH_REASONS } from "@/API/enums";
 import PathStatistic from "@/SimulationObjects/PathStatistic";
-import AllocationStatistic from "@/SimulationObjects/AllocationStatistic";
 
 export default class PathAgent extends Agent {
   /**
@@ -12,34 +17,35 @@ export default class PathAgent extends Agent {
    * @param {JSONAgent} rawAgent
    * @param {Owner} owner
    * @param {Simulation} simulation
-   * @param {AgentStatistics} agentStats
+   * @param {PathAgentStatistics} agentStats
    */
   constructor(rawAgent, owner, simulation, agentStats) {
     super(rawAgent, owner, simulation, agentStats);
+    // Agent Info
     this.speed = rawAgent.speed;
     this.nearRadius = rawAgent.near_radius;
     this.battery = rawAgent.battery;
+
+    // Agent Statistics
     this.timeInAir = agentStats.time_in_air;
-
-    this.paths = rawAgent.paths.map((path) => new Path(path));
-    this.combinedPath = Path.join(this.paths);
-
     this.batteryUnused = agentStats.battery_unused;
     this.delayedStarts = agentStats.delayed_starts;
     this.delayedArrivals = agentStats.delayed_arrivals;
     this.reDelayedArrivals = agentStats.re_delayed_arrivals;
 
-    this.branches = rawAgent.branches.map((branch) => {
+    this.paths = rawAgent.paths.map((path) => new Path(path));
+    this.combinedPath = Path.join(this.paths);
+
+    this.intermediate_allocations = rawAgent.intermediate_allocations.map((branch) => {
       const branchStats = agentStats.allocations.find((allocationStats) => allocationStats.tick === branch.tick);
       return new Branch(branch, branchStats);
     });
 
-    this.reAllocationTimesteps = this.branches
+    this.reAllocationTimesteps = this.intermediate_allocations
       .filter((branch) => branch.reason === BRANCH_REASONS.REALLOCATION)
       .map((branch) => branch.tick);
 
     this.pathStatistics = agentStats.path ? new PathStatistic(agentStats.path) : null;
-    this.allocationStatistics = agentStats.allocations.map((a) => new AllocationStatistic(a));
   }
 
   /**
@@ -55,9 +61,9 @@ export default class PathAgent extends Agent {
       const arrivalEvent = new ArrivalEvent(path.lastTick, path.lastLocation);
       events.push(arrivalEvent);
     });
-    this.branches.forEach((branch) => {
+    this.intermediate_allocations.forEach((branch) => {
       const reallocationLocation = branch.paths > 0 ? branch.paths[0].firstLocation : null;
-      const AllocationClass = allocationEventFactory(branch.reason);
+      const AllocationClass = pathAllocationEventFactory(branch.reason);
       const reallocationEvent = new AllocationClass(branch.tick, reallocationLocation, branch.explanation);
       events.push(reallocationEvent);
     });
@@ -75,10 +81,11 @@ export default class PathAgent extends Agent {
       }
     });
     if (
-      this.branches.length > 0 &&
-      this.branches[this.branches.length - 1].reason === BRANCH_REASONS.ALLOCATION_FAILED
+      this.intermediate_allocations.length > 0 &&
+      this.intermediate_allocations[this.intermediate_allocations.length - 1].reason ===
+        BRANCH_REASONS.ALLOCATION_FAILED
     ) {
-      const lastBranch = this.branches[this.branches.length - 1];
+      const lastBranch = this.intermediate_allocations[this.intermediate_allocations.length - 1];
       return events.filter((event) => event.tick < lastBranch.tick || event instanceof FailedAllocationEvent);
     }
     return events;

@@ -58,14 +58,30 @@ export class ArrivalEvent extends FlightEvent {
 }
 
 export class ReservationStartEvent extends FlightEvent {
+  constructor(tick, count = 1) {
+    super(`Reservation Start ${count > 1 ? "x" + count.toString() : ""}`, "default", mdiAirplaneLanding, tick);
+  }
+}
+
+export class ReReservationEvent extends FlightEvent {
   constructor(tick) {
-    super("Reservation Start", "default", mdiAirplaneLanding, tick);
+    super("Reservation changed", "warning", mdiSourceBranchSync, tick);
+  }
+}
+export class FirstReservationEvent extends FlightEvent {
+  constructor(tick) {
+    super("First Allocation", "warning", mdiSourceBranchCheck, tick);
+  }
+}
+export class FailedReservationEvent extends FlightEvent {
+  constructor(tick) {
+    super("Failed Allocation", "warning", mdiSourceBranchRemove, tick);
   }
 }
 
 export class ReservationEndEvent extends FlightEvent {
-  constructor(tick) {
-    super("Reservation End", "success", mdiAirplaneLanding, tick);
+  constructor(tick, count = 1) {
+    super(`Reservation End ${count > 1 ? "x" + count : ""}`, "success", mdiAirplaneLanding, tick);
   }
 }
 
@@ -105,7 +121,7 @@ export class FailedAllocationEvent extends FlightEvent {
   }
 }
 
-export function allocationEventFactory(reason) {
+export function pathAllocationEventFactory(reason) {
   switch (reason) {
     case BRANCH_REASONS.FIRST_ALLOCATION:
       return FirstAllocationEvent;
@@ -113,6 +129,20 @@ export function allocationEventFactory(reason) {
       return ReallocationEvent;
     case BRANCH_REASONS.ALLOCATION_FAILED:
       return FailedAllocationEvent;
+    default:
+      console.error(`Unknown allocation reason: ${reason}`);
+      throw new Error("Unknown allocation reason");
+  }
+}
+
+export function spaceAllocationEventFactory(reason) {
+  switch (reason) {
+    case BRANCH_REASONS.FIRST_ALLOCATION:
+      return FirstReservationEvent;
+    case BRANCH_REASONS.REALLOCATION:
+      return ReReservationEvent;
+    case BRANCH_REASONS.ALLOCATION_FAILED:
+      return FailedReservationEvent;
     default:
       console.error(`Unknown allocation reason: ${reason}`);
       throw new Error("Unknown allocation reason");

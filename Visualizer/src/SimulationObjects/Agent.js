@@ -1,3 +1,5 @@
+import AllocationStatistic from "./AllocationStatistic";
+
 export default class Agent {
   /**
    *
@@ -37,6 +39,7 @@ export default class Agent {
       : [];
 
     this._simulation = simulation;
+    this.allocationStatistics = agentStats.allocations.map((a) => new AllocationStatistic(a));
   }
 
   get displayName() {

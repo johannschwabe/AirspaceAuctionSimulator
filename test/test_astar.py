@@ -66,7 +66,7 @@ class AstarTest(unittest.TestCase):
         agi_2 = SpaceAgent(f"AgentName{random.randint(0, 100000)}",
                            FCFSSpaceBiddingStrategy(),
                            FCFSSpaceValueFunction(),
-                           [[Coordinate4D(2, 0, 0, 0), Coordinate4D(6, 0, 2, 8)]])
+                           [SpaceSegment(Coordinate4D(2, 0, 0, 0), Coordinate4D(6, 0, 2, 8))])
         self.env.allocate_space_segment_for_agent(agi_2,
                                                   SpaceSegment(Coordinate4D(2, 0, 0, 0), Coordinate4D(4, 0, 2, 8)))
         self.env.add_agent(agi_2)

@@ -1,15 +1,18 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, TYPE_CHECKING
 
-from Simulator import Bid, SpaceAgent, Coordinate4D
+from Simulator import Bid, SpaceAgent
+
+if TYPE_CHECKING:
+    from Simulator.Segments.SpaceSegment import SpaceSegment
 
 
 class PrioritySpaceBid(Bid):
-    def __init__(self, agent: "SpaceAgent", blocks: List[List["Coordinate4D"]], priority: float):
+    def __init__(self, agent: "SpaceAgent", blocks: List["SpaceSegment"], priority: float):
         super().__init__(agent)
         # overwrite agent for typing
         self.agent: "SpaceAgent" = agent
         # requested blocks
-        self.blocks: List[List["Coordinate4D"]] = blocks
+        self.blocks: List["SpaceSegment"] = blocks
         # priority in collisions
         self.priority: float = priority
 
@@ -31,13 +34,13 @@ class PrioritySpaceBid(Bid):
     def to_dict(self) -> Dict[str, Any]:
         return {
             "data": {
-                "blocks": [{"min": [block[0].x, block[0].y, block[0].z, block[0].t],
-                            "max": [block[1].x, block[1].y, block[1].z, block[1].t]} for block in self.blocks],
+                "blocks": [{"min": [block.min.x, block.min.y, block.min.z, block.min.t],
+                            "max": [block.max.x, block.max.y, block.max.z, block.max.t]} for block in self.blocks],
                 "priority": self.priority
             },
             "display": {
                 "area": "\n".join([
-                    f"min: {int(block[0].x)}, {int(block[0].y)}, {int(block[0].z)}, {block[0].t}, max: {int(block[1].x)}, {int(block[1].y)}, {int(block[1].z)}, {block[1].t}"
+                    f"min: {int(block.min.x)}, {int(block.min.y)}, {int(block.min.z)}, {block.min.t}, max: {int(block.max.x)}, {int(block.max.y)}, {int(block.max.z)}, {block.max.t}"
                     for block in self.blocks]),
                 "priority": self.priority
             }

@@ -2,6 +2,7 @@ from typing import List, TYPE_CHECKING, Dict, Any
 
 from .Owner import Owner
 from ..Agents.SpaceAgent import SpaceAgent
+from ..Segments.SpaceSegment import SpaceSegment
 
 if TYPE_CHECKING:
     from ..Location.GridLocation import GridLocation
@@ -33,21 +34,21 @@ class SpaceOwner(Owner):
         coord = stop.generate_coordinates(env, t + 1)
         return coord
 
-    def initialize_agent(self, blocks: List[List["Coordinate4D"]]) -> "SpaceAgent":
+    def initialize_agent(self, blocks: List["SpaceSegment"]) -> "SpaceAgent":
         agent_id: str = self.get_agent_id()
         return SpaceAgent(agent_id, self.bidding_strategy, self.value_function, blocks, config=self.config)
 
     def generate_agents(self, t: int, environment: "Environment") -> List["SpaceAgent"]:
         res = []
         for _ in range(self.creation_ticks.count(t)):
-            blocks = []
+            blocks: List["SpaceSegment"] = []
             for stop in self.stops:
                 center = self.generate_stop_coordinates(stop, environment, t)
                 bottom_left = center.clone()
                 bottom_left.x -= round(self.size.x / 2)
                 bottom_left.z -= round(self.size.z / 2)
                 top_right = bottom_left + self.size
-                blocks.append([bottom_left, top_right])
+                blocks.append(SpaceSegment(bottom_left, top_right))
             agent = self.initialize_agent(blocks)
             res.append(agent)
             print(f"{agent} {', '.join([str(block) for block in blocks])}")

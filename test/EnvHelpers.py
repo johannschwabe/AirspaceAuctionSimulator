@@ -25,7 +25,7 @@ def generate_space_agent():
     return SpaceAgent(f"AgentName{random.randint(0, 100000)}",
                       FCFSSpaceBiddingStrategy(),
                       FCFSSpaceValueFunction(),
-                      [[Coordinate4D(40, 40, 40, 20), Coordinate4D(60, 60, 60, 70)]])
+                      [SpaceSegment(Coordinate4D(40, 40, 40, 20), Coordinate4D(60, 60, 60, 70))])
 
 
 def generate_path_segment(base: Coordinate4D):

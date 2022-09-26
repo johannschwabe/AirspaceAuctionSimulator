@@ -130,8 +130,8 @@ class PriorityAllocator(Allocator):
         possible_space_segments = []
         collisions = set()
         for block in bid.blocks:
-            lower = block[0].clone()
-            upper = block[1].clone()
+            lower = block.min.clone()
+            upper = block.max.clone()
 
             t = find_valid_space_tick(tick, environment, self.bid_tracker, lower, upper, bid, tick,
                                       environment.dimension.t)
