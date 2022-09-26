@@ -48,7 +48,7 @@ const apply = () => {
 
 const renderSuffix = ({ option }) => {
   if (!(option instanceof Owner)) {
-    if (option.timeInAir === 0) {
+    if (option.flyingTicks.length === 0) {
       return h(NButton, { text: true, type: "info" }, { default: () => "No Start" });
     }
     if (option.totalViolations > 0) {

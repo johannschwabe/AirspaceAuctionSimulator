@@ -38,7 +38,7 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted } from "vue";
-import { FingerPrint, Airplane, Timer, Happy } from "@vicons/ionicons5";
+import { FingerPrint, Airplane, Timer, Happy, Accessibility, } from "@vicons/ionicons5";
 import { isArray, isNull, isUndefined } from "lodash-es";
 import PerfectScrollbar from "perfect-scrollbar";
 
@@ -78,7 +78,16 @@ const locations = computed(() => {
 
 const datapoints = computed(() =>
   [
-    { label: "Owner ID", value: simulation.ownerInFocus.id, icon: FingerPrint },
+    {
+      label: "Owner ID",
+      value: simulation.ownerInFocus.id,
+      icon: FingerPrint,
+    },
+    {
+      label: "Owner Name",
+      value: simulation.ownerInFocus.name,
+      icon: Accessibility,
+    },
     {
       label: "Utility",
       value: simulation.ownerInFocus.totalUtility,
