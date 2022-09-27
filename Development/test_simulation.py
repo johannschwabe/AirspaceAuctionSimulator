@@ -5,7 +5,7 @@ from API import APISimulationConfig, build_json, run_from_config
 
 random.seed(0)
 
-f = open("st.-pierre-&-miquelon-config.json", "r")
+f = open("croatia-config.json", "r")
 converted = json.load(f)
 # config: APISimulationConfig = APISimulationConfig(**converted["config"])
 config: APISimulationConfig = APISimulationConfig(**converted)
