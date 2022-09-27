@@ -47,9 +47,9 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useLoadingBar } from "naive-ui";
 
-import SimulationUploader from "../components/home/ExistingConfigSection/ConfigUploader.vue";
+import SimulationUploader from "../components/home/ExistingSimulationSection/SimulationUploader.vue";
 import ModelCreator from "../components/home/CreateConfigSection/ConfigCreationForm.vue";
-import SimulationChooser from "@/components/home/ExistingConfigSection/PrefabChooser.vue";
+import SimulationChooser from "@/components/home/ExistingSimulationSection/SimulationPrefabChooser.vue";
 
 import { canRecoverSimulationSingleton, hasSimulationSingleton } from "@/scripts/simulationSingleton";
 
