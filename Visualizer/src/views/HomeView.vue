@@ -43,12 +43,12 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useLoadingBar } from "naive-ui";
 
-import SimulationUploader from "../components/home/SimulationUploader.vue";
-import ModelCreator from "../components/home/ModelCreator.vue";
+import SimulationUploader from "../components/home/ExistingConfigSection/ConfigUploader.vue";
+import ModelCreator from "../components/home/CreateConfigSection/ConfigCreationForm.vue";
 import SectionText from "../components/home/SectionText.vue";
-import SimulationChooser from "@/components/home/SimulationChooser.vue";
+import SimulationChooser from "@/components/home/ExistingConfigSection/PrefabChooser.vue";
 
-import { canRecoverSimulationSingleton, hasSimulationSingleton } from "@/scripts/simulation";
+import { canRecoverSimulationSingleton, hasSimulationSingleton } from "@/scripts/simulationSingleton";
 
 const router = useRouter();
 const loadingBar = useLoadingBar();

@@ -27,10 +27,10 @@
 import { ref, watchEffect } from "vue";
 import { Options } from "@vicons/ionicons5";
 
-import OwnerOptions from "./OwnerOptions.vue";
+import OwnerOptions from "./OwnerOptionsModal.vue";
 import OwnerForm from "./OwnerForm.vue";
 
-import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import { useSimulationConfigStore } from "@/stores/simulationConfigStore";
 
 const simulationConfig = useSimulationConfigStore();
 

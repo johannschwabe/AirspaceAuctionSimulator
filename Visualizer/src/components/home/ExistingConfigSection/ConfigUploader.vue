@@ -20,9 +20,9 @@ import { useRouter } from "vue-router";
 import { useLoadingBar, useMessage } from "naive-ui";
 import { ArchiveOutline } from "@vicons/ionicons5";
 
-import Simulation from "../../SimulationObjects/Simulation";
+import Simulation from "../../../SimulationObjects/Simulation";
 
-import { setSimulationConfig, setSimulationSingleton } from "@/scripts/simulation";
+import { setSimulationConfig, setSimulationSingleton } from "@/scripts/simulationSingleton";
 import { persistSimulation } from "@/API/api";
 
 const message = useMessage();

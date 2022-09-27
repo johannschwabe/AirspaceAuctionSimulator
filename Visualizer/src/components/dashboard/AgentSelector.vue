@@ -22,12 +22,12 @@
 <script setup>
 import { isEmpty, xor } from "lodash-es";
 import { ref, computed, h } from "vue";
-import { useSimulationStore } from "@/stores/simulation";
-import { useSimulationSingleton } from "@/scripts/simulation";
+import { useSimulationOutputStore } from "@/stores/simulationOutputStore";
+import { useSimulationSingleton } from "@/scripts/simulationSingleton";
 import Owner from "@/SimulationObjects/Owner";
 import { NButton } from "naive-ui";
 
-const simulationStore = useSimulationStore();
+const simulationStore = useSimulationOutputStore();
 const simulation = useSimulationSingleton();
 
 const pattern = ref("");

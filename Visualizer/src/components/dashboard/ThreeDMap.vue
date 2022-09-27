@@ -26,8 +26,8 @@ import {
   useOrientationLights,
   useScene,
   useShadows,
-} from "@/scripts/3dmap";
-import { useSimulationSingleton } from "@/scripts/simulation.js";
+} from "@/scripts/engine";
+import { useSimulationSingleton } from "@/scripts/simulationSingleton.js";
 import SpaceAgent from "@/SimulationObjects/SpaceAgent.js";
 import PathAgent from "@/SimulationObjects/PathAgent.js";
 

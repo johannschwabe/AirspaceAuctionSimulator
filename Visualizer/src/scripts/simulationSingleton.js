@@ -1,10 +1,10 @@
 /**
  * @type {Simulation}
  */
-import { useSimulationStore } from "@/stores/simulation";
+import { useSimulationOutputStore } from "@/stores/simulationOutputStore";
 import { canLoadSimulation, loadConfigData, loadSimulationData, loadStatisticsData } from "@/API/api";
 import Simulation from "../SimulationObjects/Simulation";
-import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import { useSimulationConfigStore } from "@/stores/simulationConfigStore";
 
 let simulationSingleton = null;
 
@@ -12,7 +12,7 @@ let simulationSingleton = null;
  * @param {Simulation} simulation
  */
 export function setSimulationSingleton(simulation) {
-  const simulationStore = useSimulationStore();
+  const simulationStore = useSimulationOutputStore();
   simulationStore.selectedAgentIDs = [];
   simulationStore.tick = 0;
   simulationSingleton = simulation;

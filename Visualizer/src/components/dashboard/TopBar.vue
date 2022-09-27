@@ -49,7 +49,7 @@ import { computed } from "vue";
 import { useRouter } from "vue-router";
 
 import { downloadSimulation } from "@/API/api.js";
-import { useSimulationSingleton } from "@/scripts/simulation.js";
+import { useSimulationSingleton } from "@/scripts/simulationSingleton.js";
 
 const router = useRouter();
 const simulation = useSimulationSingleton();

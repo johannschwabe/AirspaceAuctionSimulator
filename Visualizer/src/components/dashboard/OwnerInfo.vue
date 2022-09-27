@@ -42,12 +42,12 @@ import { FingerPrint, Airplane, Timer, Happy, Accessibility, } from "@vicons/ion
 import { isArray, isNull, isUndefined } from "lodash-es";
 import PerfectScrollbar from "perfect-scrollbar";
 
-import { useSimulationSingleton } from "@/scripts/simulation.js";
-import { useSimulationConfigStore } from "@/stores/simulationConfig.js";
+import { useSimulationSingleton } from "@/scripts/simulationSingleton.js";
+import { useSimulationConfigStore } from "@/stores/simulationConfigStore.js";
 import { useComponentMappingWithRandomMap } from "@/components/common/help/map/Map.js";
 
-import Boxplot from "./Boxplot.vue";
-import SimpleDataTable from "@/components/dashboard/SimpleDataTable.vue";
+import Boxplot from "./PanelComponents/Boxplot.vue";
+import SimpleDataTable from "@/components/dashboard/PanelComponents/SimpleDataTable.vue";
 
 const simulation = useSimulationSingleton();
 const simulationConfig = useSimulationConfigStore();

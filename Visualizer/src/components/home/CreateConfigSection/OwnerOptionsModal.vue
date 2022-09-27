@@ -39,8 +39,8 @@
 
 <script setup>
 import { computed } from "vue";
-import OwnerStop from "./OwnerStop.vue";
-import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import OwnerStop from "./OwnerStopMap.vue";
+import { useSimulationConfigStore } from "@/stores/simulationConfigStore";
 import Help from "@/components/common/help/help.vue";
 import { hStops } from "@/components/common/help/texts.js";
 

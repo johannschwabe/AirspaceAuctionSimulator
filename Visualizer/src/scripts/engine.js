@@ -15,7 +15,7 @@ import "@babylonjs/loaders";
 
 import earcut from "earcut";
 
-import { useSimulationSingleton } from "./simulation.js";
+import { useSimulationSingleton } from "./simulationSingleton.js";
 import Path from "../SimulationObjects/Path.js";
 import PathAgent from "@/SimulationObjects/PathAgent.js";
 import SpaceAgent from "@/SimulationObjects/SpaceAgent.js";

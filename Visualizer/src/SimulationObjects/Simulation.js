@@ -1,6 +1,6 @@
 import "../API/typedefs.js";
 
-import { useSimulationStore } from "../stores/simulation.js";
+import { useSimulationOutputStore } from "../stores/simulationOutputStore.js";
 
 import Coordinate4D from "./Coordinate4D";
 import Statistics from "./Statistics";
@@ -20,7 +20,7 @@ export default class Simulation {
    * @param {SimulationStatistics} simulationStats
    */
   constructor(jsonSimulation, jsonConfig, simulationStats) {
-    this._simulationStore = useSimulationStore();
+    this._simulationStore = useSimulationOutputStore();
 
     this.name = jsonConfig.name;
     this.description = jsonConfig.description;

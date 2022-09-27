@@ -16,7 +16,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { restorePositionFeatures, useBaseLayer, useMap, usePositionInteraction, usePositionLayer } from "./Map";
 import { Collection } from "ol";
-import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import { useSimulationConfigStore } from "@/stores/simulationConfigStore";
 import Help from "@/components/common/help/help.vue";
 import { hPositonMap } from "@/components/common/help/texts";
 

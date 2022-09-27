@@ -8,7 +8,7 @@ import { useLoadingBar, useMessage } from "naive-ui";
 import { useRouter } from "vue-router";
 import { persistSimulation } from "@/API/api";
 import Simulation from "@/SimulationObjects/Simulation";
-import { setSimulationConfig, setSimulationSingleton } from "@/scripts/simulation";
+import { setSimulationConfig, setSimulationSingleton } from "@/scripts/simulationSingleton";
 
 const message = useMessage();
 const loadingBar = useLoadingBar();

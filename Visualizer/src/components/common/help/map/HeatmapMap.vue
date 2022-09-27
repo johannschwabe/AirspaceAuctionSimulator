@@ -16,7 +16,7 @@
 import { onMounted, ref } from "vue";
 import { restoreHeatmapFeatures, useBaseLayer, useHeatmapInteraction, useHeatmapLayer, useMap } from "./Map";
 import { Collection } from "ol";
-import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import { useSimulationConfigStore } from "@/stores/simulationConfigStore";
 import { computed } from "vue";
 import Help from "@/components/common/help/help.vue";
 import { hHeatmap } from "@/components/common/help/texts.js";

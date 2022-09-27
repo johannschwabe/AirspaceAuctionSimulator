@@ -55,7 +55,7 @@ import { reactive, ref, computed } from "vue";
 import { debounce } from "lodash-es";
 
 import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent } from "@/scripts/emitter.js";
-import { useSimulationSingleton } from "@/scripts/simulation.js";
+import { useSimulationSingleton } from "@/scripts/simulationSingleton.js";
 
 import {
   PlayOutline,
