@@ -44,7 +44,7 @@ import PerfectScrollbar from "perfect-scrollbar";
 
 import { useSimulationSingleton } from "@/scripts/simulationSingleton.js";
 import { useSimulationConfigStore } from "@/stores/simulationConfigStore.js";
-import { useComponentMappingWithRandomMap } from "@/components/common/help/map/Map.js";
+import { useComponentMappingWithRandomMap } from "@/components/common/map/Map.js";
 
 import Boxplot from "./PanelComponents/Boxplot.vue";
 import SimpleDataTable from "@/components/dashboard/PanelComponents/SimpleDataTable.vue";

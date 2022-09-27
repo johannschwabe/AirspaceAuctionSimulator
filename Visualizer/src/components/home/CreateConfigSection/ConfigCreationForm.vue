@@ -163,7 +163,7 @@ import { CloudDownloadOutline, ArrowForwardOutline, CloudUploadOutline } from "@
 import { saveAs } from "file-saver";
 
 import Owner from "./OwnerConfig.vue";
-import MapSelector from "../../common/help/map/MapSelector.vue";
+import MapSelector from "../../common/map/MapSelector.vue";
 import Help from "../../common/help/help.vue";
 
 import Simulation from "../../../SimulationObjects/Simulation.js";

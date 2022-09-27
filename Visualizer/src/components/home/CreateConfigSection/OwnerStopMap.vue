@@ -16,7 +16,7 @@
 <script setup>
 import { computed } from "vue";
 
-import { useComponentMapping } from "@/components/common/help/map/Map";
+import { useComponentMapping } from "@/components/common/map/Map";
 import { useSimulationConfigStore } from "@/stores/simulationConfigStore";
 
 const props = defineProps({
