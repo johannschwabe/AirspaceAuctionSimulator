@@ -105,7 +105,7 @@ export default class SpaceAgent extends Agent {
     if (!this.isActiveAtTick(tick)) {
       return undefined;
     }
-    return this.combinedSpace[tick].origin;
+    return this.combinedSpace[tick][0].origin;
   }
 
   get segmentsStartEnd() {

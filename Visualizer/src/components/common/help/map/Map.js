@@ -1,5 +1,5 @@
 import { computed, shallowRef, watch } from "vue";
-import { useSimulationConfigStore } from "../../../stores/simulationConfig";
+import { useSimulationConfigStore } from "../../../../stores/simulationConfig";
 import { fromLonLat, toLonLat } from "ol/proj";
 import { boundingExtent } from "ol/extent";
 import TileLayer from "ol/layer/Tile";
@@ -10,9 +10,9 @@ import VectorSource from "ol/source/Vector";
 import VectorLayer from "ol/layer/Vector";
 import { Point } from "ol/geom";
 
-import PointSelectionMap from "@/components/home/map/PointSelectionMap.vue";
-import HeatmapMap from "@/components/home/map/HeatmapMap.vue";
-import ViewOnlyMap from "@/components/home/map/ViewOnlyMap.vue";
+import PointSelectionMap from "@/components/common/help/map/PointSelectionMap.vue";
+import HeatmapMap from "@/components/common/help/map/HeatmapMap.vue";
+import ViewOnlyMap from "@/components/common/help/map/ViewOnlyMap.vue";
 
 const HEATMAP_SCORE_PER_CLICK = 0.1;
 

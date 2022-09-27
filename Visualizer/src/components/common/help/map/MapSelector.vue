@@ -108,10 +108,10 @@ import { NavigateCircleOutline } from "@vicons/ionicons5";
 import { useMessage } from "naive-ui";
 
 import ViewOnlyMap from "./ViewOnlyMap.vue";
-import Help from "../../../components/common/help/help.vue";
+import Help from "../help.vue";
 
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
-import { offConfigLoaded, onConfigLoaded } from "../../../scripts/emitter.js";
+import { offConfigLoaded, onConfigLoaded } from "../../../../scripts/emitter.js";
 import {
   hAddress,
   hHeight,

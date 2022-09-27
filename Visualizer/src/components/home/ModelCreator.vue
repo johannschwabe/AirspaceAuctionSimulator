@@ -162,8 +162,8 @@ import { useRouter } from "vue-router";
 import { CloudDownloadOutline, ArrowForwardOutline, CloudUploadOutline } from "@vicons/ionicons5";
 import { saveAs } from "file-saver";
 
-import Owner from "./owner/Owner.vue";
-import MapSelector from "./map/MapSelector.vue";
+import Owner from "./Owner.vue";
+import MapSelector from "../common/help/map/MapSelector.vue";
 import Help from "../common/help/help.vue";
 
 import Simulation from "../../SimulationObjects/Simulation.js";

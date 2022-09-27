@@ -14,7 +14,7 @@ import { Collection, Feature } from "ol";
 import { useSimulationConfigStore } from "@/stores/simulationConfig";
 import { fromLonLat, toLonLat } from "ol/proj";
 import { fromExtent } from "ol/geom/Polygon";
-import { offConfigLoaded, onConfigLoaded } from "../../../scripts/emitter";
+import { offConfigLoaded, onConfigLoaded } from "../../../../scripts/emitter";
 
 const simulationConfig = useSimulationConfigStore();
 const props = defineProps({

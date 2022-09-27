@@ -232,7 +232,7 @@ const datapoints = computed(() =>
       icon: Cube,
     },
     {
-      label: "Median Height",
+      label: "Mean Height",
       value: simulation.agentInFocus.meanHeight,
       icon: Podium,
     },

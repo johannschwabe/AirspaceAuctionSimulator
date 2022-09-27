@@ -1,13 +1,14 @@
 <template>
   <div>
     <div ref="mapRoot" :style="{ width: `${size.width}px`, height: `${size.height}px` }" class="map" />
-    <n-form-item style="margin-top: 5px">
+    <n-form-item style="margin-top: 5px" v-if="!disabled">
       <template #label>
         <help v-bind="hHeatmap">
           <span style="font-style: italic"> Draw on map to create Heatmap </span>
         </help>
       </template>
     </n-form-item>
+    <slot />
   </div>
 </template>
 
