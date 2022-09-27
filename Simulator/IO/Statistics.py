@@ -89,8 +89,6 @@ class Statistics:
         for agent in owner.agents:
             assert isinstance(agent, PathAgent)
             agent_value = self.get_value_for_agent(agent)
-            if hash(agent) not in self.payments:
-                print("Sdfälkasjdföl")
             agent_payment = self.payments[hash(agent)]
             agent_utility = agent_value - agent_payment
             agent_values.append(agent_value)
@@ -220,9 +218,13 @@ class Statistics:
             if allocation.history.displacing_agent_bids is not None:
                 for key, value in allocation.history.displacing_agent_bids.items():
                     displacing_agent_bids[key] = value.to_dict()
-
+            value = agent.value_for_segments(allocation.segments)
+            payment = allocation.preliminary_payment
+            utility = value - payment
             allocation_statistics.append(AllocationStatistics(tick,
-                                                              agent.value_for_segments(allocation.segments),
+                                                              value,
+                                                              payment,
+                                                              utility,
                                                               allocation.history.bid.to_dict(),
                                                               allocation.history.compute_time,
                                                               allocation.history.reason,
@@ -868,6 +870,8 @@ class AllocationStatistics(Stringify):
     def __init__(self,
                  tick: int,
                  value: float,
+                 payment: float,
+                 utility: float,
                  bid: Dict[str, str | int | float],
                  compute_time: int,
                  reason: str,
@@ -878,6 +882,8 @@ class AllocationStatistics(Stringify):
                  space_statistics: Optional["SpaceStatistics"]):
         self.tick: int = tick
         self.value: float = value
+        self.payment: float = payment
+        self.utility: float = utility
         self.bid: Dict[str, str | int | float] = bid
         self.reason: str = reason
         self.explanation: str = explanation
