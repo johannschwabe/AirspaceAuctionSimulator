@@ -22,7 +22,8 @@ class PriorityPaymentRule(PaymentRule):
         """
         self.voxel_cost = voxel_multiplier
 
-    def calculate_preliminary_payments(self, allocations: Dict["Agent", "Allocation"], bid_tracker: "PriorityBidTracker"):
+    def calculate_preliminary_payments(self, allocations: Dict["Agent", "Allocation"],
+                                       bid_tracker: "PriorityBidTracker"):
         """
         Calculates the payment by multiplying #voxels with multiplier x and the max priority of the agents bids.
         :param allocations:
@@ -35,11 +36,10 @@ class PriorityPaymentRule(PaymentRule):
                 allocation.preliminary_payment += segment.nr_voxels * self.voxel_cost * max_prio
 
     def calculate_final_payments(self, environment: "Environment", bid_tracker: "PriorityBidTracker"):
-        res = {}
+        res: Dict[int, float] = {}
         for agent in environment.agents.values():
             max_prio = bid_tracker.max_prio(agent)
+            res[hash(agent)] = 0
             for segment in agent.allocated_segments:
-                if agent not in res:
-                    res[agent] = 0
-                res[agent] += segment.nr_voxels * self.voxel_cost * max_prio
+                res[hash(agent)] += segment.nr_voxels * self.voxel_cost * max_prio
         return res
