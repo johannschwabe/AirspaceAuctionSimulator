@@ -1,5 +1,5 @@
 <template>
-  <n-select filterable v-model:value="selectedModel" :options="options" placeholder="Choose predefined Simulation" />
+  <n-select filterable v-model:value="selectedModel" :options="prefabs" placeholder="Choose predefined Simulation" />
 </template>
 
 <script setup>
@@ -14,7 +14,13 @@ const message = useMessage();
 const loadingBar = useLoadingBar();
 const router = useRouter();
 
-const options = [
+/**
+ * List of all available models, grouped by theme or intention. All files referenced here must
+ * be placed within the "public" folder of the Visualizer. All simulation files are lazy-loaded
+ * when they are used.
+ * @type {[{children: [{label: string, value: string}], label: string, type: string, key: string}]}
+ */
+const prefabs = [
   {
     type: "group",
     label: "Grossmünster",

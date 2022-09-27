@@ -4,10 +4,12 @@
       <!-- LEFT PART: UPLOAD EXISTING SIMULATION -->
       <n-grid-item :span="2" style="padding-left: 24px">
         <div class="center">
-          <section-text
-            title="Upload Simulation"
-            text="If you already have a valid Airspace-Auction-Simulation .JSON-File, drop it here to visualize it"
-          />
+          <div style="text-align: center; color: white">
+            <h1>Upload Simulation</h1>
+            <n-text style="font-size: 16px">
+              If you already have a valid Airspace-Auction-Simulation .JSON-File, drop it here to visualize it
+            </n-text>
+          </div>
           <simulation-uploader />
           <simulation-chooser />
         </div>
@@ -16,10 +18,12 @@
       <!-- RIGHT PART: CONFIGURE NEW SIMULATION -->
       <n-grid-item :span="3" style="padding-right: 24px">
         <div class="center">
-          <section-text
-            title="Simulate Scenario"
-            text="Configure a model here to create and visualize a new Airspace-Auction-Simulation"
-          />
+          <div style="text-align: center; color: white">
+            <h1>Simulate Scenario</h1>
+            <n-text style="font-size: 16px">
+              Configure a model here to create and visualize a new Airspace-Auction-Simulation
+            </n-text>
+          </div>
           <model-creator />
         </div>
       </n-grid-item>
@@ -45,7 +49,6 @@ import { useLoadingBar } from "naive-ui";
 
 import SimulationUploader from "../components/home/ExistingConfigSection/ConfigUploader.vue";
 import ModelCreator from "../components/home/CreateConfigSection/ConfigCreationForm.vue";
-import SectionText from "../components/home/SectionText.vue";
 import SimulationChooser from "@/components/home/ExistingConfigSection/PrefabChooser.vue";
 
 import { canRecoverSimulationSingleton, hasSimulationSingleton } from "@/scripts/simulationSingleton";
