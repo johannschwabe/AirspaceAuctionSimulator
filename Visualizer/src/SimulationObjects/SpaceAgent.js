@@ -2,6 +2,10 @@ import Agent from "./Agent";
 import Space from "./Space";
 import { first, last } from "lodash-es";
 import { FlightEvent, ReservationEndEvent, ReservationStartEvent } from "@/SimulationObjects/FlightEvent";
+import Blocks from "./Blocks";
+import { BRANCH_REASONS } from "../API/enums";
+import SpaceStatistic from "./SpaceStatistic";
+import { pathAllocationEventFactory, ReReservationEvent, spaceAllocationEventFactory } from "./FlightEvent";
 
 export default class SpaceAgent extends Agent {
   /**
@@ -9,11 +13,12 @@ export default class SpaceAgent extends Agent {
    * @param {JSONAgent} rawAgent
    * @param {Owner} owner
    * @param {Simulation} simulation
-   * @param {AgentStatistics} agentStats
+   * @param {SpaceAgentStatistics} agentStats
    */
   constructor(rawAgent, owner, simulation, agentStats) {
     super(rawAgent, owner, simulation, agentStats);
-
+    // Agent Info
+    // Agent Statistics
     this.volume = agentStats.space?.volume;
     this.meanVolume = agentStats.space?.mean_volume;
     this.medianVolume = agentStats.space?.median_volume;
@@ -30,7 +35,7 @@ export default class SpaceAgent extends Agent {
     /**
      * @type {Space[]}
      */
-    this.spaces = rawAgent.spaces.map((space) => new Space(space));
+    this.spaces = rawAgent.blocks.map((space) => new Space(space));
 
     /**
      * @type {Object<int, Coordinate4D>}
@@ -45,18 +50,45 @@ export default class SpaceAgent extends Agent {
         }
       }
     });
+
+    this.intermediate_allocations = rawAgent.intermediate_allocations.map((block) => {
+      const blockStats = agentStats.allocations.find((allocationStats) => allocationStats.tick === block.tick);
+      return new Blocks(block, blockStats);
+    });
+
+    this.reAllocationTimesteps = this.intermediate_allocations
+      .filter((blocks) => blocks.reason === BRANCH_REASONS.REALLOCATION)
+      .map((blocks) => blocks.tick);
+
+    this.pathStatistics = agentStats.space ? new SpaceStatistic(agentStats.space) : null;
   }
 
   get events() {
     const events = [];
-    this.spaces.forEach((space) => {
-      const takeOffEvent = new ReservationStartEvent(space.min.t);
-      events.push(takeOffEvent);
+    const starts = this.spaces.reduce((acc, curr) => {
+      acc[curr.min.t] = acc[curr.min.t] ? acc[curr.min.t] + 1 : 1;
+      return acc;
+    }, {});
 
-      const arrivalEvent = new ReservationEndEvent(space.max.t);
+    const ends = this.spaces.reduce((acc, curr) => {
+      acc[curr.max.t] = acc[curr.max.t] ? acc[curr.max.t] + 1 : 1;
+      return acc;
+    }, {});
+    Object.entries(starts).forEach(([timestep, count]) => {
+      const takeOffEvent = new ReservationStartEvent(parseInt(timestep), count);
+      events.push(takeOffEvent);
+    });
+    Object.entries(ends).forEach(([timestep, count]) => {
+      const arrivalEvent = new ReservationEndEvent(parseInt(timestep), count);
       events.push(arrivalEvent);
     });
+    this.intermediate_allocations.forEach((blocks) => {
+      const AllocationClass = spaceAllocationEventFactory(blocks.reason);
+      const reallocationEvent = new AllocationClass(blocks.tick);
+      events.push(reallocationEvent);
+    });
     events.sort(FlightEvent.sortEventsFunction);
+    console.log(events);
     for (let i = 0; i < events.length - 1; i++) {
       if (events[i + 1] instanceof ReservationEndEvent) {
         events[i].lineType = "dashed";

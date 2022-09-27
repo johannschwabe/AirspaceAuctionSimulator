@@ -112,19 +112,19 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, onUnmounted, ref, shallowRef } from "vue";
+import { nextTick, onUnmounted, ref, shallowRef } from "vue";
 import { useRouter } from "vue-router";
 import { useLoadingBar, useMessage } from "naive-ui";
 import PerfectScrollbar from "perfect-scrollbar";
 
 import loadingGif from "../assets/loading.gif";
 import TopBar from "../components/dashboard/TopBar.vue";
-import AgentSelector from "../components/dashboard/AgentSelector.vue";
 import ThreeDMap from "../components/dashboard/ThreeDMap.vue";
 import Heatmap from "../components/dashboard/Heatmap.vue";
 import Gantt from "../components/dashboard/Gantt.vue";
 import Welfare from "../components/dashboard/Welfare.vue";
 import AgentInfo from "../components/dashboard/AgentInfo.vue";
+import AgentSelector from "../components/dashboard/AgentSelector.vue";
 import OwnerInfo from "../components/dashboard/OwnerInfo.vue";
 import Timeline from "../components/dashboard/Timeline.vue";
 import { offAll } from "../scripts/emitter.js";

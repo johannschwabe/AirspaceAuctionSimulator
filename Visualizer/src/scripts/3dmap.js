@@ -353,7 +353,7 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
         return pathLine;
       };
       const pathLines = [];
-      agent.branches.forEach((branch) => {
+      agent.intermediate_allocations.forEach((branch) => {
         branch.paths.forEach((branch_path) => {
           const path_segments = Path.subtract(branch_path, agent.combinedPath);
           path_segments.forEach((path) => {

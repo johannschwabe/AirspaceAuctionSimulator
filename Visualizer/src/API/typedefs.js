@@ -41,17 +41,23 @@
  */
 
 /**
+ * @typedef {Object} JSONBlocks
+ * @property {int} tick
+ * @property {JSONSpace[]} spaces
+ */
+
+/**
  * @typedef {Object} JSONAgent
  * @property {string} agent_type
  * @property {string} id
+ * @property {JSONBranch[] | JSONBlocks[]} [intermediate_allocations]
  * Space-Agent:
- * @property {JSONSpace[]} [spaces]
+ * @property {JSONSpace[]} [blocks]
  * Path-Agent:
  * @property {int} [speed]
  * @property {int} [near_radius]
  * @property {int} [battery]
  * @property {JSONPath[]} [paths]
- * @property {JSONBranch[]} [branches]
  */
 
 /**
@@ -83,7 +89,8 @@
 
 /**
  * @typedef {Object} SimulationStatistics
- * @property {OwnerStatistics[]} owners
+ * @property {OwnerStatistics[]} path_owners
+ * @property {OwnerStatistics[]} space_owners
  * @property {int} total_number_of_owners
  * @property {int} total_number_of_agents
  * @property {float} total_value
@@ -122,10 +129,16 @@
  * @property {float} non_colliding_value
  * @property {ViolationStatistics} violations
  * @property {int} total_reallocations
- * Space-Agent:
- * @property {?SpaceStatistics} space
- * Path-Agent:
  * @property {?RawAllocationStatistics[]} allocations
+ **/
+
+/**
+ * @typedef {AgentStatistics} SpaceAgentStatistics
+ * @property {?SpaceStatistics} space
+ **/
+
+/**
+ * @typedef {AgentStatistics} PathAgentStatistics
  * @property {?PathStatistics} path
  * @property {?int} time_in_air
  * @property {?int} battery_unused
@@ -250,5 +263,6 @@
 /**
  * @typedef {Object} JSONSimulation
  * @property {JSONEnvironment} environment
- * @property {JSONOwner[]} owners
+ * @property {JSONOwner[]} path_owners
+ * @property {JSONOwner[]} space_owners
  */

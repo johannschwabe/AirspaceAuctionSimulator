@@ -1,12 +1,14 @@
 import statistics
 from abc import ABC
-from typing import TYPE_CHECKING, List, Dict, Optional, Any
+from typing import TYPE_CHECKING, List, Dict, Optional, Any, Tuple
 
 from .Stringify import Stringify
 from ..Agents.PathAgent import PathAgent
 from ..Agents.SpaceAgent import SpaceAgent
 from ..Coordinates.Coordinate2D import Coordinate2D
 from ..Owners.Owner import Owner
+from ..Owners.PathOwner import PathOwner
+from ..Owners.SpaceOwner import SpaceOwner
 from ..Segments.PathSegment import PathSegment
 from ..Segments.SpaceSegment import SpaceSegment
 from ..helpers.helpers import setup_rtree
@@ -36,7 +38,8 @@ class Statistics:
         self.violations: Dict[Agent, ViolationStatistics] = {}
 
     def build_statistics(self) -> "SimulationStatistics":
-        return SimulationStatistics(self.get_owner_statistics(),
+        path_owner_stats, space_owner_stats = self.get_owner_statistics()
+        return SimulationStatistics(path_owner_stats, space_owner_stats,
                                     len(self.simulation.owners),
                                     len(self.simulation.environment.agents),
                                     self.get_total_value(),
@@ -67,71 +70,94 @@ class Statistics:
                 rel_delayed_arrivals.append(delayed_arrivals[_index] - delayed_starts[_index])
         return delayed_starts, delayed_arrivals, rel_delayed_arrivals
 
-    def get_owner_statistics(self) -> List["OwnerStatistics"]:
-        owner_statistics: List["OwnerStatistics"] = []
+    def get_path_owner_stats(self, owner: "PathOwner") -> "OwnerStatistics":
+        agent_statistics: List["PathAgentStatistics"] = []
+        compute_time_aggr = 0
+        nr_reallocations_caused_aggr = 0
+        for agent in owner.agents:
+            assert isinstance(agent, PathAgent)
+            agent_value = self.get_value_for_agent(agent)
+            non_colliding_agent_value = self.get_non_colliding_value_for_agent(agent)
+            violations = self.get_agent_violations(agent)
+            total_reallocations: int = self.simulation.history.reallocations[agent]
+            compute_time = sum([allocation.history.compute_time for allocation in
+                                self.simulation.history.allocations[agent].values()])
+            compute_time_aggr += compute_time
+            nr_reallocations_caused = sum([len(reallocation.history.colliding_agent_bids) for reallocation in
+                                           self.simulation.history.allocations[agent].values() if
+                                           reallocation.history.colliding_agent_bids])
+            nr_reallocations_caused_aggr += nr_reallocations_caused
+            path_statistics = self.path_statistics(agent.allocated_segments)
+            battery_unused: int = agent.battery - agent.get_airtime()
+            delayed_starts, delayed_arrivals, rel_delayed_arrivals = self.get_path_locations_delay(agent)
+            agent_statistics.append(PathAgentStatistics(
+                agent,
+                agent_value,
+                non_colliding_agent_value,
+                violations,
+                total_reallocations,
+                path_statistics,
+                self.get_allocation_statistics_for_agent(agent),
+                compute_time,
+                nr_reallocations_caused,
+                battery_unused,
+                delayed_starts,
+                delayed_arrivals,
+                rel_delayed_arrivals
+            ))
+        return OwnerStatistics(owner,
+                               agent_statistics,
+                               self.get_values_for_owner(owner),
+                               self.get_non_colliding_values_for_owner(owner),
+                               compute_time_aggr,
+                               nr_reallocations_caused_aggr)
+
+    def get_space_owner_stats(self, owner: "SpaceOwner") -> "OwnerStatistics":
+        agent_statistics: List["SpaceAgentStatistics"] = []
+        compute_time_aggr = 0
+        nr_reallocations_caused_aggr = 0
+        for agent in owner.agents:
+            assert isinstance(agent, SpaceAgent)
+            agent_value = self.get_value_for_agent(agent)
+            non_colliding_agent_value = self.get_non_colliding_value_for_agent(agent)
+            violations = self.get_agent_violations(agent)
+            total_reallocations: int = self.simulation.history.reallocations[agent]
+            compute_time = sum([allocation.history.compute_time for allocation in
+                                self.simulation.history.allocations[agent].values()])
+            compute_time_aggr += compute_time
+            nr_reallocations_caused = sum([len(reallocation.history.colliding_agent_bids) for reallocation in
+                                           self.simulation.history.allocations[agent].values() if
+                                           reallocation.history.colliding_agent_bids])
+            nr_reallocations_caused_aggr += nr_reallocations_caused
+            space_statistics = self.spaces_statistics(agent.allocated_segments)
+            agent_statistics.append(SpaceAgentStatistics(
+                agent,
+                agent_value,
+                non_colliding_agent_value,
+                violations,
+                total_reallocations,
+                space_statistics,
+                compute_time,
+                nr_reallocations_caused,
+                self.get_allocation_statistics_for_agent(agent),
+            ))
+        return OwnerStatistics(owner,
+                               agent_statistics,
+                               self.get_values_for_owner(owner),
+                               self.get_non_colliding_values_for_owner(owner),
+                               compute_time_aggr,
+                               nr_reallocations_caused_aggr)
+
+    def get_owner_statistics(self) -> Tuple[List["OwnerStatistics"], List["OwnerStatistics"]]:
+        path_owner_statistics: List["OwnerStatistics"] = []
+        space_owner_statistics: List["OwnerStatistics"] = []
         for owner in self.simulation.owners:
-            agent_statistics: List["AgentStatistics"] = []
-            compute_time_aggr = 0
-            nr_reallocations_caused_aggr = 0
-            for agent in owner.agents:
-                agent_value = self.get_value_for_agent(agent)
-                non_colliding_agent_value = self.get_non_colliding_value_for_agent(agent)
-                violations = self.get_agent_violations(agent)
-                total_reallocations: int = self.simulation.history.reallocations[agent]
-                compute_time = sum([allocation.history.compute_time for allocation in
-                                    self.simulation.history.allocations[agent].values()])
-                compute_time_aggr += compute_time
-                nr_reallocations_caused = sum([len(reallocation.history.colliding_agent_bids) for reallocation in
-                                               self.simulation.history.allocations[agent].values() if
-                                               reallocation.history.colliding_agent_bids])
-                nr_reallocations_caused_aggr += nr_reallocations_caused
+            if isinstance(owner, PathOwner):
+                path_owner_statistics.append(self.get_path_owner_stats(owner))
+            elif isinstance(owner, SpaceOwner):
+                space_owner_statistics.append(self.get_space_owner_stats(owner))
 
-                if isinstance(agent, PathAgent):
-                    path_statistics = self.path_statistics(agent.allocated_segments)
-                    battery_unused: int = agent.battery - agent.get_airtime()
-                    delayed_starts, delayed_arrivals, rel_delayed_arrivals = self.get_path_locations_delay(agent)
-                    agent_statistics.append(PathAgentStatistics(
-                        agent,
-                        agent_value,
-                        non_colliding_agent_value,
-                        violations,
-                        total_reallocations,
-                        path_statistics,
-                        self.get_allocation_statistics_for_agent(agent),
-                        compute_time,
-                        nr_reallocations_caused,
-                        battery_unused,
-                        delayed_starts,
-                        delayed_arrivals,
-                        rel_delayed_arrivals
-                    ))
-
-                elif isinstance(agent, SpaceAgent):
-                    space_statistics = self.spaces_statistics(agent.allocated_segments)
-                    agent_statistics.append(SpaceAgentStatistics(
-                        agent,
-                        agent_value,
-                        non_colliding_agent_value,
-                        violations,
-                        total_reallocations,
-                        space_statistics,
-                        compute_time,
-                        nr_reallocations_caused,
-                        self.get_allocation_statistics_for_agent(agent),
-                    ))
-
-                else:
-                    raise Exception(f"Invalid Agent: {agent}")
-
-            owner_statistics.append(OwnerStatistics(owner,
-                                                    agent_statistics,
-                                                    self.get_values_for_owner(owner),
-                                                    self.get_non_colliding_values_for_owner(owner),
-                                                    compute_time_aggr,
-                                                    nr_reallocations_caused_aggr)
-                                    )
-
-        return owner_statistics
+        return path_owner_statistics, space_owner_statistics
 
     def get_allocation_statistics_for_agent(self, agent: "Agent") -> List["AllocationStatistics"]:
         allocation_statistics: List["AllocationStatistics"] = []
@@ -665,7 +691,8 @@ class SpaceStatistics(Stringify):
 
 class SimulationStatistics(Stringify):
     def __init__(self,
-                 owners: List["OwnerStatistics"],
+                 path_owners: List["OwnerStatistics"],
+                 space_owners: List["OwnerStatistics"],
                  nr_owners: int,
                  nr_agents: int,
                  value: float,
@@ -673,7 +700,8 @@ class SimulationStatistics(Stringify):
                  nr_violations: int,
                  nr_reallocations: int,
                  step_compute_time: Dict[int, int]):
-        self.owners = owners
+        self.path_owners = path_owners
+        self.space_owners = space_owners
         self.total_number_of_owners = nr_owners
         self.total_number_of_agents = nr_agents
         self.total_value = value
@@ -780,7 +808,6 @@ class PathAgentStatistics(AgentStatistics, Stringify):
                          compute_time, nr_reallocations_caused, allocation_statistics)
         self.path: Optional["PathStatistics"] = path_statistics
         self.time_in_air: int = path_agent.get_airtime()
-        self.allocations: List["AllocationStatistics"] = allocation_statistics
         self.battery_unused: int = battery_unused
         self.delayed_starts = delayed_starts
         self.delayed_arrivals = delayed_arrivals

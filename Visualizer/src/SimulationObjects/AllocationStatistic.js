@@ -1,4 +1,5 @@
 import PathStatistic from "@/SimulationObjects/PathStatistic.js";
+import SpaceStatistic from "@/SimulationObjects/SpaceStatistic.js";
 
 export default class AllocationStatistic {
   /**
@@ -15,6 +16,6 @@ export default class AllocationStatistic {
     this.collidingAgentBids = allocationStatistic.colliding_agent_bids;
     this.displacingAgentBids = allocationStatistic.displacing_agent_bids;
     this.pathStatistics = allocationStatistic.path ? new PathStatistic(allocationStatistic.path) : null;
-    this.spaceStatistics = allocationStatistic.space;  // TODO
+    this.spaceStatistics = allocationStatistic.space ? new SpaceStatistic(allocationStatistic.space) : null;
   }
 }
