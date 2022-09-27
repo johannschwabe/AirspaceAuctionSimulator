@@ -6,6 +6,16 @@ import { getDroneInstance, getMaterialName } from "@/engine/meshes";
 import { ActionManager } from "@babylonjs/core/Actions/actionManager";
 import { ExecuteCodeAction } from "@babylonjs/core/Actions/directActions";
 
+/**
+ * Creates drones and their interactions
+ * @param {Object} args
+ * @param {Scene} args.scene
+ * @param {DroneCache} args.droneCache
+ * @param {number} args.x - x dimension of playing field
+ * @param {number} args.z - z dimension of playing field
+ * @param {FocusOnPathAgent} args.focusOnPathAgent
+ * @param {FocusOnSpaceAgent} args.focusOnSpaceAgent
+ */
 export function useDrones({ scene, droneCache, x, z, focusOnPathAgent, focusOnSpaceAgent }) {
   const simulation = useSimulationSingleton();
 
@@ -113,6 +123,17 @@ export function useDrones({ scene, droneCache, x, z, focusOnPathAgent, focusOnSp
   });
 }
 
+/**
+ * Updates positions of drones on playing field
+ * @param {Object} args
+ * @param {Scene} args.scene
+ * @param {DroneCache} args.droneCache
+ * @param {number} x - args.x dimension of playing field
+ * @param {number} z - args.z dimension of playing field
+ * @param {FocusOnSpaceAgent} args.focusOnSpaceAgent
+ * @param {FocusOnPathAgent} args.focusOnPathAgent
+ * @returns {Promise<void>}
+ */
 export async function updateDrones({ scene, droneCache, x, z, focusOnSpaceAgent, focusOnPathAgent }) {
   const simulation = useSimulationSingleton();
 

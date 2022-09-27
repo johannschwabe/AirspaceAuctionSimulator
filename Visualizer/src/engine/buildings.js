@@ -2,6 +2,14 @@ import { Vector3 } from "@babylonjs/core/Maths/math";
 import { ExtrudePolygon } from "@babylonjs/core/Meshes/Builders";
 import earcut from "earcut";
 
+/**
+ * Generates buildings from maptile information
+ * @param {Object} args
+ * @param {Scene} args.scene
+ * @param {ShadowGenerator} args.shadows
+ * @param {MapTile[]} args.mapTiles
+ * @param {StandardMaterial} args.blockerMaterial
+ */
 export function useBuildings({ scene, shadows, mapTiles, blockerMaterial }) {
   mapTiles.forEach((mapTile, i) => {
     mapTile.buildings.forEach((building, j) => {

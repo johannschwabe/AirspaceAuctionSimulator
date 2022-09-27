@@ -5,6 +5,12 @@ import "@babylonjs/loaders";
 
 export let droneMeshes;
 
+/**
+ * Returns the mesh of a drone given its parent
+ * @param {Scene} scene
+ * @param {Agent} agent
+ * @returns {Promise<AbstractMesh>}
+ */
 export async function getDroneInstance(scene, agent) {
   if (!droneMeshes) {
     const { meshes } = await SceneLoader.ImportMeshAsync("", "./3d/", "drones.glb", scene);
@@ -22,6 +28,11 @@ export async function getDroneInstance(scene, agent) {
   return clone;
 }
 
+/**
+ * Generates material name based on agent
+ * @param {Agent} agent
+ * @returns {string}
+ */
 export function getMaterialName(agent) {
   return `material-agent-${agent.id}`;
 }

@@ -6,6 +6,15 @@ import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { AxesViewer } from "@babylonjs/core/Debug/axesViewer";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator";
 
+/**
+ * Creates a directional light to illuminate the scene
+ * @param {Object} args
+ * @param {Scene} args.scene
+ * @param {number} args.x - x dimension of playing field
+ * @param {number} args.y - y dimension of playing field
+ * @param {number} args.z - z dimension of playing field
+ * @returns {DirectionalLight}
+ */
 export function useMainLight({ scene, x, y, z }) {
   const mainLight = new DirectionalLight("directionalLight", new Vector3(-1, -1, -1), scene);
   mainLight.diffuse = Color3.FromHexString("#ffffff");
@@ -18,12 +27,27 @@ export function useMainLight({ scene, x, y, z }) {
   return mainLight;
 }
 
+/**
+ * Creates a hemisphere light to illuminate the scene
+ * @param {Object} args
+ * @param {Scene} args.scene
+ * @returns {HemisphericLight}
+ */
 export function useHemisphereLight({ scene }) {
   const hemisphereLight = new HemisphericLight("HemiLight", new Vector3(0, 1, 0), scene);
   hemisphereLight.intensity = HEMISPHERE_LIGHT_INTENSITY;
   return hemisphereLight;
 }
 
+/**
+ * Creates thee axis arrows at the origin of the scene as indicators of the x-y-z axis directions
+ * @param {Object} args
+ * @param {Scene} args.scene
+ * @param {number} args.x - x dimension of playing field
+ * @param {number} args.y - y dimension of playing field
+ * @param {number} args.z - z dimension of playing field
+ * @returns {AxesViewer}
+ */
 export function useAxisIndicators({ scene, x, y, z }) {
   const lengthOfAxis = Math.max(x, y, z) / 10;
   const axes = new AxesViewer(scene, lengthOfAxis);
@@ -31,14 +55,28 @@ export function useAxisIndicators({ scene, x, y, z }) {
   return axes;
 }
 
+/**
+ * Creates a shadow map that auto-updates with new drones
+ * @param {Object} args
+ * @param {DirectionalLight} args.mainLight
+ * @returns {ShadowGenerator}
+ */
 export function useShadows({ mainLight }) {
   const shadows = new ShadowGenerator(2048, mainLight);
   shadows.usePoissonSampling = true;
-  shadows.getShadowMap().refreshRate = 1;
+  shadows.getShadowMap().refreshRate = 3;
   mainLight.autoUpdateExtends = false;
   return shadows;
 }
 
+/**
+ * Creates a planar ground that is transparent when viewed from the bottom
+ * @param {Object} args
+ * @param {Scene} args.scene
+ * @param {number} args.x - x dimension of playing field
+ * @param {number} args.z - z dimension of playing field
+ * @returns {GroundMesh}
+ */
 export function useGround({ scene, x, z }) {
   const ground = CreateGround("ground", { width: x, height: z });
   const groundMaterial = new StandardMaterial("ground-material", scene);
@@ -50,10 +88,18 @@ export function useGround({ scene, x, z }) {
   return ground;
 }
 
+/**
+ * Creates boundary lines around field to make borders more visible
+ * @param {Object} args
+ * @param {number} args.lineAlpha
+ * @param {number} args.x - x dimension of playing field
+ * @param {number} args.y - y dimension of playing field
+ * @param {number} args.z - z dimension of playing field
+ */
 export function useOrientationLines({ lineAlpha, x, y, z }) {
-  const stepX = Math.floor(x / 1);
+  const stepX = Math.floor(x);
   const stepY = Math.floor(y / 10);
-  const stepZ = Math.floor(z / 1);
+  const stepZ = Math.floor(z);
 
   for (let xi = 0; xi <= x; xi += stepX) {
     for (let yi = 0; yi <= y; yi += stepY) {

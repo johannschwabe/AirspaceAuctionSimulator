@@ -3,6 +3,12 @@ import { CreateBox } from "@babylonjs/core/Meshes/Builders";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Color3 } from "@babylonjs/core/Maths/math";
 
+/**
+ * Creates the default material used for all regular blockers
+ * @param {Object} args
+ * @param {Scene} args.scene
+ * @returns {StandardMaterial}
+ */
 export function useBlockerMaterial({ scene }) {
   const blockerMaterial = new StandardMaterial("blocker-material", scene);
   blockerMaterial.diffuseColor = Color3.FromHexString("#3a4441");
@@ -11,6 +17,16 @@ export function useBlockerMaterial({ scene }) {
   return blockerMaterial;
 }
 
+/**
+ * Generates active blockers
+ * @param {Object} args
+ * @param {Scene} args.scene
+ * @param {BlockerCache} args.blockerCache
+ * @param {ShadowGenerator} args.shadows
+ * @param {number} args.x - x dimension of playing field
+ * @param {number} args.z - z dimension of playing field
+ * @param {StandardMaterial} args.blockerMaterial
+ */
 export function useBlockers({ scene, blockerCache, shadows, x, z, blockerMaterial }) {
   const simulation = useSimulationSingleton();
 
@@ -40,6 +56,16 @@ export function useBlockers({ scene, blockerCache, shadows, x, z, blockerMateria
   });
 }
 
+/**
+ * Updates positions of blockers
+ * @param {Object} args
+ * @param {Scene} args.scene
+ * @param {BlockerCache} args.blockerCache
+ * @param {ShadowGenerator} args.shadows
+ * @param {number} args.x - x dimension of playing field
+ * @param {number} args.z - z dimension of playing field
+ * @param {StandardMaterial} args.blockerMaterial
+ */
 export function updateBlockers({ scene, blockerCache, shadows, x, z, blockerMaterial }) {
   const simulation = useSimulationSingleton();
 

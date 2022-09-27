@@ -7,8 +7,58 @@ import { HEMISPHERE_LIGHT_INTENSITY, MAIN_LIGHT_INTENSITY } from "@/engine/const
 import SpaceAgent from "@/SimulationObjects/SpaceAgent";
 import PathAgent from "@/SimulationObjects/PathAgent";
 
+/**
+ * @typedef {Function} FocusOnSpaceAgent
+ * @param {Object} args
+ * @param {SpaceAgent} args.agent
+ * @param {Space} args.space
+ * @param {boolean} args.update
+ * @returns {void}
+ */
+
+/**
+ * @typedef {Function} FocusOffSpaceAgent
+ * @returns {void}
+ */
+
+/**
+ * @typedef {Function} FocusOnPathAgent
+ * @param {Object} args
+ * @param {PathAgent} args.agent
+ * @param {number} args.agent_x
+ * @param {number} args.agent_y
+ * @param {number} args.agent_z
+ * @param {boolean} args.update
+ * @returns {void}
+ */
+
+/**
+ * @typedef {Function} FocusOffPathAgent
+ * @returns {void}
+ */
+
+/**
+ * Creates focus functions to focus on/off path/space agents
+ * @param {Object} args
+ * @param {number} args.x - x dimension of playing field
+ * @param {number} args.y - y dimension of playing field
+ * @param {number} args.z - z dimension of playing field
+ * @param {FocusCache} args.focusCache
+ * @param {DirectionalLight} args.mainLight
+ * @param {HemisphericLight} args.hemisphereLight
+ * @param {DroneCache} args.droneCache
+ * @param {ArcRotateCamera} args.camera
+ * @returns {{focusOffPathAgent: FocusOffPathAgent, focusOnPathAgent: FocusOnPathAgent, focusOnSpaceAgent: FocusOnSpaceAgent, focusOffSpaceAgent: FocusOffSpaceAgent}}
+ */
 export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLight, droneCache, camera }) {
   const simulation = useSimulationSingleton();
+
+  /**
+   * @param {SpaceAgent} agent
+   * @param {Space} space
+   * @param {boolean} update
+   * @returns {void}
+   */
   const focusOnSpaceAgent = ({ agent, space, update }) => {
     // Write agent to focus cache
     focusCache.agent = agent;
@@ -46,6 +96,15 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
 
     simulation.focusOnAgent(agent);
   };
+
+  /**
+   * @param {PathAgent} agent
+   * @param {number} agent_x
+   * @param {number} agent_y
+   * @param {number} agent_z
+   * @param {boolean} update
+   * @returns {void}
+   */
   const focusOnPathAgent = ({ agent, agent_x, agent_y, agent_z, update }) => {
     // Write agent to focus cache
     focusCache.agent = agent;
@@ -125,6 +184,10 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
 
     simulation.focusOnAgent(agent);
   };
+
+  /**
+   * @returns {void}
+   */
   const focusOffSpaceAgent = () => {
     // Turn off focus light
     const { selectionLight } = focusCache;
@@ -150,6 +213,10 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
 
     focusCache.agent = undefined;
   };
+
+  /**
+   * @returns {void}
+   */
   const focusOffPathAgent = () => {
     // Turn off focus light
     const { selectionLight } = focusCache;
@@ -193,6 +260,12 @@ export function useFocusFunctions({ x, y, z, focusCache, mainLight, hemisphereLi
   };
 }
 
+/**
+ *
+ * @param {FocusCache} focusCache
+ * @param {FocusOnSpaceAgent} focusOnSpaceAgent
+ * @param {FocusOnPathAgent} focusOnPathAgent
+ */
 export function updateFocus({ focusCache, focusOnSpaceAgent, focusOnPathAgent }) {
   const agent = focusCache.agent;
   if (!agent) {
