@@ -184,6 +184,10 @@ if (!hasSimulationSingleton()) {
     });
   });
   simulationStore.setSelectedAgentIDs(allAgentIds);
+  nextTick(() => {
+    const container = document.querySelector("#agent-selector");
+    agentSelector = new PerfectScrollbar(container);
+  });
 }
 
 onUnmounted(() => {

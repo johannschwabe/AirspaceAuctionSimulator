@@ -93,7 +93,9 @@
  * @property {OwnerStatistics[]} space_owners
  * @property {int} total_number_of_owners
  * @property {int} total_number_of_agents
- * @property {float} total_value
+ * @property {FinanceStatistics} value_stats
+ * @property {FinanceStatistics} payment_stats
+ * @property {FinanceStatistics} utility_stats
  * @property {float} total_non_colliding_value
  * @property {int} total_number_of_violations
  * @property {int} total_number_of_reallocations
@@ -105,13 +107,15 @@
  * @property {string} id
  * @property {AgentStatistics[]} agents
  * @property {int} total_time_in_air
- * @property {ValueStatistics} values
- * @property {ValueStatistics} non_colliding_values
+ * @property {FinanceStatistics} values
+ * @property {FinanceStatistics} payments
+ * @property {FinanceStatistics} utilities
+ * @property {FinanceStatistics} non_colliding_values
  * @property {int} number_of_agents
  */
 
 /**
- * @typedef {Object} ValueStatistics
+ * @typedef {Object} FinanceStatistics
  * @property {float[]} values
  * @property {float} total
  * @property {float} mean
@@ -126,6 +130,8 @@
  * @typedef {Object} AgentStatistics
  * @property {string} id
  * @property {float} value
+ * @property {float} payment
+ * @property {float} utility
  * @property {float} non_colliding_value
  * @property {ViolationStatistics} violations
  * @property {int} total_reallocations
@@ -157,6 +163,8 @@
  * @typedef {Object} RawAllocationStatistics
  * @property {int} tick
  * @property {float} value
+ * @property {float} payment
+ * @property {float} utility
  * @property {RawBid} bid
  * @property {string} reason
  * @property {string} explanation
