@@ -1,6 +1,5 @@
 export default class SpaceStatistic {
   /**
-   *
    * @param {SpaceStatistics} spaceStatistic
    */
   constructor(spaceStatistic) {

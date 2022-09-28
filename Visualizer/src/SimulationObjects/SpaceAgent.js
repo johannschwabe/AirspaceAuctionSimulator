@@ -5,7 +5,7 @@ import { FlightEvent, ReservationEndEvent, ReservationStartEvent } from "@/Simul
 import Blocks from "./Blocks";
 import { BRANCH_REASONS } from "../API/enums";
 import SpaceStatistic from "./SpaceStatistic";
-import { pathAllocationEventFactory, ReReservationEvent, spaceAllocationEventFactory } from "./FlightEvent";
+import { spaceAllocationEventFactory } from "./FlightEvent";
 
 export default class SpaceAgent extends Agent {
   /**
@@ -17,7 +17,6 @@ export default class SpaceAgent extends Agent {
    */
   constructor(rawAgent, owner, simulation, agentStats) {
     super(rawAgent, owner, simulation, agentStats);
-    // Agent Info
     // Agent Statistics
     this.volume = agentStats.space?.volume;
     this.meanVolume = agentStats.space?.mean_volume;
@@ -63,6 +62,9 @@ export default class SpaceAgent extends Agent {
     this.pathStatistics = agentStats.space ? new SpaceStatistic(agentStats.space) : null;
   }
 
+  /**
+   * @returns {FlightEvent[]}
+   */
   get events() {
     const events = [];
     const starts = this.spaces.reduce((acc, curr) => {
@@ -97,10 +99,17 @@ export default class SpaceAgent extends Agent {
     return events;
   }
 
+  /**
+   * @returns {int[]}
+   */
   get flyingTicks() {
     return Object.keys(this.combinedSpace).map((t) => parseInt(t, 10));
   }
 
+  /**
+   * @param {int} tick
+   * @returns {Coordinate3D|undefined}
+   */
   locationAtTick(tick) {
     if (!this.isActiveAtTick(tick)) {
       return undefined;
@@ -108,15 +117,24 @@ export default class SpaceAgent extends Agent {
     return this.combinedSpace[tick][0].origin;
   }
 
+  /**
+   * @returns {[int,int][]}
+   */
   get segmentsStartEnd() {
     return this.spaces.map((space) => [space.min.t, space.max.t]).sort((a, b) => a[0] - b[0]);
   }
 
+  /**
+   * @returns {int|null}
+   */
   get veryFirstTick() {
     const tick = first(this.spaces);
     return tick !== undefined ? tick.min.t : null;
   }
 
+  /**
+   * @returns {int|null}
+   */
   get veryLastTick() {
     const tick = last(this.spaces);
     return tick !== undefined ? tick.max.t : null;

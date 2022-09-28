@@ -2,7 +2,6 @@ import Space from "./Space";
 
 export default class Blocks {
   /**
-   *
    * @param {JSONBlocks} rawBranch
    * @param {RawAllocationStatistics} allocationStats
    */
