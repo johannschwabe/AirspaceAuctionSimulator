@@ -145,10 +145,10 @@ const simulation = shallowRef({});
 
 const simulationStore = useSimulationOutputStore();
 
-let agentSelector;
+let agentScroller;
 onUnmounted(() => {
-  agentSelector.destroy();
-  agentSelector = null;
+  agentScroller.destroy();
+  agentScroller = null;
 });
 
 if (!hasSimulationSingleton()) {
@@ -167,7 +167,7 @@ if (!hasSimulationSingleton()) {
       loading.value = false;
       nextTick(() => {
         const container = document.querySelector("#agent-selector");
-        agentSelector = new PerfectScrollbar(container);
+        agentScroller = new PerfectScrollbar(container);
         loadingBar.finish();
       });
     });
@@ -186,7 +186,7 @@ if (!hasSimulationSingleton()) {
   simulationStore.setSelectedAgentIDs(allAgentIds);
   nextTick(() => {
     const container = document.querySelector("#agent-selector");
-    agentSelector = new PerfectScrollbar(container);
+    agentScroller = new PerfectScrollbar(container);
   });
 }
 
