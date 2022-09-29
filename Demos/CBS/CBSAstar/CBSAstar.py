@@ -1,13 +1,13 @@
 import heapq
-from typing import List, TYPE_CHECKING, Dict
+from typing import List, TYPE_CHECKING, Dict, Optional
 
 from Simulator.AStar.Node import Node
+from Simulator.Agents.PathAgent import PathAgent
 
 if TYPE_CHECKING:
     from Simulator.Coordinates.Coordinate4D import Coordinate4D
     from Simulator.Environment.Environment import Environment
-    from Simulator.Agents.PathAgent import PathAgent
-    from Demos.CBS.Allocator.CBSAllocatorHelpers import Constraints
+    from ..Allocator.CBSAllocatorHelpers import Constraints
 
 
 class AStar:
@@ -122,7 +122,7 @@ class AStar:
 
         complete_path = self.complete_path(path, agent)
 
-        print(f"ASTAR: {complete_path[0]} -> {complete_path[-1]},\tPathLen: {len(path):3d},\tSteps: {steps:3d}")
+        # print(f"ASTAR: {complete_path[0]} -> {complete_path[-1]},\tPathLen: {len(path):3d},\tSteps: {steps:3d}")
         return complete_path
 
 
@@ -133,3 +133,20 @@ def is_valid_for_path_allocation(env: "Environment", position: "Coordinate4D",
     if env.is_coordinate_blocked(position, path_agent):
         return False
     return True
+
+
+def find_valid_path_tick(environment: "Environment", position: "Coordinate4D",
+                         path_agent: "PathAgent", min_tick: int, max_tick: int,
+                         constraints_dict: Dict[int, "Constraints"]) -> Optional[int]:
+    pos_clone = position.clone()
+    assert isinstance(path_agent, PathAgent)
+    if pos_clone.t < min_tick:
+        pos_clone.t = min_tick
+    while True:
+        valid = is_valid_for_path_allocation(environment, pos_clone, path_agent, constraints_dict)
+        if valid:
+            break
+        pos_clone.t += 1
+        if pos_clone.t > max_tick:
+            return None
+    return pos_clone.t

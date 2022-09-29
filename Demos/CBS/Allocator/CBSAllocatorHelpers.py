@@ -27,6 +27,10 @@ class Constraints(object):
     def add_constraint(self, other):
         self.constraints |= other.constraints
 
+    def __eq__(self, other):
+        assert isinstance(other, Constraints)
+        return self.constraints == other.constraints
+
     def __str__(self):
         return "Constraints: " + str([str(vc) for vc in self.constraints])
 
@@ -44,7 +48,7 @@ class HighLevelNode(object):
 
     def __eq__(self, other):
         if not isinstance(other, type(self)): return NotImplemented
-        return self.solution == other.solution and self.cost == other.cost
+        return self.constraint_dict == other.constraint_dict and self.cost == other.cost
 
     def __hash__(self):
         return hash(str(self.cost) + ','.join(
@@ -61,3 +65,10 @@ class HighLevelNode(object):
         for agent in self.solution.keys():
             cpy.solution[agent] = self.solution[agent]
         return cpy
+
+    def __str__(self):
+        res = "-------------------------------------------------------\n"
+        for agent, constraint in self.constraint_dict.items():
+            if len(constraint.constraints) > 0:
+                res += f"{agent}: {str(constraint)}\n"
+        return res

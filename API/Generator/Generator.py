@@ -1,4 +1,3 @@
-import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
 from Simulator import PathOwner, SpaceOwner, GridLocationType, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism, \
@@ -27,8 +26,10 @@ class Generator:
         self.dimensions: "Coordinate4D" = dimensions
         self.owners: List["Owner"] = []
         self.allocator: "Allocator" = allocator
-        self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles, min_height=map_playfield_area.min_height,
-                                                         allocation_period=allocation_period, map_playfield_area=map_playfield_area).generate()
+        self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles,
+                                                         min_height=map_playfield_area.min_height,
+                                                         allocation_period=allocation_period,
+                                                         map_playfield_area=map_playfield_area).generate()
         self.simulator: Optional["Simulator"] = None
         self.history: Optional["History"] = None
         self.statistics: Optional["Statistics"] = None
@@ -134,8 +135,11 @@ class Generator:
 
     @staticmethod
     def creation_ticks(duration, total) -> List[int]:
-        res = []
-        for _ in range(total):
-            res.append(random.randint(0, duration - 1))
-
-        return res
+        return [1] * total
+    # @staticmethod
+    # def creation_ticks(duration, total) -> List[int]:
+    #     res = []
+    #     for _ in range(total):
+    #         res.append(random.randint(0, duration - 1))
+    #
+    #     return res
