@@ -2,7 +2,7 @@
 Python implementation of Conflict-based search
 author: Ashwin Bose (@atb033)
 """
-from typing import List, Dict, TYPE_CHECKING, Set, Type, Iterator
+from typing import List, Dict, TYPE_CHECKING, Set, Type, Iterator, Tuple, Optional
 
 from rtree import Index
 from rtree.index import Property
@@ -13,16 +13,16 @@ from Simulator.Allocations.AllocationHistory import AllocationHistory
 from Simulator.Allocations.AllocationReason import AllocationReason
 from Simulator.Mechanism.Allocator import Allocator
 from Simulator.Segments.PathSegment import PathSegment
-from .CBSAllocatorHelpers import HighLevelNode, Constraints, Conflict
+from .CBSAllocatorHelpers import HighLevelNode, Conflict
 from ..BidTracker.CBSBidTracker import CBSBidTracker
 from ..BiddingStrategy.CBSPathBiddingStrategy import CBSPathBiddingStrategy
 from ..Bids.CBSPathBid import CBSPathBid
-from ..CBSAstar.CBSAstar import AStar, find_valid_path_tick
+from ..CBSAstar.CBSAstar import CBSAStar, find_valid_path_tick
 from ..PaymentRule.CBSPaymentRule import CBSPaymentRule
 
 if TYPE_CHECKING:
+    from Simulator.Coordinates.Coordinate4D import Coordinate4D
     from Simulator.BidTracker.BidTracker import BidTracker
-    from Simulator.Agents.Agent import Agent
     from Simulator.Environment.Environment import Environment
 
 
@@ -42,28 +42,33 @@ class CBS(Allocator):
     def get_bid_tracker(self) -> "BidTracker":
         return self.bid_tracker
 
-    def allocate(self, agents: List["PathAgent"], env: "Environment", tick: int) -> Dict["Agent", "Allocation"]:
+    def allocate(self, agents: List["PathAgent"], env: "Environment", tick: int) -> Dict["PathAgent", "Allocation"]:
+        astar = CBSAStar(env)
         open_set: Set["HighLevelNode"] = set()
-        closed_set = set()
-        constraints_dict: Dict[int, "Constraints"] = {}
-        start = HighLevelNode()
+        closed_set: Set["HighLevelNode"] = set()
+        start: "HighLevelNode" = HighLevelNode()
         start.constraint_dict = {}
-        for agent in agents:
-            start.constraint_dict[hash(agent)] = Constraints()
-        _solution = self.compute_solution(env, agents, constraints_dict, tick)
-        if not _solution:
+        for _agent in agents:
+            start.constraint_dict[_agent] = set()
+            start.solution[_agent], start.reason = self.allocate_path(_agent, start.constraint_dict[_agent], env, tick,
+                                                                      astar)
+        for existing_agent in env.agents.values():
+            assert isinstance(existing_agent, PathAgent)
+            start.constraint_dict[existing_agent] = set()
+            start.solution[existing_agent] = existing_agent.allocated_segments
+            
+        if not start.solution:
             return {}
-        start.solution = _solution
         start.cost = self.compute_solution_cost(start.solution)
-
+        start.first_conflict = CBS.get_first_conflict(start.solution, env.max_near_radius)
         open_set |= {start}
 
         while open_set:
-            P = min(open_set)
+            P: "HighLevelNode" = min(open_set)
             open_set -= {P}
             closed_set |= {P}
 
-            first_conflict = CBS.get_first_conflict(P.solution, env.max_near_radius)
+            first_conflict = P.first_conflict
             if not first_conflict:
                 print("solution found")
                 allocations = {}
@@ -74,61 +79,96 @@ class CBS(Allocator):
                 return allocations
 
             constraint_dict = self.create_constraints_from_conflict(first_conflict)
-
-            for agent in constraint_dict.keys():
-                new_node = P.copy()
-                new_node.constraint_dict[hash(agent)].add_constraint(constraint_dict[agent])
-                print(str(new_node))
-                new_node.solution = self.compute_solution(env, agents, new_node.constraint_dict, tick)
-                if not new_node.solution:
-                    print("Failure")
-                    continue
-                new_node.cost = self.compute_solution_cost(new_node.solution)
-
-                # TODO: ending condition
+            assert len(constraint_dict.keys()) == 2
+            for _agent in constraint_dict.keys():
+                new_node: "HighLevelNode" = P.copy()
+                new_node.add_constraint(_agent, constraint_dict[_agent])
                 if new_node not in closed_set:
+                    print(str(new_node))
+                    self.compute_solution(env, new_node, tick, astar)
+                    if not new_node.solution:
+                        print("Failure")
+                        continue
                     open_set |= {new_node}
+
+                    new_node.cost = self.compute_solution_cost(new_node.solution)
+                    new_node.first_conflict = CBS.get_first_conflict(new_node.solution, env.max_near_radius)
+            P.solution = {}
 
         return {}
 
     def compute_solution(self,
                          env,
-                         agents: List["PathAgent"],
-                         constraint_dict: Dict[int, "Constraints"],
-                         tick: int) -> Dict["PathAgent", List["PathSegment"]]:
-        solution = {}
-        _solutions = [CBS.parallel_astar(
-            (agent, self.bid_tracker.get_last_bid_for_tick(0, agent, env), constraint_dict, env, tick)) for agent in
-            agents]
-        # with Pool(len(agents)) as p:
-        #     _solutions = p.map(CBS.parallelAstar,
-        #                        [(agent, constraint_dict.setdefault(agent, Constraints()), env) for agent in agents])
-        for agent, local_solution in zip(agents, _solutions):
-            if not local_solution:
-                return {}
-            solution.update({agent: local_solution})
-        return solution
+                         high_level_node: "HighLevelNode",
+                         tick: int,
+                         astar: "CBSAStar"):
+        to_recompute = high_level_node.newly_constraint
+        new_recomputed_solution, reason = self.allocate_path(to_recompute, high_level_node.constraint_dict, env, tick,
+                                                             astar)
+        if not new_recomputed_solution:
+            high_level_node.solution = {}
+            return
+        high_level_node.solution[to_recompute] = new_recomputed_solution
+        high_level_node.reason = reason
+        return
 
-    @staticmethod
-    def parallel_astar(args) -> List[PathSegment] | None:
-        agent, bid, constraints_dict, env, tick = args
+    def allocate_path(self, agent, constraints_dict, env, tick, astar: "CBSAStar") -> Tuple[
+        Optional[List["PathSegment"]], str]:
+        bid = self.bid_tracker.get_last_bid_for_tick(tick, agent, env)
         assert isinstance(bid, CBSPathBid) and isinstance(agent, PathAgent)
-        valid_t = find_valid_path_tick(env, bid.locations[0], agent, 0, env.dimension.t, constraints_dict)
-        start = bid.locations[0].clone()
-        start.t = valid_t
-        astar = AStar(env)
-        local_solution = astar.astar(start, bid.locations[1], agent, constraints_dict)
-        if len(local_solution) == 0:
-            return None
+        a = bid.locations[0].clone()
+        start = a.to_3D()
 
-        return [PathSegment(bid.locations[0].to_3D(), bid.locations[1].to_3D(), 0, local_solution)]
+        time = 0
+        count = 0
+        optimal_path_segments = []
+
+        for _index, b in enumerate(bid.locations[1:]):
+
+            end = b.to_3D()
+            b = b.clone()
+
+            if env.is_coordinate_blocked_forever(a, bid.agent.near_radius):
+                return None, f"Static blocker at start {a}."
+
+            if env.is_coordinate_blocked_forever(b, bid.agent.near_radius):
+                return None, f"Static blocker at target {b}."
+
+            a_t = find_valid_path_tick(env, a, agent, tick, env.dimension.t, constraints_dict)
+            if a_t is None:
+                return None, f"Start {a} is invalid until max tick {env.dimension.t}."
+            a.t = a_t
+
+            b_t = find_valid_path_tick(env, b, agent, tick, env.dimension.t, constraints_dict)
+            if b_t is None:
+                return None, f"Target {b} is invalid until max tick {env.dimension.t}."
+            b.t = b_t
+
+            ab_path = astar.astar(a, b, agent, constraints_dict)
+            if len(ab_path) == 0:
+                return None, f"No path {a} -> {b} found."
+            time += ab_path[-1].t - ab_path[0].t
+            if time > bid.battery:
+                return None, f"Not enough battery left for path {a} -> {b}."
+
+            optimal_path_segments.append(
+                PathSegment(start, end, count, ab_path))
+
+            count += 1
+
+            a = ab_path[-1]
+            start = a.to_3D()
+            a = a.clone()
+            if len(bid.stays) > _index:
+                a.t += bid.stays[_index]
+        return optimal_path_segments, "Path allocated."
 
     @staticmethod
     def compute_solution_cost(solution):
         return sum([sum([len(path.coordinates) for path in paths]) for paths in solution.values()])
 
     @staticmethod
-    def get_first_conflict(solution: Dict["PathAgent", List["PathSegment"]], max_near_radius: float):
+    def get_first_conflict(solution: Dict["PathAgent", List["PathSegment"]], max_near_radius: float) -> "Conflict|None":
         props = Property()
         props.dimension = 4
         tree = Index(properties=props)
@@ -138,23 +178,31 @@ class CBS(Allocator):
         new_max_near_radius = max([max_near_radius] + [agent.near_radius for agent in agents.values()])
         for t in range(start_t, max_t):
             for _agent in agents.values():
-                if len(solution[_agent]) > 0 and 0 <= t - solution[_agent][0].min.t < len(
-                    solution[_agent][0].coordinates):
-                    posi = solution[_agent][0].coordinates[t - solution[_agent][0].min.t]
-                    bl = posi - new_max_near_radius
-                    tr = posi + new_max_near_radius
-                    intersections: Iterator[int] = tree.intersection(bl.list_rep() + tr.list_rep())
-                    intersecting_agents = set(
-                        [agents[agent_hash] for agent_hash in intersections if agent_hash != hash(_agent)])
-                    for intersecting_agent in intersecting_agents:
-                        local_max_near_radius = max(_agent.near_radius, intersecting_agent.near_radius)
-                        path_coordinate = solution[intersecting_agent][0].coordinates[
-                            t - solution[intersecting_agent][0].min.t]
-                        distance = posi.distance(path_coordinate, l2=True)
-                        if distance <= local_max_near_radius:
-                            return Conflict(_agent, intersecting_agent, posi, path_coordinate)
-                    tree.insert(hash(_agent), posi.list_rep())
-        return False
+                if len(solution[_agent]) > 0:
+                    segment_index = 0
+                    while len(solution[_agent]) > segment_index and solution[_agent][segment_index].min.t <= t:
+                        if solution[_agent][segment_index].max.t >= t:
+                            segment = solution[_agent][segment_index]
+                            posi = segment.coordinates[t - segment.min.t]
+                            bl = posi - new_max_near_radius
+                            tr = posi + new_max_near_radius
+                            intersections: Iterator[int] = tree.intersection(bl.list_rep() + tr.list_rep())
+                            intersecting_agents = set(
+                                [agents[agent_hash] for agent_hash in intersections if agent_hash != hash(_agent)])
+                            for intersecting_agent in intersecting_agents:
+                                local_max_near_radius = max(_agent.near_radius, intersecting_agent.near_radius)
+                                path_coordinate = segment.coordinates[t - segment.min.t]
+                                distance = posi.distance(path_coordinate, l2=True)
+                                if distance <= local_max_near_radius:
+                                    assert _agent.id != intersecting_agent.id
+                                    print(f"Conflict at time: {posi.t}")
+                                    return Conflict(_agent, intersecting_agent, posi, path_coordinate)
+                            tree.insert(hash(_agent), posi.list_rep())
+                            break
+                        segment_index += 1
+
+        print("Solution Computed")
+        return None
 
     @staticmethod
     def get_state(agent_name, solution, t):
@@ -164,13 +212,5 @@ class CBS(Allocator):
             return -1
 
     @staticmethod
-    def create_constraints_from_conflict(conflict: "Conflict") -> Dict["Agent", "Constraints"]:
-        constraint_dict = {}
-
-        constraints_1 = Constraints({conflict.location_1})
-        constraints_2 = Constraints({conflict.location_2})
-
-        constraint_dict[conflict.agent_1] = constraints_1
-        constraint_dict[conflict.agent_2] = constraints_2
-
-        return constraint_dict
+    def create_constraints_from_conflict(conflict: "Conflict") -> Dict["PathAgent", "Coordinate4D"]:
+        return {conflict.agent_1: conflict.location_1, conflict.agent_2: conflict.location_2}

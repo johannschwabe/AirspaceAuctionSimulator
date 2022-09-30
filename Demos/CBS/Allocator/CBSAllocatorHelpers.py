@@ -1,8 +1,8 @@
 from typing import Dict, TYPE_CHECKING, Set, List
 
 if TYPE_CHECKING:
+    from Simulator.Segments.PathSegment import PathSegment
     from Simulator.Agents.PathAgent import PathAgent
-    from Simulator.Agents.Agent import Agent
     from Simulator.Coordinates.Coordinate4D import Coordinate4D
 
 
@@ -20,55 +20,48 @@ class Conflict(object):
                ', ' + str(self.location_1) + ', ' + str(self.location_2) + ')'
 
 
-class Constraints(object):
-    def __init__(self, constraints: Set["Coordinate4D"] | None = None):
-        self.constraints: Set["Coordinate4D"] = constraints if constraints else set()
-
-    def add_constraint(self, other):
-        self.constraints |= other.constraints
-
-    def __eq__(self, other):
-        assert isinstance(other, Constraints)
-        return self.constraints == other.constraints
-
-    def __str__(self):
-        return "Constraints: " + str([str(vc) for vc in self.constraints])
-
-    def copy(self):
-        cpy = Constraints()
-        cpy.constraints = self.constraints.copy()
-        return cpy
-
-
 class HighLevelNode(object):
     def __init__(self):
-        self.solution: Dict["Agent", List["Coordinate4D"]] = dict()
-        self.constraint_dict: Dict["Agent", "Constraints"] = dict()
+        self.solution: Dict["PathAgent", List["PathSegment"]] = dict()
+        self.constraint_dict: Dict["PathAgent", Set["Coordinate4D"]] = dict()
+        self.first_conflict: "Conflict|None" = None
+        self.newly_constraint: "PathAgent|None" = None
+        self.reason: "str" = ""
         self.cost = 0
 
     def __eq__(self, other):
         if not isinstance(other, type(self)): return NotImplemented
-        return self.constraint_dict == other.constraint_dict and self.cost == other.cost
+        return self.constraint_dict == other.constraint_dict
 
     def __hash__(self):
-        return hash(str(self.cost) + ','.join(
+        return hash(','.join(
             [str(agent) + str(constraints) for agent, constraints in self.constraint_dict.items()]))
 
     def __lt__(self, other):
+        if not isinstance(other, type(self)): return NotImplemented
+        if self.cost == other.cost:
+            if not self.first_conflict:
+                return True
+            if not other.first_conflict:
+                return False
+            return self.first_conflict.location_1.t < other.first_conflict.location_1.t
         return self.cost < other.cost
+
+    def add_constraint(self, agent: "PathAgent", constraint: "Coordinate4D"):
+        self.constraint_dict[agent].add(constraint)
+        self.newly_constraint = agent
 
     def copy(self):
         cpy = HighLevelNode()
-        cpy.cost = self.cost
         for agent in list(self.constraint_dict.keys()):
             cpy.constraint_dict[agent] = self.constraint_dict[agent].copy()
-        for agent in self.solution.keys():
-            cpy.solution[agent] = self.solution[agent]
+        for agent in list(self.solution.keys()):
+            cpy.solution[agent] = self.solution[agent].copy()
         return cpy
 
     def __str__(self):
         res = "-------------------------------------------------------\n"
         for agent, constraint in self.constraint_dict.items():
-            if len(constraint.constraints) > 0:
+            if len(constraint) > 0:
                 res += f"{agent}: {str(constraint)}\n"
         return res

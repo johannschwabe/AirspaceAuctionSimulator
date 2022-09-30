@@ -10,10 +10,10 @@ if TYPE_CHECKING:
     from ..Allocator.CBSAllocatorHelpers import Constraints
 
 
-class AStar:
+class CBSAStar:
     def __init__(self,
                  environment: "Environment",
-                 max_iter: int = 100_000,
+                 max_iter: int = 4_000_000,
                  ):
         self.environment: "Environment" = environment
         self.max_iter: int = max_iter
@@ -23,7 +23,7 @@ class AStar:
                    start: "Coordinate4D",
                    end: "Coordinate4D",
                    agent: "PathAgent",
-                   constraints_dict: Dict[int, "Constraints"]):
+                   constraints_dict: Dict["PathAgent", "Constraints"]):
         open_nodes = {}
         closed_nodes = {}
         heap = []
@@ -70,8 +70,9 @@ class AStar:
                     if hash(neighbor) in closed_nodes:
                         continue
 
-                    neighbor.g = current_node.g
-                    neighbor.h = neighbor.position.distance(end_node.position, l2=True)
+                    neighbor.g = current_node.g + 1
+                    # neighbor.h = (end_node.position - neighbor.position).l1
+                    neighbor.h = neighbor.position.distance(end_node.position, l2=False)
                     neighbor.f = neighbor.g + neighbor.h
 
                     if hash(neighbor) in open_nodes:
@@ -99,7 +100,7 @@ class AStar:
               start: "Coordinate4D",
               end: "Coordinate4D",
               agent: "PathAgent",
-              constraints_dict: Dict[int, "Constraints"]) -> List["Coordinate4D"]:
+              constraints_dict: Dict["PathAgent", "Constraints"]) -> List["Coordinate4D"]:
 
         distance = start.distance(end)
         time_left = self.environment.dimension.t - start.t
@@ -127,8 +128,8 @@ class AStar:
 
 
 def is_valid_for_path_allocation(env: "Environment", position: "Coordinate4D",
-                                 path_agent: "PathAgent", constraints_dict: Dict[int, "Constraints"]) -> bool:
-    if hash(path_agent) in constraints_dict and position in constraints_dict[hash(path_agent)].constraints:
+                                 path_agent: "PathAgent", constraints_dict: Dict["PathAgent", "Constraints"]) -> bool:
+    if path_agent in constraints_dict and position in constraints_dict[path_agent]:
         return False
     if env.is_coordinate_blocked(position, path_agent):
         return False
@@ -137,7 +138,7 @@ def is_valid_for_path_allocation(env: "Environment", position: "Coordinate4D",
 
 def find_valid_path_tick(environment: "Environment", position: "Coordinate4D",
                          path_agent: "PathAgent", min_tick: int, max_tick: int,
-                         constraints_dict: Dict[int, "Constraints"]) -> Optional[int]:
+                         constraints_dict: Dict["PathAgent", "Constraints"]) -> Optional[int]:
     pos_clone = position.clone()
     assert isinstance(path_agent, PathAgent)
     if pos_clone.t < min_tick:
