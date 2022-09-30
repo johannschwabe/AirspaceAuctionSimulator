@@ -56,7 +56,7 @@ class CBS(Allocator):
             assert isinstance(existing_agent, PathAgent)
             start.constraint_dict[existing_agent] = set()
             start.solution[existing_agent] = existing_agent.allocated_segments
-            
+
         if not start.solution:
             return {}
         start.cost = self.compute_solution_cost(start.solution)
@@ -70,7 +70,6 @@ class CBS(Allocator):
 
             first_conflict = P.first_conflict
             if not first_conflict:
-                print("solution found")
                 allocations = {}
                 for agent, path in P.solution.items():
                     allocations[agent] = Allocation(agent, path, AllocationHistory(
@@ -84,10 +83,8 @@ class CBS(Allocator):
                 new_node: "HighLevelNode" = P.copy()
                 new_node.add_constraint(_agent, constraint_dict[_agent])
                 if new_node not in closed_set:
-                    print(str(new_node))
                     self.compute_solution(env, new_node, tick, astar)
                     if not new_node.solution:
-                        print("Failure")
                         continue
                     open_set |= {new_node}
 
@@ -194,14 +191,11 @@ class CBS(Allocator):
                                 path_coordinate = segment.coordinates[t - segment.min.t]
                                 distance = posi.distance(path_coordinate, l2=True)
                                 if distance <= local_max_near_radius:
-                                    assert _agent.id != intersecting_agent.id
-                                    print(f"Conflict at time: {posi.t}")
                                     return Conflict(_agent, intersecting_agent, posi, path_coordinate)
                             tree.insert(hash(_agent), posi.list_rep())
                             break
                         segment_index += 1
 
-        print("Solution Computed")
         return None
 
     @staticmethod
