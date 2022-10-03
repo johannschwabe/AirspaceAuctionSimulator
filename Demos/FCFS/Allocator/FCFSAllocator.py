@@ -1,3 +1,4 @@
+import random
 from time import time_ns
 from typing import List, Optional, Dict, TYPE_CHECKING, Tuple
 
@@ -145,6 +146,7 @@ class FCFSAllocator(Allocator):
         """
         astar = AStar(environment, self.bid_tracker, tick)
         allocations: Dict["Agent", "Allocation"] = {}
+        random.shuffle(agents)
 
         for agent in agents:
             print(f"allocating: {agent}")
