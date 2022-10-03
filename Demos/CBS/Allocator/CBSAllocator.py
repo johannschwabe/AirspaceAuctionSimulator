@@ -14,7 +14,7 @@ from Simulator.Allocations.AllocationReason import AllocationReason
 from Simulator.Mechanism.Allocator import Allocator
 from Simulator.Segments.PathSegment import PathSegment
 from .CBSAllocatorHelpers import HighLevelNode, Conflict
-from .CBSCostFunctions import path_length
+from .CBSCostFunctions import PathLength, CostFunction
 from ..BidTracker.CBSBidTracker import CBSBidTracker
 from ..BiddingStrategy.CBSPathBiddingStrategy import CBSPathBiddingStrategy
 from ..Bids.CBSPathBid import CBSPathBid
@@ -37,9 +37,9 @@ class CBS(Allocator):
     def compatible_payment_functions():
         return [CBSPaymentRule]
 
-    def __init__(self, cost_function=path_length):
+    def __init__(self, cost_function: "CostFunction" = PathLength):
         self.bid_tracker = CBSBidTracker()
-        self.cost_function = path_length
+        self.cost_function = cost_function
 
     def get_bid_tracker(self) -> "BidTracker":
         return self.bid_tracker
@@ -86,7 +86,7 @@ class CBS(Allocator):
                 new_node.add_constraint(_agent, constraint_dict[_agent])
                 if new_node not in closed_set:
                     self.compute_solution(env, new_node, tick, astar)
-                    if not new_node.solution:
+                    if not new_node.solution and not self.cost_function.failed_allocation_valid:
                         continue
                     open_set |= {new_node}
 
