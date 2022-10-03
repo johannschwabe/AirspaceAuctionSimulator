@@ -14,6 +14,7 @@ from Simulator.Allocations.AllocationReason import AllocationReason
 from Simulator.Mechanism.Allocator import Allocator
 from Simulator.Segments.PathSegment import PathSegment
 from .CBSAllocatorHelpers import HighLevelNode, Conflict
+from .CBSCostFunctions import path_length
 from ..BidTracker.CBSBidTracker import CBSBidTracker
 from ..BiddingStrategy.CBSPathBiddingStrategy import CBSPathBiddingStrategy
 from ..Bids.CBSPathBid import CBSPathBid
@@ -36,8 +37,9 @@ class CBS(Allocator):
     def compatible_payment_functions():
         return [CBSPaymentRule]
 
-    def __init__(self):
+    def __init__(self, cost_function=path_length):
         self.bid_tracker = CBSBidTracker()
+        self.cost_function = path_length
 
     def get_bid_tracker(self) -> "BidTracker":
         return self.bid_tracker
@@ -59,7 +61,7 @@ class CBS(Allocator):
 
         if not start.solution:
             return {}
-        start.cost = self.compute_solution_cost(start.solution)
+        start.cost = self.cost_function(start)
         start.first_conflict = CBS.get_first_conflict(start.solution, env.max_near_radius)
         open_set |= {start}
 
@@ -88,7 +90,7 @@ class CBS(Allocator):
                         continue
                     open_set |= {new_node}
 
-                    new_node.cost = self.compute_solution_cost(new_node.solution)
+                    new_node.cost = self.cost_function(new_node)
                     new_node.first_conflict = CBS.get_first_conflict(new_node.solution, env.max_near_radius)
             P.solution = {}
 
@@ -159,10 +161,6 @@ class CBS(Allocator):
             if len(bid.stays) > _index:
                 a.t += bid.stays[_index]
         return optimal_path_segments, "Path allocated."
-
-    @staticmethod
-    def compute_solution_cost(solution):
-        return sum([sum([len(path.coordinates) for path in paths]) for paths in solution.values()])
 
     @staticmethod
     def get_first_conflict(solution: Dict["PathAgent", List["PathSegment"]], max_near_radius: float) -> "Conflict|None":
