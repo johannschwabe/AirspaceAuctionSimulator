@@ -39,7 +39,7 @@ class CBS(Allocator):
 
     def __init__(self, cost_function: "CostFunction" = PathLength):
         self.bid_tracker = CBSBidTracker()
-        self.cost_function = cost_function
+        self.cost_function = cost_function()
 
     def get_bid_tracker(self) -> "BidTracker":
         return self.bid_tracker
