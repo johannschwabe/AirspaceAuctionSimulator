@@ -1,6 +1,6 @@
 import "../API/typedefs.js";
 
-import { useSimulationStore } from "../stores/simulation.js";
+import { useSimulationOutputStore } from "../stores/simulationOutputStore.js";
 
 import Coordinate4D from "./Coordinate4D";
 import Statistics from "./Statistics";
@@ -20,7 +20,7 @@ export default class Simulation {
    * @param {SimulationStatistics} simulationStats
    */
   constructor(jsonSimulation, jsonConfig, simulationStats) {
-    this._simulationStore = useSimulationStore();
+    this._simulationStore = useSimulationOutputStore();
 
     this.name = jsonConfig.name;
     this.description = jsonConfig.description;
@@ -48,7 +48,7 @@ export default class Simulation {
      * @type {Blocker[]}
      */
     this.blockers = jsonSimulation.environment.blockers.map((blocker) => {
-      switch (blocker.blocker_type) {
+      switch (blocker.blockerType) {
         case BlockerType.DYNAMIC:
           return new DynamicBlocker(blocker);
         case BlockerType.STATIC:
@@ -173,22 +173,37 @@ export default class Simulation {
     this.updateTimeline();
   }
 
+  /**
+   * @returns {Owner[]}
+   */
   get owners() {
     return [...this.path_owners, ...this.space_owners];
   }
 
+  /**
+   * @returns {int}
+   */
   get tick() {
     return this._simulationStore.tick;
   }
 
+  /**
+   * @param {int} tick
+   */
   set tick(tick) {
     this._simulationStore.updateTick(tick);
   }
 
+  /**
+   * @returns {string[]}
+   */
   get activeAgentIDs() {
     return this.activeAgents.map((agent) => agent.id);
   }
 
+  /**
+   * @returns {string[]}
+   */
   get activeBlockerIDs() {
     return this.activeBlockers.map((blocker) => blocker.id);
   }
@@ -249,7 +264,7 @@ export default class Simulation {
     const activeBlockerIndex = {};
     this.blockers.forEach((blocker) => {
       blocker.ticksInAir.forEach((tick) => {
-        if (!(tick in activeBlockerIndex)) {
+        if (!(tick.toString() in activeBlockerIndex)) {
           activeBlockerIndex[tick] = [];
         }
         activeBlockerIndex[tick].push(blocker);
@@ -258,10 +273,16 @@ export default class Simulation {
     return activeBlockerIndex;
   }
 
+  /**
+   * Updates selected agent IDs according to data from store
+   */
   updateSelectedAgents() {
     this.selectedAgents = this.agents.filter((agent) => this._simulationStore.selectedAgentIDs.includes(agent.id));
   }
 
+  /**
+   * Update active agents according to data from store
+   */
   updateActiveAgents() {
     const currentActiveAgents = this.flyingAgentsPerTickIndex[this.tick] || [];
     this.activeAgents = currentActiveAgents.filter((agent) => {
@@ -269,10 +290,17 @@ export default class Simulation {
     });
   }
 
+  /**
+   * Update active blockers according to data from store
+   */
   updateActiveBlockers() {
     this.activeBlockers = this.activeBlockersPerTickIndex[this.tick] || [];
   }
 
+  /**
+   * Build datastructure that holds timely event information, such as number of active
+   * agents or re-allocation / violation events
+   */
   updateTimeline() {
     const agentsPerTick = {};
     const reAllocationsPerTick = {};
@@ -348,6 +376,9 @@ export default class Simulation {
     emitFocusOnAgent(agent, previousAgentInFocus);
   }
 
+  /**
+   * Deactivate focus mode
+   */
   focusOff() {
     emitFocusOffAgent(this.agentInFocus);
     this._simulationStore.agentInFocus = false;

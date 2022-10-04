@@ -27,8 +27,10 @@ class Generator:
         self.dimensions: "Coordinate4D" = dimensions
         self.owners: List["Owner"] = []
         self.allocator: "Allocator" = allocator
-        self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles, min_height=map_playfield_area.min_height,
-                                                         allocation_period=allocation_period, map_playfield_area=map_playfield_area).generate()
+        self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles,
+                                                         min_height=map_playfield_area.min_height,
+                                                         allocation_period=allocation_period,
+                                                         map_playfield_area=map_playfield_area).generate()
         self.simulator: Optional["Simulator"] = None
         self.history: Optional["History"] = None
         self.statistics: Optional["Statistics"] = None

@@ -1,6 +1,5 @@
 export default class PathStatistic {
   /**
-   *
    * @param {PathStatistics} pathStatistic
    */
   constructor(pathStatistic) {

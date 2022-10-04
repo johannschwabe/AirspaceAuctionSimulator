@@ -15,7 +15,8 @@ const STATISTICS_STORAGE_KEY = "statistics";
 const CONFIG_STORAGE_KEY = "config";
 
 /**
- * @param {Object} e
+ * Converts an API error thrown by FastAPI into a readable string
+ * @param {Object} e - Fastify error object
  * @returns {string}
  */
 const apiPostErrorToString = (e) => {
@@ -26,6 +27,7 @@ const apiPostErrorToString = (e) => {
 };
 
 /**
+ * Posts a simulation to the python backend and persists the simulation in the users browser
  * @param {JSONConfig} simulationConfig
  * @returns {Promise<JSONResponse>}
  */
@@ -42,7 +44,7 @@ export async function postSimulation(simulationConfig) {
 
 /**
  * Get all registered value functions from the backend
- * @returns {Promise<Object[]>} - Names of allocators
+ * @returns {Promise<Object[]>} - Value function objects
  */
 export async function getSupportedValueFunctions(allocator, bidding_strategy) {
   try {
@@ -84,7 +86,7 @@ export async function getBiddingStrategiesSupportedByAllocator(allocator) {
 
 /**
  * Get payment rules compatible with selected allocator
- * @returns {Promise<Object[]>} - owners
+ * @returns {Promise<Object[]>} - payment rules
  */
 export async function getPaymentRulesSupportedByAllocator(allocator) {
   try {
@@ -96,6 +98,10 @@ export async function getPaymentRulesSupportedByAllocator(allocator) {
   }
 }
 
+/**
+ * Opens and returns an indexed database for storing the simulation output
+ * @returns {Promise<IDBDatabase>}
+ */
 async function openDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(STORAGE_KEY);
@@ -124,6 +130,13 @@ async function openDB() {
   });
 }
 
+/**
+ * Stores object into database
+ * @param {IDBDatabase} db - Database in which data should be stored
+ * @param {string} name - Storage key
+ * @param {any} data - Data to be stored
+ * @returns {Promise<void>}
+ */
 async function addToObjectStore(db, name, data) {
   const oldData = await getFromObjectStore(db, name);
   if (oldData !== null) {
@@ -136,6 +149,12 @@ async function addToObjectStore(db, name, data) {
   });
 }
 
+/**
+ * Removes an object from the database
+ * @param {IDBDatabase} db - Database from which data should be deleted
+ * @param {string} name - Storage key
+ * @returns {Promise<void>}
+ */
 async function deleteFromObjectStore(db, name) {
   return new Promise((resolve) => {
     db.transaction(name, "readwrite").objectStore(name).delete(name).onsuccess = () => {
@@ -144,6 +163,12 @@ async function deleteFromObjectStore(db, name) {
   });
 }
 
+/**
+ * Queries an object from the database
+ * @param {IDBDatabase} db - Database from which data should be queried
+ * @param {string} name - Storage key
+ * @returns {Promise<Any>}
+ */
 async function getFromObjectStore(db, name) {
   return new Promise((resolve) => {
     const request = db.transaction(name).objectStore(name).get(name);
@@ -157,6 +182,7 @@ async function getFromObjectStore(db, name) {
 }
 
 /**
+ * Persists the simulation output by adding it to the database
  * @param {JSONResponse} data
  */
 export async function persistSimulation(data) {
@@ -174,6 +200,10 @@ export async function persistSimulation(data) {
   }
 }
 
+/**
+ * Checks whether a simulation can be recovered from the browser database
+ * @returns {Promise<boolean>}
+ */
 export async function canLoadSimulation() {
   const db = await openDB();
   const data = await getFromObjectStore(db, SIMULATION_STORAGE_KEY);
@@ -182,7 +212,8 @@ export async function canLoadSimulation() {
 }
 
 /**
- * @returns {null|JSONSimulation}
+ * Loads a simulation output from the database and returns it
+ * @returns {JSONSimulation}
  */
 export async function loadSimulationData() {
   const db = await openDB();
@@ -192,7 +223,8 @@ export async function loadSimulationData() {
 }
 
 /**
- * @returns {null|JSONConfig}
+ * Loads a simulation configuration from the database and returns it
+ * @returns {JSONConfig}
  */
 export async function loadConfigData() {
   const db = await openDB();
@@ -202,7 +234,8 @@ export async function loadConfigData() {
 }
 
 /**
- * @returns {null|SimulationStatistics}
+ * Loads simulation statistics from the database and returns them
+ * @returns {SimulationStatistics}
  */
 export async function loadStatisticsData() {
   const db = await openDB();
@@ -211,6 +244,10 @@ export async function loadStatisticsData() {
   return statistics;
 }
 
+/**
+ * Helper function for converting a simulation output into a file and prompt the user for a file location
+ * @returns {Promise<void>}
+ */
 export async function downloadSimulation() {
   const simulation = await loadSimulationData();
   const config = await loadConfigData();
@@ -219,5 +256,5 @@ export async function downloadSimulation() {
   const fileToSave = new Blob([JSON.stringify(data)], {
     type: "application/json",
   });
-  saveAs(fileToSave, `${config.name.toLowerCase().replace(/ /g,"-")}-simulation.json`);
+  saveAs(fileToSave, `${config.name.toLowerCase().replace(/ /g, "-")}-simulation.json`);
 }

@@ -6,7 +6,7 @@
 import VueApexCharts from "vue3-apexcharts";
 import { reactive } from "vue";
 
-import { useSimulationSingleton } from "@/scripts/simulation.js";
+import { useSimulationSingleton } from "@/scripts/simulationSingleton.js";
 import { onAgentsSelected, onTick } from "@/scripts/emitter.js";
 
 const props = defineProps({

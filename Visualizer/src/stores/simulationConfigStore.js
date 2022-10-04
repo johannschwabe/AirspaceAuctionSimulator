@@ -69,7 +69,7 @@ import { randomName, randomSimulationName } from "../scripts/names";
 /**
  * Simulation Config Store
  */
-export const useSimulationConfigStore = defineStore("simulationConfig", () => {
+export const useSimulationConfigStore = defineStore("simulationConfigStore", () => {
   const name = ref(randomSimulationName());
   const description = ref("");
   const allocator = ref(null);

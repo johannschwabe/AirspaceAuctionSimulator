@@ -3,6 +3,12 @@ import axios from "axios";
 const EARTH_RADIUS = 6371008.8;
 
 export default class MapTile {
+  /**
+   * @param {[int, int, int]} tile_ids
+   * @param {int} resolution
+   * @param {{long: float, lat: float}} bottomLeft
+   * @param {{long: float, lat: float}} topRight
+   */
   constructor(tile_ids, resolution, bottomLeft, topRight) {
     this.x = tile_ids[1];
     this.y = tile_ids[2];
@@ -16,47 +22,70 @@ export default class MapTile {
     this.buildings = [];
   }
 
+  /**
+   * Returns URL needed to request building information from open street maps for current tile
+   * @returns {string}
+   */
   get url() {
     return `https://data.osmbuildings.org/0.2/anonymous/tile/${this.z}/${this.x}/${this.y}.json`;
   }
 
+  /**
+   * Converts degrees to radian
+   * @param {number} degrees
+   * @returns {number}
+   */
   radian(degrees) {
     return (degrees * Math.PI) / 180;
   }
 
-  haversin_lon_lat(pos) {
+  /**
+   * Converts a longitude-latitude coordinate to AAS Grid Coordinates
+   * @param {{long: number, lat: number}} position
+   * @returns {{x: number, z: number}}
+   */
+  haversin_lon_lat(position) {
     let x =
       (2 *
         EARTH_RADIUS *
         Math.asin(
           Math.sqrt(
             Math.cos(this.radian(this.bottomLeft.lat)) *
-              Math.cos(this.radian(pos.lat)) *
-              Math.sin(this.radian(pos.long - this.bottomLeft.long) / 2) ** 2
+              Math.cos(this.radian(position.lat)) *
+              Math.sin(this.radian(position.long - this.bottomLeft.long) / 2) ** 2
           )
         )) /
       this.resolution;
     let z =
-      (2 * EARTH_RADIUS * Math.asin(Math.sqrt(Math.sin(this.radian((pos.lat - this.bottomLeft.lat) / 2)) ** 2))) /
+      (2 * EARTH_RADIUS * Math.asin(Math.sqrt(Math.sin(this.radian((position.lat - this.bottomLeft.lat) / 2)) ** 2))) /
       this.resolution;
 
-    if (pos.long < this.bottomLeft.long) {
+    if (position.long < this.bottomLeft.long) {
       x *= -1;
     }
-    if (pos.lat < this.bottomLeft.lat) {
+    if (position.lat < this.bottomLeft.lat) {
       z *= -1;
     }
     return { x, z };
   }
 
-  extractPolygon(coords) {
-    let { x, z } = this.haversin_lon_lat({ long: coords[0], lat: coords[1] });
+  /**
+   * Converts the building polygon to a building grid location
+   * @param {[number, number]} position
+   * @returns {{x: undefined, z: undefined}}
+   */
+  extractPolygon(position) {
+    let { x, z } = this.haversin_lon_lat({ long: position[0], lat: position[1] });
 
     x -= this.dimX / 2;
     z -= this.dimZ / 2;
     return { x, z };
   }
 
+  /**
+   * Lodas OSM Building information and extracts building information as height, coordiantes and holes
+   * @returns {Promise<void>}
+   */
   async load() {
     const { data } = await axios.get(this.url);
     if (!data) {

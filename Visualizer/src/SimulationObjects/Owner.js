@@ -50,6 +50,9 @@ export default class Owner {
     this._simulation = simulation;
   }
 
+  /**
+   * @returns {string}
+   */
   get displayName() {
     return this.name;
   }

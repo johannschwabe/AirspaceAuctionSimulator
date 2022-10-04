@@ -47,7 +47,7 @@
 
 <script setup>
 import { computed, ref, watch } from "vue";
-import { useSimulationConfigStore } from "../../../stores/simulationConfig.js";
+import { useSimulationConfigStore } from "../../../stores/simulationConfigStore.js";
 import { getSupportedValueFunctions } from "../../../API/api";
 import Help from "@/components/common/help/help.vue";
 import { hOwnerColor, hOwnerName, hOwnerAgents, hOwnerBidding, hOwnerValue } from "@/components/common/help/texts.js";

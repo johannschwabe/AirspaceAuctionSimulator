@@ -5,31 +5,24 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent, onTick } from "@/scripts/emitter.js";
+import { useSimulationSingleton } from "@/scripts/simulationSingleton.js";
+import SpaceAgent from "@/SimulationObjects/SpaceAgent.js";
+import PathAgent from "@/SimulationObjects/PathAgent.js";
 import {
-  updateBlockers,
-  updateDrones,
-  updateFocus,
   useAxisIndicators,
-  useBlockerCache,
-  useBlockerMaterial,
-  useBlockers,
-  useBuildings,
-  useCamera,
-  useDroneCache,
-  useDrones,
-  useEngine,
-  useFocusCache,
-  useFocusFunctions,
   useGround,
   useHemisphereLight,
   useMainLight,
-  useOrientationLights,
-  useScene,
+  useOrientationLines,
   useShadows,
-} from "@/scripts/3dmap";
-import { useSimulationSingleton } from "@/scripts/simulation.js";
-import SpaceAgent from "@/SimulationObjects/SpaceAgent.js";
-import PathAgent from "@/SimulationObjects/PathAgent.js";
+} from "@/engine/environment";
+import { useEngine } from "@/engine";
+import { useCamera, useScene } from "@/engine/scene";
+import { useBuildings } from "@/engine/buildings";
+import { updateDrones, useDrones } from "@/engine/drones";
+import { useBlockerCache, useDroneCache, useFocusCache } from "@/engine/cache";
+import { updateBlockers, useBlockerMaterial, useBlockers } from "@/engine/blockers";
+import { updateFocus, useFocusFunctions } from "@/engine/focus";
 
 const simulation = useSimulationSingleton();
 
@@ -133,7 +126,7 @@ onMounted(async () => {
   useGround({ scene, x, y, z });
 
   useAxisIndicators({ scene, x, y, z });
-  useOrientationLights({
+  useOrientationLines({
     lineAlpha,
     x,
     y,

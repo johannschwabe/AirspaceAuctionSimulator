@@ -162,27 +162,27 @@ import { useRouter } from "vue-router";
 import { CloudDownloadOutline, ArrowForwardOutline, CloudUploadOutline } from "@vicons/ionicons5";
 import { saveAs } from "file-saver";
 
-import Owner from "./owner/Owner.vue";
-import MapSelector from "./map/MapSelector.vue";
-import Help from "../common/help/help.vue";
+import Owner from "./OwnerConfig.vue";
+import MapSelector from "../../common/map/MapSelector.vue";
+import Help from "../../common/help/help.vue";
 
-import Simulation from "../../SimulationObjects/Simulation.js";
+import Simulation from "../../../SimulationObjects/Simulation.js";
 
-import { postSimulation, downloadSimulation } from "../../API/api.js";
+import { postSimulation, downloadSimulation } from "../../../API/api.js";
 import {
   canRecoverSimulationSingleton,
   hasSimulationSingleton,
   setSimulationConfig,
   setSimulationSingleton,
-} from "@/scripts/simulation";
-import { useSimulationConfigStore } from "@/stores/simulationConfig";
+} from "@/scripts/simulationSingleton";
+import { useSimulationConfigStore } from "@/stores/simulationConfigStore";
 import {
   emitConfigLoaded,
   onAllocatorSwitched,
   offAllocatorSwitched,
   emitAllocatorSwitched,
-} from "../../scripts/emitter.js";
-import { hName, hDescription, hTimesteps, hAllocator, hPaymentRule, hOwners } from "../common/help/texts.js";
+} from "../../../scripts/emitter.js";
+import { hName, hDescription, hTimesteps, hAllocator, hPaymentRule, hOwners } from "../../common/help/texts.js";
 
 const simulationConfig = useSimulationConfigStore();
 if (!simulationConfig.availableAllocators || simulationConfig.availableAllocators.length === 0) {

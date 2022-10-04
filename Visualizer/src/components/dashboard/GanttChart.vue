@@ -17,7 +17,7 @@
 import VueApexCharts from "vue3-apexcharts";
 import { nextTick, onMounted, ref } from "vue";
 
-import { useSimulationSingleton } from "@/scripts/simulation.js";
+import { useSimulationSingleton } from "@/scripts/simulationSingleton.js";
 import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent } from "@/scripts/emitter.js";
 
 const simulation = useSimulationSingleton();

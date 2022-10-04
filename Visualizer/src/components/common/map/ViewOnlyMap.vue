@@ -11,7 +11,7 @@ import { useBaseLayer, useMap, usePositionLayer } from "./Map";
 import { createBox } from "ol/interaction/Draw";
 import { Draw } from "ol/interaction";
 import { Collection, Feature } from "ol";
-import { useSimulationConfigStore } from "@/stores/simulationConfig";
+import { useSimulationConfigStore } from "@/stores/simulationConfigStore";
 import { fromLonLat, toLonLat } from "ol/proj";
 import { fromExtent } from "ol/geom/Polygon";
 import { offConfigLoaded, onConfigLoaded } from "../../../scripts/emitter";

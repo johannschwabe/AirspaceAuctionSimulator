@@ -103,10 +103,10 @@ import { format, set } from "date-fns";
 import PerfectScrollbar from "perfect-scrollbar";
 import { isArray, isNull, isUndefined } from "lodash-es";
 
-import { useSimulationSingleton } from "@/scripts/simulation.js";
+import { useSimulationSingleton } from "@/scripts/simulationSingleton.js";
 
-import SimpleDataTable from "@/components/dashboard/SimpleDataTable.vue";
-import HeightProfile from "@/components/dashboard/HeightProfile.vue";
+import SimpleDataTable from "@/components/dashboard/PanelComponents/SimpleDataTable.vue";
+import HeightProfile from "@/components/dashboard/PanelComponents/HeightProfile.vue";
 
 let agentScroller;
 onMounted(() => {
@@ -232,7 +232,7 @@ const datapoints = computed(() =>
       icon: Cube,
     },
     {
-      label: "Median Height",
+      label: "Mean Height",
       value: simulation.agentInFocus.meanHeight,
       icon: Podium,
     },

@@ -3,7 +3,6 @@ import SpaceStatistic from "@/SimulationObjects/SpaceStatistic.js";
 
 export default class AllocationStatistic {
   /**
-   *
    * @param {RawAllocationStatistics} allocationStatistic
    */
   constructor(allocationStatistic) {

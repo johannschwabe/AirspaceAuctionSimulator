@@ -1,3 +1,9 @@
+/**
+ * Ligthens a hex color input by X percent
+ * @param {string} color
+ * @param {number} percent
+ * @returns {`#${string}`}
+ */
 export const lightenColor = function (color, percent) {
   const col = color.startsWith("#") ? color.slice(1) : color;
   const num = parseInt(col, 16),
@@ -17,4 +23,8 @@ export const lightenColor = function (color, percent) {
   return `#${hex}`;
 };
 
+/**
+ * Returns a random hex color
+ * @returns {`#${string}`}
+ */
 export const randomColor = () => "#" + ((Math.random() * 0xffffff) << 0).toString(16).padStart(6, "0");

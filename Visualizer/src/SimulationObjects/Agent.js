@@ -2,7 +2,6 @@ import AllocationStatistic from "./AllocationStatistic";
 
 export default class Agent {
   /**
-   *
    * @param {JSONAgent} rawAgent
    * @param {Owner} owner
    * @param {Simulation} simulation
@@ -42,6 +41,9 @@ export default class Agent {
     this.allocationStatistics = agentStats.allocations.map((a) => new AllocationStatistic(a));
   }
 
+  /**
+   * @returns {string}
+   */
   get displayName() {
     return this.id;
   }
@@ -54,33 +56,60 @@ export default class Agent {
     return [];
   }
 
+  /**
+   * @abstract
+   */
   focus() {
     /* abstract method */
   }
 
+  /**
+   * @param {number} tick
+   * @returns {boolean}
+   */
   isActiveAtTick(tick) {
     return this.flyingTicks.includes(parseInt(tick, 10));
   }
 
+  /**
+   * @abstract
+   * @param {number} tick
+   */
   locationAtTick(tick) {
     /* abstract method */
   }
 
+  /**
+   * @abstract
+   * @returns {number[]}
+   */
   get flyingTicks() {
     /* abstract method */
     return [];
   }
 
+  /**
+   * @abstract
+   * @returns {[number, number][]}
+   */
   get segmentsStartEnd() {
     /* abstract method */
     return [];
   }
 
+  /**
+   * @abstract
+   * @returns {number}
+   */
   get veryFirstTick() {
     /* abstract method */
     return -1;
   }
 
+  /**
+   * @abstract
+   * @returns {number}
+   */
   get veryLastTick() {
     /* abstract method */
     return -1;
