@@ -1,5 +1,5 @@
 import heapq
-from typing import List, TYPE_CHECKING, Dict, Optional
+from typing import List, TYPE_CHECKING, Optional, Set
 
 from Simulator.AStar.Node import Node
 from Simulator.Agents.PathAgent import PathAgent
@@ -7,14 +7,10 @@ from Simulator.Agents.PathAgent import PathAgent
 if TYPE_CHECKING:
     from Simulator.Coordinates.Coordinate4D import Coordinate4D
     from Simulator.Environment.Environment import Environment
-    from ..Allocator.CBSAllocatorHelpers import Constraints
 
 
 class CBSAStar:
-    def __init__(self,
-                 environment: "Environment",
-                 max_iter: int = 4_000_000,
-                 ):
+    def __init__(self, environment: "Environment", max_iter: int = 4_000_000):
         self.environment: "Environment" = environment
         self.max_iter: int = max_iter
 
@@ -23,7 +19,7 @@ class CBSAStar:
                    start: "Coordinate4D",
                    end: "Coordinate4D",
                    agent: "PathAgent",
-                   constraints_dict: Dict["PathAgent", "Constraints"]):
+                   constraints: "Set[Coordinate4D]"):
         open_nodes = {}
         closed_nodes = {}
         heap = []
@@ -62,7 +58,7 @@ class CBSAStar:
             # Find non-occupied neighbor
             neighbors = current_node.adjacent_coordinates(self.environment.dimension, agent.speed)
             for next_neighbor in neighbors:
-                valid = is_valid_for_path_allocation(self.environment, next_neighbor, agent, constraints_dict)
+                valid = is_valid_for_path_allocation(self.environment, next_neighbor, agent, constraints)
                 if valid and next_neighbor.t <= self.environment.dimension.t:
                     neighbor = Node(next_neighbor, current_node, set())
 
@@ -100,7 +96,7 @@ class CBSAStar:
               start: "Coordinate4D",
               end: "Coordinate4D",
               agent: "PathAgent",
-              constraints_dict: Dict["PathAgent", "Constraints"]) -> List["Coordinate4D"]:
+              constraints: Set["Coordinate4D"]) -> List["Coordinate4D"]:
 
         distance = start.distance(end)
         time_left = self.environment.dimension.t - start.t
@@ -109,13 +105,13 @@ class CBSAStar:
             print(f"ASTAR failed: Distance {distance} is too great for agent with speed {agent.speed}.")
             return []
 
-        valid = is_valid_for_path_allocation(self.environment, start, agent, constraints_dict)
+        valid = is_valid_for_path_allocation(self.environment, start, agent, constraints)
 
         if not valid:
             print(f"ASTAR failed: Start {start} is not valid.")
             return []
 
-        path, steps = self.astar_loop(start, end, agent, constraints_dict)
+        path, steps = self.astar_loop(start, end, agent, constraints)
 
         if len(path) == 0:
             print(f"ASTAR failed: {'MaxIter' if steps == self.max_iter else 'No valid Allocation'}")
@@ -128,8 +124,8 @@ class CBSAStar:
 
 
 def is_valid_for_path_allocation(env: "Environment", position: "Coordinate4D",
-                                 path_agent: "PathAgent", constraints_dict: Dict["PathAgent", "Constraints"]) -> bool:
-    if path_agent in constraints_dict and position in constraints_dict[path_agent]:
+                                 path_agent: "PathAgent", constraints: "Set[Coordinate4D]") -> bool:
+    if position in constraints:
         return False
     if env.is_coordinate_blocked(position, path_agent):
         return False
@@ -138,13 +134,13 @@ def is_valid_for_path_allocation(env: "Environment", position: "Coordinate4D",
 
 def find_valid_path_tick(environment: "Environment", position: "Coordinate4D",
                          path_agent: "PathAgent", min_tick: int, max_tick: int,
-                         constraints_dict: Dict["PathAgent", "Constraints"]) -> Optional[int]:
+                         constraints: "Set[Coordinate4D]") -> Optional[int]:
     pos_clone = position.clone()
     assert isinstance(path_agent, PathAgent)
     if pos_clone.t < min_tick:
         pos_clone.t = min_tick
     while True:
-        valid = is_valid_for_path_allocation(environment, pos_clone, path_agent, constraints_dict)
+        valid = is_valid_for_path_allocation(environment, pos_clone, path_agent, constraints)
         if valid:
             break
         pos_clone.t += 1

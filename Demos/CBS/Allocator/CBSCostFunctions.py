@@ -6,6 +6,9 @@ from Demos.CBS.Allocator.CBSAllocatorHelpers import HighLevelNode
 class CostFunction(ABC):
     failed_allocation_valid = False
 
+    def __init__(self):
+        pass
+
     @staticmethod
     @abstractmethod
     def __call__(node: "HighLevelNode"):
@@ -17,7 +20,11 @@ class PathLength(CostFunction):
 
     @staticmethod
     def __call__(node: "HighLevelNode"):
-        return sum([sum([len(path.coordinates) for path in paths]) for paths in node.solution.values()])
+        total_path_length = 0
+        for path_segements in node.solution.values():
+            for segment in path_segements:
+                total_path_length += len(segment.coordinates)
+        return total_path_length
 
 
 class Welfare(CostFunction):

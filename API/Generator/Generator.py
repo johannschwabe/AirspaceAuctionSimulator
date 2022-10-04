@@ -1,3 +1,4 @@
+import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
 from Simulator import PathOwner, SpaceOwner, GridLocationType, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism, \
@@ -135,11 +136,8 @@ class Generator:
 
     @staticmethod
     def creation_ticks(duration, total) -> List[int]:
-        return [1] * total
-    # @staticmethod
-    # def creation_ticks(duration, total) -> List[int]:
-    #     res = []
-    #     for _ in range(total):
-    #         res.append(random.randint(0, duration - 1))
-    #
-    #     return res
+        res = []
+        for _ in range(total):
+            res.append(random.randint(0, duration - 1))
+
+        return res

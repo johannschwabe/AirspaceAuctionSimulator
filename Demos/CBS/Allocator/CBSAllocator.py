@@ -1,6 +1,5 @@
 """
-Python implementation of Conflict-based search
-author: Ashwin Bose (@atb033)
+Implementation of Conflict-based search based on Ashwin Bose (@atb033)'s implementation
 """
 from typing import List, Dict, TYPE_CHECKING, Set, Type, Iterator, Tuple, Optional
 
@@ -28,9 +27,17 @@ if TYPE_CHECKING:
 
 
 class CBS(Allocator):
+    """
+    Finds the optimal allocation for a given cost function.
+    Computationally very intensive: only for offline comparison
+    """
 
     @staticmethod
     def compatible_bidding_strategies() -> List[Type["CBSPathBiddingStrategy"]]:
+        """
+        Compatible owners are CBS-path-owner. Space owner are currently not supported
+        :return:
+        """
         return [CBSPathBiddingStrategy]
 
     @staticmethod
@@ -38,13 +45,24 @@ class CBS(Allocator):
         return [CBSPaymentRule]
 
     def __init__(self, cost_function: "CostFunction" = PathLength):
+        """
+        Initialize the CBS-bid-tracker (currently the same as FCFS).
+        """
         self.bid_tracker = CBSBidTracker()
+        """
+        Initializes the cost function to optimize
+        """
         self.cost_function = cost_function()
 
     def get_bid_tracker(self) -> "BidTracker":
+        """
+        Returns the active bid-tracker.
+        :return:
+        """
         return self.bid_tracker
 
     def allocate(self, agents: List["PathAgent"], env: "Environment", tick: int) -> Dict["PathAgent", "Allocation"]:
+
         astar = CBSAStar(env)
         open_set: Set["HighLevelNode"] = set()
         closed_set: Set["HighLevelNode"] = set()
@@ -102,7 +120,8 @@ class CBS(Allocator):
                          tick: int,
                          astar: "CBSAStar"):
         to_recompute = high_level_node.newly_constraint
-        new_recomputed_solution, reason = self.allocate_path(to_recompute, high_level_node.constraint_dict, env, tick,
+        new_recomputed_solution, reason = self.allocate_path(to_recompute,
+                                                             high_level_node.constraint_dict[to_recompute], env, tick,
                                                              astar)
         if not new_recomputed_solution:
             high_level_node.solution = {}
@@ -111,8 +130,18 @@ class CBS(Allocator):
         high_level_node.reason = reason
         return
 
-    def allocate_path(self, agent, constraints_dict, env, tick, astar: "CBSAStar") -> Tuple[
-        Optional[List["PathSegment"]], str]:
+    def allocate_path(self, agent: "PathAgent", constraints: "Set[Coordinate4D]", env, tick, astar: "CBSAStar") -> \
+        Tuple[Optional[List["PathSegment"]], str]:
+        """
+        Allocate a path for a given path-bid.
+        Returns `None` if no valid path could be allocated.
+        :param agent:
+        :param constraints:
+        :param env:
+        :param tick:
+        :param astar:
+        :return:
+        """
         bid = self.bid_tracker.get_last_bid_for_tick(tick, agent, env)
         assert isinstance(bid, CBSPathBid) and isinstance(agent, PathAgent)
         a = bid.locations[0].clone()
@@ -133,17 +162,17 @@ class CBS(Allocator):
             if env.is_coordinate_blocked_forever(b, bid.agent.near_radius):
                 return None, f"Static blocker at target {b}."
 
-            a_t = find_valid_path_tick(env, a, agent, tick, env.dimension.t, constraints_dict)
+            a_t = find_valid_path_tick(env, a, agent, tick, env.dimension.t, constraints)
             if a_t is None:
                 return None, f"Start {a} is invalid until max tick {env.dimension.t}."
             a.t = a_t
 
-            b_t = find_valid_path_tick(env, b, agent, tick, env.dimension.t, constraints_dict)
+            b_t = find_valid_path_tick(env, b, agent, tick, env.dimension.t, constraints)
             if b_t is None:
                 return None, f"Target {b} is invalid until max tick {env.dimension.t}."
             b.t = b_t
 
-            ab_path = astar.astar(a, b, agent, constraints_dict)
+            ab_path = astar.astar(a, b, agent, constraints)
             if len(ab_path) == 0:
                 return None, f"No path {a} -> {b} found."
             time += ab_path[-1].t - ab_path[0].t
