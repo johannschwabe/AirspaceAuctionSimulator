@@ -3,7 +3,7 @@ import random
 
 from API import APISimulationConfig, build_json, run_from_config
 
-random.seed(0)
+random.seed(4)
 
 f = open("british-indian-ocean-territory-config.json", "r")
 converted = json.load(f)

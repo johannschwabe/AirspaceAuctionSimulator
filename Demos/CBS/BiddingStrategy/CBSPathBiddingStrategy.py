@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 class CBSPathBiddingStrategy(BiddingStrategy, PathBiddingStrategy):
     label = "CBS Path Bidding Strategy"
-    description = "An Bidding Strategy for FCFS Path Agents"
+    description = "An Bidding Strategy for CBS Path Agents"
     min_locations = 2
     max_locations = 5
     allocation_type = AgentType.PATH.value
