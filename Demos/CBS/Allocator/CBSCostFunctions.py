@@ -4,7 +4,10 @@ from Demos.CBS.Allocator.CBSAllocatorHelpers import HighLevelNode
 
 
 class CostFunction(ABC):
-    failed_allocation_valid = False
+    """
+    The cost function CBS should optimize
+    """
+    failed_allocation_valid = False  # Whether an allocation where not all agents have a path is valid
 
     def __init__(self):
         pass
@@ -16,6 +19,9 @@ class CostFunction(ABC):
 
 
 class PathLength(CostFunction):
+    """
+    Minimize the total number of allocated ticks
+    """
     failed_allocation_valid = False
 
     @staticmethod
@@ -28,6 +34,9 @@ class PathLength(CostFunction):
 
 
 class Welfare(CostFunction):
+    """
+    Minimize the negative summed value of all agents
+    """
     failed_allocation_valid = True
 
     @staticmethod

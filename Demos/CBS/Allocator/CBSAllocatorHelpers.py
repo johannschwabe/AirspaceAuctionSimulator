@@ -7,6 +7,10 @@ if TYPE_CHECKING:
 
 
 class Conflict(object):
+    """
+    Structure to save two agents that got too close and their positions
+    """
+
     def __init__(self, agent_1: "PathAgent", agent_2: "PathAgent", location_1: "Coordinate4D",
                  location_2: "Coordinate4D"):
         self.agent_1: "PathAgent" = agent_1
@@ -21,6 +25,11 @@ class Conflict(object):
 
 
 class HighLevelNode(object):
+    """
+    HighLevelNode for CBS. Saves a (possibly invalid) allocation for all agents and
+    the constraints under which it was computed
+    """
+
     def __init__(self):
         self.solution: Dict["PathAgent", List["PathSegment"]] = dict()
         self.constraint_dict: Dict["PathAgent", Set["Coordinate4D"]] = dict()
