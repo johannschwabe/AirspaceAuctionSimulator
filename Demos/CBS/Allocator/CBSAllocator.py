@@ -62,7 +62,13 @@ class CBS(Allocator):
         return self.bid_tracker
 
     def allocate(self, agents: List["PathAgent"], env: "Environment", tick: int) -> Dict["PathAgent", "Allocation"]:
-
+        """
+        Allocate paths for a list of agents
+        :param agents:
+        :param env:
+        :param tick:
+        :return:
+        """
         astar = CBSAStar(env)
         open_set: Set["HighLevelNode"] = set()
         closed_set: Set["HighLevelNode"] = set()
@@ -119,6 +125,14 @@ class CBS(Allocator):
                          high_level_node: "HighLevelNode",
                          tick: int,
                          astar: "CBSAStar"):
+        """
+        Intermediate step in the pathfinding handling the HighLevelNode
+        :param env:
+        :param high_level_node:
+        :param tick:
+        :param astar:
+        :return:
+        """
         to_recompute = high_level_node.newly_constraint
         new_recomputed_solution, reason = self.allocate_path(to_recompute,
                                                              high_level_node.constraint_dict[to_recompute], env, tick,
@@ -193,6 +207,13 @@ class CBS(Allocator):
 
     @staticmethod
     def get_first_conflict(solution: Dict["PathAgent", List["PathSegment"]], max_near_radius: float) -> "Conflict|None":
+        """
+        Finds the first position where the computed allocation is invalid.
+        This is done by incrementally adding each allocated position into a Rtree
+        :param solution:
+        :param max_near_radius:
+        :return:
+        """
         props = Property()
         props.dimension = 4
         tree = Index(properties=props)
@@ -226,12 +247,10 @@ class CBS(Allocator):
         return None
 
     @staticmethod
-    def get_state(agent_name, solution, t):
-        if solution[agent_name][0].t < t < solution[agent_name][-1].t:
-            return solution[agent_name][t - solution[agent_name][0].t]
-        else:
-            return -1
-
-    @staticmethod
     def create_constraints_from_conflict(conflict: "Conflict") -> Dict["PathAgent", "Coordinate4D"]:
+        """
+        Create two constraints that can resolve the conflict
+        :param conflict:
+        :return:
+        """
         return {conflict.agent_1: conflict.location_1, conflict.agent_2: conflict.location_2}

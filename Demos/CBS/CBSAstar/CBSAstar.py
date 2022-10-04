@@ -10,6 +10,10 @@ if TYPE_CHECKING:
 
 
 class CBSAStar:
+    """
+    Optimal Astar for CBS. Positions are only valid if they are not in the constraints of the agent
+    """
+
     def __init__(self, environment: "Environment", max_iter: int = 4_000_000):
         self.environment: "Environment" = environment
         self.max_iter: int = max_iter
@@ -20,6 +24,14 @@ class CBSAStar:
                    end: "Coordinate4D",
                    agent: "PathAgent",
                    constraints: "Set[Coordinate4D]"):
+        """
+        Computes a path for a single agent respecting the agents constraints
+        :param start:
+        :param end:
+        :param agent:
+        :param constraints:
+        :return:
+        """
         open_nodes = {}
         closed_nodes = {}
         heap = []
@@ -80,7 +92,13 @@ class CBSAStar:
         return path, steps
 
     @staticmethod
-    def complete_path(path: List["Coordinate4D"], agent: "PathAgent"):
+    def complete_path(path: List["Coordinate4D"], agent: "PathAgent") -> List["Coordinate4D"]:
+        """
+        Adds waiting coordinates to path where the agents speed is greater than one
+        :param path:
+        :param agent:
+        :return:
+        """
         wait_coords: List["Coordinate4D"] = []
         for near_coord in path:
             for t in range(1, agent.speed):
@@ -97,7 +115,14 @@ class CBSAStar:
               end: "Coordinate4D",
               agent: "PathAgent",
               constraints: Set["Coordinate4D"]) -> List["Coordinate4D"]:
-
+        """
+        Asserts paths plausibility and calls astar-loop
+        :param start:
+        :param end:
+        :param agent:
+        :param constraints:
+        :return:
+        """
         distance = start.distance(end)
         time_left = self.environment.dimension.t - start.t
 
@@ -125,6 +150,14 @@ class CBSAStar:
 
 def is_valid_for_path_allocation(env: "Environment", position: "Coordinate4D",
                                  path_agent: "PathAgent", constraints: "Set[Coordinate4D]") -> bool:
+    """
+    Checks if the position is blocked or in the agent's constraints
+    :param env:
+    :param position:
+    :param path_agent:
+    :param constraints:
+    :return:
+    """
     if position in constraints:
         return False
     if env.is_coordinate_blocked(position, path_agent):
@@ -135,6 +168,16 @@ def is_valid_for_path_allocation(env: "Environment", position: "Coordinate4D",
 def find_valid_path_tick(environment: "Environment", position: "Coordinate4D",
                          path_agent: "PathAgent", min_tick: int, max_tick: int,
                          constraints: "Set[Coordinate4D]") -> Optional[int]:
+    """
+    Finds the first tick where it can allocate a position
+    :param environment:
+    :param position:
+    :param path_agent:
+    :param min_tick:
+    :param max_tick:
+    :param constraints:
+    :return:
+    """
     pos_clone = position.clone()
     assert isinstance(path_agent, PathAgent)
     if pos_clone.t < min_tick:

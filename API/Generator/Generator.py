@@ -136,6 +136,7 @@ class Generator:
 
     @staticmethod
     def creation_ticks(duration, total) -> List[int]:
+        return [1] * total
         res = []
         for _ in range(total):
             res.append(random.randint(0, duration - 1))
