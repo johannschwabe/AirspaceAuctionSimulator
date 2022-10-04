@@ -44,4 +44,4 @@ class Welfare(CostFunction):
         total_welfare = 0.0
         for agent in node.solution.keys():
             total_welfare += agent.value_for_segments(node.solution[agent])
-        return -total_welfare  # nodes with lower welfare are investigated first, thus negative welfare
+        return -total_welfare  # nodes with lower cost are investigated first, thus negative welfare
