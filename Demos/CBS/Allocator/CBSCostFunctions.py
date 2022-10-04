@@ -14,7 +14,7 @@ class CostFunction(ABC):
 
     @staticmethod
     @abstractmethod
-    def __call__(node: "HighLevelNode"):
+    def __call__(node: "HighLevelNode") -> float:
         pass
 
 
@@ -25,7 +25,7 @@ class PathLength(CostFunction):
     failed_allocation_valid = False
 
     @staticmethod
-    def __call__(node: "HighLevelNode"):
+    def __call__(node: "HighLevelNode") -> int:
         total_path_length = 0
         for path_segements in node.solution.values():
             for segment in path_segements:
@@ -40,7 +40,7 @@ class Welfare(CostFunction):
     failed_allocation_valid = True
 
     @staticmethod
-    def __call__(node: "HighLevelNode"):
+    def __call__(node: "HighLevelNode") -> float:
         total_welfare = 0.0
         for agent in node.solution.keys():
             total_welfare += agent.value_for_segments(node.solution[agent])
