@@ -3,7 +3,8 @@ import math
 import random
 import time
 
-from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, build_json
+from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, build_json, generate_config
+from API.Types import APISubselection
 from Demos.FCFS import FCFSAllocator, FCFSPaymentRule, FCFSPathBiddingStrategy, FCFSSpaceBiddingStrategy, \
     FCFSPathValueFunction, FCFSSpaceValueFunction
 from Demos.Priority import PriorityAllocator, PriorityPaymentRule, PriorityPathBiddingStrategy, \
@@ -154,4 +155,9 @@ if __name__ == "__main__":
 
     f = open("playground.json", "w")
     f.write(json.dumps(res))
+    f.close()
+
+    f = open("playground-config.json", "w")
+    f.write(json.dumps(generate_config(simulatorAligator, APISubselection(bottomLeft=bottom_left_coordinate,
+                                                                          topRight=top_right_coordinate), "guguseli")))
     f.close()

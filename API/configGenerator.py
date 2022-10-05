@@ -1,7 +1,11 @@
+from pydantic.fields import Field
+
 from API import Area
 from API.LongLatCoordinate import LongLatCoordinate
-from API.Types import APIMap, APISubselection, APISimulationConfig, APIWorldCoordinates, APIOwner, APIBiddingStrategy
+from API.Types import APIMap, APISubselection, APISimulationConfig, APIWorldCoordinates, APIOwner, APIBiddingStrategy, \
+    APILocations
 from Simulator import Simulator
+from Simulator.Location.GridLocationType import GridLocationType
 
 
 def generate_config(simulator: "Simulator", subselection: "APISubselection", name: "str" = "Unknown"):
@@ -30,22 +34,31 @@ def generate_config(simulator: "Simulator", subselection: "APISubselection", nam
     for owner in simulator.owners:
         bs = owner.bidding_strategy
         bidding_strategy = APIBiddingStrategy(label=bs.label,
-                                              clasname=bs.__name__,
+                                              classname=bs.__class__.__name__,
                                               description=bs.description,
                                               allocationType=bs.allocation_type,
-                                              minLocation=bs.min_locations,
+                                              minLocations=bs.min_locations,
                                               maxLocations=bs.max_locations,
                                               meta=bs.meta())
+        locations = []
+        for stop in owner.stops:
+            if stop.stop_type == GridLocationType.RANDOM.value:
+                locations.append(APILocations(type=stop.stop_type))
+            elif stop.stop_type == GridLocationType.POSITION.value:
+                locations.append(APILocations(type=stop.stop_type, points=stop.position))
         new_owner = APIOwner(color=owner.color,
                              name=owner.name,
                              agents=len(owner.agents),
                              biddingStrategy=bidding_strategy,
-                             locations=owner.stops,
-                             valueFunction=owner.value_function.__name__)
+                             locations=[APILocations(type=stop.stop_type,
+                                                     points=[stop.position] if (
+                                                         stop.stop_type == "position") else Field(None))
+                                        for stop in owner.stops],
+                             valueFunction=owner.value_function.__class__.__name__)
         _owners.append(new_owner)
-    _simi = APISimulationConfig(name=name,
-                                description="",
-                                allocator=simulator.mechanism.allocator.__name__,
-                                paymentRule=simulator.mechanism.payment_rule.__name__,
-                                map=_map,
-                                owners=_owners)
+    return APISimulationConfig(name=name,
+                               description="",
+                               allocator=simulator.mechanism.allocator.__class__.__name__,
+                               paymentRule=simulator.mechanism.payment_rule.__class__.__name__,
+                               map=_map,
+                               owners=_owners)
