@@ -31,6 +31,8 @@ class APIBiddingStrategy(BaseModel):
     allocationType: str
     classname: str
     meta: List[Dict[str, Any]]
+    label: str
+    description: str
 
 
 class APIOwner(BaseModel):

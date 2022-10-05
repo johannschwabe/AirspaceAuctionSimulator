@@ -24,9 +24,14 @@ class SpaceOwner(Owner):
                  value_function: "ValueFunction",
                  meta: Dict[str, Any] = None
                  ):
-        super().__init__(owner_id, bidding_strategy, value_function, name, color, meta if meta else {})
-        self.stops = stops
-        self.creation_ticks = creation_ticks
+        super().__init__(owner_id,
+                         bidding_strategy,
+                         value_function,
+                         name,
+                         color,
+                         meta if meta else {},
+                         stops,
+                         creation_ticks)
         self.size: "Coordinate4D" = size
 
     @staticmethod

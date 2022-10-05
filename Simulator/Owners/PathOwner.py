@@ -32,10 +32,15 @@ class PathOwner(Owner):
                  battery: int,
                  speed: int,
                  meta: Dict[str, Any] | NoneType = None):
-        super().__init__(owner_id, bidding_strategy, value_function, name, color, meta if meta else {})
+        super().__init__(owner_id,
+                         bidding_strategy,
+                         value_function,
+                         name,
+                         color,
+                         meta if meta else {},
+                         stops,
+                         creation_ticks)
         assert near_radius >= 1
-        self.creation_ticks = creation_ticks
-        self.stops = stops
         self.near_radius = near_radius
         self.battery = battery
         self.speed = speed

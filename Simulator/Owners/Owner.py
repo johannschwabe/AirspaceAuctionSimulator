@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, List, Dict, Any
 
+from ..Location.GridLocation import GridLocation
+
 if TYPE_CHECKING:
     from ..Agents.Agent import Agent
     from ..Environment.Environment import Environment
@@ -21,7 +23,9 @@ class Owner(ABC):
                  value_function: "ValueFunction",
                  name: str,
                  color: str,
-                 meta: Dict[str, Any]):
+                 meta: Dict[str, Any],
+                 stops: List["GridLocation"],
+                 creation_ticks: List[int]):
         self.id: str = owner_id
         self.name: str = name
         self.color: str = color
@@ -33,6 +37,8 @@ class Owner(ABC):
         self.bidding_strategy = bidding_strategy
         self.value_function = value_function
         self.config = meta
+        self.stops = stops
+        self.creation_ticks = creation_ticks
 
     def get_agent_id(self):
         agent_id = self._agent_id
