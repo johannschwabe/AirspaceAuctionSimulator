@@ -19,7 +19,6 @@ class PathOwner(Owner):
     allocation_type: str = AgentType.PATH.value
     min_locations = 2
     max_locations = 100
-    meta = []
 
     def __init__(self, owner_id: str,
                  name: str,

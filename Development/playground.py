@@ -158,6 +158,8 @@ if __name__ == "__main__":
     f.close()
 
     f = open("playground-config.json", "w")
-    f.write(json.dumps(generate_config(simulatorAligator, APISubselection(bottomLeft=bottom_left_coordinate,
-                                                                          topRight=top_right_coordinate), "guguseli")))
+    sim_config = generate_config(simulatorAligator, APISubselection(bottomLeft=bottom_left_coordinate,
+                                                                    topRight=top_right_coordinate),
+                                 "guguseli")
+    f.write(sim_config.json())
     f.close()

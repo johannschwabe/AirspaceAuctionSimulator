@@ -17,7 +17,7 @@ class BiddingStrategy(ABC):
 
     @staticmethod
     @abstractmethod
-    def meta() -> List[Dict[str, str | int]]:
+    def meta() -> List[Dict[str, str | int | float]]:
         pass
 
     @abstractmethod

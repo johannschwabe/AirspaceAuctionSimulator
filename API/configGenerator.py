@@ -1,11 +1,11 @@
-from pydantic.fields import Field
-
 from API import Area
 from API.LongLatCoordinate import LongLatCoordinate
 from API.Types import APIMap, APISubselection, APISimulationConfig, APIWorldCoordinates, APIOwner, APIBiddingStrategy, \
     APILocations
 from Simulator import Simulator
 from Simulator.Location.GridLocationType import GridLocationType
+from Simulator.Owners.PathOwner import PathOwner
+from Simulator.Owners.SpaceOwner import SpaceOwner
 
 
 def generate_config(simulator: "Simulator", subselection: "APISubselection", name: "str" = "Unknown"):
@@ -33,27 +33,63 @@ def generate_config(simulator: "Simulator", subselection: "APISubselection", nam
     _owners = []
     for owner in simulator.owners:
         bs = owner.bidding_strategy
+        meta = []
+        bs_meta = bs.meta()
+        if isinstance(owner, PathOwner):
+            for meta_field in bs_meta:
+                if meta_field["key"] == "near_field":
+                    meta_field["value"] = owner.near_radius
+                    meta.append(meta_field)
+                    continue
+                if meta_field["key"] == "battery":
+                    meta_field["value"] = owner.battery
+                    meta.append(meta_field)
+                    continue
+                if meta_field["key"] == "speed":
+                    meta_field["value"] = owner.speed
+                    meta.append(meta_field)
+                    continue
+                meta_field["value"] = owner.config[meta_field["key"]]
+                meta.append(meta_field)
+        elif isinstance(owner, SpaceOwner):
+            for meta_field in bs_meta:
+                if meta_field["key"] == "size_x":
+                    meta_field["value"] = owner.size.x
+                    meta.append(meta_field)
+                    continue
+                if meta_field["key"] == "size_y":
+                    meta_field["value"] = owner.size.y
+                    meta.append(meta_field)
+                    continue
+                if meta_field["key"] == "size_z":
+                    meta_field["value"] = owner.size.z
+                    meta.append(meta_field)
+                    continue
+                if meta_field["key"] == "size_t":
+                    meta_field["value"] = owner.size.t
+                    meta.append(meta_field)
+                    continue
+                meta_field["value"] = owner.config[meta_field["key"]]
+                meta.append(meta_field)
         bidding_strategy = APIBiddingStrategy(label=bs.label,
                                               classname=bs.__class__.__name__,
                                               description=bs.description,
                                               allocationType=bs.allocation_type,
                                               minLocations=bs.min_locations,
                                               maxLocations=bs.max_locations,
-                                              meta=bs.meta())
+                                              meta=meta)
         locations = []
         for stop in owner.stops:
             if stop.stop_type == GridLocationType.RANDOM.value:
-                locations.append(APILocations(type=stop.stop_type))
+                locations.append(APILocations(type=stop.stop_type, points=[]))
             elif stop.stop_type == GridLocationType.POSITION.value:
-                locations.append(APILocations(type=stop.stop_type, points=stop.position))
+                posi = Area.LCS_to_long_lat(bottom_left, stop.position, resolution)
+                locations.append(APILocations(type=stop.stop_type, points=[posi]))
         new_owner = APIOwner(color=owner.color,
                              name=owner.name,
                              agents=len(owner.agents),
                              biddingStrategy=bidding_strategy,
-                             locations=[APILocations(type=stop.stop_type,
-                                                     points=[stop.position] if (
-                                                         stop.stop_type == "position") else Field(None))
-                                        for stop in owner.stops],
+                             locations=locations,
                              valueFunction=owner.value_function.__class__.__name__)
         _owners.append(new_owner)
     return APISimulationConfig(name=name,
