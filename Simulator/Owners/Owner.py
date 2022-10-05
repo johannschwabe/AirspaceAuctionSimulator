@@ -15,7 +15,6 @@ class Owner(ABC):
     description = "An Abstract Owners: Override this class variable"
     min_locations: int
     max_locations: int
-    config: []
     allocation_type: str
 
     def __init__(self, owner_id: str,
