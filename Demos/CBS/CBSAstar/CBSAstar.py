@@ -79,7 +79,6 @@ class CBSAStar:
                         continue
 
                     neighbor.g = current_node.g + 1
-                    # neighbor.h = (end_node.position - neighbor.position).l1
                     neighbor.h = neighbor.position.distance(end_node.position, l2=False)
                     neighbor.f = neighbor.g + neighbor.h
 
@@ -144,7 +143,6 @@ class CBSAStar:
 
         complete_path = self.complete_path(path, agent)
 
-        # print(f"ASTAR: {complete_path[0]} -> {complete_path[-1]},\tPathLen: {len(path):3d},\tSteps: {steps:3d}")
         return complete_path
 
 

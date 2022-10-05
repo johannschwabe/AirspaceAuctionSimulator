@@ -1,4 +1,4 @@
-from typing import Dict, TYPE_CHECKING, Set, List
+from typing import Dict, TYPE_CHECKING, Set, List, Optional
 
 if TYPE_CHECKING:
     from Simulator.Segments.PathSegment import PathSegment
@@ -33,8 +33,8 @@ class HighLevelNode(object):
     def __init__(self):
         self.solution: Dict["PathAgent", List["PathSegment"]] = dict()
         self.constraint_dict: Dict["PathAgent", Set["Coordinate4D"]] = dict()
-        self.first_conflict: "Conflict|None" = None
-        self.newly_constraint: "PathAgent|None" = None
+        self.first_conflict: "Optional[Conflict]" = None
+        self.newly_constraint: "Optional[PathAgent]" = None
         self.reason: "str" = ""
         self.cost = 0
 
@@ -69,7 +69,7 @@ class HighLevelNode(object):
         return cpy
 
     def __str__(self):
-        res = "-------------------------------------------------------\n"
+        res = ""
         for agent, constraint in self.constraint_dict.items():
             if len(constraint) > 0:
                 res += f"{agent}: {str(constraint)}\n"

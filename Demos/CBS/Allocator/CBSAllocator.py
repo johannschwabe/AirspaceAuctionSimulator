@@ -1,17 +1,14 @@
 """
 Implementation of Conflict-based search based on Ashwin Bose (@atb033)'s implementation
+https://github.com/atb033/multi_agent_path_planning/blob/master/centralized/cbs/cbs.py
 """
+import abc
 from typing import List, Dict, TYPE_CHECKING, Set, Type, Iterator, Tuple, Optional
 
 from rtree import Index
 from rtree.index import Property
 
-from Simulator.Agents.PathAgent import PathAgent
-from Simulator.Allocations.Allocation import Allocation
-from Simulator.Allocations.AllocationHistory import AllocationHistory
-from Simulator.Allocations.AllocationReason import AllocationReason
-from Simulator.Mechanism.Allocator import Allocator
-from Simulator.Segments.PathSegment import PathSegment
+from Simulator import PathAgent, Allocation, AllocationHistory, AllocationReason, Allocator, PathSegment
 from .CBSAllocatorHelpers import HighLevelNode, Conflict
 from .CBSCostFunctions import PathLength, CostFunction
 from ..BidTracker.CBSBidTracker import CBSBidTracker
@@ -26,7 +23,7 @@ if TYPE_CHECKING:
     from Simulator.Environment.Environment import Environment
 
 
-class CBS(Allocator):
+class CBSAllocator(Allocator):
     """
     Finds the optimal allocation for a given cost function.
     Computationally very intensive: only for offline comparison
@@ -44,7 +41,7 @@ class CBS(Allocator):
     def compatible_payment_functions():
         return [CBSPaymentRule]
 
-    def __init__(self, cost_function: "CostFunction" = PathLength):
+    def __init__(self, cost_function: "abc.ABCMeta" = PathLength):
         """
         Initialize the CBS-bid-tracker (currently the same as FCFS).
         """
@@ -52,7 +49,7 @@ class CBS(Allocator):
         """
         Initializes the cost function to optimize
         """
-        self.cost_function = cost_function()
+        self.cost_function: "CostFunction" = cost_function()
 
     def get_bid_tracker(self) -> "BidTracker":
         """
@@ -86,7 +83,7 @@ class CBS(Allocator):
         if not start.solution:
             return {}
         start.cost = self.cost_function(start)
-        start.first_conflict = CBS.get_first_conflict(start.solution, env.max_near_radius)
+        start.first_conflict = CBSAllocator.get_first_conflict(start.solution, env.max_near_radius)
         open_set |= {start}
 
         while open_set:
@@ -115,7 +112,7 @@ class CBS(Allocator):
                     open_set |= {new_node}
 
                     new_node.cost = self.cost_function(new_node)
-                    new_node.first_conflict = CBS.get_first_conflict(new_node.solution, env.max_near_radius)
+                    new_node.first_conflict = CBSAllocator.get_first_conflict(new_node.solution, env.max_near_radius)
             P.solution = {}
 
         return {}

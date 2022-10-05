@@ -87,7 +87,6 @@ class PathOwner(Owner):
             stays.pop()
             agent = self.initialize_agent(locations, stays)
             res.append(agent)
-            # print(f"{agent} {' -> '.join([str(loc) for loc in locations])}")
 
         self.agents += res
         return res
