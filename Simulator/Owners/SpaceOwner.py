@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING, Dict, Any
+from typing import List, TYPE_CHECKING, Dict, Any, Optional
 
 from .Owner import Owner
 from ..Agents.SpaceAgent import SpaceAgent
@@ -22,8 +22,7 @@ class SpaceOwner(Owner):
                  size: "Coordinate4D",
                  bidding_strategy: "BiddingStrategy",
                  value_function: "ValueFunction",
-                 meta: Dict[str, Any] = None
-                 ):
+                 meta: Optional[Dict[str, Any]] = None):
         super().__init__(owner_id, bidding_strategy, value_function, creation_ticks, name, color, meta if meta else {})
         self.stops = stops
         self.size: "Coordinate4D" = size
