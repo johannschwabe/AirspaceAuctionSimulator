@@ -1,6 +1,6 @@
 import statistics
 from abc import ABC
-from typing import TYPE_CHECKING, List, Dict, Optional, Any, Tuple, Union
+from typing import TYPE_CHECKING, List, Dict, Optional, Any, Tuple
 
 from .Stringify import Stringify
 from ..Agents.PathAgent import PathAgent
@@ -57,8 +57,7 @@ class Statistics:
                                     self.simulation.history.total_reallocations,
                                     self.simulation.history.compute_times)
 
-    @staticmethod
-    def get_path_locations_delay(path_agent: "PathAgent"):
+    def get_path_locations_delay(self, path_agent: "PathAgent"):
         delayed_arrivals = []
         for _index, target in enumerate(path_agent.locations[1:]):
             if len(path_agent.allocated_segments) > _index:
@@ -329,6 +328,7 @@ class Statistics:
         l1_ground_distance: float = delta.to_2D().l1
         l2_ground_distance: float = delta.to_2D().l2
         height_difference: float = path_segment.max.y - path_segment.min.y
+        time_difference: int = path_segment.max.t - path_segment.min.t
         heights: List[float] = []
         ascent: int = 0
         descent: int = 0
@@ -500,8 +500,8 @@ class Statistics:
                                median_height_above_ground)
 
     @staticmethod
-    def merge_violations(violations: Dict[Union[str, int], List["Coordinate4D"]],
-                         new_violations: Dict[Union[str, int], List["Coordinate4D"]]):
+    def merge_violations(violations: Dict[str | int, List["Coordinate4D"]],
+                         new_violations: Dict[str | int, List["Coordinate4D"]]):
         for key, value in new_violations.items():
             if key in violations:
                 violations[key].extend(value)
@@ -531,7 +531,7 @@ class Statistics:
                     total_blocker_violations += segment_violations.total_blocker_violations
 
                 if len(agent.allocated_segments) > 0 and len(agent.allocated_segments[0].coordinates) > 0 and not \
-                        agent.allocated_segments[-1].max.inter_temporal_equal(agent.locations[-1]):
+                    agent.allocated_segments[-1].max.inter_temporal_equal(agent.locations[-1]):
                     incomplete_allocation = True
                     total_violations += 1
 
@@ -872,25 +872,25 @@ class AllocationStatistics(Stringify):
                  value: float,
                  payment: float,
                  utility: float,
-                 bid: Dict[str, Union[str, int, float]],
+                 bid: Dict[str, str | int | float],
                  compute_time: int,
                  reason: str,
                  explanation: str,
-                 colliding_agent_bids: Optional[Dict[str, Dict[str, Union[str, int, float]]]],
-                 displacing_agent_bids: Optional[Dict[str, Dict[str, Union[str, int, float]]]],
+                 colliding_agent_bids: Optional[Dict[str, Dict[str, str | int | float]]],
+                 displacing_agent_bids: Optional[Dict[str, Dict[str, str | int | float]]],
                  path_statistics: Optional["PathStatistics"],
                  space_statistics: Optional["SpaceStatistics"]):
         self.tick: int = tick
         self.value: float = value
         self.payment: float = payment
         self.utility: float = utility
-        self.bid: Dict[str, Union[str, int, float]] = bid
+        self.bid: Dict[str, str | int | float] = bid
         self.reason: str = reason
         self.explanation: str = explanation
         self.colliding_agent_bids: Dict[
-            str, Dict[str, Union[str, int, float]]] = colliding_agent_bids if colliding_agent_bids is not None else {}
+            str, Dict[str, str | int | float]] = colliding_agent_bids if colliding_agent_bids is not None else {}
         self.displacing_agent_bids: Dict[
-            str, Dict[str, Union[str, int, float]]] = displacing_agent_bids if displacing_agent_bids is not None else {}
+            str, Dict[str, str | int | float]] = displacing_agent_bids if displacing_agent_bids is not None else {}
         self.compute_time: int = compute_time
         self.path: Optional["PathStatistics"] = path_statistics
         self.space: Optional["SpaceStatistics"] = space_statistics
