@@ -19,6 +19,7 @@ class Owner(ABC):
     def __init__(self, owner_id: str,
                  bidding_strategy: "BiddingStrategy",
                  value_function: "ValueFunction",
+                 creation_ticks: List[int],
                  name: str,
                  color: str,
                  meta: Dict[str, Any]):
@@ -32,6 +33,7 @@ class Owner(ABC):
         self._agent_id: int = 0
         self.bidding_strategy = bidding_strategy
         self.value_function = value_function
+        self.creation_ticks = creation_ticks
         self.config = meta
 
     def get_agent_id(self):

@@ -1,7 +1,6 @@
 import math
 import random
-from types import NoneType
-from typing import List, TYPE_CHECKING, Dict, Any
+from typing import List, TYPE_CHECKING, Dict, Any, Optional
 
 from ..Agents.AgentType import AgentType
 from ..Agents.PathAgent import PathAgent
@@ -31,10 +30,9 @@ class PathOwner(Owner):
                  near_radius: float,
                  battery: int,
                  speed: int,
-                 meta: Dict[str, Any] | NoneType = None):
-        super().__init__(owner_id, bidding_strategy, value_function, name, color, meta if meta else {})
+                 meta: Optional[Dict[str, Any]] = None):
+        super().__init__(owner_id, bidding_strategy, value_function, creation_ticks, name, color, meta if meta else {})
         assert near_radius >= 1
-        self.creation_ticks = creation_ticks
         self.stops = stops
         self.near_radius = near_radius
         self.battery = battery
