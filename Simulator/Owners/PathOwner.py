@@ -23,7 +23,6 @@ class PathOwner(Owner, ABC):
                  config: Optional[Dict[str, Any]] = None):
         super().__init__(owner_id, bidding_strategy, value_function, config)
 
-
     @staticmethod
     def generate_stop_coordinate(stop: "GridLocation", env: "Environment", t: int,
                                  near_radius: float) -> "Coordinate4D":
