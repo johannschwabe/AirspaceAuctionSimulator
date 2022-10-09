@@ -29,6 +29,7 @@ from .History.History import History
 # IO
 from .IO.JSONS import get_simulation_dict
 from .IO.Statistics import get_statistics_dict
+from .IO.Statistics import Statistics
 # Location
 from .Location.GridLocation import GridLocation
 from .Location.GridLocationType import GridLocationType

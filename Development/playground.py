@@ -3,13 +3,13 @@ import math
 import random
 import time
 
-from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, build_json
+from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, build_json, APIPathOwner, APISpaceOwner
 from Demos.FCFS import FCFSAllocator, FCFSPaymentRule, FCFSPathBiddingStrategy, FCFSSpaceBiddingStrategy, \
     FCFSPathValueFunction, FCFSSpaceValueFunction
 from Demos.Priority import PriorityAllocator, PriorityPaymentRule, PriorityPathBiddingStrategy, \
     PriorityPathValueFunction, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
 from Simulator import Simulator, Coordinate4D, StaticBlocker, Coordinate3D, Environment, GridLocation, \
-    GridLocationType, Mechanism, PathOwner, SpaceOwner
+    GridLocationType, Mechanism, PathOwner
 
 random.seed(4)
 dimensions = Coordinate4D(40, 40, 40, 1000)
@@ -44,36 +44,36 @@ def setup_map():
     return EnvironmentGen(map_dimensions, [MapTile([15, 17161, 11475], area)], area, 50, 10).generate()
 
 
-def fcfsSimulation(env: Environment):
+def fcfs_simulation(env: Environment):
     allocator = FCFSAllocator()
     payment_rule = FCFSPaymentRule()
     mechanism = Mechanism(allocator, payment_rule)
     owners = [
-        PathOwner("0",
-                  "Schnabeltier",
-                  color_generator(),
-                  [GridLocation(str(GridLocationType.RANDOM.value)),
-                   GridLocation(str(GridLocationType.RANDOM.value))],
-                  [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)],
-                  FCFSPathBiddingStrategy(),
-                  FCFSPathValueFunction(),
-                  1,
-                  2000,
-                  1),
-        SpaceOwner("1",
-                   "Ghettotier",
-                   color_generator(),
-                   [GridLocation(str(GridLocationType.RANDOM.value)),
-                    GridLocation(str(GridLocationType.RANDOM.value))],
-                   [random.randint(0, allocation_period) for _ in range(nr_agents)],
-                   space_dimensions,
-                   FCFSSpaceBiddingStrategy(),
-                   FCFSSpaceValueFunction())
+        APIPathOwner("0",
+                     "Schnabeltier",
+                     color_generator(),
+                     [GridLocation(str(GridLocationType.RANDOM.value)),
+                      GridLocation(str(GridLocationType.RANDOM.value))],
+                     [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)],
+                     FCFSPathBiddingStrategy(),
+                     FCFSPathValueFunction(),
+                     1,
+                     2000,
+                     1),
+        APISpaceOwner("1",
+                      "Ghettotier",
+                      color_generator(),
+                      [GridLocation(str(GridLocationType.RANDOM.value)),
+                       GridLocation(str(GridLocationType.RANDOM.value))],
+                      [random.randint(0, allocation_period) for _ in range(nr_agents)],
+                      space_dimensions,
+                      FCFSSpaceBiddingStrategy(),
+                      FCFSSpaceValueFunction())
     ]
     return Simulator(owners, mechanism, env)
 
 
-def prioritySimulation(env: Environment):
+def priority_simulation(env: Environment):
     allocator = PriorityAllocator()
     payment_rule = PriorityPaymentRule()
     mechanism = Mechanism(allocator, payment_rule)
@@ -102,16 +102,16 @@ def prioritySimulation(env: Environment):
                   2000,
                   1,
                   {"priority": 0.1}),
-        SpaceOwner("2",
-                   "Ghettotier",
-                   color_generator(),
-                   [GridLocation(str(GridLocationType.RANDOM.value)),
-                    GridLocation(str(GridLocationType.RANDOM.value))],
-                   [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)],
-                   space_dimensions,
-                   PrioritySpaceBiddingStrategy(),
-                   PrioritySpaceValueFunction(),
-                   {"priority": 0.5}),
+        APISpaceOwner("2",
+                      "Ghettotier",
+                      color_generator(),
+                      [GridLocation(str(GridLocationType.RANDOM.value)),
+                       GridLocation(str(GridLocationType.RANDOM.value))],
+                      [random.randint(0, math.floor(allocation_period / 2)) for _ in range(nr_agents)],
+                      space_dimensions,
+                      PrioritySpaceBiddingStrategy(),
+                      PrioritySpaceValueFunction(),
+                      {"priority": 0.5}),
     ]
     return Simulator(owners, mechanism, env)
 
@@ -129,7 +129,7 @@ def color_generator():
 
 if __name__ == "__main__":
     environment = setup_map()
-    simulatorAligator = prioritySimulation(environment)
+    simulatorAligator = priority_simulation(environment)
 
     start = time.time_ns()
     while simulatorAligator.tick():
