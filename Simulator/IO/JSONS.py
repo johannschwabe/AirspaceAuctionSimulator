@@ -84,9 +84,7 @@ class JSONOwner(Stringify):
     def __init__(self,
                  owner: "Owner",
                  agents: List["JSONAgent"]):
-        self.name: str = owner.name
         self.id: str = owner.id
-        self.color: str = owner.color
         self.agents: List["JSONAgent"] = agents
 
 

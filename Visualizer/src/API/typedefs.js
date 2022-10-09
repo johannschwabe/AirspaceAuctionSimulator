@@ -1,6 +1,7 @@
 /**
  * @typedef {Object} JSONResponse
  * @property {JSONConfig} config
+ * @property {OwnerMap} owner_map
  * @property {SimulationStatistics} statistics
  * @property {JSONSimulation} simulation
  * @property {int} statistics_compute_time
@@ -21,6 +22,16 @@
 
 /**
  * @typedef {Array<x: int, y: int, z: int>} JSONArrayCoordinate
+ */
+
+/**
+ * @typedef {{str: JSONConfigOwner}} OwnerMap
+ */
+
+/**
+ * @typedef {Object} JSONConfigOwner
+ * @property {string} name
+ * @property {string} color
  */
 
 /**
@@ -62,9 +73,7 @@
 
 /**
  * @typedef {Object} JSONOwner
- * @property {string} name
  * @property {string} id
- * @property {string} color
  * @property {JSONAgent[]} agents
  */
 
@@ -263,7 +272,7 @@
  * @property {string} allocator
  * @property {JSONTimeCoordinate} dimensions
  * @property {JSONMap} map
- * @property {JSONOwner[]} owners
+ * @property {JSONConfigOwner[]} owners
  * @property {string[]} availableAllocators
  * @property {JSONAvailableOwner[]} availableOwnersForAllocator
  */

@@ -5,7 +5,7 @@
       <template #label>
         <help v-bind="hName">Model Name</help>
       </template>
-      <n-input v-model:value="simulationConfig.name" type="text" placeholder="Unique Model Name" />
+      <n-input v-model:value="simulationConfig.name" placeholder="Unique Model Name" type="text" />
     </n-form-item>
 
     <!-- Model Description -->
@@ -15,8 +15,8 @@
       </template>
       <n-input
         v-model:value="simulationConfig.description"
-        type="textarea"
         placeholder="Model description (Metadata)"
+        type="textarea"
       />
     </n-form-item>
 
@@ -28,7 +28,7 @@
       <template #label>
         <help v-bind="hTimesteps">Timesteps</help>
       </template>
-      <n-slider show-tooltip v-model:value="simulationConfig.map.timesteps" :min="300" :max="4000" :step="10" />
+      <n-slider v-model:value="simulationConfig.map.timesteps" :max="4000" :min="300" :step="10" show-tooltip />
     </n-form-item>
 
     <n-grid cols="2" x-gap="10">
@@ -75,11 +75,11 @@
     <n-grid-item>
       <n-upload
         :custom-request="uploadConfiguration"
-        accept="application/json"
         :on-preview="uploadConfiguration"
+        accept="application/json"
         class="upload"
       >
-        <n-button block tertiary :type="simulationConfig.isEmpty ? 'primary' : 'tertiary'">
+        <n-button :type="simulationConfig.isEmpty ? 'primary' : 'tertiary'" block tertiary>
           Upload Simulation Configuration
           <template #icon>
             <n-icon>
@@ -91,9 +91,9 @@
     </n-grid-item>
     <n-grid-item>
       <n-button
+        :type="!simulationConfig.isEmpty ? 'primary' : 'tertiary'"
         block
         tertiary
-        :type="!simulationConfig.isEmpty ? 'primary' : 'tertiary'"
         @click.stop="downloadConfiguration"
       >
         Download Simulation Configuration
@@ -115,20 +115,20 @@
     @negative-click="() => downloadSimulation()"
   >
     <template #trigger>
-      <n-button type="primary" :loading="loading">
+      <n-button :loading="loading" type="primary">
         {{ loading ? `Running Simulation... (${loadingForSeconds}s)` : "Simulate" }}
       </n-button>
     </template>
     You do have an old session in your browser cache. It will be overwritten!
   </n-popconfirm>
-  <n-button type="primary" @click.stop="simulate" v-else :loading="loading">
+  <n-button v-else :loading="loading" type="primary" @click.stop="simulate">
     {{ loading ? `Running Simulation... (${loadingForSeconds}s)` : "Simulate" }}
   </n-button>
 
   <!-- On finished simulation, download simulation file or go to simulation -->
-  <n-grid cols="2" x-gap="10" v-if="finished">
+  <n-grid v-if="finished" cols="2" x-gap="10">
     <n-grid-item>
-      <n-button ghost block icon-placement="right" type="primary" @click.stop="() => downloadSimulation()">
+      <n-button block ghost icon-placement="right" type="primary" @click.stop="() => downloadSimulation()">
         Download Simulation
         <template #icon>
           <n-icon>
@@ -157,9 +157,9 @@
 
 <script setup>
 import { nextTick, onUnmounted, ref } from "vue";
-import { useMessage, useLoadingBar } from "naive-ui";
+import { useLoadingBar, useMessage } from "naive-ui";
 import { useRouter } from "vue-router";
-import { CloudDownloadOutline, ArrowForwardOutline, CloudUploadOutline } from "@vicons/ionicons5";
+import { ArrowForwardOutline, CloudDownloadOutline, CloudUploadOutline } from "@vicons/ionicons5";
 import { saveAs } from "file-saver";
 
 import Owner from "./OwnerConfig.vue";
@@ -168,7 +168,7 @@ import Help from "../../common/help/help.vue";
 
 import Simulation from "../../../SimulationObjects/Simulation.js";
 
-import { postSimulation, downloadSimulation } from "../../../API/api.js";
+import { downloadSimulation, postSimulation } from "../../../API/api.js";
 import {
   canRecoverSimulationSingleton,
   hasSimulationSingleton,
@@ -177,12 +177,12 @@ import {
 } from "@/scripts/simulationSingleton";
 import { useSimulationConfigStore } from "@/stores/simulationConfigStore";
 import {
-  emitConfigLoaded,
-  onAllocatorSwitched,
-  offAllocatorSwitched,
   emitAllocatorSwitched,
+  emitConfigLoaded,
+  offAllocatorSwitched,
+  onAllocatorSwitched,
 } from "../../../scripts/emitter.js";
-import { hName, hDescription, hTimesteps, hAllocator, hPaymentRule, hOwners } from "../../common/help/texts.js";
+import { hAllocator, hDescription, hName, hOwners, hPaymentRule, hTimesteps } from "../../common/help/texts.js";
 
 const simulationConfig = useSimulationConfigStore();
 if (!simulationConfig.availableAllocators || simulationConfig.availableAllocators.length === 0) {
@@ -250,7 +250,7 @@ const downloadConfiguration = () => {
     type: "application/json",
   });
 
-  saveAs(fileToSave, `${simulationConfig.name.toLowerCase().replace(/ /g,"-")}-config.json`);
+  saveAs(fileToSave, `${simulationConfig.name.toLowerCase().replace(/ /g, "-")}-config.json`);
 };
 onAllocatorSwitched(() => {
   nextTick(() => {
@@ -290,7 +290,7 @@ const simulate = () => {
       startLoading();
       postSimulation(simulationConfig.generateConfigJson())
         .then((data) => {
-          const simulation = new Simulation(data.simulation, data.config, data.statistics);
+          const simulation = new Simulation(data.simulation, data.config, data.statistics, data.owner_map);
           setSimulationConfig(data.config);
           return simulation.load();
         })

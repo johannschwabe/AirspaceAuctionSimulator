@@ -5,6 +5,7 @@ import { useSimulationOutputStore } from "@/stores/simulationOutputStore";
 import { canLoadSimulation, loadConfigData, loadSimulationData, loadStatisticsData } from "@/API/api";
 import Simulation from "../SimulationObjects/Simulation";
 import { useSimulationConfigStore } from "@/stores/simulationConfigStore";
+import { loadOwnerMap } from "../API/api";
 
 let simulationSingleton = null;
 
@@ -29,11 +30,12 @@ export async function canRecoverSimulationSingleton() {
  * @returns {Promise<Simulation>}
  */
 export async function loadSimulationSingleton() {
-  const simulation_data = await loadSimulationData();
-  const config_data = await loadConfigData();
-  const statistics_data = await loadStatisticsData();
-  if (simulation_data && config_data && statistics_data) {
-    const simulation = new Simulation(simulation_data, config_data, statistics_data);
+  const simulationData = await loadSimulationData();
+  const config = await loadConfigData();
+  const statistics = await loadStatisticsData();
+  const ownerMap = await loadOwnerMap();
+  if (simulationData && config && statistics && ownerMap) {
+    const simulation = new Simulation(simulationData, config, statistics, ownerMap);
     simulationSingleton = await simulation.load();
     return simulationSingleton;
   } else {
