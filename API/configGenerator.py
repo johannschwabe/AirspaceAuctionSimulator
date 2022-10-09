@@ -35,7 +35,7 @@ def generate_config(simulator: "Simulator", subselection: "APISubselection",
         minHeight=simulator.environment.min_height * resolution,
         allocationPeriod=simulator.environment.allocation_period,
         timesteps=dim.t,
-        tiles=mapTileIds  # needed?
+        tiles=mapTileIds
     )
     _owners = []
     for owner in simulator.owners:
