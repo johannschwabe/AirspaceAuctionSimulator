@@ -41,8 +41,7 @@ def setup_map():
                                   math.floor(map_height / area.resolution),
                                   math.floor(size[1]),
                                   time_steps)
-    print(dimensions)
-    return EnvironmentGen(map_dimensions, [MapTile([15, 17161, 11475], area)], area, 50, 10).generate()
+    return EnvironmentGen(map_dimensions, [MapTile([15, 17161, 11475], area)], area, 50, 10)
 
 
 def fcfsSimulation(env: Environment):
@@ -129,8 +128,9 @@ def color_generator():
 
 
 if __name__ == "__main__":
-    environment = setup_map()
-    simulatorAligator = prioritySimulation(environment)
+    pre_environment = setup_map()
+    env = pre_environment.generate()
+    simulatorAligator = prioritySimulation(env)
 
     start = time.time_ns()
     while simulatorAligator.tick():
@@ -142,24 +142,14 @@ if __name__ == "__main__":
     print(f"SIM: {sim_time / 6e10:2.2f} min")
     print()
 
-    config = {"name": "test",
-              "map": {"tiles": []},
-              "dimension": environment.dimension.to_dict(),
-              "owners": []}
-
     tot_time = time.time_ns() - start
     print()
     print(f"TOTAL: {tot_time / 6e10:2.2f} min")
-
-    res = build_json(config, simulatorAligator, tot_time)
+    sim_config = generate_config(simulatorAligator,
+                                 APISubselection(bottomLeft=bottom_left_coordinate, topRight=top_right_coordinate),
+                                 pre_environment.maptiles)
+    res = build_json(sim_config, simulatorAligator, tot_time)
 
     f = open("playground.json", "w")
     f.write(json.dumps(res))
-    f.close()
-
-    f = open("playground-config.json", "w")
-    sim_config = generate_config(simulatorAligator, APISubselection(bottomLeft=bottom_left_coordinate,
-                                                                    topRight=top_right_coordinate),
-                                 "guguseli")
-    f.write(sim_config.json())
     f.close()

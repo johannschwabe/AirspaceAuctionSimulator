@@ -1,3 +1,5 @@
+from typing import List, TYPE_CHECKING
+
 from API import Area
 from API.LongLatCoordinate import LongLatCoordinate
 from API.Types import APIMap, APISubselection, APISimulationConfig, APIWorldCoordinates, APIOwner, APIBiddingStrategy, \
@@ -7,13 +9,18 @@ from Simulator.Location.GridLocationType import GridLocationType
 from Simulator.Owners.PathOwner import PathOwner
 from Simulator.Owners.SpaceOwner import SpaceOwner
 
+if TYPE_CHECKING:
+    from API.Generator.MapTile import MapTile
 
-def generate_config(simulator: "Simulator", subselection: "APISubselection", name: "str" = "Unknown"):
+
+def generate_config(simulator: "Simulator", subselection: "APISubselection",
+                    mapTiles: "List[MapTile]", name: "str" = "Unknown"):
     bottom_left = LongLatCoordinate(subselection.bottomLeft.long, subselection.bottomLeft.lat)
     top_right = LongLatCoordinate(subselection.topRight.long, subselection.topRight.lat)
     dim = simulator.environment.dimension
     dim_m = Area.haversin_lon_lat(bottom_left, top_right)
     resolution = round(dim_m[0] / dim.x)  # rounding needed?
+    mapTileIds = [(tile.z, tile.x, tile.y) for tile in mapTiles]
     _map = APIMap(
         coordinates=APIWorldCoordinates(
             long=(bottom_left.long + top_right.long) / 2,
@@ -28,7 +35,7 @@ def generate_config(simulator: "Simulator", subselection: "APISubselection", nam
         minHeight=simulator.environment.min_height * resolution,
         allocationPeriod=simulator.environment.allocation_period,
         timesteps=dim.t,
-        tiles=[]  # needed?
+        tiles=mapTileIds  # needed?
     )
     _owners = []
     for owner in simulator.owners:
@@ -97,4 +104,4 @@ def generate_config(simulator: "Simulator", subselection: "APISubselection", nam
                                allocator=simulator.mechanism.allocator.__class__.__name__,
                                paymentRule=simulator.mechanism.payment_rule.__class__.__name__,
                                map=_map,
-                               owners=_owners)
+                               owners=_owners).dict()
