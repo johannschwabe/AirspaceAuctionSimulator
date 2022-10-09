@@ -1,14 +1,15 @@
 import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
-from Simulator import PathOwner, SpaceOwner, GridLocationType, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism, \
-    Coordinate4D
+from Simulator import GridLocationType, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism, Coordinate4D
 from .EnvironmentGen import EnvironmentGen
+from ..Owners.APISpaceOwner import APISpaceOwner
+from ..Owners.APIPathOwner import APIPathOwner
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
-    from Simulator import Allocator, Owner, Environment, History, Statistics, PaymentRule, Coordinate2D
-    from ..API import APIOwner
+    from Simulator import Allocator, Owner, Environment, History, PaymentRule, Coordinate2D, Statistics
+    from ..Types import APIOwner
     from ..Area import Area
 
 
@@ -44,9 +45,9 @@ class Generator:
             if location.type == GridLocationType.RANDOM.value:
                 stops.append(GridLocation(str(GridLocationType.RANDOM.value)))
             elif location.type == GridLocationType.POSITION.value:
-                gridCoord = self.map_playfield_area.point_to_coordinate2D(location.points[0])
+                grid_coord = self.map_playfield_area.point_to_coordinate2D(location.points[0])
                 stops.append(GridLocation(str(GridLocationType.POSITION.value),
-                                          position=gridCoord))
+                                          position=grid_coord))
             elif location.type == GridLocationType.HEATMAP.value:
                 heat_dict: Dict[float, List["Coordinate2D"]] = {}
                 for point in location.points:
@@ -89,15 +90,15 @@ class Generator:
                 other_meta_config = {meta_config["key"]: meta_config["value"] for meta_config in
                                      apiOwner.biddingStrategy.meta if
                                      meta_config["key"] not in ["size_x", "size_y", "size_z", "size_t"]}
-                newOwner = SpaceOwner(str(owner_id),
-                                      apiOwner.name,
-                                      apiOwner.color,
-                                      stops,
-                                      self.creation_ticks(self.environment.allocation_period, apiOwner.agents),
-                                      bidding_strategy=selected_bidding_strategy,
-                                      value_function=selected_value_functions,
-                                      size=Coordinate4D(dim_x, dim_y, dim_z, dim_t),
-                                      meta=other_meta_config)
+                new_owner = APISpaceOwner(str(owner_id),
+                                          apiOwner.name,
+                                          apiOwner.color,
+                                          stops,
+                                          self.creation_ticks(self.environment.allocation_period, apiOwner.agents),
+                                          bidding_strategy=selected_bidding_strategy,
+                                          value_function=selected_value_functions,
+                                          size=Coordinate4D(dim_x, dim_y, dim_z, dim_t),
+                                          config=other_meta_config)
             else:
                 near_field = [meta_config["value"] for meta_config in apiOwner.biddingStrategy.meta if
                               meta_config["key"] == "near_field"][0]
@@ -108,19 +109,19 @@ class Generator:
                 other_meta_config = {meta_config["key"]: meta_config["value"] for meta_config in
                                      apiOwner.biddingStrategy.meta if
                                      meta_config["key"] not in ["near_field", "speed", "battery"]}
-                newOwner = PathOwner(str(owner_id),
-                                     apiOwner.name,
-                                     apiOwner.color,
-                                     stops,
-                                     self.creation_ticks(self.environment.allocation_period, apiOwner.agents),
-                                     bidding_strategy=selected_bidding_strategy,
-                                     value_function=selected_value_functions,
-                                     near_radius=near_field,
-                                     battery=battery,
-                                     speed=speed,
-                                     meta=other_meta_config
-                                     )
-            self.owners.append(newOwner)
+                new_owner = APIPathOwner(str(owner_id),
+                                         apiOwner.name,
+                                         apiOwner.color,
+                                         stops,
+                                         self.creation_ticks(self.environment.allocation_period, apiOwner.agents),
+                                         bidding_strategy=selected_bidding_strategy,
+                                         value_function=selected_value_functions,
+                                         near_radius=near_field,
+                                         battery=battery,
+                                         speed=speed,
+                                         config=other_meta_config
+                                         )
+            self.owners.append(new_owner)
             owner_id += 1
         mech = Mechanism(self.allocator, self.payment_rule)
         self.simulator = Simulator(
