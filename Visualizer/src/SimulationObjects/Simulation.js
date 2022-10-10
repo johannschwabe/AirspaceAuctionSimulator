@@ -18,8 +18,9 @@ export default class Simulation {
    * @param {JSONSimulation} jsonSimulation
    * @param {JSONConfig} jsonConfig
    * @param {SimulationStatistics} simulationStats
+   * @param {OwnerMap} ownerMap
    */
-  constructor(jsonSimulation, jsonConfig, simulationStats) {
+  constructor(jsonSimulation, jsonConfig, simulationStats, ownerMap) {
     this._simulationStore = useSimulationOutputStore();
 
     this.name = jsonConfig.name;
@@ -64,7 +65,7 @@ export default class Simulation {
      */
     this.path_owners = jsonSimulation.path_owners.map((owner) => {
       const ownerStats = simulationStats.path_owners.find((ownerStat) => ownerStat.id === owner.id);
-      return new Owner(owner, this, ownerStats);
+      return new Owner(owner, this, ownerStats, ownerMap[owner.id]);
     });
 
     /**
@@ -73,7 +74,7 @@ export default class Simulation {
      */
     this.space_owners = jsonSimulation.space_owners.map((owner) => {
       const ownerStats = simulationStats.space_owners.find((ownerStat) => ownerStat.id === owner.id);
-      return new Owner(owner, this, ownerStats);
+      return new Owner(owner, this, ownerStats, ownerMap[owner.id]);
     });
 
     /**

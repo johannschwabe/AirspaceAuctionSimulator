@@ -7,7 +7,7 @@ import argparse
 import glob
 import json
 import os
-from typing import Type, List
+from typing import Type, List, Optional
 
 import requests
 import yaml
@@ -157,7 +157,7 @@ def all_bidding_strategies_and_value_functions_str() -> str:
 
 
 # The config will be injected into this variable, either through loading it from disk or creating a new one
-model_config: APISimulationConfig | None = None
+model_config: Optional[APISimulationConfig] = None
 
 parser = argparse.ArgumentParser(description='Start a new Airspace Auction Simulation')
 parser.add_argument('-p', '--prefab', dest="prefab", type=str, metavar=f"[{', '.join(available_prefab_names())}]",
@@ -528,14 +528,15 @@ if not args.skipSaveConfig:
 # Skip this flow if user provided --skip-simulation argument
 if not args.skipSimulation:
     # Ask user if simulation should be run if he provided neither --skip-simulation nor --simulate
+    simulate = True
     if not args.simulate:
         simulate = inquirer.confirm(message="Start Simulation?", default=True).execute()
     # Run actual simulation
-    if args.simulate or simulate:
+    if simulate:
         print("Running simulation. This may take a while!")
         generator, duration = run_from_config(model_config)
         print(f"-- Simulation Completed in {duration} seconds --")
-        simulation_json = build_json(model_config.dict(), generator.simulator, duration)
+        simulation_json = build_json(model_config.dict(), generator, duration)
 
         # Printing simulation summary flow if user did not provide --skip-summary flag
         if not args.skipSummary:

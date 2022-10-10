@@ -1,38 +1,35 @@
 import unittest
 
-from Demos.FCFS.BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
-from Demos.FCFS.BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
-from Demos.FCFS.ValueFunction.FCFSPathValueFunction import FCFSPathValueFunction
-from Demos.FCFS.ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction
-from Simulator import GridLocation, Heatmap, SpaceOwner, GridLocationType, Environment, Coordinate3D, Coordinate4D, \
-    PathOwner, StaticBlocker
-from Simulator.Coordinates.Coordinate2D import Coordinate2D
-from Simulator.Location.HeatmapType import HeatmapType
+from Demos.FCFS import FCFSPathBiddingStrategy, FCFSSpaceBiddingStrategy, FCFSPathValueFunction, FCFSSpaceValueFunction
+from Simulator import GridLocation, Heatmap, GridLocationType, Environment, Coordinate3D, Coordinate4D, StaticBlocker, \
+    Coordinate2D, HeatmapType, PathOwner, SpaceOwner
+from API import APIPathOwner, APISpaceOwner
 
 
 class OwnerTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.path_owner = PathOwner("Test Path Owner",
-                                    "testosteroni",
-                                    "#123456",
-                                    [GridLocation(str(GridLocationType.RANDOM.value)),
-                                     GridLocation(str(GridLocationType.RANDOM.value))],
-                                    [10],
-                                    FCFSPathBiddingStrategy(),
-                                    FCFSPathValueFunction(),
-                                    1, 1000, 1, {})
-        self.space_owner = SpaceOwner("Test Space Owner",
-                                      "Bluberatus",
-                                      "#654321",
-                                      [GridLocation(str(GridLocationType.HEATMAP.value),
-                                                    heatmap=Heatmap(heatmap_type=str(HeatmapType.INVERSE_SPARSE.value),
-                                                                    inverse_sparse={0.1: [Coordinate2D(20, 20),
-                                                                                          Coordinate2D(30, 30)]}))],
-                                      [10],
-                                      Coordinate4D(3, 3, 1, 10),
-                                      FCFSSpaceBiddingStrategy(),
-                                      FCFSSpaceValueFunction(),
-                                      {})
+        self.path_owner = APIPathOwner("Test Path Owner",
+                                       "testosteroni",
+                                       "#123456",
+                                       [GridLocation(str(GridLocationType.RANDOM.value)),
+                                        GridLocation(str(GridLocationType.RANDOM.value))],
+                                       [10],
+                                       FCFSPathBiddingStrategy(),
+                                       FCFSPathValueFunction(),
+                                       1, 1000, 1, {})
+        self.space_owner = APISpaceOwner("Test Space Owner",
+                                         "Bluberatus",
+                                         "#654321",
+                                         [GridLocation(str(GridLocationType.HEATMAP.value),
+                                                       heatmap=Heatmap(
+                                                           heatmap_type=str(HeatmapType.INVERSE_SPARSE.value),
+                                                           inverse_sparse={0.1: [Coordinate2D(20, 20),
+                                                                                 Coordinate2D(30, 30)]}))],
+                                         [10],
+                                         Coordinate4D(3, 3, 1, 10),
+                                         FCFSSpaceBiddingStrategy(),
+                                         FCFSSpaceValueFunction(),
+                                         {})
         self.env = Environment(Coordinate4D(100, 100, 100, 1000), min_height=10)
 
     def test_generate_stop_coordinates(self):
@@ -78,7 +75,7 @@ class OwnerTest(unittest.TestCase):
         agents = self.space_owner.generate_agents(10, self.env)
         self.assertEqual(len(agents), 1)
         self.assertEqual(len(agents[0].blocks), 1)
-        self.assertEqual(agents[0].blocks[0][1] - agents[0].blocks[0][0], self.space_owner.size)
+        self.assertEqual(agents[0].blocks[0].max - agents[0].blocks[0].min, self.space_owner.size)
 
     def test_tombola_inverse(self):
         heatmap = Heatmap(heatmap_type=str(HeatmapType.INVERSE_SPARSE.value), inverse_sparse={

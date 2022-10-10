@@ -13,6 +13,7 @@ const STORAGE_KEY = "simulation_db";
 const SIMULATION_STORAGE_KEY = "simulation";
 const STATISTICS_STORAGE_KEY = "statistics";
 const CONFIG_STORAGE_KEY = "config";
+const OWNER_MAP_STORAGE_KEY = "owner_map";
 
 /**
  * Converts an API error thrown by FastAPI into a readable string
@@ -126,6 +127,7 @@ async function openDB() {
       db.createObjectStore(SIMULATION_STORAGE_KEY);
       db.createObjectStore(CONFIG_STORAGE_KEY);
       db.createObjectStore(STATISTICS_STORAGE_KEY);
+      db.createObjectStore(OWNER_MAP_STORAGE_KEY);
     };
   });
 }
@@ -190,10 +192,12 @@ export async function persistSimulation(data) {
     const simulation = data.simulation;
     const statistics = data.statistics;
     const config = data.config;
+    const ownerMap = data.owner_map;
     const db = await openDB();
     await addToObjectStore(db, SIMULATION_STORAGE_KEY, simulation);
     await addToObjectStore(db, STATISTICS_STORAGE_KEY, statistics);
     await addToObjectStore(db, CONFIG_STORAGE_KEY, config);
+    await addToObjectStore(db, OWNER_MAP_STORAGE_KEY, ownerMap);
     db.close();
   } catch (e) {
     throw new Error(e);
@@ -206,9 +210,12 @@ export async function persistSimulation(data) {
  */
 export async function canLoadSimulation() {
   const db = await openDB();
-  const data = await getFromObjectStore(db, SIMULATION_STORAGE_KEY);
+  const simulation = await getFromObjectStore(db, SIMULATION_STORAGE_KEY);
+  const config = await getFromObjectStore(db, CONFIG_STORAGE_KEY);
+  const statistics = await getFromObjectStore(db, STATISTICS_STORAGE_KEY);
+  const ownerMap = await getFromObjectStore(db, OWNER_MAP_STORAGE_KEY);
   db.close();
-  return data !== null;
+  return !!(simulation && config && statistics && ownerMap);
 }
 
 /**
@@ -218,6 +225,17 @@ export async function canLoadSimulation() {
 export async function loadSimulationData() {
   const db = await openDB();
   const simulation = getFromObjectStore(db, SIMULATION_STORAGE_KEY);
+  db.close();
+  return simulation;
+}
+
+/**
+ * Loads a simulation owner map from the database and returns it
+ * @returns {OwnerMap}
+ */
+export async function loadOwnerMap() {
+  const db = await openDB();
+  const simulation = getFromObjectStore(db, OWNER_MAP_STORAGE_KEY);
   db.close();
   return simulation;
 }
@@ -252,7 +270,13 @@ export async function downloadSimulation() {
   const simulation = await loadSimulationData();
   const config = await loadConfigData();
   const statistics = await loadStatisticsData();
-  const data = { simulation, config, statistics };
+  const ownerMap = await loadOwnerMap();
+  const data = {
+    simulation: simulation,
+    config: config,
+    statistics: statistics,
+    owner_map: ownerMap,
+  };
   const fileToSave = new Blob([JSON.stringify(data)], {
     type: "application/json",
   });
