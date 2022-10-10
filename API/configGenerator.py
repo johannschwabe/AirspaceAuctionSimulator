@@ -6,8 +6,8 @@ from API.Types import APIMap, APISubselection, APISimulationConfig, APIWorldCoor
     APILocations
 from Simulator import Simulator
 from Simulator.Location.GridLocationType import GridLocationType
-from Simulator.Owners.PathOwner import PathOwner
-from Simulator.Owners.SpaceOwner import SpaceOwner
+from .Owners.WebPathOwner import WebPathOwner
+from .Owners.WebSpaceOwner import WebSpaceOwner
 
 if TYPE_CHECKING:
     from API.Generator.MapTile import MapTile
@@ -42,7 +42,8 @@ def generate_config(simulator: "Simulator", subselection: "APISubselection",
         bs = owner.bidding_strategy
         meta = []
         bs_meta = bs.meta()
-        if isinstance(owner, PathOwner):
+        if isinstance(owner, WebPathOwner):
+
             for meta_field in bs_meta:
                 if meta_field["key"] == "near_field":
                     meta_field["value"] = owner.near_radius
@@ -58,7 +59,7 @@ def generate_config(simulator: "Simulator", subselection: "APISubselection",
                     continue
                 meta_field["value"] = owner.config[meta_field["key"]]
                 meta.append(meta_field)
-        elif isinstance(owner, SpaceOwner):
+        elif isinstance(owner, WebSpaceOwner):
             for meta_field in bs_meta:
                 if meta_field["key"] == "size_x":
                     meta_field["value"] = owner.size.x
@@ -78,6 +79,10 @@ def generate_config(simulator: "Simulator", subselection: "APISubselection",
                     continue
                 meta_field["value"] = owner.config[meta_field["key"]]
                 meta.append(meta_field)
+        else:
+            for meta_field in bs_meta:
+                meta_field["value"] = owner.config[meta_field["key"]]
+                meta.append(meta_field)
         bidding_strategy = APIBiddingStrategy(label=bs.label,
                                               classname=bs.__class__.__name__,
                                               description=bs.description,
@@ -92,8 +97,8 @@ def generate_config(simulator: "Simulator", subselection: "APISubselection",
             elif stop.stop_type == GridLocationType.POSITION.value:
                 posi = Area.LCS_to_long_lat(bottom_left, stop.position, resolution)
                 locations.append(APILocations(type=stop.stop_type, points=[posi]))
-        new_owner = APIOwner(color=owner.color,
-                             name=owner.name,
+        new_owner = APIOwner(color=hex(hash(owner.id) % 0xFFFFFF)[2:].zfill(6),
+                             name=owner.id,
                              agents=len(owner.agents),
                              biddingStrategy=bidding_strategy,
                              locations=locations,
