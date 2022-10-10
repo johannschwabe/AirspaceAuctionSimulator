@@ -4,4 +4,6 @@ from .Generator.EnvironmentGen import EnvironmentGen
 from .Generator.MapTile import MapTile
 from .Runners import run_from_config
 from .Types import APIWorldCoordinates
+from .Owners.APIPathOwner import APIPathOwner
+from .Owners.APISpaceOwner import APISpaceOwner
 from .configGenerator import generate_config
