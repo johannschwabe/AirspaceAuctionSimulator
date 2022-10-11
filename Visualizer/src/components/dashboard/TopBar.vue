@@ -136,16 +136,15 @@ const stats = computed(() => {
       icon: GitBranch,
     },
     {
-      label: "Failed Allocations",
-      value: simulation.agents.filter((a) => a.events.some((e) => e instanceof FailedAllocationEvent)).length,
-      color: "error",
-      icon: Ban,
-    },
-    {
       label: "Violations",
       value: simulation.agents.filter((a) => a.totalViolations > 0).length,
       color: "error",
       icon: Skull,
+    },
+    {
+      label: "Failed Allocations",
+      value: simulation.agents.filter((a) => a.events.some((e) => e instanceof FailedAllocationEvent)).length,
+      icon: Ban,
     },
 
     {
