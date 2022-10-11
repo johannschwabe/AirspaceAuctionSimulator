@@ -145,7 +145,7 @@ async function addToObjectStore(db, name, data) {
     await deleteFromObjectStore(db, name);
   }
   return new Promise((resolve) => {
-    db.transaction(name, "readwrite").objectStore(name).add(data, name).onsuccess = () => {
+    db.transaction([name], "readwrite").objectStore(name).add(data, name).onsuccess = () => {
       resolve();
     };
   });
@@ -159,7 +159,7 @@ async function addToObjectStore(db, name, data) {
  */
 async function deleteFromObjectStore(db, name) {
   return new Promise((resolve) => {
-    db.transaction(name, "readwrite").objectStore(name).delete(name).onsuccess = () => {
+    db.transaction([name], "readwrite").objectStore(name).delete(name).onsuccess = () => {
       resolve();
     };
   });
@@ -173,7 +173,7 @@ async function deleteFromObjectStore(db, name) {
  */
 async function getFromObjectStore(db, name) {
   return new Promise((resolve) => {
-    const request = db.transaction(name).objectStore(name).get(name);
+    const request = db.transaction([name], "readwrite").objectStore(name).get(name);
     request.onsuccess = (event) => {
       resolve(event.target.result ?? null);
     };

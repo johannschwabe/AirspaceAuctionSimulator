@@ -1,5 +1,5 @@
 <template>
-  <vue-apex-charts type="boxPlot" height="100" :options="chartOptions" :series="series" />
+  <vue-apex-charts type="boxPlot" height="50" :options="chartOptions" :series="series" />
 </template>
 
 <script setup>
@@ -15,7 +15,7 @@ const props = defineProps({
 
 const chartOptions = {
   chart: {
-    height: 100,
+    height: 50,
     type: "boxPlot",
     background: "transparent",
     toolbar: { show: false },
@@ -43,7 +43,12 @@ const chartOptions = {
   legend: {
     show: false,
   },
-  grid: { show: false },
+  grid: {
+    show: false,
+    padding: {
+      top: -25,
+    },
+  },
   xaxis: {
     labels: { show: false },
     axisTicks: { show: false },

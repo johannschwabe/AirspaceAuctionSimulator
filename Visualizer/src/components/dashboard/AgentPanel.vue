@@ -108,6 +108,7 @@ import { useSimulationSingleton } from "@/scripts/simulationSingleton.js";
 
 import SimpleDataTable from "@/components/dashboard/PanelComponents/SimpleDataTable.vue";
 import HeightProfile from "@/components/dashboard/PanelComponents/HeightProfile.vue";
+import { formatComputeTime } from "@/scripts/format";
 
 let agentScroller;
 onMounted(() => {
@@ -413,31 +414,7 @@ const allocations = computed(() => {
       },
       {
         label: "Compute Time",
-        value: () => {
-          const milliseconds = stat.compute_time / 1000;
-          const date = set(new Date(), {
-            year: 0,
-            month: 0,
-            date: 0,
-            hours: 0,
-            minutes: 0,
-            seconds: 0,
-            milliseconds,
-          });
-          if (stat.compute_time < 1000) {
-            return `${stat.compute_time} ns`;
-          }
-          if (milliseconds < 1000) {
-            return `${milliseconds} ms`;
-          }
-          if (milliseconds < 60 * 1000) {
-            return `${format(date, "ss")}s`;
-          }
-          if (milliseconds < 60 * 60 * 1000) {
-            return `${format(date, "mm")}min ${format(date, "ss")}s`;
-          }
-          return `${format(date, "HH")}h ${format(date, "mm")}min ${format(date, "ss")}s`;
-        },
+        value: () => formatComputeTime(stat.compute_time),
         icon: Timer,
       },
     ],

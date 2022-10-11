@@ -1,13 +1,17 @@
 <template>
   <n-page-header :subtitle="simulation.description" @back="() => router.push('/')">
-    <n-grid :cols="stats.length">
+    <n-grid :cols="8">
       <n-gi v-for="stat in stats" :key="stat.label">
         <n-statistic :label="stat.label" tabular-nums>
           <template #prefix>
-            <n-icon :component="stat.icon" :depth="5" size="20" />
+            <n-icon v-if="stat.icon" :component="stat.icon" :depth="5" size="20" />
           </template>
-          {{ stat.value }}
+          <component :is="stat.component" v-if="stat.component" v-bind="stat.props"></component>
+          <n-text :type="stat.color ?? 'default'" v-else>
+            {{ stat.value }}
+          </n-text>
         </n-statistic>
+        <n-divider />
       </n-gi>
     </n-grid>
 
@@ -32,7 +36,7 @@
       <n-button icon-placement="right" style="margin-right: 15px" @click="downloadSimulation">
         <template #icon>
           <n-icon>
-            <cloud-download-outline />
+            <cloud-download />
           </n-icon>
         </template>
         Download
@@ -43,20 +47,23 @@
 
 <script setup>
 import logo from "../../assets/drone.png";
-import { Cube, FingerPrint, Fish, HappyOutline, GitBranch, CloudDownloadOutline, Skull } from "@vicons/ionicons5";
+import { Cube, Stopwatch, FingerPrint, Fish, HappyOutline, GitBranch, CloudDownload, Skull } from "@vicons/ionicons5";
+import Boxplot from "./PanelComponents/Boxplot.vue";
 
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 
 import { downloadSimulation } from "@/API/api.js";
 import { useSimulationSingleton } from "@/scripts/simulationSingleton.js";
+import { formatComputeTime } from "@/scripts/format";
+import { FailedAllocationEvent } from "@/SimulationObjects/FlightEvent";
 
 const router = useRouter();
 const simulation = useSimulationSingleton();
 
 const dim = computed(() => {
   const { x, y, z } = simulation.dimensions;
-  return `${x.toFixed(1)}/${y.toFixed(1)}/${z.toFixed(1)}`;
+  return `${x.toFixed(0)}/${y.toFixed(0)}/${z.toFixed(0)}`;
 });
 
 const stats = computed(() => {
@@ -68,7 +75,7 @@ const stats = computed(() => {
     },
     {
       label: "Timesteps",
-      value: simulation.dimensions.t,
+      value: simulation.maxTick,
       icon: Cube,
     },
     {
@@ -81,25 +88,81 @@ const stats = computed(() => {
       value: simulation.statistics.totalNumberOfAgents,
       icon: Fish,
     },
+
+    {
+      label: "Total Value",
+      value: Math.round(simulation.statistics.value.total * 100) / 100,
+      icon: HappyOutline,
+    },
+    {
+      label: "Total Non-Colliding Value",
+      value: Math.round(simulation.statistics.totalNonCollidingValue * 100) / 100,
+      icon: HappyOutline,
+    },
+    {
+      label: "Mean Value",
+      value: Math.round(simulation.statistics.value.mean * 100) / 100,
+      icon: HappyOutline,
+    },
+    {
+      label: "Value Boxplot",
+      component: Boxplot,
+      props: {
+        title: "",
+        color: "#2a947d",
+        data: simulation.statistics.value,
+      },
+    },
+
+    {
+      label: "No-Starts",
+      value: simulation.agents.filter((a) => a.flyingTicks === 0).length,
+      color: "info",
+      icon: Fish,
+    },
     {
       label: "Re-Allocations",
-      value: simulation.statistics.totalNumberOfReallocations,
-      icon: GitBranch,
+      value: simulation.agents.filter((a) => a.reAllocationTimesteps.length > 0).length,
+      color: "warning",
+      icon: Fish,
     },
     {
       label: "Violations",
-      value: simulation.statistics.totalNumberOfViolations,
-      icon: Skull,
+      value: simulation.agents.filter((a) => a.totalViolations > 0).length,
+      color: "error",
+      icon: Fish,
     },
     {
-      label: "Utility",
-      value: Math.round(simulation.statistics.totalValue * 100) / 100,
+      label: "Failed Allocations",
+      value: simulation.agents.filter((a) => a.events.some((e) => e instanceof FailedAllocationEvent)).length,
+      color: "error",
+      icon: GitBranch,
+    },
+
+
+    {
+      label: "Total Utility",
+      value: Math.round(simulation.statistics.utility.total * 100) / 100,
       icon: HappyOutline,
     },
     {
-      label: "Non-Colliding Utility",
-      value: Math.round(simulation.statistics.totalNonCollidingValue * 100) / 100,
+      label: "Total Non-Colliding Utility",
+      value: Math.round(simulation.statistics.totalNonCollidingUtility * 100) / 100,
       icon: HappyOutline,
+    },
+    {
+      label: "Mean Utility",
+      value: Math.round(simulation.statistics.utility.mean * 100) / 100,
+      icon: HappyOutline,
+    },
+    {
+      label: "Utility Boxplot",
+      component: Boxplot,
+      props: {
+        title: "",
+        color: "#2a947d",
+        data: simulation.statistics.utility,
+      },
     },
   ];
 });
