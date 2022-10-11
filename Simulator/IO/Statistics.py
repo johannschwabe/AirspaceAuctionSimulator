@@ -34,6 +34,7 @@ class Statistics:
         assert simulation.time_step == simulation.environment.dimension.t + 1
 
         self.non_colliding_values: Dict["Agent", float] = {}
+        self.non_colliding_utilities: Dict["Agent", float] = {}
         self.values: Dict[Agent, float] = {}
         self.violations: Dict[Agent, ViolationStatistics] = {}
         self.payments = self.simulation.mechanism.calculate_final_payments(self.simulation.environment)
@@ -46,13 +47,15 @@ class Statistics:
             [stats.utilities.total for stats in path_owner_stats + space_owner_stats])
         owner_values = self._get_finance_statistics(
             [stats.values.total for stats in path_owner_stats + space_owner_stats])
+        non_colliding_value, non_colliding_utility = self.get_total_non_colliding_outcomes()
         return SimulationStatistics(path_owner_stats, space_owner_stats,
                                     len(self.simulation.owners),
                                     len(self.simulation.environment.agents),
                                     owner_values,
                                     owner_payments,
                                     owner_utilities,
-                                    self.get_total_non_colliding_value(),
+                                    non_colliding_value,
+                                    non_colliding_utility,
                                     self.get_total_violations(),
                                     self.simulation.history.total_reallocations,
                                     self.simulation.history.compute_times)
@@ -95,7 +98,7 @@ class Statistics:
             agent_values.append(agent_value)
             agent_payments.append(agent_payment)
             agent_utilities.append(agent_utility)
-            non_colliding_agent_value = self.get_non_colliding_value_for_agent(agent)
+            non_colliding_agent_value, non_colliding_agent_utility = self.get_non_colliding_outcome_for_agent(agent)
             violations = self.get_agent_violations(agent)
             total_reallocations: int = self.simulation.history.reallocations[agent]
             compute_time = sum([allocation.history.compute_time for allocation in
@@ -114,6 +117,7 @@ class Statistics:
                 agent_payment,
                 agent_utility,
                 non_colliding_agent_value,
+                non_colliding_agent_utility,
                 violations,
                 total_reallocations,
                 path_statistics,
@@ -128,12 +132,15 @@ class Statistics:
         value_stats = self._get_finance_statistics(agent_values)
         payment_stats = self._get_finance_statistics(agent_payments)
         utility_stats = self._get_finance_statistics(agent_utilities)
+        non_colliding_value_stats, non_colliding_utility_stats = self.get_non_colliding_outcomes_for_owner(owner)
+
         return OwnerStatistics(owner,
                                agent_statistics,
                                value_stats,
                                payment_stats,
                                utility_stats,
-                               self.get_non_colliding_values_for_owner(owner),
+                               non_colliding_value_stats,
+                               non_colliding_utility_stats,
                                compute_time_aggr,
                                nr_reallocations_caused_aggr)
 
@@ -152,7 +159,7 @@ class Statistics:
             agent_values.append(agent_value)
             agent_payments.append(agent_payment)
             agent_utilities.append(agent_utility)
-            non_colliding_agent_value = self.get_non_colliding_value_for_agent(agent)
+            non_colliding_agent_value, non_colliding_agent_utility = self.get_non_colliding_outcome_for_agent(agent)
             violations = self.get_agent_violations(agent)
             total_reallocations: int = self.simulation.history.reallocations[agent]
             compute_time = sum([allocation.history.compute_time for allocation in
@@ -169,6 +176,7 @@ class Statistics:
                 agent_payment,
                 agent_utility,
                 non_colliding_agent_value,
+                non_colliding_agent_utility,
                 violations,
                 total_reallocations,
                 space_statistics,
@@ -179,12 +187,14 @@ class Statistics:
         value_stats = self._get_finance_statistics(agent_values)
         payment_stats = self._get_finance_statistics(agent_payments)
         utility_stats = self._get_finance_statistics(agent_utilities)
+        non_colliding_value_stats, non_colliding_utility_stats = self.get_non_colliding_outcomes_for_owner(owner)
         return OwnerStatistics(owner,
                                agent_statistics,
                                value_stats,
                                payment_stats,
                                utility_stats,
-                               self.get_non_colliding_values_for_owner(owner),
+                               non_colliding_value_stats,
+                               non_colliding_utility_stats,
                                compute_time_aggr,
                                nr_reallocations_caused_aggr)
 
@@ -236,7 +246,7 @@ class Statistics:
                                                               space_statistics=space_statistics))
         return allocation_statistics
 
-    def get_non_colliding_value_for_agent(self, agent: "Agent") -> float:
+    def get_non_colliding_outcome_for_agent(self, agent: "Agent") -> Tuple[float, float]:
         """
         Calculate the value for an allocation on an empty map (no other agents).
         :param agent:
@@ -247,7 +257,11 @@ class Statistics:
             local_env = self.simulation.environment.new_clear()
             allocation = self.simulation.mechanism.do([local_agent], local_env, 0)[local_agent]
             self.non_colliding_values[agent] = local_agent.value_for_segments(allocation.segments)
-        return self.non_colliding_values[agent]
+            self.non_colliding_utilities[agent] = self.non_colliding_values[
+                                                      agent] - \
+                                                  self.simulation.mechanism.calculate_final_payments(local_env)[
+                                                      hash(agent)]
+        return self.non_colliding_values[agent], self.non_colliding_utilities[agent]
 
     def get_value_for_agent(self, agent: "Agent") -> float:
         """
@@ -259,15 +273,18 @@ class Statistics:
             self.values[agent] = agent.get_allocated_value()
         return self.values[agent]
 
-    def get_total_non_colliding_value(self) -> float:
+    def get_total_non_colliding_outcomes(self) -> Tuple[float, float]:
         """
         Calculate the value for the allocations of all agents on an empty map summed up.
         :return:
         """
         total_value = 0
+        total_utility = 0
         for agent in self.simulation.environment.agents.values():
-            total_value += self.get_non_colliding_value_for_agent(agent)
-        return total_value
+            agent_value, agent_utility = self.get_non_colliding_outcome_for_agent(agent)
+            total_value += agent_value
+            total_utility += agent_utility
+        return total_value, total_utility
 
     def get_total_value(self) -> float:
         """
@@ -306,14 +323,15 @@ class Statistics:
                                  value_quartiles,
                                  value_outliers)
 
-    def get_non_colliding_values_for_owner(self, owner: "Owner") -> "FinanceStatistics":
+    def get_non_colliding_outcomes_for_owner(self, owner: "Owner") -> Tuple["FinanceStatistics", "FinanceStatistics"]:
         """
         Calculate the value for the allocations of all agents of an owner on an empty map summed up.
         :param owner:
         :return:
         """
-        values = [self.get_non_colliding_value_for_agent(agent) for agent in owner.agents]
-        return self._get_finance_statistics(values)
+        values = [self.get_non_colliding_outcome_for_agent(agent)[0] for agent in owner.agents]
+        utilities = [self.get_non_colliding_outcome_for_agent(agent)[1] for agent in owner.agents]
+        return self._get_finance_statistics(values), self._get_finance_statistics(utilities)
 
     @staticmethod
     def path_segment_statistics(path_segment: "PathSegment") -> "PathStatistics":
@@ -734,6 +752,7 @@ class SimulationStatistics(Stringify):
                  payment_stats: "FinanceStatistics",
                  utility_stats: "FinanceStatistics",
                  non_colliding_value: float,
+                 non_colliding_utility: float,
                  nr_violations: int,
                  nr_reallocations: int,
                  step_compute_time: Dict[int, int]):
@@ -778,6 +797,7 @@ class OwnerStatistics(Stringify):
                  payment_stats: FinanceStatistics,
                  utility_stats: FinanceStatistics,
                  non_colliding_value_statistics: FinanceStatistics,
+                 non_colliding_utility_statistics: FinanceStatistics,
                  compute_time: int,
                  nr_reallocations_caused_aggr: int):
         self.id: str = owner.id
@@ -788,6 +808,7 @@ class OwnerStatistics(Stringify):
         self.payments = payment_stats
         self.utilities = utility_stats
         self.non_colliding_values = non_colliding_value_statistics
+        self.non_colliding_utility = non_colliding_utility_statistics
         self.number_of_agents: int = len(self.agents)
         self.compute_time = compute_time
         self.nr_reallocations_caused = nr_reallocations_caused_aggr
@@ -802,6 +823,7 @@ class AgentStatistics(ABC):
                  payment: float,
                  utility: float,
                  non_colliding_value: float,
+                 non_colliding_utility: float,
                  violation_statistics: "ViolationStatistics",
                  total_reallocations: int,
                  compute_time: int,
@@ -812,6 +834,7 @@ class AgentStatistics(ABC):
         self.payment: float = payment
         self.utility: float = utility
         self.non_colliding_value: float = non_colliding_value
+        self.non_colliding_utility: float = non_colliding_utility
         self.violations = violation_statistics
         self.total_reallocations = total_reallocations
         self.compute_time = compute_time
@@ -826,6 +849,7 @@ class SpaceAgentStatistics(AgentStatistics, Stringify):
                  payment: float,
                  utility: float,
                  non_colliding_value: float,
+                 non_colliding_utility: float,
                  violation_statistics: "ViolationStatistics",
                  total_reallocations: int,
                  space_statistics: Optional["SpaceStatistics"],
@@ -833,9 +857,9 @@ class SpaceAgentStatistics(AgentStatistics, Stringify):
                  nr_reallocations_caused: int,
                  allocation_statistics: List["AllocationStatistics"]
                  ):
-        super().__init__(space_agent, value, payment, utility, non_colliding_value, violation_statistics,
-                         total_reallocations,
-                         compute_time, nr_reallocations_caused, allocation_statistics)
+        super().__init__(space_agent, value, payment, utility, non_colliding_value, non_colliding_utility,
+                         violation_statistics, total_reallocations, compute_time, nr_reallocations_caused,
+                         allocation_statistics)
         self.space: Optional["SpaceStatistics"] = space_statistics
 
 
@@ -846,6 +870,7 @@ class PathAgentStatistics(AgentStatistics, Stringify):
                  payment: float,
                  utility: float,
                  non_colliding_value: float,
+                 non_colliding_utility: float,
                  violation_statistics: "ViolationStatistics",
                  total_reallocations: int,
                  path_statistics: Optional["PathStatistics"],
@@ -856,7 +881,8 @@ class PathAgentStatistics(AgentStatistics, Stringify):
                  delayed_starts: List[int],
                  delayed_arrivals: List[int],
                  re_delayed_arrivals: List[int]):
-        super().__init__(path_agent, value, payment, utility, non_colliding_value, violation_statistics,
+        super().__init__(path_agent, value, payment, utility, non_colliding_value, non_colliding_utility,
+                         violation_statistics,
                          total_reallocations,
                          compute_time, nr_reallocations_caused, allocation_statistics)
         self.path: Optional["PathStatistics"] = path_statistics

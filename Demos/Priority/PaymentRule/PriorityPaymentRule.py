@@ -35,7 +35,9 @@ class PriorityPaymentRule(PaymentRule):
             for segment in allocation.segments:
                 allocation.preliminary_payment += segment.nr_voxels * self.voxel_cost * max_prio
 
-    def calculate_final_payments(self, environment: "Environment", bid_tracker: "PriorityBidTracker"):
+    def calculate_final_payments(self,
+                                 environment: "Environment",
+                                 bid_tracker: "PriorityBidTracker") -> Dict[int, float]:
         res: Dict[int, float] = {}
         for agent in environment.agents.values():
             max_prio = bid_tracker.max_prio(agent)
