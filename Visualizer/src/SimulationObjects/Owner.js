@@ -46,6 +46,6 @@ export default class Owner {
    * @returns {string}
    */
   get displayName() {
-    return this.name;
+    return `(${this.id}) ${this.name}`;
   }
 }

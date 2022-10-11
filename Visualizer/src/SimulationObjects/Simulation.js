@@ -63,19 +63,23 @@ export default class Simulation {
      * Path owners that were simulated
      * @type {Owner[]}
      */
-    this.path_owners = jsonSimulation.path_owners.map((owner) => {
-      const ownerStats = simulationStats.path_owners.find((ownerStat) => ownerStat.id === owner.id);
-      return new Owner(owner, this, ownerStats, ownerMap[owner.id]);
-    });
+    this.path_owners = jsonSimulation.path_owners
+      .sort((o1, o2) => parseInt(o1.id, 10) - parseInt(o2.id, 10))
+      .map((owner) => {
+        const ownerStats = simulationStats.path_owners.find((ownerStat) => ownerStat.id === owner.id);
+        return new Owner(owner, this, ownerStats, ownerMap[owner.id]);
+      });
 
     /**
      * Path owners that were simulated
      * @type {Owner[]}
      */
-    this.space_owners = jsonSimulation.space_owners.map((owner) => {
-      const ownerStats = simulationStats.space_owners.find((ownerStat) => ownerStat.id === owner.id);
-      return new Owner(owner, this, ownerStats, ownerMap[owner.id]);
-    });
+    this.space_owners = jsonSimulation.space_owners
+      .sort((o1, o2) => parseInt(o1.id, 10) - parseInt(o2.id, 10))
+      .map((owner) => {
+        const ownerStats = simulationStats.space_owners.find((ownerStat) => ownerStat.id === owner.id);
+        return new Owner(owner, this, ownerStats, ownerMap[owner.id]);
+      });
 
     /**
      * Flattened list of all agents belonging to any owner
@@ -178,7 +182,8 @@ export default class Simulation {
    * @returns {Owner[]}
    */
   get owners() {
-    return [...this.path_owners, ...this.space_owners];
+    return [...this.path_owners, ...this.space_owners]
+      .sort((o1, o2) => parseInt(o1.id, 10) - parseInt(o2.id, 10));
   }
 
   /**
