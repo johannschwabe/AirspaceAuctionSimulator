@@ -56,7 +56,7 @@ import VueApexCharts from "vue3-apexcharts";
 import { reactive, ref, computed } from "vue";
 import { debounce } from "lodash-es";
 
-import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent } from "@/scripts/emitter.js";
+import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent, onTick } from "@/scripts/emitter.js";
 import { useSimulationSingleton } from "@/scripts/simulationSingleton.js";
 
 import {
@@ -311,6 +311,9 @@ function baselineChartColor() {
     colors: getBaselineColor(),
   });
 }
+onTick(() => {
+  currentTick.value = simulation.tick;
+});
 onFocusOnAgent(() => {
   updateChartColor();
   agentFocussedEventSeries();

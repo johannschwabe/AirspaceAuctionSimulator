@@ -5,6 +5,8 @@
         v-for="(event, i) in simulation.agentInFocus.events"
         :key="`${simulation.agentInFocus.id}-${i}`"
         v-bind="event"
+        @click="setTick(event.tick)"
+        style="cursor: pointer"
       >
         <template #icon>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -100,7 +102,6 @@ import {
   Cube,
   TabletLandscape,
 } from "@vicons/ionicons5";
-import { format, set } from "date-fns";
 import PerfectScrollbar from "perfect-scrollbar";
 import { isArray, isNull, isUndefined } from "lodash-es";
 
@@ -121,6 +122,11 @@ onUnmounted(() => {
 });
 
 const simulation = useSimulationSingleton();
+
+const setTick = (tick) => {
+  simulation.tick = parseInt(tick, 10);
+};
+
 const datapoints = computed(() =>
   [
     {
@@ -154,9 +160,14 @@ const datapoints = computed(() =>
       icon: TrendingDown,
     },
     {
-      label: "Payment",
-      value: simulation.agentInFocus.payment,
-      icon: Cash,
+      label: "Value",
+      value: simulation.agentInFocus.value,
+      icon: Pricetag,
+    },
+    {
+      label: "Non-Colliding Value",
+      value: simulation.agentInFocus.nonCollidingValue,
+      icon: Pricetag,
     },
     {
       label: "Utility",
@@ -166,7 +177,12 @@ const datapoints = computed(() =>
     {
       label: "Non-Colliding Utility",
       value: simulation.agentInFocus.nonCollidingUtility,
-      icon: TrophyOutline,
+      icon: Happy,
+    },
+    {
+      label: "Payment",
+      value: simulation.agentInFocus.payment,
+      icon: Cash,
     },
     {
       label: "Reallocations",
@@ -390,6 +406,11 @@ const allocations = computed(() => {
         label: "Reason",
         value: stat.reason,
         icon: ChatboxEllipses,
+      },
+      {
+        label: "Value",
+        value: stat.value,
+        icon: Pricetag,
       },
       {
         label: "Utility",

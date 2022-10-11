@@ -17,9 +17,11 @@ export default class Owner {
     this.totalTimeInAir = ownerStats.total_time_in_air;
     this.numberOfAgents = ownerStats.number_of_agents;
 
-    this.utilityStatistics = new BoxplotStatistics(ownerStats.values);
     this.paymentStatistics = new BoxplotStatistics(ownerStats.payments);
-    this.nonCollidingUtilityStatistics = new BoxplotStatistics(ownerStats.non_colliding_values);
+    this.valueStatistics = new BoxplotStatistics(ownerStats.values);
+    this.nonCollidingValueStatistics = new BoxplotStatistics(ownerStats.non_colliding_values);
+    this.utilityStatistics = new BoxplotStatistics(ownerStats.utilities);
+    this.nonCollidingUtilityStatistics = new BoxplotStatistics(ownerStats.non_colliding_values); // TODO CHANGE TO non_colliding_utilities
 
     /**
      * All agents belonging to this owner
@@ -44,6 +46,6 @@ export default class Owner {
    * @returns {string}
    */
   get displayName() {
-    return this.name;
+    return `(${this.id}) ${this.name}`;
   }
 }

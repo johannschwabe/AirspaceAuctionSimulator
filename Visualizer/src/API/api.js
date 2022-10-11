@@ -24,7 +24,12 @@ const apiPostErrorToString = (e) => {
   if (!e.response) {
     return e.message;
   }
-  return e.response.data.detail.map((d) => `${d.msg}: ${d.loc.join(".")}`).join("\n");
+  try {
+    return e.response.data.detail.map((d) => `${d.msg}: ${d.loc.join(".")}`).join("\n");
+  } catch (err) {
+    console.error(e);
+    return e.toString();
+  }
 };
 
 /**

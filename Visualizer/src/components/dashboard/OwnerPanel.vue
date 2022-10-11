@@ -1,20 +1,8 @@
 <template>
   <div id="owner-drawer-container">
-    <boxplot
-      title="Utility"
-      :color="simulation.ownerInFocus.color"
-      :data="simulation.ownerInFocus.utilityStatistics"
-    />
-    <boxplot
-      title="Non-Colliding Utility"
-      :color="simulation.ownerInFocus.color"
-      :data="simulation.ownerInFocus.nonCollidingUtilityStatistics"
-    />
-    <boxplot
-      title="Payment"
-      :color="simulation.ownerInFocus.color"
-      :data="simulation.ownerInFocus.paymentStatistics"
-    />
+    <boxplot title="Value" :color="simulation.ownerInFocus.color" :data="simulation.ownerInFocus.valueStatistics" />
+    <boxplot title="Utility" :color="simulation.ownerInFocus.color" :data="simulation.ownerInFocus.utilityStatistics" />
+    <boxplot title="Payment" :color="simulation.ownerInFocus.color" :data="simulation.ownerInFocus.paymentStatistics" />
     <n-divider style="margin-top: 6px; margin-bottom: 6px" />
     <simple-data-table title="General Info" :datapoints="datapoints" />
     <h3 v-if="!simulationConfig.isEmpty && locations.length > 0">Stops</h3>
@@ -37,7 +25,19 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted } from "vue";
-import { FingerPrint, Airplane, Timer, Happy, Accessibility, } from "@vicons/ionicons5";
+import {
+  FingerPrint,
+  Airplane,
+  Timer,
+  Happy,
+  Accessibility,
+  Pricetag,
+  GitBranch,
+  Ban,
+  Cash,
+  Skull,
+  HandRight,
+} from "@vicons/ionicons5";
 import { isArray, isNull, isUndefined } from "lodash-es";
 import PerfectScrollbar from "perfect-scrollbar";
 
@@ -47,6 +47,7 @@ import { useComponentMappingWithRandomMap } from "@/components/common/map/Map.js
 
 import Boxplot from "./PanelComponents/Boxplot.vue";
 import SimpleDataTable from "@/components/dashboard/PanelComponents/SimpleDataTable.vue";
+import { FailedAllocationEvent } from "@/SimulationObjects/FlightEvent";
 
 const simulation = useSimulationSingleton();
 const simulationConfig = useSimulationConfigStore();
@@ -88,6 +89,16 @@ const datapoints = computed(() =>
       icon: Accessibility,
     },
     {
+      label: "Total Value",
+      value: simulation.ownerInFocus.valueStatistics.total,
+      icon: Pricetag,
+    },
+    {
+      label: "Total Non-Colliding Value",
+      value: simulation.ownerInFocus.nonCollidingValueStatistics.total,
+      icon: Pricetag,
+    },
+    {
       label: "Total Utility",
       value: simulation.ownerInFocus.utilityStatistics.total,
       icon: Happy,
@@ -100,17 +111,42 @@ const datapoints = computed(() =>
     {
       label: "Total Payment",
       value: simulation.ownerInFocus.paymentStatistics.total,
-      icon: Happy,
+      icon: Cash,
     },
     {
-      label: "# Agents in Total",
+      label: "Agents in Total",
       value: simulation.ownerInFocus.numberOfAgents,
       icon: Airplane,
     },
     {
-      label: `# Agents in Air (Tick ${simulation.tick})`,
+      label: `Agents in Air (Tick ${simulation.tick})`,
       value: simulation.ownerInFocus.agents.filter((a) => a.isActiveAtTick(simulation.tick)).length,
       icon: Airplane,
+    },
+    {
+      label: "Agents with No-Starts",
+      value: simulation.ownerInFocus.agents.filter((a) => a.flyingTicks.length === 0).length,
+      color: "info",
+      icon: HandRight,
+    },
+    {
+      label: "Agents with Reallocation",
+      value: simulation.ownerInFocus.agents.filter((a) => a.reAllocationTimesteps.length > 0).length,
+      color: "warning",
+      icon: GitBranch,
+    },
+    {
+      label: "Agents with Failed Allocation",
+      value: simulation.ownerInFocus.agents.filter((a) => a.events.some((e) => e instanceof FailedAllocationEvent))
+        .length,
+      color: "error",
+      icon: Ban,
+    },
+    {
+      label: "Agents with Violations",
+      value: simulation.ownerInFocus.agents.filter((a) => a.totalViolations > 0).length,
+      color: "error",
+      icon: Skull,
     },
     {
       label: "Total Time in Air",
