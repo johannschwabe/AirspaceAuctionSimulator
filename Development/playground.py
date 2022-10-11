@@ -1,15 +1,16 @@
-import json
+import math
 import math
 import random
 import time
 
-from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, build_json, APIPathOwner, APISpaceOwner
+from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, APIPathOwner, APISpaceOwner
 from Demos.FCFS import FCFSAllocator, FCFSPaymentRule, FCFSPathBiddingStrategy, FCFSSpaceBiddingStrategy, \
     FCFSPathValueFunction, FCFSSpaceValueFunction
 from Demos.Priority import PriorityAllocator, PriorityPaymentRule, PriorityPathBiddingStrategy, \
     PriorityPathValueFunction, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
 from Simulator import Simulator, Coordinate4D, StaticBlocker, Coordinate3D, Environment, GridLocation, \
     GridLocationType, Mechanism
+from Simulator.IO.Statistics import get_statistics_dict
 
 random.seed(4)
 dimensions = Coordinate4D(40, 40, 40, 1000)
@@ -150,8 +151,8 @@ if __name__ == "__main__":
     print()
     print(f"TOTAL: {tot_time / 6e10:2.2f} min")
 
-    res = build_json(config, simulatorAligator, tot_time)
-
-    f = open("playground.json", "w")
-    f.write(json.dumps(res))
-    f.close()
+    # res = build_json(config, simulatorAligator, tot_time)
+    get_statistics_dict(simulatorAligator)
+    # f = open("playground.json", "w")
+    # f.write(json.dumps(res))
+    # f.close()

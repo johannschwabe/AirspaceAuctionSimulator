@@ -170,6 +170,15 @@ class Statistics:
                                            reallocation.history.colliding_agent_bids])
             nr_reallocations_caused_aggr += nr_reallocations_caused
             space_statistics = self.spaces_statistics(agent.allocated_segments)
+
+            time_in_air = 0
+            _iter = -1
+            for segment in agent.allocated_segments:
+                if _iter >= segment.max.t:
+                    continue
+                time_in_air += segment.max.t - max(segment.min.t, _iter)
+                _iter = segment.max.t
+
             agent_statistics.append(SpaceAgentStatistics(
                 agent,
                 agent_value,
@@ -183,6 +192,7 @@ class Statistics:
                 compute_time,
                 nr_reallocations_caused,
                 self.get_allocation_statistics_for_agent(agent),
+                time_in_air
             ))
         value_stats = self._get_finance_statistics(agent_values)
         payment_stats = self._get_finance_statistics(agent_payments)
@@ -257,10 +267,10 @@ class Statistics:
             local_env = self.simulation.environment.new_clear()
             allocation = self.simulation.mechanism.do([local_agent], local_env, 0)[local_agent]
             self.non_colliding_values[agent] = local_agent.value_for_segments(allocation.segments)
+            final_payments = self.simulation.mechanism.calculate_final_payments(local_env)
+            payment = final_payments[hash(agent)] if hash(agent) in final_payments else 0
             self.non_colliding_utilities[agent] = self.non_colliding_values[
-                                                      agent] - \
-                                                  self.simulation.mechanism.calculate_final_payments(local_env)[
-                                                      hash(agent)]
+                                                      agent] - payment
         return self.non_colliding_values[agent], self.non_colliding_utilities[agent]
 
     def get_value_for_agent(self, agent: "Agent") -> float:
@@ -802,8 +812,7 @@ class OwnerStatistics(Stringify):
                  nr_reallocations_caused_aggr: int):
         self.id: str = owner.id
         self.agents = agent_statistics
-        self.total_time_in_air: int = sum(
-            [agent.time_in_air if isinstance(agent, PathAgentStatistics) else 0 for agent in self.agents])
+        self.total_time_in_air: int = sum([agent.time_in_air for agent in self.agents])
         self.values = value_stats
         self.payments = payment_stats
         self.utilities = utility_stats
@@ -828,7 +837,8 @@ class AgentStatistics(ABC):
                  total_reallocations: int,
                  compute_time: int,
                  nr_reallocations_caused: int,
-                 allocation_statistics: List["AllocationStatistics"]):
+                 allocation_statistics: List["AllocationStatistics"],
+                 time_in_air: int):
         self.id: str = agent.id
         self.value: float = value
         self.payment: float = payment
@@ -840,6 +850,7 @@ class AgentStatistics(ABC):
         self.compute_time = compute_time
         self.nr_reallocations_caused = nr_reallocations_caused
         self.allocations: List["AllocationStatistics"] = allocation_statistics
+        self.time_in_air: int = time_in_air
 
 
 class SpaceAgentStatistics(AgentStatistics, Stringify):
@@ -855,11 +866,12 @@ class SpaceAgentStatistics(AgentStatistics, Stringify):
                  space_statistics: Optional["SpaceStatistics"],
                  compute_time: int,
                  nr_reallocations_caused: int,
-                 allocation_statistics: List["AllocationStatistics"]
+                 allocation_statistics: List["AllocationStatistics"],
+                 time_in_air: int
                  ):
         super().__init__(space_agent, value, payment, utility, non_colliding_value, non_colliding_utility,
                          violation_statistics, total_reallocations, compute_time, nr_reallocations_caused,
-                         allocation_statistics)
+                         allocation_statistics, time_in_air)
         self.space: Optional["SpaceStatistics"] = space_statistics
 
 
@@ -884,9 +896,8 @@ class PathAgentStatistics(AgentStatistics, Stringify):
         super().__init__(path_agent, value, payment, utility, non_colliding_value, non_colliding_utility,
                          violation_statistics,
                          total_reallocations,
-                         compute_time, nr_reallocations_caused, allocation_statistics)
+                         compute_time, nr_reallocations_caused, allocation_statistics, path_agent.get_airtime())
         self.path: Optional["PathStatistics"] = path_statistics
-        self.time_in_air: int = path_agent.get_airtime()
         self.battery_unused: int = battery_unused
         self.delayed_starts = delayed_starts
         self.delayed_arrivals = delayed_arrivals
