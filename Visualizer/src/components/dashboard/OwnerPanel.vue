@@ -130,7 +130,7 @@ const datapoints = computed(() =>
       icon: HandRight,
     },
     {
-      label: "Agents with Re-Allocation",
+      label: "Agents with Reallocation",
       value: simulation.ownerInFocus.agents.filter((a) => a.reAllocationTimesteps.length > 0).length,
       color: "warning",
       icon: GitBranch,

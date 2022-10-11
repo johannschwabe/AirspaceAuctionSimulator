@@ -130,7 +130,7 @@ const stats = computed(() => {
       icon: HandRight,
     },
     {
-      label: "Re-Allocations",
+      label: "Reallocations",
       value: simulation.agents.filter((a) => a.reAllocationTimesteps.length > 0).length,
       color: "warning",
       icon: GitBranch,
