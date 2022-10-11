@@ -19,9 +19,9 @@
         <div style="color: rgba(255, 255, 255, 0.52); font-size: 12px">
           {{ datapoint.label }}
         </div>
-        <div>
+        <n-text :type="datapoint.color ?? 'default'">
           {{ formatData(datapoint.value) }}
-        </div>
+        </n-text>
       </div>
     </div>
     <n-divider style="margin-top: 6px; margin-bottom: 6px" />

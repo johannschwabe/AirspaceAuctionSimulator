@@ -1,6 +1,6 @@
 <template>
   <n-page-header :subtitle="simulation.description" @back="() => router.push('/')">
-    <n-grid :cols="8">
+    <n-grid :cols="8" class="stats-grid">
       <n-gi v-for="stat in stats" :key="stat.label">
         <n-statistic :label="stat.label" tabular-nums>
           <template #prefix>
@@ -11,7 +11,6 @@
             {{ stat.value }}
           </n-text>
         </n-statistic>
-        <n-divider />
       </n-gi>
     </n-grid>
 
@@ -47,7 +46,18 @@
 
 <script setup>
 import logo from "../../assets/drone.png";
-import { Cube, Stopwatch, FingerPrint, Fish, HappyOutline, GitBranch, CloudDownload, Skull } from "@vicons/ionicons5";
+import {
+  Cube,
+  HappyOutline,
+  GitBranch,
+  CloudDownload,
+  Home,
+  Ban,
+  HandRight,
+  Pricetag,
+  Skull,
+  Airplane,
+} from "@vicons/ionicons5";
 import Boxplot from "./PanelComponents/Boxplot.vue";
 
 import { computed } from "vue";
@@ -55,7 +65,6 @@ import { useRouter } from "vue-router";
 
 import { downloadSimulation } from "@/API/api.js";
 import { useSimulationSingleton } from "@/scripts/simulationSingleton.js";
-import { formatComputeTime } from "@/scripts/format";
 import { FailedAllocationEvent } from "@/SimulationObjects/FlightEvent";
 
 const router = useRouter();
@@ -81,28 +90,28 @@ const stats = computed(() => {
     {
       label: "Owners",
       value: simulation.statistics.totalNumberOfOwners,
-      icon: FingerPrint,
+      icon: Home,
     },
     {
       label: "Agents",
       value: simulation.statistics.totalNumberOfAgents,
-      icon: Fish,
+      icon: Airplane,
     },
 
     {
       label: "Total Value",
       value: Math.round(simulation.statistics.value.total * 100) / 100,
-      icon: HappyOutline,
+      icon: Pricetag,
     },
     {
       label: "Total Non-Colliding Value",
       value: Math.round(simulation.statistics.totalNonCollidingValue * 100) / 100,
-      icon: HappyOutline,
+      icon: Pricetag,
     },
     {
       label: "Mean Value",
       value: Math.round(simulation.statistics.value.mean * 100) / 100,
-      icon: HappyOutline,
+      icon: Pricetag,
     },
     {
       label: "Value Boxplot",
@@ -116,29 +125,28 @@ const stats = computed(() => {
 
     {
       label: "No-Starts",
-      value: simulation.agents.filter((a) => a.flyingTicks === 0).length,
+      value: simulation.agents.filter((a) => a.flyingTicks.length === 0).length,
       color: "info",
-      icon: Fish,
+      icon: HandRight,
     },
     {
       label: "Re-Allocations",
       value: simulation.agents.filter((a) => a.reAllocationTimesteps.length > 0).length,
       color: "warning",
-      icon: Fish,
-    },
-    {
-      label: "Violations",
-      value: simulation.agents.filter((a) => a.totalViolations > 0).length,
-      color: "error",
-      icon: Fish,
+      icon: GitBranch,
     },
     {
       label: "Failed Allocations",
       value: simulation.agents.filter((a) => a.events.some((e) => e instanceof FailedAllocationEvent)).length,
       color: "error",
-      icon: GitBranch,
+      icon: Ban,
     },
-
+    {
+      label: "Violations",
+      value: simulation.agents.filter((a) => a.totalViolations > 0).length,
+      color: "error",
+      icon: Skull,
+    },
 
     {
       label: "Total Utility",
@@ -172,5 +180,27 @@ const stats = computed(() => {
 .topbar {
   display: flex;
   flex-direction: row;
+}
+.stats-grid > div {
+  overflow: hidden;
+  max-height: 80px;
+  position: relative;
+}
+.stats-grid > div:nth-child(-n + 8) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  margin-top: 5px;
+}
+.stats-grid > div:nth-child(n + 9) {
+  padding-top: 10px;
+}
+.stats-grid > div:nth-child(4)::after,
+.stats-grid > div:nth-child(12)::after {
+  content: " ";
+  height: 100px;
+  width: 1px;
+  position: absolute;
+  right: 20px;
+  top: -5px;
+  background-color: rgba(255, 255, 255, 0.09);
 }
 </style>

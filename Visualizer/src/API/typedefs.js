@@ -121,6 +121,7 @@
  * @property {FinanceStatistics} payments
  * @property {FinanceStatistics} utilities
  * @property {FinanceStatistics} non_colliding_values
+ * @property {FinanceStatistics} non_colliding_utilities
  * @property {int} number_of_agents
  */
 
@@ -143,6 +144,7 @@
  * @property {float} payment
  * @property {float} utility
  * @property {float} non_colliding_value
+ * @property {float} non_colliding_utility
  * @property {ViolationStatistics} violations
  * @property {int} total_reallocations
  * @property {?RawAllocationStatistics[]} allocations

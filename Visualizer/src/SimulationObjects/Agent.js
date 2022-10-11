@@ -11,9 +11,11 @@ export default class Agent {
     this.agentType = rawAgent.agent_type;
     this.id = rawAgent.id;
     this.name = owner.name + "-" + rawAgent.id;
-    this.utility = agentStats.value;
+    this.value = agentStats.value;
+    this.nonCollidingValue = agentStats.non_colliding_value;
+    this.utility = agentStats.utility;
+    this.nonCollidingUtility = agentStats.non_colliding_utility;
     this.payment = agentStats.payment;
-    this.nonCollidingUtility = agentStats.non_colliding_value;
     this.owner = owner;
     this.color = owner.color;
 

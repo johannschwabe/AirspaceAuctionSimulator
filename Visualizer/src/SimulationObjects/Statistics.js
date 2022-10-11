@@ -16,5 +16,6 @@ export default class Statistics {
     this.totalNonCollidingUtility = statistics.total_non_colliding_utility;
     this.value = new BoxplotStatistics(statistics.value_stats);
     this.utility = new BoxplotStatistics(statistics.utility_stats);
+    this.payment = new BoxplotStatistics(statistics.payment_stats);
   }
 }

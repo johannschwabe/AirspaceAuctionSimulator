@@ -48,15 +48,19 @@ const apply = () => {
 
 const renderSuffix = ({ option }) => {
   if (!(option instanceof Owner)) {
+    const events = [];
+    if (option.reAllocationTimesteps.length > 0) {
+      events.push(
+        h(NButton, { text: true, type: "warning", style: "padding: 0 5px" }, { default: () => "Reallocated" })
+      );
+    }
     if (option.flyingTicks.length === 0) {
-      return h(NButton, { text: true, type: "info" }, { default: () => "No Start" });
+      events.push(h(NButton, { text: true, type: "info", style: "padding: 0 5px" }, { default: () => "No Start" }));
     }
     if (option.totalViolations > 0) {
-      return h(NButton, { text: true, type: "error" }, { default: () => "Violations" });
+      events.push(h(NButton, { text: true, type: "error", style: "padding: 0 5px" }, { default: () => "Violations" }));
     }
-    if (option.reAllocationTimesteps.length > 0) {
-      return h(NButton, { text: true, type: "warning" }, { default: () => "Reallocated" });
-    }
+    return events;
   }
 };
 
