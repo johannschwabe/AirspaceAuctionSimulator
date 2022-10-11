@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from typing import TYPE_CHECKING, List, Type, Dict
+from typing import TYPE_CHECKING, List, Type
 
 if TYPE_CHECKING:
     from ..Agents.Agent import Agent
@@ -17,7 +17,7 @@ class BiddingStrategy(ABC):
 
     @staticmethod
     @abstractmethod
-    def meta() -> List[Dict[str, str | int | float]]:
+    def meta():
         pass
 
     @abstractmethod

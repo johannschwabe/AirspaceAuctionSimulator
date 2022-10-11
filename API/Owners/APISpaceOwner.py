@@ -1,13 +1,13 @@
 from typing import List, TYPE_CHECKING, Dict, Any, Optional
 
+from .APIOwnerMixin import APIOwnerMixin
 from Simulator import SpaceOwner, SpaceAgent
-from .APIOwnerMixin import WebOwnerMixin
 
 if TYPE_CHECKING:
     from Simulator import GridLocation, Coordinate4D, BiddingStrategy, ValueFunction, SpaceSegment, Environment
 
 
-class WebSpaceOwner(WebOwnerMixin, SpaceOwner):
+class APISpaceOwner(APIOwnerMixin, SpaceOwner):
     def __init__(self,
                  owner_id,
                  name: str,

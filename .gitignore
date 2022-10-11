@@ -1,6 +1,6 @@
 .DS_Store
 .idea
-Development/*.json
+Development/playground.json
 playground.json
 Development/config.json
 config.json

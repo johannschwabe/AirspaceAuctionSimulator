@@ -107,6 +107,16 @@ class JSONEnvironment(Stringify):
                                               not isinstance(blocker, BuildingBlocker)]
 
 
+class JSONStatistics(Stringify):
+    def __init__(self, nr_owners: int, nr_agents: int, achieved_welfare: float, nr_collisions: int,
+                 nr_reallocations: int):
+        self.total_number_of_owners = nr_owners
+        self.total_number_of_agents = nr_agents
+        self.total_achieved_welfare = achieved_welfare
+        self.total_number_of_collisions = nr_collisions
+        self.total_number_of_reallocations = nr_reallocations
+
+
 class JSONSimulation(Stringify):
     def __init__(self,
                  environment: "JSONEnvironment",

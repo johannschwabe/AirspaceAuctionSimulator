@@ -2,7 +2,7 @@ from abc import ABC
 from typing import List
 
 
-class WebOwnerMixin(ABC):
+class APIOwnerMixin(ABC):
     def __init__(self,
                  name: str,
                  color: str,
