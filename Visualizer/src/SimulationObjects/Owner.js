@@ -8,11 +8,12 @@ export default class Owner {
    * @param {JSONOwner} rawOwner
    * @param {Simulation} simulation
    * @param {OwnerStatistics} ownerStats
+   * @param {JSONConfigOwner} configOwner
    */
-  constructor(rawOwner, simulation, ownerStats) {
-    this.name = rawOwner.name;
+  constructor(rawOwner, simulation, ownerStats, configOwner) {
+    this.name = configOwner.name;
     this.id = rawOwner.id;
-    this.color = rawOwner.color;
+    this.color = configOwner.color;
     this.totalTimeInAir = ownerStats.total_time_in_air;
     this.numberOfAgents = ownerStats.number_of_agents;
 
