@@ -88,6 +88,12 @@ class JSONOwner(Stringify):
         self.agents: List["JSONAgent"] = agents
 
 
+class JSONOwnerDescription(Stringify):
+    def __init__(self, color: "str", name: "str"):
+        self.color = color
+        self.name = name
+
+
 class JSONBlocker(Stringify):
     def __init__(self, blocker: "Blocker"):
         self.id: str = f"blocker-{blocker.id}"
