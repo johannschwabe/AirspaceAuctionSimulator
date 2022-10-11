@@ -11,6 +11,7 @@
       label-field="displayName"
       children-field="agents"
       :node-props="nodeProps"
+      :render-prefix="renderPrefix"
       :render-suffix="renderSuffix"
       :default-checked-keys="simulationStore.selectedAgentIDs"
       @update:checked-keys="updateCheckedKeys"
@@ -25,7 +26,7 @@ import { ref, computed, h } from "vue";
 import { useSimulationOutputStore } from "@/stores/simulationOutputStore";
 import { useSimulationSingleton } from "@/scripts/simulationSingleton";
 import Owner from "@/SimulationObjects/Owner";
-import { NButton } from "naive-ui";
+import { NButton, NText } from "naive-ui";
 
 const simulationStore = useSimulationOutputStore();
 const simulation = useSimulationSingleton();
@@ -44,6 +45,12 @@ const updateCheckedKeys = (v) => {
 
 const apply = () => {
   simulationStore.setSelectedAgentIDs(selectedAgentIDs.value);
+};
+
+const renderPrefix = ({ option }) => {
+  if (option instanceof Owner) {
+    return h(NText, { style: { color: option.color } }, { default: () => `${option.id}` });
+  }
 };
 
 const renderSuffix = ({ option }) => {

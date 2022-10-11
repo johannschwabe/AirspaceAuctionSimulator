@@ -21,7 +21,7 @@ export default class Owner {
     this.valueStatistics = new BoxplotStatistics(ownerStats.values);
     this.nonCollidingValueStatistics = new BoxplotStatistics(ownerStats.non_colliding_values);
     this.utilityStatistics = new BoxplotStatistics(ownerStats.utilities);
-    this.nonCollidingUtilityStatistics = new BoxplotStatistics(ownerStats.non_colliding_values); // TODO CHANGE TO non_colliding_utilities
+    this.nonCollidingUtilityStatistics = new BoxplotStatistics(ownerStats.non_colliding_utility);
 
     /**
      * All agents belonging to this owner
@@ -46,6 +46,6 @@ export default class Owner {
    * @returns {string}
    */
   get displayName() {
-    return `(${this.id}) ${this.name}`;
+    return this.name;
   }
 }

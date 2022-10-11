@@ -121,7 +121,7 @@
  * @property {FinanceStatistics} payments
  * @property {FinanceStatistics} utilities
  * @property {FinanceStatistics} non_colliding_values
- * @property {FinanceStatistics} non_colliding_utilities
+ * @property {FinanceStatistics} non_colliding_utility
  * @property {int} number_of_agents
  */
 

@@ -77,7 +77,6 @@ import {
   Happy,
   Timer,
   InformationCircle,
-  TrophyOutline,
   Remove,
   ReorderTwo,
   Resize,
@@ -100,7 +99,7 @@ import {
   Hourglass,
   Pricetag,
   Cube,
-  TabletLandscape,
+  TabletLandscape, ColorPalette
 } from "@vicons/ionicons5";
 import PerfectScrollbar from "perfect-scrollbar";
 import { isArray, isNull, isUndefined } from "lodash-es";

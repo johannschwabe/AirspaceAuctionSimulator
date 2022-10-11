@@ -90,7 +90,6 @@ export default class SpaceAgent extends Agent {
       events.push(reallocationEvent);
     });
     events.sort(FlightEvent.sortEventsFunction);
-    console.log(events);
     for (let i = 0; i < events.length - 1; i++) {
       if (events[i + 1] instanceof ReservationEndEvent) {
         events[i].lineType = "dashed";

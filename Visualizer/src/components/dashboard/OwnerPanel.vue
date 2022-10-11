@@ -37,6 +37,7 @@ import {
   Cash,
   Skull,
   HandRight,
+  ColorPalette,
 } from "@vicons/ionicons5";
 import { isArray, isNull, isUndefined } from "lodash-es";
 import PerfectScrollbar from "perfect-scrollbar";
@@ -87,6 +88,11 @@ const datapoints = computed(() =>
       label: "Owner Name",
       value: simulation.ownerInFocus.name,
       icon: Accessibility,
+    },
+    {
+      label: "Owner Color",
+      value: simulation.ownerInFocus.color,
+      icon: ColorPalette,
     },
     {
       label: "Total Value",

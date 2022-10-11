@@ -120,10 +120,10 @@ async function openDB() {
         console.error("DB ERROR:", error_event.target);
       };
       db.onclose = (close_event) => {
-        console.log("DB CLOSED:", close_event.target);
+        console.warn("DB CLOSED:", close_event.target);
       };
       db.onabort = (abort_event) => {
-        console.log("DB ABORTED:", abort_event.target);
+        console.warn("DB ABORTED:", abort_event.target);
       };
       resolve(db);
     };
