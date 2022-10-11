@@ -3,7 +3,8 @@ import math
 import random
 import time
 
-from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, build_json, APIPathOwner, APISpaceOwner,generate_config
+from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, build_json, generate_config, WebPathOwner, \
+    WebSpaceOwner
 from API.Types import APISubselection
 from Demos.FCFS import FCFSAllocator, FCFSPaymentRule, FCFSPathBiddingStrategy, FCFSSpaceBiddingStrategy, \
     FCFSPathValueFunction, FCFSSpaceValueFunction
@@ -49,7 +50,7 @@ def fcfs_simulation(env: Environment):
     payment_rule = FCFSPaymentRule()
     mechanism = Mechanism(allocator, payment_rule)
     owners = [
-        APIPathOwner("0",
+        WebPathOwner("0",
                      "Schnabeltier",
                      color_generator(),
                      [GridLocation(str(GridLocationType.RANDOM.value)),
@@ -60,7 +61,7 @@ def fcfs_simulation(env: Environment):
                      1,
                      2000,
                      1),
-        APISpaceOwner("1",
+        WebSpaceOwner("1",
                       "Ghettotier",
                       color_generator(),
                       [GridLocation(str(GridLocationType.RANDOM.value)),
@@ -78,7 +79,7 @@ def priority_simulation(env: Environment):
     payment_rule = PriorityPaymentRule()
     mechanism = Mechanism(allocator, payment_rule)
     owners = [
-        APIPathOwner("0",
+        WebPathOwner("0",
                      "Schnabeltier",
                      color_generator(),
                      [GridLocation(str(GridLocationType.RANDOM.value)),
@@ -90,7 +91,7 @@ def priority_simulation(env: Environment):
                      2000,
                      1,
                      {"priority": 1.0}),
-        APIPathOwner("1",
+        WebPathOwner("1",
                      "GhettoSalat",
                      color_generator(),
                      [GridLocation(str(GridLocationType.RANDOM.value)),
@@ -102,7 +103,7 @@ def priority_simulation(env: Environment):
                      2000,
                      1,
                      {"priority": 0.1}),
-        APISpaceOwner("2",
+        WebSpaceOwner("2",
                       "Ghettotier",
                       color_generator(),
                       [GridLocation(str(GridLocationType.RANDOM.value)),
