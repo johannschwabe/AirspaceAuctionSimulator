@@ -1,6 +1,7 @@
 import PathAgent from "./PathAgent";
 import SpaceAgent from "./SpaceAgent";
 import { AgentType } from "../API/enums.js";
+import BoxplotStatistics from "@/SimulationObjects/BoxplotStatistics";
 
 export default class Owner {
   /**
@@ -15,21 +16,9 @@ export default class Owner {
     this.totalTimeInAir = ownerStats.total_time_in_air;
     this.numberOfAgents = ownerStats.number_of_agents;
 
-    this.totalUtility = ownerStats.values.total;
-    this.meanUtility = ownerStats.values.mean;
-    this.medianUtility = ownerStats.values.median;
-    this.minUtility = ownerStats.values.min;
-    this.maxUtility = ownerStats.values.max;
-    this.utilityQuartiles = ownerStats.values.quartiles;
-    this.utilityOutliers = ownerStats.values.outliers;
-
-    this.totalNonCollidingUtility = ownerStats.non_colliding_values.total;
-    this.meanNonCollidingUtility = ownerStats.non_colliding_values.mean;
-    this.medianNonCollidingUtility = ownerStats.non_colliding_values.median;
-    this.minNonCollidingUtility = ownerStats.non_colliding_values.min;
-    this.maxNonCollidingUtility = ownerStats.non_colliding_values.max;
-    this.nonCollidingUtilityQuartiles = ownerStats.non_colliding_values.quartiles;
-    this.nonCollidingUtilityOutliers = ownerStats.non_colliding_values.outliers;
+    this.utilityStatistics = new BoxplotStatistics(ownerStats.values);
+    this.paymentStatistics = new BoxplotStatistics(ownerStats.payments);
+    this.nonCollidingUtilityStatistics = new BoxplotStatistics(ownerStats.non_colliding_values);
 
     /**
      * All agents belonging to this owner

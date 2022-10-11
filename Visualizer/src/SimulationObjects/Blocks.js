@@ -2,12 +2,12 @@ import Space from "./Space";
 
 export default class Blocks {
   /**
-   * @param {JSONBlocks} rawBranch
+   * @param {JSONBlock} rawBlock
    * @param {RawAllocationStatistics} allocationStats
    */
-  constructor(rawBranch, allocationStats) {
-    this.tick = rawBranch.tick;
-    this.spaces = rawBranch.spaces.map((space) => new Space(space));
+  constructor(rawBlock, allocationStats) {
+    this.tick = rawBlock.tick;
+    this.spaces = rawBlock.spaces.map((space) => new Space(space));
     this.value = allocationStats.value;
     this.reason = allocationStats.reason;
     this.explanation = allocationStats.explanation;

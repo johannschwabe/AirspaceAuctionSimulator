@@ -41,7 +41,7 @@
  */
 
 /**
- * @typedef {Object} JSONBlocks
+ * @typedef {Object} JSONBlock
  * @property {int} tick
  * @property {JSONSpace[]} spaces
  */
@@ -50,7 +50,7 @@
  * @typedef {Object} JSONAgent
  * @property {string} agent_type
  * @property {string} id
- * @property {JSONBranch[] | JSONBlocks[]} [intermediate_allocations]
+ * @property {JSONBranch[] | JSONBlock[]} [intermediate_allocations]
  * Space-Agent:
  * @property {JSONSpace[]} [blocks]
  * Path-Agent:

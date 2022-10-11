@@ -3,18 +3,17 @@
     <boxplot
       title="Utility"
       :color="simulation.ownerInFocus.color"
-      :quartiles="simulation.ownerInFocus.utilityQuartiles"
-      :outliers="simulation.ownerInFocus.utilityOutliers"
-      :min="simulation.ownerInFocus.minUtility"
-      :max="simulation.ownerInFocus.maxUtility"
+      :data="simulation.ownerInFocus.utilityStatistics"
     />
     <boxplot
       title="Non-Colliding Utility"
       :color="simulation.ownerInFocus.color"
-      :quartiles="simulation.ownerInFocus.nonCollidingUtilityQuartiles"
-      :outliers="simulation.ownerInFocus.nonCollidingUtilityOutliers"
-      :min="simulation.ownerInFocus.minNonCollidingUtility"
-      :max="simulation.ownerInFocus.maxNonCollidingUtility"
+      :data="simulation.ownerInFocus.nonCollidingUtilityStatistics"
+    />
+    <boxplot
+      title="Payment"
+      :color="simulation.ownerInFocus.color"
+      :data="simulation.ownerInFocus.paymentStatistics"
     />
     <n-divider style="margin-top: 6px; margin-bottom: 6px" />
     <simple-data-table title="General Info" :datapoints="datapoints" />
@@ -89,13 +88,18 @@ const datapoints = computed(() =>
       icon: Accessibility,
     },
     {
-      label: "Utility",
-      value: simulation.ownerInFocus.totalUtility,
+      label: "Total Utility",
+      value: simulation.ownerInFocus.utilityStatistics.total,
       icon: Happy,
     },
     {
-      label: "Non-Colliding Utility",
-      value: simulation.ownerInFocus.totalNonCollidingUtility,
+      label: "Total Non-Colliding Utility",
+      value: simulation.ownerInFocus.nonCollidingUtilityStatistics.total,
+      icon: Happy,
+    },
+    {
+      label: "Total Payment",
+      value: simulation.ownerInFocus.paymentStatistics.total,
       icon: Happy,
     },
     {

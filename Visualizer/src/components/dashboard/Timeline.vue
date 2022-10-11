@@ -1,49 +1,51 @@
 <template>
-  <div class="flex">
+  <div class="content">
     <div class="flex">
-      <n-button quaternary circle v-for="control in controls" @click="control.action">
-        <template #icon>
-          <n-icon :component="control.icon" />
-        </template>
-      </n-button>
-      <n-input-number
-        round
-        size="small"
-        :show-button="false"
-        :min="0"
-        :max="maxTick + 1"
-        :value="currentTick"
-        @update:value="updateTick"
-        style="max-width: 50px"
-      />
-    </div>
-    <div style="flex-grow: 1">
-      <vue-apex-charts
-        ref="timelineChart"
-        type="bar"
-        height="75"
-        :options="agentChartOptions"
-        :series="agentSeries"
-        style="margin-left: 10px; margin-right: 10px"
-      />
-      <div style="margin-top: -30px">
-        <vue-apex-charts
-          ref="collisionsChart"
-          type="bar"
-          height="75"
-          :options="eventChartOptions"
-          :series="eventSeries"
-        />
-      </div>
-      <div style="padding: 0 15px 0 35px; margin-top: -85px; z-index: 100000">
-        <n-slider
+      <div class="flex">
+        <n-button quaternary circle v-for="control in controls" @click="control.action">
+          <template #icon>
+            <n-icon :component="control.icon" />
+          </template>
+        </n-button>
+        <n-input-number
+          round
+          size="small"
+          :show-button="false"
+          :min="0"
+          :max="maxTick + 1"
           :value="currentTick"
           @update:value="updateTick"
-          :min="0"
-          :max="maxTick"
-          show-tooltip
-          placement="bottom"
+          style="max-width: 50px"
         />
+      </div>
+      <div style="flex-grow: 1">
+        <vue-apex-charts
+          ref="timelineChart"
+          type="bar"
+          height="75"
+          :options="agentChartOptions"
+          :series="agentSeries"
+          style="margin-left: 10px; margin-right: 10px"
+        />
+        <div style="margin-top: -30px">
+          <vue-apex-charts
+            ref="collisionsChart"
+            type="bar"
+            height="75"
+            :options="eventChartOptions"
+            :series="eventSeries"
+          />
+        </div>
+        <div style="padding: 0 15px 0 35px; margin-top: -85px; z-index: 100000">
+          <n-slider
+            :value="currentTick"
+            @update:value="updateTick"
+            :min="0"
+            :max="maxTick"
+            show-tooltip
+            placement="bottom"
+          />
+        </div>
       </div>
     </div>
   </div>

@@ -89,6 +89,7 @@ import {
   Telescope,
   Compass,
   Time,
+  Cash,
   ChatboxEllipses,
   GitBranch,
   Skull,
@@ -150,6 +151,11 @@ const datapoints = computed(() =>
       label: "Last Tick",
       value: simulation.agentInFocus.veryLastTick,
       icon: TrendingDown,
+    },
+    {
+      label: "Payment",
+      value: simulation.agentInFocus.payment,
+      icon: Cash,
     },
     {
       label: "Utility",
@@ -362,7 +368,7 @@ function bidToDatapoints(bid) {
     return [];
   }
   return Object.entries(bid.display).map(([label, value]) => ({
-    label: label.replace(/(^|\s)\S/g, (t) => t.toUpperCase()),
+    label: "Bid: " + label.replace(/(^|\s)\S/g, (t) => t.toUpperCase()),
     value,
     icon: Pricetag,
   }));
@@ -389,6 +395,12 @@ const allocations = computed(() => {
         value: stat.utility,
         icon: Happy,
       },
+      {
+        label: "Payment",
+        value: stat.payment,
+        icon: Cash,
+      },
+      ...bidToDatapoints(stat.bid),
       {
         label: "Allocation competitions won",
         value: Object.keys(stat.collidingAgentBids).length,

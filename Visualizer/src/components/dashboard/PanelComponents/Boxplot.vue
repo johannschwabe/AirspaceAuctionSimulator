@@ -10,10 +10,7 @@ import { reactive } from "vue";
 const props = defineProps({
   title: String,
   color: String,
-  quartiles: Array,
-  outliers: Array,
-  min: Number,
-  max: Number,
+  data: Object,
 });
 
 const chartOptions = {
@@ -62,14 +59,10 @@ const series = reactive([
     data: [
       {
         x: props.title,
-        y: [props.min, ...props.quartiles, props.max],
+        y: [props.data.min, ...props.data.quartiles, props.data.max],
       },
     ],
   },
-  // {
-  //   type: "scatter",
-  //   data: props.outliers.map((outlier) => ({ x: props.title, y: outlier })),
-  // },
 ]);
 </script>
 

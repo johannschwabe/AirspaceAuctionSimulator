@@ -9,6 +9,7 @@ export default class AllocationStatistic {
     this.tick = allocationStatistic.tick;
     this.compute_time = allocationStatistic.compute_time;
     this.utility = allocationStatistic.value;
+    this.payment = allocationStatistic.payment;
     this.bid = allocationStatistic.bid;
     this.reason = allocationStatistic.reason;
     this.explanation = allocationStatistic.explanation;
