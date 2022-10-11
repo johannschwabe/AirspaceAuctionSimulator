@@ -5,6 +5,8 @@
         v-for="(event, i) in simulation.agentInFocus.events"
         :key="`${simulation.agentInFocus.id}-${i}`"
         v-bind="event"
+        @click="setTick(event.tick)"
+        style="cursor: pointer"
       >
         <template #icon>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -120,6 +122,11 @@ onUnmounted(() => {
 });
 
 const simulation = useSimulationSingleton();
+
+const setTick = (tick) => {
+  simulation.tick = parseInt(tick, 10);
+};
+
 const datapoints = computed(() =>
   [
     {
