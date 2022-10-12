@@ -777,6 +777,7 @@ class SimulationStatistics(Stringify):
         self.payment_stats = payment_stats
         self.utility_stats = utility_stats
         self.total_non_colliding_value = non_colliding_value
+        self.total_non_colliding_utility = non_colliding_utility
         self.total_number_of_violations = nr_violations
         self.total_number_of_reallocations = nr_reallocations
         self.step_compute_time: Dict[int, int] = step_compute_time
