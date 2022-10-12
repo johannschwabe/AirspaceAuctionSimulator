@@ -1,4 +1,3 @@
-import json
 import math
 import random
 import time
@@ -168,7 +167,7 @@ if __name__ == "__main__":
            "statistics": statistics,
            "statistics_compute_time": statistics_duration,
            "simulation_compute_time": tot_time}
-
-    f = open("playground.json", "w")
-    f.write(json.dumps(res))
-    f.close()
+    get_statistics_dict(simulatorAligator)
+    # f = open("playground.json", "w")
+    # f.write(json.dumps(res))
+    # f.close()

@@ -26,5 +26,5 @@ class PaymentRule(ABC):
         pass
 
     @abstractmethod
-    def calculate_final_payments(self, environment: "Environment", bid_tracker: "BidTracker"):
+    def calculate_final_payments(self, environment: "Environment", bid_tracker: "BidTracker") -> Dict[int, float]:
         pass

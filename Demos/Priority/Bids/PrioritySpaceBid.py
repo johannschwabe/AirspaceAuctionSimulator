@@ -39,7 +39,7 @@ class PrioritySpaceBid(Bid):
                 "priority": self.priority
             },
             "display": {
-                "area": "\n".join([
+                "area": "<br>".join([
                     f"min: {int(block.min.x)}, {int(block.min.y)}, {int(block.min.z)}, {block.min.t}, max: {int(block.max.x)}, {int(block.max.y)}, {int(block.max.z)}, {block.max.t}"
                     for block in self.blocks]),
                 "priority": self.priority

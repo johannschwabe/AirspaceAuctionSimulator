@@ -5,6 +5,8 @@
         v-for="(event, i) in simulation.agentInFocus.events"
         :key="`${simulation.agentInFocus.id}-${i}`"
         v-bind="event"
+        @click="setTick(event.tick)"
+        style="cursor: pointer"
       >
         <template #icon>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -75,7 +77,6 @@ import {
   Happy,
   Timer,
   InformationCircle,
-  TrophyOutline,
   Remove,
   ReorderTwo,
   Resize,
@@ -89,6 +90,7 @@ import {
   Telescope,
   Compass,
   Time,
+  Cash,
   ChatboxEllipses,
   GitBranch,
   Skull,
@@ -97,9 +99,8 @@ import {
   Hourglass,
   Pricetag,
   Cube,
-  TabletLandscape,
+  TabletLandscape, ColorPalette
 } from "@vicons/ionicons5";
-import { format, set } from "date-fns";
 import PerfectScrollbar from "perfect-scrollbar";
 import { isArray, isNull, isUndefined } from "lodash-es";
 
@@ -107,6 +108,7 @@ import { useSimulationSingleton } from "@/scripts/simulationSingleton.js";
 
 import SimpleDataTable from "@/components/dashboard/PanelComponents/SimpleDataTable.vue";
 import HeightProfile from "@/components/dashboard/PanelComponents/HeightProfile.vue";
+import { formatComputeTime } from "@/scripts/format";
 
 let agentScroller;
 onMounted(() => {
@@ -119,6 +121,11 @@ onUnmounted(() => {
 });
 
 const simulation = useSimulationSingleton();
+
+const setTick = (tick) => {
+  simulation.tick = parseInt(tick, 10);
+};
+
 const datapoints = computed(() =>
   [
     {
@@ -152,6 +159,16 @@ const datapoints = computed(() =>
       icon: TrendingDown,
     },
     {
+      label: "Value",
+      value: simulation.agentInFocus.value,
+      icon: Pricetag,
+    },
+    {
+      label: "Non-Colliding Value",
+      value: simulation.agentInFocus.nonCollidingValue,
+      icon: Pricetag,
+    },
+    {
       label: "Utility",
       value: simulation.agentInFocus.utility,
       icon: Happy,
@@ -159,7 +176,12 @@ const datapoints = computed(() =>
     {
       label: "Non-Colliding Utility",
       value: simulation.agentInFocus.nonCollidingUtility,
-      icon: TrophyOutline,
+      icon: Happy,
+    },
+    {
+      label: "Payment",
+      value: simulation.agentInFocus.payment,
+      icon: Cash,
     },
     {
       label: "Reallocations",
@@ -362,7 +384,7 @@ function bidToDatapoints(bid) {
     return [];
   }
   return Object.entries(bid.display).map(([label, value]) => ({
-    label: label.replace(/(^|\s)\S/g, (t) => t.toUpperCase()),
+    label: "Bid: " + label.replace(/(^|\s)\S/g, (t) => t.toUpperCase()),
     value,
     icon: Pricetag,
   }));
@@ -385,10 +407,21 @@ const allocations = computed(() => {
         icon: ChatboxEllipses,
       },
       {
+        label: "Value",
+        value: stat.value,
+        icon: Pricetag,
+      },
+      {
         label: "Utility",
         value: stat.utility,
         icon: Happy,
       },
+      {
+        label: "Payment",
+        value: stat.payment,
+        icon: Cash,
+      },
+      ...bidToDatapoints(stat.bid),
       {
         label: "Allocation competitions won",
         value: Object.keys(stat.collidingAgentBids).length,
@@ -401,31 +434,7 @@ const allocations = computed(() => {
       },
       {
         label: "Compute Time",
-        value: () => {
-          const milliseconds = stat.compute_time / 1000;
-          const date = set(new Date(), {
-            year: 0,
-            month: 0,
-            date: 0,
-            hours: 0,
-            minutes: 0,
-            seconds: 0,
-            milliseconds,
-          });
-          if (stat.compute_time < 1000) {
-            return `${stat.compute_time} ns`;
-          }
-          if (milliseconds < 1000) {
-            return `${milliseconds} ms`;
-          }
-          if (milliseconds < 60 * 1000) {
-            return `${format(date, "ss")}s`;
-          }
-          if (milliseconds < 60 * 60 * 1000) {
-            return `${format(date, "mm")}min ${format(date, "ss")}s`;
-          }
-          return `${format(date, "HH")}h ${format(date, "mm")}min ${format(date, "ss")}s`;
-        },
+        value: () => formatComputeTime(stat.compute_time),
         icon: Timer,
       },
     ],

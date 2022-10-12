@@ -130,6 +130,7 @@ onMounted(() => {
 
 <style scoped>
 .gant-container {
-  margin-left: 230px;
+  margin-left: 215px;
+  margin-right: -15px;
 }
 </style>

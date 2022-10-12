@@ -1,4 +1,4 @@
-import { uniqueNamesGenerator, starWars, countries } from "unique-names-generator";
+import { uniqueNamesGenerator, starWars, adjectives , names } from "unique-names-generator";
 
 /**
  * Returns a random name for an owner
@@ -20,7 +20,7 @@ export const randomName = () => {
  */
 export const randomSimulationName = () => {
   return uniqueNamesGenerator({
-    dictionaries: [[...countries, "Risotto", "Atlantis", "Westeros", "Arrakis", "Shire", "Gondor"]],
+    dictionaries: [adjectives, [...names, "Risotto", "Atlantis", "Westeros", "Arrakis", "Shire", "Gondor"]],
     style: "capital",
     separator: " ",
   });

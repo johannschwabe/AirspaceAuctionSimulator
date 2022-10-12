@@ -8,7 +8,9 @@ export default class AllocationStatistic {
   constructor(allocationStatistic) {
     this.tick = allocationStatistic.tick;
     this.compute_time = allocationStatistic.compute_time;
-    this.utility = allocationStatistic.value;
+    this.value = allocationStatistic.value;
+    this.utility = allocationStatistic.utility;
+    this.payment = allocationStatistic.payment;
     this.bid = allocationStatistic.bid;
     this.reason = allocationStatistic.reason;
     this.explanation = allocationStatistic.explanation;

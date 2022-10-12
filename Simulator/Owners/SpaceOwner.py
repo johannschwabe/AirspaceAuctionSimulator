@@ -1,3 +1,4 @@
+import random
 from abc import abstractmethod, ABC
 from typing import List, TYPE_CHECKING, Dict, Any, Optional
 
@@ -25,7 +26,7 @@ class SpaceOwner(Owner, ABC):
 
     @staticmethod
     def generate_stop_coordinates(stop: "GridLocation", env: "Environment", t: int) -> "Coordinate4D":
-        coord = stop.generate_coordinates(env, t + 1)
+        coord = stop.generate_coordinates(env, t + random.randint(15, 30))
         return coord
 
     @abstractmethod

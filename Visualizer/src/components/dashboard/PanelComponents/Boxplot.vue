@@ -1,5 +1,5 @@
 <template>
-  <vue-apex-charts type="boxPlot" height="100" :options="chartOptions" :series="series" />
+  <vue-apex-charts type="boxPlot" height="50" :options="chartOptions" :series="series" />
 </template>
 
 <script setup>
@@ -10,15 +10,12 @@ import { reactive } from "vue";
 const props = defineProps({
   title: String,
   color: String,
-  quartiles: Array,
-  outliers: Array,
-  min: Number,
-  max: Number,
+  data: Object,
 });
 
 const chartOptions = {
   chart: {
-    height: 100,
+    height: 50,
     type: "boxPlot",
     background: "transparent",
     toolbar: { show: false },
@@ -46,7 +43,12 @@ const chartOptions = {
   legend: {
     show: false,
   },
-  grid: { show: false },
+  grid: {
+    show: false,
+    padding: {
+      top: -25,
+    },
+  },
   xaxis: {
     labels: { show: false },
     axisTicks: { show: false },
@@ -62,14 +64,10 @@ const series = reactive([
     data: [
       {
         x: props.title,
-        y: [props.min, ...props.quartiles, props.max],
+        y: [props.data.min, ...props.data.quartiles, props.data.max],
       },
     ],
   },
-  // {
-  //   type: "scatter",
-  //   data: props.outliers.map((outlier) => ({ x: props.title, y: outlier })),
-  // },
 ]);
 </script>
 

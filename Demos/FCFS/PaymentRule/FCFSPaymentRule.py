@@ -33,7 +33,7 @@ class FCFSPaymentRule(PaymentRule):
             for segment in allocation.segments:
                 allocation.preliminary_payment += segment.nr_voxels * self.voxel_cost
 
-    def calculate_final_payments(self, environment: "Environment", bid_tracker: "FCFSBidTracker"):
+    def calculate_final_payments(self, environment: "Environment", bid_tracker: "FCFSBidTracker") -> Dict[int, float]:
         res: Dict[int, float] = {}
         for agent in environment.agents.values():
             res[hash(agent)] = 0

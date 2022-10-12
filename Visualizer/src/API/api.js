@@ -24,7 +24,12 @@ const apiPostErrorToString = (e) => {
   if (!e.response) {
     return e.message;
   }
-  return e.response.data.detail.map((d) => `${d.msg}: ${d.loc.join(".")}`).join("\n");
+  try {
+    return e.response.data.detail.map((d) => `${d.msg}: ${d.loc.join(".")}`).join("\n");
+  } catch (err) {
+    console.error(e);
+    return e.toString();
+  }
 };
 
 /**
@@ -115,10 +120,10 @@ async function openDB() {
         console.error("DB ERROR:", error_event.target);
       };
       db.onclose = (close_event) => {
-        console.log("DB CLOSED:", close_event.target);
+        console.warn("DB CLOSED:", close_event.target);
       };
       db.onabort = (abort_event) => {
-        console.log("DB ABORTED:", abort_event.target);
+        console.warn("DB ABORTED:", abort_event.target);
       };
       resolve(db);
     };
@@ -145,7 +150,7 @@ async function addToObjectStore(db, name, data) {
     await deleteFromObjectStore(db, name);
   }
   return new Promise((resolve) => {
-    db.transaction(name, "readwrite").objectStore(name).add(data, name).onsuccess = () => {
+    db.transaction([name], "readwrite").objectStore(name).add(data, name).onsuccess = () => {
       resolve();
     };
   });
@@ -159,7 +164,7 @@ async function addToObjectStore(db, name, data) {
  */
 async function deleteFromObjectStore(db, name) {
   return new Promise((resolve) => {
-    db.transaction(name, "readwrite").objectStore(name).delete(name).onsuccess = () => {
+    db.transaction([name], "readwrite").objectStore(name).delete(name).onsuccess = () => {
       resolve();
     };
   });
@@ -173,7 +178,7 @@ async function deleteFromObjectStore(db, name) {
  */
 async function getFromObjectStore(db, name) {
   return new Promise((resolve) => {
-    const request = db.transaction(name).objectStore(name).get(name);
+    const request = db.transaction([name], "readwrite").objectStore(name).get(name);
     request.onsuccess = (event) => {
       resolve(event.target.result ?? null);
     };
