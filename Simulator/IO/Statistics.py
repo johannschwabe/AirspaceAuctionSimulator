@@ -320,9 +320,9 @@ class Statistics:
         min_value: float = min(finance)
         value_quartiles: List[float] = []
         if len(finance) == 1:
-            value_quartiles = [finance[0]] * 4
+            value_quartiles = [finance[0]] * 3
         if len(finance) == 2 or len(finance) == 3:
-            value_quartiles = [min_value] * 2 + [max_value] * 2
+            value_quartiles = [min_value, mean_value, max_value]
         if len(finance) > 3:
             value_quartiles = statistics.quantiles(finance)
         value_outliers = [value for value in finance if
