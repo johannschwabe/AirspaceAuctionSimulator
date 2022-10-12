@@ -3,8 +3,8 @@ from typing import List, Optional, TYPE_CHECKING, Dict
 
 from Simulator import GridLocationType, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism, Coordinate4D
 from .EnvironmentGen import EnvironmentGen
-from ..Owners.APIPathOwner import APIPathOwner
-from ..Owners.APISpaceOwner import APISpaceOwner
+from ..Owners.WebPathOwner import WebPathOwner
+from ..Owners.WebSpaceOwner import WebSpaceOwner
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
@@ -92,7 +92,7 @@ class Generator:
                 other_meta_config = {meta_config["key"]: meta_config["value"] for meta_config in
                                      api_owner.biddingStrategy.meta if
                                      meta_config["key"] not in ["size_x", "size_y", "size_z", "size_t"]}
-                new_owner = APISpaceOwner(str(owner_id),
+                new_owner = WebSpaceOwner(str(owner_id),
                                           api_owner.name,
                                           api_owner.color,
                                           stops,
@@ -111,7 +111,7 @@ class Generator:
                 other_meta_config = {meta_config["key"]: meta_config["value"] for meta_config in
                                      api_owner.biddingStrategy.meta if
                                      meta_config["key"] not in ["near_field", "speed", "battery"]}
-                new_owner = APIPathOwner(str(owner_id),
+                new_owner = WebPathOwner(str(owner_id),
                                          api_owner.name,
                                          api_owner.color,
                                          stops,
