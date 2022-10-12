@@ -6,6 +6,7 @@ from API.Types import APIMap, APISubselection, APISimulationConfig, APIWorldCoor
     APILocations
 from Simulator import Simulator
 from Simulator.Location.GridLocationType import GridLocationType
+from .Owners.WebOwnerMixin import WebOwnerMixin
 from .Owners.WebPathOwner import WebPathOwner
 from .Owners.WebSpaceOwner import WebSpaceOwner
 
@@ -97,12 +98,13 @@ def generate_config(simulator: "Simulator", subselection: "APISubselection",
             elif stop.stop_type == GridLocationType.POSITION.value:
                 posi = Area.LCS_to_long_lat(bottom_left, stop.position, resolution)
                 locations.append(APILocations(type=stop.stop_type, points=[posi]))
-        new_owner = APIOwner(color=hex(hash(owner.id) % 0xFFFFFF)[2:].zfill(6),
-                             name=owner.id,
-                             agents=len(owner.agents),
-                             biddingStrategy=bidding_strategy,
-                             locations=locations,
-                             valueFunction=owner.value_function.__class__.__name__)
+        new_owner = APIOwner(
+            color=owner.color if isinstance(owner, WebOwnerMixin) else hex(hash(owner.id) % 0xFFFFFF)[2:].zfill(6),
+            name=owner.id,
+            agents=len(owner.agents),
+            biddingStrategy=bidding_strategy,
+            locations=locations,
+            valueFunction=owner.value_function.__class__.__name__)
         _owners.append(new_owner)
     return APISimulationConfig(name=name,
                                description="",

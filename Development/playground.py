@@ -3,7 +3,9 @@ import math
 import random
 import time
 
-from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, build_json, APIPathOwner, APISpaceOwner,generate_config
+from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, WebPathOwner, \
+    WebSpaceOwner, generate_config
+from API.Owners.WebOwnerMixin import WebOwnerMixin
 from API.Types import APISubselection
 from Demos.FCFS import FCFSAllocator, FCFSPaymentRule, FCFSPathBiddingStrategy, FCFSSpaceBiddingStrategy, \
     FCFSPathValueFunction, FCFSSpaceValueFunction
@@ -11,6 +13,8 @@ from Demos.Priority import PriorityAllocator, PriorityPaymentRule, PriorityPathB
     PriorityPathValueFunction, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
 from Simulator import Simulator, Coordinate4D, StaticBlocker, Coordinate3D, Environment, GridLocation, \
     GridLocationType, Mechanism
+from Simulator.IO.JSONS import get_simulation_dict, JSONOwnerDescription
+from Simulator.IO.Statistics import get_statistics_dict
 
 random.seed(4)
 dimensions = Coordinate4D(40, 40, 40, 1000)
@@ -49,7 +53,7 @@ def fcfs_simulation(env: Environment):
     payment_rule = FCFSPaymentRule()
     mechanism = Mechanism(allocator, payment_rule)
     owners = [
-        APIPathOwner("0",
+        WebPathOwner("0",
                      "Schnabeltier",
                      color_generator(),
                      [GridLocation(str(GridLocationType.RANDOM.value)),
@@ -60,7 +64,7 @@ def fcfs_simulation(env: Environment):
                      1,
                      2000,
                      1),
-        APISpaceOwner("1",
+        WebSpaceOwner("1",
                       "Ghettotier",
                       color_generator(),
                       [GridLocation(str(GridLocationType.RANDOM.value)),
@@ -78,7 +82,7 @@ def priority_simulation(env: Environment):
     payment_rule = PriorityPaymentRule()
     mechanism = Mechanism(allocator, payment_rule)
     owners = [
-        APIPathOwner("0",
+        WebPathOwner("0",
                      "Schnabeltier",
                      color_generator(),
                      [GridLocation(str(GridLocationType.RANDOM.value)),
@@ -90,7 +94,7 @@ def priority_simulation(env: Environment):
                      2000,
                      1,
                      {"priority": 1.0}),
-        APIPathOwner("1",
+        WebPathOwner("1",
                      "GhettoSalat",
                      color_generator(),
                      [GridLocation(str(GridLocationType.RANDOM.value)),
@@ -102,7 +106,7 @@ def priority_simulation(env: Environment):
                      2000,
                      1,
                      {"priority": 0.1}),
-        APISpaceOwner("2",
+        WebSpaceOwner("2",
                       "Ghettotier",
                       color_generator(),
                       [GridLocation(str(GridLocationType.RANDOM.value)),
@@ -148,7 +152,22 @@ if __name__ == "__main__":
     sim_config = generate_config(simulatorAligator,
                                  APISubselection(bottomLeft=bottom_left_coordinate, topRight=top_right_coordinate),
                                  pre_environment.maptiles)
-    res = build_json(sim_config, simulatorAligator, tot_time)
+    statistics_start_time = time.time_ns()
+    statistics = get_statistics_dict(simulatorAligator)
+    statistics_end_time = time.time_ns()
+    statistics_duration = statistics_end_time - statistics_start_time
+    owner_map = {
+        owner.id: JSONOwnerDescription(owner.color, owner.name).as_dict() if isinstance(owner, WebOwnerMixin)
+        else JSONOwnerDescription(
+            owner.id,
+            hex(hash(owner.id) % 0xFFFFFF)[2:].zfill(6)).as_dict()
+        for owner in simulatorAligator.owners}
+    res = {"config": sim_config,
+           "owner_map": owner_map,
+           "simulation": get_simulation_dict(simulatorAligator),
+           "statistics": statistics,
+           "statistics_compute_time": statistics_duration,
+           "simulation_compute_time": tot_time}
 
     f = open("playground.json", "w")
     f.write(json.dumps(res))

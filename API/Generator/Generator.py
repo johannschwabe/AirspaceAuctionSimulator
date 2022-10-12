@@ -2,6 +2,7 @@ import random
 from typing import List, Optional, TYPE_CHECKING, Dict
 
 from Simulator import GridLocationType, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism, Coordinate4D
+from Simulator.IO.JSONS import JSONOwnerDescription
 from .EnvironmentGen import EnvironmentGen
 from ..Owners.WebPathOwner import WebPathOwner
 from ..Owners.WebSpaceOwner import WebSpaceOwner
@@ -39,7 +40,7 @@ class Generator:
         self.map_playfield_area = map_playfield_area
         self.payment_rule = payment_rule
 
-        self.owner_map: Dict[str, APIOwner] = {}
+        self.owner_map: Dict[str, JSONOwnerDescription] = {}
 
     def extract_owner_stops(self, owner: "APIOwner"):
         stops: List["GridLocation"] = []
@@ -124,7 +125,7 @@ class Generator:
                                          config=other_meta_config
                                          )
             self.owners.append(new_owner)
-            self.owner_map[new_owner.id] = api_owner
+            self.owner_map[new_owner.id] = JSONOwnerDescription(api_owner.color, api_owner.name)
             owner_id += 1
         mech = Mechanism(self.allocator, self.payment_rule)
         self.simulator = Simulator(

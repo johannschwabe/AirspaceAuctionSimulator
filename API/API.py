@@ -42,14 +42,12 @@ def build_json(config: Dict[str, Any], generator: "Generator", simulation_durati
     statistics = get_statistics_dict(generator.simulator)
     statistics_end_time = time.time_ns()
     statistics_duration = statistics_end_time - statistics_start_time
-    statistics_compute_time = statistics_duration
-    simulation_compute_time = simulation_duration
     return {"config": config,
             "owner_map": generator.owner_map,
             "simulation": simulation_json,
             "statistics": statistics,
-            "statistics_compute_time": statistics_compute_time,
-            "simulation_compute_time": simulation_compute_time}
+            "statistics_compute_time": statistics_duration,
+            "simulation_compute_time": simulation_duration}
 
 
 @app.get("/allocators")

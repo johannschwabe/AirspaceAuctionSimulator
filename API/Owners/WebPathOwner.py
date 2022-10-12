@@ -3,7 +3,7 @@ import random
 from typing import List, TYPE_CHECKING, Dict, Any, Optional
 
 from Simulator import PathOwner, PathAgent
-from .APIOwnerMixin import WebOwnerMixin
+from .WebOwnerMixin import WebOwnerMixin
 
 if TYPE_CHECKING:
     from Simulator import GridLocation, BiddingStrategy, ValueFunction, Coordinate4D, Environment

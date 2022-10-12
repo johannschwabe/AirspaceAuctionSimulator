@@ -1,10 +1,10 @@
 from typing import List, TYPE_CHECKING, Dict, Any, Optional
 
-from Simulator import SpaceOwner, SpaceAgent
-from .APIOwnerMixin import WebOwnerMixin
+from Simulator import SpaceOwner, SpaceAgent,SpaceSegment
+from .WebOwnerMixin import WebOwnerMixin
 
 if TYPE_CHECKING:
-    from Simulator import GridLocation, Coordinate4D, BiddingStrategy, ValueFunction, SpaceSegment, Environment
+    from Simulator import GridLocation, Coordinate4D, BiddingStrategy, ValueFunction, Environment
 
 
 class WebSpaceOwner(WebOwnerMixin, SpaceOwner):
