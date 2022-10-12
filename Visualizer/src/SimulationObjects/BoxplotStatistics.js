@@ -7,10 +7,10 @@ export default class BoxplotStatistics {
   constructor(rawFinanceStatistics) {
     this.values = rawFinanceStatistics.values;
     this.total = rawFinanceStatistics.total;
-    this.mean = round(rawFinanceStatistics.mean);
-    this.median = round(rawFinanceStatistics.median);
-    this.min = round(rawFinanceStatistics.min);
-    this.max = round(rawFinanceStatistics.max);
+    this.mean = round(rawFinanceStatistics.mean, 2);
+    this.median = round(rawFinanceStatistics.median, 2);
+    this.min = round(rawFinanceStatistics.min, 2);
+    this.max = round(rawFinanceStatistics.max, 2);
     this.quartiles = rawFinanceStatistics.quartiles.map((q) => round(q, 2));
     this.outliers = rawFinanceStatistics.outliers.map((q) => round(q, 2));
   }
