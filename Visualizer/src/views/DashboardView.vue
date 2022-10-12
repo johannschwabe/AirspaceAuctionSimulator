@@ -119,13 +119,13 @@ import PerfectScrollbar from "perfect-scrollbar";
 
 import loadingGif from "../assets/loading.gif";
 import TopBar from "../components/dashboard/TopBar.vue";
-import ThreeDMap from "../components/dashboard/ThreeDMap.vue";
-import Heatmap from "../components/dashboard/Heatmap.vue";
-import Gantt from "../components/dashboard/Gantt.vue";
-import Welfare from "../components/dashboard/Welfare.vue";
-import AgentInfo from "../components/dashboard/AgentInfo.vue";
+import ThreeDMap from "../components/dashboard/Engine.vue";
+import Heatmap from "../components/dashboard/PlayfieldStatisticsPanel/Heatmap.vue";
+import Gantt from "../components/dashboard/GanttChart.vue";
+import Welfare from "../components/dashboard/PlayfieldStatisticsPanel/UtilityGraph.vue";
+import AgentInfo from "../components/dashboard/AgentPanel.vue";
 import AgentSelector from "../components/dashboard/AgentSelector.vue";
-import OwnerInfo from "../components/dashboard/OwnerInfo.vue";
+import OwnerInfo from "../components/dashboard/OwnerPanel.vue";
 import Timeline from "../components/dashboard/Timeline.vue";
 import { offAll } from "../scripts/emitter.js";
 import {
@@ -133,8 +133,8 @@ import {
   loadSimulationConfig,
   loadSimulationSingleton,
   useSimulationSingleton,
-} from "../scripts/simulation.js";
-import { useSimulationStore } from "../stores/simulation.js";
+} from "../scripts/simulationSingleton.js";
+import { useSimulationOutputStore } from "../stores/simulationOutputStore.js";
 
 const router = useRouter();
 const message = useMessage();
@@ -143,12 +143,12 @@ const loadingBar = useLoadingBar();
 const loading = ref(true);
 const simulation = shallowRef({});
 
-const simulationStore = useSimulationStore();
+const simulationStore = useSimulationOutputStore();
 
-let agentSelector;
+let agentScroller;
 onUnmounted(() => {
-  agentSelector.destroy();
-  agentSelector = null;
+  agentScroller.destroy();
+  agentScroller = null;
 });
 
 if (!hasSimulationSingleton()) {
@@ -167,7 +167,7 @@ if (!hasSimulationSingleton()) {
       loading.value = false;
       nextTick(() => {
         const container = document.querySelector("#agent-selector");
-        agentSelector = new PerfectScrollbar(container);
+        agentScroller = new PerfectScrollbar(container);
         loadingBar.finish();
       });
     });
@@ -186,7 +186,7 @@ if (!hasSimulationSingleton()) {
   simulationStore.setSelectedAgentIDs(allAgentIds);
   nextTick(() => {
     const container = document.querySelector("#agent-selector");
-    agentSelector = new PerfectScrollbar(container);
+    agentScroller = new PerfectScrollbar(container);
   });
 }
 

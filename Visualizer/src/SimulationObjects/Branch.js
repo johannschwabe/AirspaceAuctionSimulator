@@ -2,7 +2,6 @@ import Path from "./Path.js";
 
 export default class Branch {
   /**
-   *
    * @param {JSONBranch} rawBranch
    * @param {RawAllocationStatistics} allocationStats
    */

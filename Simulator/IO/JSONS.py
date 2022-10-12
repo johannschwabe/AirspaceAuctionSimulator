@@ -59,7 +59,7 @@ class JSONSpaceAgent(JSONAgent, Stringify):
     def __init__(
         self,
         agent: "SpaceAgent",
-        blocks: List["JSONBlocks"]
+        blocks: List["JSONBlocks"],
     ):
         super().__init__(agent)
         self.blocks = [JSONSpace(space) for space in agent.allocated_segments]
@@ -70,7 +70,7 @@ class JSONPathAgent(JSONAgent, Stringify):
     def __init__(
         self,
         agent: "PathAgent",
-        branches: List["JSONBranch"]
+        branches: List["JSONBranch"],
     ):
         super().__init__(agent)
         self.speed: int = agent.speed
@@ -84,10 +84,14 @@ class JSONOwner(Stringify):
     def __init__(self,
                  owner: "Owner",
                  agents: List["JSONAgent"]):
-        self.name: str = owner.name
         self.id: str = owner.id
-        self.color: str = owner.color
         self.agents: List["JSONAgent"] = agents
+
+
+class JSONOwnerDescription(Stringify):
+    def __init__(self, color: "str", name: "str"):
+        self.color = color
+        self.name = name
 
 
 class JSONBlocker(Stringify):
@@ -163,12 +167,13 @@ def get_json_owners(simulation: "Simulator"):
         json_path_agents: List["JSONAgent"] = []
         json_space_agents: List["JSONAgent"] = []
         for agent in owner.agents:
+
             if isinstance(agent, PathAgent):
                 intermediate_allocations: List["JSONBranch"] = get_json_intermediate_path_allocations(agent,
                                                                                                       simulation.history.allocations)
                 json_path_agents.append(JSONPathAgent(
                     agent,
-                    intermediate_allocations
+                    intermediate_allocations,
                 ))
 
             elif isinstance(agent, SpaceAgent):
@@ -176,7 +181,7 @@ def get_json_owners(simulation: "Simulator"):
                                                                                                        simulation.history.allocations)
                 json_space_agents.append(JSONSpaceAgent(
                     agent,
-                    intermediate_allocations
+                    intermediate_allocations,
                 ))
 
             else:

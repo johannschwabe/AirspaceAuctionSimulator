@@ -10,7 +10,8 @@ from typing import Any, Dict
 from fastapi import HTTPException, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from Simulator import Simulator, get_simulation_dict, get_statistics_dict
+from Simulator import get_simulation_dict, get_statistics_dict
+from .Generator.Generator import Generator
 from .Runners import run_from_config
 from .Types import APISimulationConfig
 from .config import available_allocators
@@ -35,19 +36,18 @@ app.add_middleware(
 )
 
 
-def build_json(config: Dict[str, Any], simulator: "Simulator", simulation_duration: int):
-    simulation_json = get_simulation_dict(simulator)
+def build_json(config: Dict[str, Any], generator: "Generator", simulation_duration: int):
+    simulation_json = get_simulation_dict(generator.simulator)
     statistics_start_time = time.time_ns()
-    statistics = get_statistics_dict(simulator)
+    statistics = get_statistics_dict(generator.simulator)
     statistics_end_time = time.time_ns()
     statistics_duration = statistics_end_time - statistics_start_time
-    statistics_compute_time = statistics_duration
-    simulation_compute_time = simulation_duration
     return {"config": config,
+            "owner_map": generator.owner_map,
             "simulation": simulation_json,
             "statistics": statistics,
-            "statistics_compute_time": statistics_compute_time,
-            "simulation_compute_time": simulation_compute_time}
+            "statistics_compute_time": statistics_duration,
+            "simulation_compute_time": simulation_duration}
 
 
 @app.get("/allocators")
@@ -98,7 +98,7 @@ def simulate(config: APISimulationConfig):
         traceback.print_exc()
         raise HTTPException(status_code=404, detail=str(e))
     print("--Simulation Completed--")
-    return build_json(config.dict(), generator.simulator, duration)
+    return build_json(config.dict(), generator, duration)
 
 
 @app.get("/paymentRules/{allocator}")

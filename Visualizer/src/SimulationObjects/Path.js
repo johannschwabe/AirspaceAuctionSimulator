@@ -17,44 +17,76 @@ export default class Path {
     });
   }
 
+  /**
+   * @returns {int[]}
+   */
   get ticksInAir() {
-    return Object.keys(this.ticks);
+    return Object.keys(this.ticks).map((t) => parseInt(t, 10));
   }
 
+  /**
+   * @returns {int|undefined}
+   */
   get firstTick() {
-    const tick = first(this.ticksInAir);
-    return tick !== undefined ? parseInt(tick, 10) : null;
+    return first(this.ticksInAir);
   }
 
+  /**
+   * @returns {int|undefined}
+   */
   get lastTick() {
-    const tick = last(this.ticksInAir);
-    return tick !== undefined ? parseInt(tick, 10) : null;
+    return last(this.ticksInAir);
   }
 
+  /**
+   * @returns {Coordinate3D}
+   */
   get firstLocation() {
     return this.ticks[this.firstTick];
   }
 
+  /**
+   * @returns {Coordinate3D}
+   */
   get lastLocation() {
     return this.ticks[this.lastTick];
   }
 
+  /**
+   * @returns {Coordinate3D[]}
+   */
   get coordinates() {
     return Object.values(this.ticks);
   }
 
+  /**
+   * @param {int} tick
+   * @returns {boolean}
+   */
   isActiveAtTick(tick) {
-    return this.ticksInAir.includes(`${tick}`);
+    return this.ticksInAir.includes(parseInt(tick, 10));
   }
 
+  /**
+   * @param {int} tick
+   * @returns {Coordinate3D}
+   */
   at(tick) {
     return this.ticks[`${tick}`];
   }
 
+  /**
+   * @param {int} index
+   * @returns {Coordinate3D}
+   */
   atIndex(index) {
     return this.ticks[this.ticksInAir[parseInt(index, 10)]];
   }
 
+  /**
+   * @param {Coordinate3D} coordinate
+   * @returns {boolean}
+   */
   containsCoordinate(coordinate) {
     return this.coordinates.some((coord) => coord.xyz === coordinate.xyz);
   }

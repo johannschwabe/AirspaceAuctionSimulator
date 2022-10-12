@@ -13,7 +13,6 @@ import PathStatistic from "@/SimulationObjects/PathStatistic";
 
 export default class PathAgent extends Agent {
   /**
-   *
    * @param {JSONAgent} rawAgent
    * @param {Owner} owner
    * @param {Simulation} simulation
@@ -91,10 +90,17 @@ export default class PathAgent extends Agent {
     return events;
   }
 
+  /**
+   * Set current agent into focus mode
+   */
   focus() {
     this._simulation.focusOnAgent(this);
   }
 
+  /**
+   * @param {int} tick
+   * @returns {Coordinate3D|undefined}
+   */
   locationAtTick(tick) {
     if (!this.isActiveAtTick(tick)) {
       return undefined;
@@ -102,18 +108,30 @@ export default class PathAgent extends Agent {
     return this.combinedPath.at(tick);
   }
 
+  /**
+   * @returns {number[]}
+   */
   get flyingTicks() {
     return Object.keys(this.combinedPath.ticks).map((t) => parseInt(t, 10));
   }
 
+  /**
+   * @returns {[int, int][]}
+   */
   get segmentsStartEnd() {
     return this.paths.map((path) => [path.firstTick, path.lastTick]);
   }
 
+  /**
+   * @returns {int|undefined}
+   */
   get veryFirstTick() {
     return this.combinedPath.firstTick;
   }
 
+  /**
+   * @returns {int|undefined}
+   */
   get veryLastTick() {
     return this.combinedPath.lastTick;
   }

@@ -43,6 +43,7 @@ class Environment:
 
         self.tree = setup_rtree()
         self.agents: Dict[int, "Agent"] = {}
+        self.payments: Dict[int, float] = {}
         self.max_near_radius = 0
 
     def _get_blocker_id(self) -> int:

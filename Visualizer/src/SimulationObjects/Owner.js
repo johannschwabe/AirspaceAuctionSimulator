@@ -1,35 +1,27 @@
 import PathAgent from "./PathAgent";
 import SpaceAgent from "./SpaceAgent";
 import { AgentType } from "../API/enums.js";
+import BoxplotStatistics from "@/SimulationObjects/BoxplotStatistics";
 
 export default class Owner {
   /**
    * @param {JSONOwner} rawOwner
    * @param {Simulation} simulation
    * @param {OwnerStatistics} ownerStats
+   * @param {JSONConfigOwner} configOwner
    */
-  constructor(rawOwner, simulation, ownerStats) {
-    this.name = rawOwner.name;
+  constructor(rawOwner, simulation, ownerStats, configOwner) {
+    this.name = configOwner.name;
     this.id = rawOwner.id;
-    this.color = rawOwner.color;
+    this.color = configOwner.color;
     this.totalTimeInAir = ownerStats.total_time_in_air;
     this.numberOfAgents = ownerStats.number_of_agents;
 
-    this.totalUtility = ownerStats.values.total;
-    this.meanUtility = ownerStats.values.mean;
-    this.medianUtility = ownerStats.values.median;
-    this.minUtility = ownerStats.values.min;
-    this.maxUtility = ownerStats.values.max;
-    this.utilityQuartiles = ownerStats.values.quartiles;
-    this.utilityOutliers = ownerStats.values.outliers;
-
-    this.totalNonCollidingUtility = ownerStats.non_colliding_values.total;
-    this.meanNonCollidingUtility = ownerStats.non_colliding_values.mean;
-    this.medianNonCollidingUtility = ownerStats.non_colliding_values.median;
-    this.minNonCollidingUtility = ownerStats.non_colliding_values.min;
-    this.maxNonCollidingUtility = ownerStats.non_colliding_values.max;
-    this.nonCollidingUtilityQuartiles = ownerStats.non_colliding_values.quartiles;
-    this.nonCollidingUtilityOutliers = ownerStats.non_colliding_values.outliers;
+    this.paymentStatistics = new BoxplotStatistics(ownerStats.payments);
+    this.valueStatistics = new BoxplotStatistics(ownerStats.values);
+    this.nonCollidingValueStatistics = new BoxplotStatistics(ownerStats.non_colliding_values);
+    this.utilityStatistics = new BoxplotStatistics(ownerStats.utilities);
+    this.nonCollidingUtilityStatistics = new BoxplotStatistics(ownerStats.non_colliding_utility);
 
     /**
      * All agents belonging to this owner
@@ -50,6 +42,9 @@ export default class Owner {
     this._simulation = simulation;
   }
 
+  /**
+   * @returns {string}
+   */
   get displayName() {
     return this.name;
   }

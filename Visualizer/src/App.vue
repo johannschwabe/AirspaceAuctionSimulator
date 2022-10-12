@@ -29,6 +29,9 @@ body {
 .n-drawer {
   background-color: rgb(16, 16, 16);
 }
+#dashbaord {
+  padding: 15px;
+}
 #dashbaord .n-drawer {
   background-color: rgba(16, 16, 16, 0.81);
 }

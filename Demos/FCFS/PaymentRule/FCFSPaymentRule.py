@@ -1,8 +1,8 @@
-from typing import List, TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict
 
 from Simulator import Allocation
-from ..BidTracker.FCFSBidTracker import FCFSBidTracker
 from Simulator import PaymentRule
+from ..BidTracker.FCFSBidTracker import FCFSBidTracker
 
 if TYPE_CHECKING:
     from Simulator import Allocation, Environment, Agent
@@ -33,11 +33,10 @@ class FCFSPaymentRule(PaymentRule):
             for segment in allocation.segments:
                 allocation.preliminary_payment += segment.nr_voxels * self.voxel_cost
 
-    def calculate_final_payments(self, environment: "Environment", bid_tracker: "FCFSBidTracker"):
-        res = {}
+    def calculate_final_payments(self, environment: "Environment", bid_tracker: "FCFSBidTracker") -> Dict[int, float]:
+        res: Dict[int, float] = {}
         for agent in environment.agents.values():
+            res[hash(agent)] = 0
             for segment in agent.allocated_segments:
-                if agent not in res:
-                    res[agent] = 0
-                res[agent] += segment.nr_voxels * self.voxel_cost
+                res[hash(agent)] += segment.nr_voxels * self.voxel_cost
         return res
