@@ -14,7 +14,7 @@ from .CBSCostFunctions import PathLength, CostFunction
 from ..BidTracker.CBSBidTracker import CBSBidTracker
 from ..BiddingStrategy.CBSPathBiddingStrategy import CBSPathBiddingStrategy
 from ..Bids.CBSPathBid import CBSPathBid
-from ..CBSAstar.CBSAstar import CBSAStar, find_valid_path_tick
+from ..CBSAstar.CBSAstar import CBSAStar, find_valid_path_tick, is_valid_for_path_allocation
 from ..PaymentRule.CBSPaymentRule import CBSPaymentRule
 
 if TYPE_CHECKING:
@@ -95,6 +95,8 @@ class CBSAllocator(Allocator):
             if not first_conflict:
                 allocations = {}
                 for agent, path in P.solution.items():
+                    if agent in start.solution and len(P.constraint_dict[agent]) == 0:
+                        continue
                     allocations[agent] = Allocation(agent, path, AllocationHistory(
                         self.bid_tracker.get_last_bid_for_tick(tick, agent, env), 0, AllocationReason.FIRST_ALLOCATION,
                         "CBS Allocation"))
@@ -156,6 +158,15 @@ class CBSAllocator(Allocator):
         bid = self.bid_tracker.get_last_bid_for_tick(tick, agent, env)
         assert isinstance(bid, CBSPathBid) and isinstance(agent, PathAgent)
         a = bid.locations[0].clone()
+        if agent.id == "0-0" and tick == 5:
+            print("test")
+        if bid.flying:
+            if a.t != tick:
+                return None, f"Cannot teleport to {a} at tick {tick}."
+
+            valid, _ = is_valid_for_path_allocation(env, a, agent, constraints)
+            if not valid:
+                return None, f"Cannot escape {a}."
         start = a.to_3D()
 
         time = 0

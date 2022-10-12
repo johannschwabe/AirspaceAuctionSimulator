@@ -4,7 +4,8 @@ from Simulator import Bid, PathAgent, Coordinate4D
 
 
 class CBSPathBid(Bid):
-    def __init__(self, agent: "PathAgent", locations: List["Coordinate4D"], stays: List[int], battery: int):
+    def __init__(self, agent: "PathAgent", locations: List["Coordinate4D"], stays: List[int], battery: int,
+                 flying=False):
         super().__init__(agent)
         # overwrite agent for typing
         self.agent: "PathAgent" = agent
@@ -14,6 +15,8 @@ class CBSPathBid(Bid):
         self.stays: List[int] = stays
         # remaining battery (in ticks)
         self.battery: int = battery
+
+        self.flying: bool = False
 
     def __gt__(self, other):
         return False
