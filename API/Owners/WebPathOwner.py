@@ -2,14 +2,14 @@ import math
 import random
 from typing import List, TYPE_CHECKING, Dict, Any, Optional
 
-from .APIOwnerMixin import APIOwnerMixin
 from Simulator import PathOwner, PathAgent
+from .WebOwnerMixin import WebOwnerMixin
 
 if TYPE_CHECKING:
     from Simulator import GridLocation, BiddingStrategy, ValueFunction, Coordinate4D, Environment
 
 
-class APIPathOwner(APIOwnerMixin, PathOwner):
+class WebPathOwner(WebOwnerMixin, PathOwner):
     def __init__(self, owner_id: str,
                  name: str,
                  color: str,
