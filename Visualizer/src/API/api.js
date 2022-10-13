@@ -5,7 +5,7 @@ import { saveAs } from "file-saver";
  * @type {AxiosInstance}
  */
 const apiServer = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: import.meta.env.VITE_API || "http://localhost:8000",
   timeout: 60 * 60 * 1000, // 1h
 });
 
@@ -68,7 +68,7 @@ export async function getSupportedValueFunctions(allocator, bidding_strategy) {
  */
 export async function getSupportedAllocators() {
   try {
-    const { data } = await apiServer.get("/allocators");
+    const { data } = await apiServer.get("allocators");
     return data;
   } catch (e) {
     const details = apiPostErrorToString(e);
