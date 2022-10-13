@@ -95,7 +95,7 @@ class CBSAllocator(Allocator):
             if not first_conflict:
                 allocations = {}
                 for agent, path in P.solution.items():
-                    if agent in start.solution and len(P.constraint_dict[agent]) == 0:
+                    if agent in env.agents.values() and len(P.constraint_dict[agent]) == 0:
                         continue
                     allocations[agent] = Allocation(agent, path, AllocationHistory(
                         self.bid_tracker.get_last_bid_for_tick(tick, agent, env), 0, AllocationReason.FIRST_ALLOCATION,
@@ -143,7 +143,8 @@ class CBSAllocator(Allocator):
         high_level_node.reason = reason
         return
 
-    def allocate_path(self, agent: "PathAgent", constraints: "Set[Coordinate4D]", env, tick, astar: "CBSAStar") -> \
+    def allocate_path(self, agent: "PathAgent", constraints: "Set[Coordinate4D]", env: "Environment", tick,
+                      astar: "CBSAStar") -> \
         Tuple[Optional[List["PathSegment"]], str]:
         """
         Allocate a path for a given path-bid.

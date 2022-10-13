@@ -14,7 +14,7 @@ class CBSPaymentRule(PaymentRule):
     """
     label = "CBS Payment"
 
-    def __init__(self, voxel_multiplier: float = 1.):
+    def __init__(self, voxel_multiplier: float = 0.002):
         """
         Configurable multiplier.
         :param voxel_multiplier:
@@ -37,6 +37,6 @@ class CBSPaymentRule(PaymentRule):
         for agent in environment.agents.values():
             for segment in agent.allocated_segments:
                 if agent not in res:
-                    res[agent] = 0
-                res[agent] += segment.nr_voxels * self.voxel_cost
+                    res[hash(agent)] = 0
+                res[hash(agent)] += segment.nr_voxels * self.voxel_cost
         return res
