@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Dict
 
 from Simulator import Allocation
 from Simulator import PaymentRule
+from Simulator.Agents.PathAgent import PathAgent
 from ..BidTracker.FCFSBidTracker import FCFSBidTracker
 
 if TYPE_CHECKING:
@@ -15,12 +16,14 @@ class FCFSPaymentRule(PaymentRule):
     """
     label = "FCFS Payment"
 
-    def __init__(self, voxel_multiplier: float = 1.):
+    def __init__(self, path_voxel_multiplier: float = 0.002, space_voxel_multiplier: float = 0.0001):
         """
-        Configurable multiplier.
-        :param voxel_multiplier:
+        Configurable multipliers.
+        :param path_voxel_multiplier:
+        :param space_voxel_multiplier:
         """
-        self.voxel_cost = voxel_multiplier
+        self.path_voxel_cost = path_voxel_multiplier
+        self.space_voxel_cost = space_voxel_multiplier
 
     def calculate_preliminary_payments(self, allocations: Dict["Agent", "Allocation"], bid_tracker: "FCFSBidTracker"):
         """
@@ -29,14 +32,18 @@ class FCFSPaymentRule(PaymentRule):
         :param bid_tracker:
         :return:
         """
-        for allocation in allocations.values():
+        for _agent, allocation in allocations.items():
+            voxel_cost = self.path_voxel_cost if isinstance(_agent, PathAgent) else self.space_voxel_cost
+
             for segment in allocation.segments:
-                allocation.preliminary_payment += segment.nr_voxels * self.voxel_cost
+                allocation.preliminary_payment += segment.nr_voxels * voxel_cost
 
     def calculate_final_payments(self, environment: "Environment", bid_tracker: "FCFSBidTracker") -> Dict[int, float]:
         res: Dict[int, float] = {}
         for agent in environment.agents.values():
             res[hash(agent)] = 0
+            voxel_cost = self.path_voxel_cost if isinstance(agent, PathAgent) else self.space_voxel_cost
+
             for segment in agent.allocated_segments:
-                res[hash(agent)] += segment.nr_voxels * self.voxel_cost
+                res[hash(agent)] += segment.nr_voxels * voxel_cost
         return res

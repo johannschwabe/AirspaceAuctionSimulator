@@ -18,8 +18,9 @@ class PriorityPaymentRule(PaymentRule):
 
     def __init__(self, path_voxel_multiplier: float = 0.002, space_voxel_multiplier: float = 0.0001):
         """
-        Configurable multiplier.
-        :param voxel_multiplier:
+        Configurable multipliers.
+        :param path_voxel_multiplier:
+        :param space_voxel_multiplier:
         """
         self.path_voxel_cost = path_voxel_multiplier
         self.space_voxel_cost = space_voxel_multiplier
