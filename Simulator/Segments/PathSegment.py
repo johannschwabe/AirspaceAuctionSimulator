@@ -19,6 +19,7 @@ class PathSegment(Segment):
         if other.min == self.max:
             join_index = 1
         else:
+            print(f"other: {other.min.t}, self: {self.max.t}")
             assert other.min.t == self.max.t + 1
 
         self.coordinates.extend(other.coordinates[join_index:])

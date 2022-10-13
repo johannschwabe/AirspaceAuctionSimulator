@@ -1,3 +1,4 @@
+import random
 from time import time_ns
 from typing import List, Optional, Dict, TYPE_CHECKING, Tuple
 
@@ -42,7 +43,7 @@ class FCFSAllocator(Allocator):
     def allocate_path(self, bid: "FCFSPathBid", environment: "Environment", astar: "AStar",
                       tick: int) -> Tuple[Optional[List["PathSegment"]], str]:
         """
-        AAllocate a path for a given path-bid.
+        Allocate a path for a given path-bid.
         Returns `None` if no valid path could be allocated.
         :param bid:
         :param environment:
@@ -145,6 +146,7 @@ class FCFSAllocator(Allocator):
         """
         astar = AStar(environment, self.bid_tracker, tick)
         allocations: Dict["Agent", "Allocation"] = {}
+        random.shuffle(agents)
 
         for agent in agents:
             print(f"allocating: {agent}")

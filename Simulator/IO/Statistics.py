@@ -267,6 +267,8 @@ class Statistics:
             local_env = self.simulation.environment.new_clear()
             allocation = self.simulation.mechanism.do([local_agent], local_env, 0)[local_agent]
             self.non_colliding_values[agent] = local_agent.value_for_segments(allocation.segments)
+            local_env.agents = {hash(local_agent): local_agent}
+            local_agent.allocated_segments = allocation.segments
             final_payments = self.simulation.mechanism.calculate_final_payments(local_env)
             payment = final_payments[hash(agent)] if hash(agent) in final_payments else 0
             self.non_colliding_utilities[agent] = self.non_colliding_values[

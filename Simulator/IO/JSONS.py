@@ -163,6 +163,7 @@ def get_json_intermediate_space_allocations(path_agent: "SpaceAgent",
 def get_json_owners(simulation: "Simulator"):
     json_path_owners: List["JSONOwner"] = []
     json_space_owners: List["JSONOwner"] = []
+    print(simulation.history.allocations)
     for owner in simulation.owners:
         json_path_agents: List["JSONAgent"] = []
         json_space_agents: List["JSONAgent"] = []
