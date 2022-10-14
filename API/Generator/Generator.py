@@ -1,16 +1,18 @@
 import random
 from typing import Dict, List, Optional, TYPE_CHECKING
 
-from API.WebClasses.Owners import WebPathOwner, WebSpaceOwner
 from Simulator import Coordinate4D, GridLocation, GridLocationType, Heatmap, HeatmapType, Mechanism, Simulator
 from Simulator.IO.JSONS import JSONOwnerDescription
 from .EnvironmentGen import EnvironmentGen
+from ..WebClasses.Owners.WebPathOwner import WebPathOwner
+from ..WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
-    from Simulator import Allocator, Owner, Environment, History, PaymentRule, Coordinate2D, Statistics
+    from Simulator import Owner, Environment, History, PaymentRule, Coordinate2D, Statistics
     from API.Types import APIOwner
     from API.Area import Area
+    from ..WebClasses.Allocators.WebAllocator import WebAllocator
 
 
 class Generator:
@@ -19,7 +21,7 @@ class Generator:
             owners: List["APIOwner"],
             dimensions: "Coordinate4D",
             maptiles: List["MapTile"],
-            allocator: "Allocator",
+            allocator: "WebAllocator",
             map_playfield_area: "Area",
             payment_rule: "PaymentRule",
             allocation_period: int = 50
@@ -27,7 +29,7 @@ class Generator:
         self.api_owners: List["APIOwner"] = owners
         self.dimensions: "Coordinate4D" = dimensions
         self.owners: List["Owner"] = []
-        self.allocator: "Allocator" = allocator
+        self.allocator: "WebAllocator" = allocator
         self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles,
                                                          min_height=map_playfield_area.min_height,
                                                          allocation_period=allocation_period,
