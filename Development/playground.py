@@ -2,17 +2,16 @@ import math
 import random
 import time
 
-from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, WebPathOwner, \
-    WebSpaceOwner, generate_config
-from API.Owners.WebOwnerMixin import WebOwnerMixin
+from API import APIWorldCoordinates, Area, EnvironmentGen, MapTile, WebPathOwner, WebSpaceOwner, generate_config
 from API.Types import APISubselection
-from Demos.FCFS import FCFSAllocator, FCFSPaymentRule, FCFSPathBiddingStrategy, FCFSSpaceBiddingStrategy, \
-    FCFSPathValueFunction, FCFSSpaceValueFunction
-from Demos.Priority import PriorityAllocator, PriorityPaymentRule, PriorityPathBiddingStrategy, \
-    PriorityPathValueFunction, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
-from Simulator import Simulator, Coordinate4D, StaticBlocker, Coordinate3D, Environment, GridLocation, \
-    GridLocationType, Mechanism
-from Simulator.IO.JSONS import get_simulation_dict, JSONOwnerDescription
+from API.WebClasses.Owners.WebOwnerMixin import WebOwnerMixin
+from Demos.FCFS import FCFSAllocator, FCFSPathBiddingStrategy, FCFSPathValueFunction, FCFSPaymentRule, \
+    FCFSSpaceBiddingStrategy, FCFSSpaceValueFunction
+from Demos.Priority import PriorityAllocator, PriorityPathBiddingStrategy, PriorityPathValueFunction, \
+    PriorityPaymentRule, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
+from Simulator import Coordinate3D, Coordinate4D, Environment, GridLocation, GridLocationType, Mechanism, Simulator, \
+    StaticBlocker
+from Simulator.IO.JSONS import JSONOwnerDescription, get_simulation_dict
 from Simulator.IO.Statistics import get_statistics_dict
 
 random.seed(4)

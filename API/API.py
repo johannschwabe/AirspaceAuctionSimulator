@@ -5,16 +5,18 @@ App runs on 'https://localhost:8000/'
 import random
 import time
 import traceback
-from typing import Any, Dict
+from typing import Any, Dict, TYPE_CHECKING
 
-from fastapi import HTTPException, FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from Simulator import get_simulation_dict, get_statistics_dict
-from .Generator.Generator import Generator
 from .Runners import run_from_config
 from .Types import APISimulationConfig
 from .config import available_allocators
+
+if TYPE_CHECKING:
+    from .Generator.Generator import Generator
 
 app = FastAPI()
 
@@ -91,7 +93,7 @@ def get_strategies_for_allocator(allocator):
 
 
 @app.post("/simulation")
-def simulate(config: APISimulationConfig):
+def simulate(config: "APISimulationConfig"):
     try:
         generator, duration = run_from_config(config)
     except ValueError as e:

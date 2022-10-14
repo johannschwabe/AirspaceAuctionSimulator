@@ -6,7 +6,7 @@ from typing import Dict, List
 from .WebBiddingStrategy import WebBiddingStrategy
 
 
-class WebPathBiddingStrategy(ABC, WebBiddingStrategy):
+class WebPathBiddingStrategy(WebBiddingStrategy, ABC):
     @staticmethod
     def meta() -> List[Dict]:
         return [

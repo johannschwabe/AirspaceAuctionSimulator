@@ -1,6 +1,6 @@
 from typing import Optional, TYPE_CHECKING
 
-from API import WebPathBiddingStrategy
+from API.WebClasses import WebPathBiddingStrategy
 from Demos.CBS.Bids.CBSPathBid import CBSPathBid
 from Demos.CBS.ValueFunction.CBSPathValueFunction import CBSPathValueFunction
 from Simulator import AgentType

@@ -1,7 +1,7 @@
 import random
 from typing import TYPE_CHECKING
 
-from API import WebSpaceBiddingStrategy
+from API.WebClasses import WebSpaceBiddingStrategy
 from Simulator import AgentType
 from ..Bids.PrioritySpaceBid import PrioritySpaceBid
 from ..ValueFunction.PrioritySpaceValueFunction import PrioritySpaceValueFunction

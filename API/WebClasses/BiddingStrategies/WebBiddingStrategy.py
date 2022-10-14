@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from Simulator import ValueFunction
 
 
-class WebBiddingStrategy(ABC, BiddingStrategy):
+class WebBiddingStrategy(BiddingStrategy, ABC):
     label = "Abstract Bidding Strategy"
     description = "An Bidding Strategy: Override this class variable"
     min_locations: int

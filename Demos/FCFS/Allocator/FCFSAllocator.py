@@ -2,7 +2,7 @@ import random
 from time import time_ns
 from typing import Dict, List, Optional, TYPE_CHECKING, Tuple
 
-from API import WebAllocator
+from API.WebClasses import WebAllocator
 from Simulator import AStar, Agent, Allocation, AllocationHistory, AllocationReason, PathSegment, \
     SpaceSegment, find_valid_path_tick, find_valid_space_tick, is_valid_for_space_allocation
 from ..BidTracker.FCFSBidTracker import FCFSBidTracker

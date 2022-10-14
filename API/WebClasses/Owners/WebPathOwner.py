@@ -1,8 +1,8 @@
 import math
 import random
-from typing import List, TYPE_CHECKING, Dict, Any, Optional
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
-from Simulator import PathOwner, PathAgent
+from Simulator import PathAgent, PathOwner
 from .WebOwnerMixin import WebOwnerMixin
 
 if TYPE_CHECKING:

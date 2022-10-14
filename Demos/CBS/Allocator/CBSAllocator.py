@@ -8,7 +8,7 @@ from typing import Dict, Iterator, List, Optional, Set, TYPE_CHECKING, Tuple, Ty
 from rtree import Index
 from rtree.index import Property
 
-from API import WebAllocator
+from API.WebClasses import WebAllocator
 from Simulator import Allocation, AllocationHistory, AllocationReason, PathAgent, PathSegment
 from .CBSAllocatorHelpers import Conflict, HighLevelNode
 from .CBSCostFunctions import CostFunction, PathLength

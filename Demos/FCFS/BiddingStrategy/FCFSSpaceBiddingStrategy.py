@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from API import WebSpaceBiddingStrategy
+from API.WebClasses import WebSpaceBiddingStrategy
 from Simulator import AgentType
 from ..Bids.FCFSSpaceBid import FCFSSpaceBid
 from ..ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction

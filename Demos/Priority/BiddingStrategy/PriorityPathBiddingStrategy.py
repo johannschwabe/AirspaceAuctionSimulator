@@ -1,7 +1,7 @@
 import random
 from typing import Optional, TYPE_CHECKING
 
-from API import WebPathBiddingStrategy
+from API.WebClasses import WebPathBiddingStrategy
 from Simulator import AgentType
 from ..Bids.PriorityPathBid import PriorityPathBid
 from ..ValueFunction.PriorityPathValueFunction import PriorityPathValueFunction

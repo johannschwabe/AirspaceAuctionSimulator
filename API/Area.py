@@ -1,13 +1,13 @@
 import math
 from typing import TYPE_CHECKING
 
-from haversine import haversine, inverse_haversine, Direction, Unit
+from haversine import Direction, Unit, haversine, inverse_haversine
 
 from Simulator import Coordinate2D
 from .LongLatCoordinate import LongLatCoordinate
 
 if TYPE_CHECKING:
-    from .API import APIWorldCoordinates
+    from .Types import APIWorldCoordinates
 
 EARTH_RADIUS = 6371008.8
 

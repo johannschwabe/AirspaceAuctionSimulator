@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from API import WebPathBiddingStrategy
+from API.WebClasses import WebPathBiddingStrategy
 from Simulator import AgentType
 from ..Bids.FCFSPathBid import FCFSPathBid
 from ..ValueFunction.FCFSPathValueFunction import FCFSPathValueFunction

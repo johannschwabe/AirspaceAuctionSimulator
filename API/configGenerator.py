@@ -1,18 +1,18 @@
 from typing import List, TYPE_CHECKING
 
-from API import Area
-from API.LongLatCoordinate import LongLatCoordinate
-from API.Types import APIBiddingStrategy, APILocations, APIMap, APIOwner, APISimulationConfig, APISubselection, \
-    APIWorldCoordinates
-from Simulator import Simulator
-from Simulator.Location.GridLocationType import GridLocationType
-from .BiddingStrategies.WebPathBiddingStrategy import WebPathBiddingStrategy
-from .Owners.WebOwnerMixin import WebOwnerMixin
-from .Owners.WebPathOwner import WebPathOwner
-from .Owners.WebSpaceOwner import WebSpaceOwner
+from API.WebClasses.BiddingStrategies.WebPathBiddingStrategy import WebPathBiddingStrategy
+from API.WebClasses.Owners import WebOwnerMixin
+from API.WebClasses.Owners.WebPathOwner import WebPathOwner
+from API.WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
+from Simulator import GridLocationType
+from . import Area
+from .LongLatCoordinate import LongLatCoordinate
+from .Types import APIBiddingStrategy, APILocations, APIMap, APIOwner, APISimulationConfig, APIWorldCoordinates
 
 if TYPE_CHECKING:
-    from API.Generator.MapTile import MapTile
+    from .Generator.MapTile import MapTile
+    from .Types import APISubselection
+    from Simulator import Simulator
 
 
 def generate_config(simulator: "Simulator",
