@@ -1,8 +1,8 @@
 import random
 from typing import Optional, TYPE_CHECKING
 
-from Simulator import AgentType, BiddingStrategy
-from Simulator.Bids.PathBiddingStrategy import PathBiddingStrategy
+from API import WebPathBiddingStrategy
+from Simulator import AgentType
 from ..Bids.PriorityPathBid import PriorityPathBid
 from ..ValueFunction.PriorityPathValueFunction import PriorityPathValueFunction
 from ...FCFS.ValueFunction.FCFSPathValueFunction import FCFSPathValueFunction
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from Simulator import PathAgent, Environment
 
 
-class PriorityPathBiddingStrategy(BiddingStrategy, PathBiddingStrategy):
+class PriorityPathBiddingStrategy(WebPathBiddingStrategy):
     label = "Priority Path Bidding Strategy"
     description = "An Bidding Strategy for Priority Path Agents"
     min_locations = 2
@@ -21,7 +21,7 @@ class PriorityPathBiddingStrategy(BiddingStrategy, PathBiddingStrategy):
     @staticmethod
     def meta():
         return [
-            *PathBiddingStrategy.meta(),
+            *WebPathBiddingStrategy.meta(),
             {
                 "key": "priority",
                 "label": "Priority",

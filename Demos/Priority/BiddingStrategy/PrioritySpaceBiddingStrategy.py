@@ -1,8 +1,8 @@
 import random
 from typing import TYPE_CHECKING
 
-from Simulator import AgentType, BiddingStrategy
-from Simulator.Bids.SpaceBiddingStrategy import SpaceBiddingStrategy
+from API import WebSpaceBiddingStrategy
+from Simulator import AgentType
 from ..Bids.PrioritySpaceBid import PrioritySpaceBid
 from ..ValueFunction.PrioritySpaceValueFunction import PrioritySpaceValueFunction
 from ...FCFS.ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from Simulator import SpaceAgent, Environment
 
 
-class PrioritySpaceBiddingStrategy(BiddingStrategy, SpaceBiddingStrategy):
+class PrioritySpaceBiddingStrategy(WebSpaceBiddingStrategy):
     label = "Priority Space Bidding Strategy"
     description = "An Bidding Strategy for Priority Space Agents"
     min_locations = 1
@@ -21,7 +21,7 @@ class PrioritySpaceBiddingStrategy(BiddingStrategy, SpaceBiddingStrategy):
     @staticmethod
     def meta():
         return [
-            *SpaceBiddingStrategy.meta(),
+            *WebSpaceBiddingStrategy.meta(),
             {
                 "key": "priority",
                 "label": "Priority",

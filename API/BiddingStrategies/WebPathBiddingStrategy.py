@@ -1,10 +1,14 @@
 import math
 import random
+from abc import ABC
+from typing import Dict, List
+
+from .WebBiddingStrategy import WebBiddingStrategy
 
 
-class PathBiddingStrategy:
+class WebPathBiddingStrategy(ABC, WebBiddingStrategy):
     @staticmethod
-    def meta():
+    def meta() -> List[Dict]:
         return [
             {
                 "key": "near_field",

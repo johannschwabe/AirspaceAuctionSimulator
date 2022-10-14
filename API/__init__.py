@@ -1,5 +1,7 @@
-from .API import app, APISimulationConfig, build_json
+from .API import APISimulationConfig, app, build_json
 from .Area import Area
+from .BiddingStrategies.WebPathBiddingStrategy import WebPathBiddingStrategy
+from .BiddingStrategies.WebSpaceBiddingStrategy import WebSpaceBiddingStrategy
 from .Generator.EnvironmentGen import EnvironmentGen
 from .Generator.MapTile import MapTile
 from .Owners.WebPathOwner import WebPathOwner
