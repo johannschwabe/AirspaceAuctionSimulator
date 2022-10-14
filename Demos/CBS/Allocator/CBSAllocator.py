@@ -19,9 +19,7 @@ from ..CBSAstar.CBSAstar import CBSAStar, find_valid_path_tick, is_valid_for_pat
 from ..PaymentRule.CBSPaymentRule import CBSPaymentRule
 
 if TYPE_CHECKING:
-    from Simulator.Coordinates.Coordinate4D import Coordinate4D
-    from Simulator.BidTracker.BidTracker import BidTracker
-    from Simulator.Environment.Environment import Environment
+    from Simulator import Coordinate4D, BidTracker, Environment
 
 
 class CBSAllocator(WebAllocator):
