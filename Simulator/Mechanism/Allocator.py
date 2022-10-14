@@ -2,10 +2,10 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..Agents.Agent import Agent
-    from ..Allocations.Allocation import Allocation
-    from ..Environment.Environment import Environment
-    from ..BidTracker.BidTracker import BidTracker
+    from Simulator.Agents.Agent import Agent
+    from Simulator.Allocations.Allocation import Allocation
+    from Simulator.Environment.Environment import Environment
+    from Simulator.Bids.BidTracker import BidTracker
 
 
 class Allocator(ABC):

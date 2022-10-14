@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..Agents.Agent import Agent
-    from ..Bids.Bid import Bid
-    from ..Environment.Environment import Environment
+    from Simulator.Agents.Agent import Agent
+    from Simulator.Bids.Bid import Bid
+    from Simulator.Environment.Environment import Environment
 
 
 class BidTracker(ABC):
