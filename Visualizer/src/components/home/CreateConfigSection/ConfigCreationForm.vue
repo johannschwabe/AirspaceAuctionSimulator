@@ -116,13 +116,13 @@
   >
     <template #trigger>
       <n-button :loading="loading" type="primary">
-        {{ loading ? `Running Simulation... (${loadingForSeconds}s)` : "Simulate" }}
+        {{ loading ? `Running Simulation... (${loadingForSeconds}s, ~${(percentage * 100).toFixed(1)}%)` : "Simulate" }}
       </n-button>
     </template>
     You do have an old session in your browser cache. It will be overwritten!
   </n-popconfirm>
   <n-button v-else :loading="loading" type="primary" @click.stop="simulate">
-    {{ loading ? `Running Simulation... (${loadingForSeconds}s)` : "Simulate" }}
+    {{ loading ? `Running Simulation... (${loadingForSeconds}s, ~${percentage}%)` : "Simulate" }}
   </n-button>
 
   <!-- On finished simulation, download simulation file or go to simulation -->
@@ -168,7 +168,7 @@ import Help from "../../common/help/help.vue";
 
 import Simulation from "../../../SimulationObjects/Simulation.js";
 
-import { downloadSimulation, postSimulation } from "../../../API/api.js";
+import { downloadSimulation, postSimulation, ws } from "../../../API/api.js";
 import {
   canRecoverSimulationSingleton,
   hasSimulationSingleton,
@@ -202,10 +202,14 @@ const loading = ref(false);
 const loadingForSeconds = ref(0);
 const loadingInterval = ref(undefined);
 const finished = ref(false);
+const percentage = ref(0);
 
 const canRecoverSimulation = ref(hasSimulationSingleton());
 canRecoverSimulationSingleton().then((val) => (canRecoverSimulation.value = canRecoverSimulation.value || val));
 
+ws.onmessage = function (event) {
+  percentage.value = parseFloat(event.data);
+};
 const rules = {
   name: [
     {

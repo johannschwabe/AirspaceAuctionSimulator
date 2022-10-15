@@ -9,6 +9,9 @@ const apiServer = axios.create({
   timeout: 60 * 60 * 1000, // 1h
 });
 
+export const client_id = `ci_${Math.round(Math.random() * 1000)}`;
+export const ws = new WebSocket(`ws://localhost:8000/ws/${client_id}`);
+
 const STORAGE_KEY = "simulation_db";
 const SIMULATION_STORAGE_KEY = "simulation";
 const STATISTICS_STORAGE_KEY = "statistics";
@@ -39,7 +42,7 @@ const apiPostErrorToString = (e) => {
  */
 export async function postSimulation(simulationConfig) {
   try {
-    const { data } = await apiServer.post("/simulation", simulationConfig);
+    const { data } = await apiServer.post(`/simulation/${client_id}`, simulationConfig);
     await persistSimulation(data);
     return data;
   } catch (e) {

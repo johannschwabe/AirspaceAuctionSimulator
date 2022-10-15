@@ -9,12 +9,16 @@ from .Generator.MapTile import MapTile
 from .config import available_allocators
 
 if TYPE_CHECKING:
-    from .API import APISimulationConfig
+    from .API import APISimulationConfig, ConnectionManager
 
 
-def run_from_config(config: "APISimulationConfig") -> Tuple[Generator, int]:
+async def run_from_config(config: "APISimulationConfig", connection_manager: "ConnectionManager", client_id: str) -> \
+Tuple[
+    Generator, int]:
     """
     Runs an AirspaceAuctionSimulation using a config that is usually provided by the API or generated using the CLI.
+    :param client_id:
+    :param connection_manager:
     :param config: Configuration object, defining all parameters of the Simulation
     :return: Simulated generator, simulation duration in seconds
     """
@@ -53,9 +57,10 @@ def run_from_config(config: "APISimulationConfig") -> Tuple[Generator, int]:
 
     random.seed(2)
     generator = Generator(config.owners, dimensions, maptiles, allocator, map_playfield_area, selected_payment_rule,
-                          allocation_period=config.map.allocationPeriod)
+                          allocation_period=config.map.allocationPeriod, connection_manager=connection_manager,
+                          client_id=client_id)
     start_time = time.time_ns()
-    generator.simulate()
+    await generator.simulate()
     end_time = time.time_ns()
     duration = int((end_time - start_time) / 1e9)
     return generator, duration

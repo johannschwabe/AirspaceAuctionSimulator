@@ -7,8 +7,9 @@ import time
 import traceback
 from typing import Any, Dict
 
-from fastapi import HTTPException, FastAPI
+from fastapi import HTTPException, FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from websockets import ConnectionClosedError
 
 from Simulator import get_simulation_dict, get_statistics_dict
 from .Generator.Generator import Generator
@@ -34,6 +35,30 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: Dict[str, WebSocket] = {}
+
+    async def connect(self, _websocket: WebSocket, client_id: str):
+        await _websocket.accept()
+        self.active_connections[client_id] = _websocket
+
+    async def tick(self, client_id: str, percentage: float):
+        if client_id not in self.active_connections:
+            return False
+        try:
+            await self.active_connections[client_id].send_text(f"{percentage}")
+        except ConnectionClosedError:
+            return False
+        return True
+
+    async def disconnect(self, client_id: str):
+        del self.active_connections[client_id]
+
+
+cm = ConnectionManager()
 
 
 def build_json(config: Dict[str, Any], generator: "Generator", simulation_duration: int):
@@ -90,14 +115,16 @@ def get_strategies_for_allocator(allocator):
              } for bidding_strategy in compatible_bidding_strategies]
 
 
-@app.post("/simulation")
-def simulate(config: APISimulationConfig):
+@app.post("/simulation/{client_id}")
+async def simulate(config: APISimulationConfig, client_id: str):
     try:
-        generator, duration = run_from_config(config)
+        generator, duration = await run_from_config(config, cm, client_id)
     except ValueError as e:
         traceback.print_exc()
         raise HTTPException(status_code=404, detail=str(e))
     print("--Simulation Completed--")
+    if generator.simulator.time_step != generator.simulator.environment.dimension.t + 1:
+        raise HTTPException(status_code=400, detail="Client aborted: Websocket disconnected")
     return build_json(config.dict(), generator, duration)
 
 
@@ -109,3 +136,15 @@ def compatible_payment_rules(allocator):
     selected_allocator = allocators[0]
     return [{"classname": payment_function.__name__, "label": payment_function.label} for payment_function in
             selected_allocator.compatible_payment_functions()]
+
+
+@app.websocket("/ws/{client_id}")
+async def websocket(_websocket: WebSocket, client_id: str):
+    await cm.connect(_websocket, client_id)
+    try:
+        while True:
+            data = await _websocket.receive_text()
+            print(data)
+    except WebSocketDisconnect:
+        await cm.disconnect(client_id=client_id)
+        print(client_id + " disconnected")
