@@ -140,8 +140,9 @@ class Generator:
             self.environment,
         )
         while self.simulator.tick():
-            if not await self.connection_manager.tick(client_id=self.client_id,
-                                                      percentage=len(self.environment.agents) / self.total_agents):
+            if self.connection_manager and not await self.connection_manager.tick(client_id=self.client_id,
+                                                                                  percentage=len(
+                                                                                      self.environment.agents) / self.total_agents):
                 break
 
         print(f"DONE!")
