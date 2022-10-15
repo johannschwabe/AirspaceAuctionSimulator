@@ -33,7 +33,13 @@ class PrioritySpaceBiddingStrategy(BiddingStrategy, SpaceBiddingStrategy):
         ]
 
     def generate_bid(self, agent: "SpaceAgent", _environment: "Environment", _time_step: int) -> "PrioritySpaceBid":
-        return PrioritySpaceBid(agent, agent.blocks, agent.config["priority"])
+        unsatisfied_blocks = []
+        for requested_segment in agent.blocks:
+            block_satisfied = any(
+                [requested_segment.index == allocated_segment.index for allocated_segment in agent.allocated_segments])
+            if not block_satisfied:
+                unsatisfied_blocks.append(requested_segment)
+        return PrioritySpaceBid(agent, unsatisfied_blocks, agent.config["priority"])
 
     @staticmethod
     def compatible_value_functions():

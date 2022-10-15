@@ -26,9 +26,10 @@ class SpaceAgent(Agent):
 
     def add_allocated_segment(self, space_segment: "SpaceSegment"):
         for existing_segment in self.allocated_segments:
-            if existing_segment.min.inter_temporal_equal(space_segment.min) and \
-                existing_segment.max.inter_temporal_equal(space_segment.max) and \
-                existing_segment.max.t + 1 == space_segment.min.t:
+            if existing_segment.index == space_segment.index:
+                assert existing_segment.min.inter_temporal_equal(space_segment.min)
+                assert existing_segment.max.inter_temporal_equal(space_segment.max)
+                assert existing_segment.max.t + 1 == space_segment.min.t
                 existing_segment.max.t = space_segment.max.t
                 print(
                     f"merged: {existing_segment.min},\n{existing_segment.max} \nfrom {space_segment.min},\n{space_segment.max}")

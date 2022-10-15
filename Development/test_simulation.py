@@ -5,10 +5,10 @@ from API import APISimulationConfig, build_json, run_from_config
 
 random.seed(4)
 
-f = open("compatible-penelope-simulation.json", "r")
+f = open("xenacious-otha-config.json", "r")
 converted = json.load(f)
-config: APISimulationConfig = APISimulationConfig(**converted["config"])
-# config: APISimulationConfig = APISimulationConfig(**converted)
+# config: APISimulationConfig = APISimulationConfig(**converted["config"])
+config: APISimulationConfig = APISimulationConfig(**converted)
 f.close()
 
 generator, duration = run_from_config(config)

@@ -144,7 +144,7 @@ class PriorityAllocator(Allocator):
                                                                     bid.agent)
             if valid:
                 collisions = collisions.union(block_collisions)
-                possible_space_segments.append(SpaceSegment(lower, upper))
+                possible_space_segments.append(SpaceSegment(lower, upper, block.index))
 
         return possible_space_segments, collisions, "Space allocated."
 
@@ -206,7 +206,7 @@ class PriorityAllocator(Allocator):
             # Deallocate collisions
             agents_to_allocate = agents_to_allocate.union(collisions)
             for agent_to_remove in collisions:
-                print(f"reallocating: {agent_to_remove.id}")
+                print(f"reallocating: {agent_to_remove}")
                 if agent_to_remove not in displacements:
                     displacements[agent_to_remove] = set()
                 displacements[agent_to_remove].add(agent)
