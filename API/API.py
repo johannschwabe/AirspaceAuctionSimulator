@@ -54,7 +54,7 @@ class ConnectionManager:
             return False
         return True
 
-    async def disconnect(self, client_id: str):
+    def disconnect(self, client_id: str):
         del self.active_connections[client_id]
 
 
