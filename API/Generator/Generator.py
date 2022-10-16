@@ -10,8 +10,9 @@ from ..WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
 if TYPE_CHECKING:
     from .MapTile import MapTile
     from Simulator import Owner, Environment, History, PaymentRule, Coordinate2D, Statistics
-    from API.Types import APIOwner
-    from API.Area import Area
+    from ..Types import APIOwner
+    from ..Area import Area
+    from ..API import ConnectionManager
     from ..WebClasses.Allocators.WebAllocator import WebAllocator
 
 
@@ -24,8 +25,13 @@ class Generator:
             allocator: "WebAllocator",
             map_playfield_area: "Area",
             payment_rule: "PaymentRule",
-            allocation_period: int = 50
+            allocation_period: int = 50,
+            connection_manager: "Optional[ConnectionManager]" = None,
+            client_id: "Optional[str]" = ""
     ):
+        self.connection_manager = connection_manager
+        self.client_id = client_id
+        self.total_agents = sum([owner.agents for owner in owners])
         self.api_owners: List["APIOwner"] = owners
         self.dimensions: "Coordinate4D" = dimensions
         self.owners: List["Owner"] = []
@@ -65,7 +71,7 @@ class Generator:
                                                           inverse_sparse=heat_dict)))
         return stops
 
-    def simulate(self):
+    async def simulate(self):
         owner_id = 0
         for api_owner in self.api_owners:
             stops: List["GridLocation"] = self.extract_owner_stops(api_owner)
@@ -135,7 +141,11 @@ class Generator:
             self.environment,
         )
         while self.simulator.tick():
-            pass
+            if self.connection_manager:
+                tick = await self.connection_manager.tick(client_id=self.client_id,
+                                                          percentage=len(self.environment.agents) / self.total_agents)
+                if not tick:
+                    break
 
         print(f"DONE!")
         print(f"STEP: {self.simulator.time_step}")
