@@ -3,6 +3,6 @@ from .Area import Area
 from .Generator.EnvironmentGen import EnvironmentGen
 from .Generator.MapTile import MapTile
 from .Runners import run_from_config
-from .Types import APIWorldCoordinates
+from .Types import APISubselection, APIWorldCoordinates
 from .config import available_allocators
 from .configGenerator import generate_config

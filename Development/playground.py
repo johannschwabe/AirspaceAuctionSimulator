@@ -2,17 +2,14 @@ import math
 import random
 import time
 
-from API import APIWorldCoordinates, Area, EnvironmentGen, MapTile, WebPathOwner, WebSpaceOwner, generate_config
-from API.Types import APISubselection
-from API.WebClasses.Owners.WebOwnerMixin import WebOwnerMixin
+from API import APISubselection, APIWorldCoordinates, Area, EnvironmentGen, MapTile, generate_config
+from API.WebClasses import WebPathOwner, WebSpaceOwner
 from Demos.FCFS import FCFSAllocator, FCFSPathBiddingStrategy, FCFSPathValueFunction, FCFSPaymentRule, \
     FCFSSpaceBiddingStrategy, FCFSSpaceValueFunction
 from Demos.Priority import PriorityAllocator, PriorityPathBiddingStrategy, PriorityPathValueFunction, \
     PriorityPaymentRule, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
-from Simulator import Coordinate3D, Coordinate4D, Environment, GridLocation, GridLocationType, Mechanism, Simulator, \
-    StaticBlocker
-from Simulator.IO.JSONS import JSONOwnerDescription, get_simulation_dict
-from Simulator.IO.Statistics import get_statistics_dict
+from Simulator import Coordinate3D, Coordinate4D, Environment, GridLocation, GridLocationType, JSONOwnerDescription, \
+    Mechanism, Simulator, StaticBlocker, get_simulation_dict, get_statistics_dict
 
 random.seed(4)
 dimensions = Coordinate4D(40, 40, 40, 1000)
@@ -46,7 +43,7 @@ def setup_map():
     return EnvironmentGen(map_dimensions, [MapTile([15, 17161, 11475], area)], area, 50, 10)
 
 
-def fcfs_simulation(env: Environment):
+def fcfs_simulation(_env: Environment):
     allocator = FCFSAllocator()
     payment_rule = FCFSPaymentRule()
     mechanism = Mechanism(allocator, payment_rule)
@@ -72,10 +69,10 @@ def fcfs_simulation(env: Environment):
                       FCFSSpaceBiddingStrategy(),
                       FCFSSpaceValueFunction())
     ]
-    return Simulator(owners, mechanism, env)
+    return Simulator(owners, mechanism, _env)
 
 
-def priority_simulation(env: Environment):
+def priority_simulation(_env: Environment):
     allocator = PriorityAllocator()
     payment_rule = PriorityPaymentRule()
     mechanism = Mechanism(allocator, payment_rule)
@@ -115,7 +112,7 @@ def priority_simulation(env: Environment):
                       PrioritySpaceValueFunction(),
                       {"priority": 0.5}),
     ]
-    return Simulator(owners, mechanism, env)
+    return Simulator(owners, mechanism, _env)
 
 
 def color_generator():
@@ -154,12 +151,13 @@ if __name__ == "__main__":
     statistics = get_statistics_dict(simulatorAligator)
     statistics_end_time = time.time_ns()
     statistics_duration = statistics_end_time - statistics_start_time
-    owner_map = {
-        owner.id: JSONOwnerDescription(owner.color, owner.name).as_dict() if isinstance(owner, WebOwnerMixin)
-        else JSONOwnerDescription(
-            owner.id,
-            hex(hash(owner.id) % 0xFFFFFF)[2:].zfill(6)).as_dict()
-        for owner in simulatorAligator.owners}
+    owner_map = {}
+    for owner in simulatorAligator.owners:
+        if isinstance(owner, WebSpaceOwner) or isinstance(owner, WebPathOwner):
+            owner_map[owner.id] = JSONOwnerDescription(owner.color, owner.name).as_dict()
+        else:
+            owner_map[owner.id] = JSONOwnerDescription(owner.id, hex(hash(owner.id) % 0xFFFFFF)[2:].zfill(6)).as_dict()
+
     res = {"config": sim_config,
            "owner_map": owner_map,
            "simulation": get_simulation_dict(simulatorAligator),
