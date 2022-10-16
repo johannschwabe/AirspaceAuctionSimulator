@@ -142,8 +142,8 @@ class Generator:
         )
         while self.simulator.tick():
             if self.connection_manager:
-                tick = self.connection_manager.tick(client_id=self.client_id,
-                                                    percentage=len(self.environment.agents) / self.total_agents)
+                tick = await self.connection_manager.tick(client_id=self.client_id,
+                                                          percentage=len(self.environment.agents) / self.total_agents)
                 if not tick:
                     break
 
