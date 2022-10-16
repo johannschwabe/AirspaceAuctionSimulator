@@ -3,12 +3,12 @@ from typing import List, TYPE_CHECKING, Tuple
 import cloudscraper
 import mpmath as mp
 
+from API.Area import Area
+from API.LongLatCoordinate import LongLatCoordinate
 from Simulator import BuildingBlocker, Coordinate3D
-from ..Area import Area
-from ..LongLatCoordinate import LongLatCoordinate
 
 if TYPE_CHECKING:
-    from ..Types import APIWorldCoordinates
+    from API.Types import APIWorldCoordinates
 
 
 class MapTile:
@@ -18,9 +18,9 @@ class MapTile:
     """
 
     def __init__(
-        self,
-        tile_ids: List[int],
-        area: "Area"
+            self,
+            tile_ids: List[int],
+            area: "Area"
     ):
         """
         :param tile_ids: int[3] - coordinates of the tile (In the tile-coordinate system)
@@ -54,7 +54,7 @@ class MapTile:
             has_height = building['properties']['height'] > 0
             is_polygon = building['geometry']['type'] == 'Polygon'
             has_coordinates = (
-                len(building['geometry']['coordinates']) > 0 and len(building['geometry']['coordinates'][0]) > 0
+                    len(building['geometry']['coordinates']) > 0 and len(building['geometry']['coordinates'][0]) > 0
             )
             if is_feature and has_height and is_polygon and has_coordinates:
                 coords = []
@@ -148,24 +148,30 @@ class MapTile:
     def zxy2lon(z: int, x: int, y: int) -> float:
         """
         Converts a raw maptile definition using z,x,y to the longitude of its anchor point at the top-left
+        Source: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_numbers_to_lon./lat._2
         :param z: Zoom
         :param x: horizontal index
         :param y: vertical index
         :return: longitude
         """
-        return x / 2 ** z * 360 - 180
+        n = 2.0 ** z
+        lon = x / n * 360.0 - 180.0
+        return lon
 
     @staticmethod
     def zxy2lat(z: int, x: int, y: int) -> float:
         """
         Converts a raw maptile definition using z,x,y to the latitude of its anchor point at the top-left
+        Source: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_numbers_to_lon./lat._2
         :param z: Zoom
         :param x: horizontal index
         :param y: vertical index
         :return: latitude
         """
-        n = mp.pi - 2 * mp.pi * y / 2 ** z
-        return float((180 / mp.pi) * (mp.atan(0.5 * (mp.exp(n) - mp.exp(-n)))))
+        n = 2.0 ** z
+        lat_rad = mp.atan(mp.sinh(mp.pi * (1 - 2 * y / n)))
+        lat = mp.degrees(lat_rad)
+        return float(lat)
 
     @staticmethod
     def tiles_from_coordinates(coordinates: "APIWorldCoordinates", neighbouring_tiles=0, resolution=1) -> List[
@@ -173,18 +179,20 @@ class MapTile:
         """
         Given an input coordinate, returns a list of MapTiles centering that coordinate, including neighbouring
         maptiles according to the input parameters
+        Source: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Lon./lat._to_tile_numbers_2
         :param coordinates: Coordinate that will be covered by the maptile at the center of the array
         :param neighbouring_tiles:
         :param resolution:
-        :return: Array of maptiles, starting from the top-left tile, left-to-right, top-to-bottom flow: [[1,2,3], [4, 5, 6], [7, 8, 9]]
+        :return: Array of maptiles, starting from the top-left tile, left-to-right, top-to-bottom flow: [[1,2,3], [4,
+        5, 6], [7, 8, 9]]
                  The number of tiles returned is always (1 + (neighbouring_tiles * 2)^2
                  Hence: 0->1, 1->9, 2->25 etc.
         """
         lat_rad = mp.radians(coordinates.lat)
         n = 2 ** 15
 
-        xtile = int(n * ((coordinates.long + 180) / 360))
-        ytile = int(n * (1 - (mp.log(mp.tan(lat_rad) + mp.sec(lat_rad)) / mp.pi)) / 2)
+        xtile = int((coordinates.long + 180.0) / 360.0 * n)
+        ytile = int((1.0 - mp.asinh(mp.tan(lat_rad)) / mp.pi) / 2.0 * n)
 
         tiles = []
         for i in range(-neighbouring_tiles, neighbouring_tiles + 1):

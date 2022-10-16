@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING, Dict
+from typing import Dict, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..Agents.Agent import Agent
@@ -35,5 +35,9 @@ class Mechanism:
         self.payment_rule.calculate_preliminary_payments(allocations, self.allocator.get_bid_tracker())
         return allocations
 
-    def calculate_final_payments(self, environment: "Environment"):
+    def calculate_final_payments(self, environment: "Environment") -> Dict[int, float]:
+        """
+        :param environment: the environment with allocated agents
+        :return: A dictionary mapping agent hashes to payments
+        """
         return self.payment_rule.calculate_final_payments(environment, self.allocator.get_bid_tracker())

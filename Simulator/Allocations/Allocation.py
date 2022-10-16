@@ -1,5 +1,4 @@
-from abc import ABC
-from typing import TYPE_CHECKING, List
+from typing import List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..Agents.Agent import Agent
@@ -7,7 +6,7 @@ if TYPE_CHECKING:
     from .AllocationHistory import AllocationHistory
 
 
-class Allocation(ABC):
+class Allocation:
     """
     A new allocation for an agent. Can be done for agent clones or real agents.
     """

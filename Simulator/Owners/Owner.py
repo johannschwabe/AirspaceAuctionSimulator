@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Dict, Any
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..Agents.Agent import Agent
@@ -9,22 +9,14 @@ if TYPE_CHECKING:
 
 
 class Owner(ABC):
-    label = "Abstract Owners"
-    description = "An Abstract Owners: Override this class variable"
-    min_locations: int
-    max_locations: int
-    meta: []
     allocation_type: str
 
-    def __init__(self, owner_id: str,
+    def __init__(self,
+                 owner_id: str,
                  bidding_strategy: "BiddingStrategy",
                  value_function: "ValueFunction",
-                 name: str,
-                 color: str,
-                 meta: Dict[str, Any]):
+                 config: Optional[Dict[str, Any]]):
         self.id: str = owner_id
-        self.name: str = name
-        self.color: str = color
         self.agents: List["Agent"] = []
         self.total_achieved_welfare: float = 0.
         self.total_optimal_welfare: float = 0.
@@ -32,7 +24,7 @@ class Owner(ABC):
         self._agent_id: int = 0
         self.bidding_strategy = bidding_strategy
         self.value_function = value_function
-        self.config = meta
+        self.config: Dict[str, Any] = config if config is not None else {}
 
     def get_agent_id(self):
         agent_id = self._agent_id

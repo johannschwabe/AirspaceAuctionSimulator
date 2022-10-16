@@ -1,33 +1,33 @@
 """
 Some examples of calling the CLI without any interaction:
-python CLI.py --create --name "testmodel" --description "This is a description" --allocator "PriorityAllocator" --payment-rule "PriorityPaymentRule" --address "Zurich" --neighbouring-tiles 0 --resolution 2 --height 200 --min-height 50 --timesteps 1000 --allocation-period 500 --owner OwnerA 20 PriorityPathBiddingStrategy PriorityPathValueFunction --summary --skip-save-config --skip-save-simulation --simulate
+python CLI.py --create --name "testmodel" --description "This is a description" --allocator "PriorityAllocator"
+--payment-rule "PriorityPaymentRule" --address "Zurich" --neighbouring-tiles 0 --resolution 2 --height 200
+--min-height 50 --timesteps 1000 --allocation-period 500 --owner OwnerA 20 PriorityPathBiddingStrategy
+PriorityPathValueFunction --summary --skip-save-config --skip-save-simulation --simulate
 """
 
 import argparse
 import glob
 import json
 import os
-from typing import Type, List
+from typing import Any, Dict, List, Optional, Type
 
 import requests
 import yaml
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
-from InquirerPy.validator import PathValidator, EmptyInputValidator
+from InquirerPy.validator import EmptyInputValidator, PathValidator
 
-from API import run_from_config, build_json
-from API.Types import APISimulationConfig
-from API.config import available_allocators
+from API import APISimulationConfig, available_allocators, build_json, run_from_config
+from API.WebClasses import WebAllocator, WebBiddingStrategy
 from Development.playground import color_generator
-from Simulator.Bids.BiddingStrategy import BiddingStrategy
-from Simulator.Mechanism.Allocator import Allocator
-from Simulator.Mechanism.PaymentRule import PaymentRule
+from Simulator import PaymentRule
 
 PREFAB_PATH = "./Prefabs/configs"
 HOME_PATH = "~/" if os.name == "posix" else "C:\\"
 
 
-def random_locations_for_bidding_strategy(bidding_strategy: Type[BiddingStrategy]) -> List:
+def random_locations_for_bidding_strategy(bidding_strategy: Type["WebBiddingStrategy"]) -> List:
     """
     Returns a list of random path locations with minimum number of locations for
     a given bidding strategy
@@ -37,7 +37,7 @@ def random_locations_for_bidding_strategy(bidding_strategy: Type[BiddingStrategy
     return [{"type": "random", "points": []} for _ in range(bidding_strategy.min_locations)]
 
 
-def bidding_strategy_to_dict(bidding_strategy: Type[BiddingStrategy]):
+def bidding_strategy_to_dict(bidding_strategy: Type["WebBiddingStrategy"]):
     """
     Creates a dictionary in the form that is required by the simulation config file from
     a bidding strategy class object
@@ -53,24 +53,24 @@ def bidding_strategy_to_dict(bidding_strategy: Type[BiddingStrategy]):
     }
 
 
-def allocator_from_name(allocator_name: str) -> Type[Allocator]:
+def allocator_from_name(allocator_name: str) -> Type["WebAllocator"]:
     """
     Resolves an allocator class object given the allocators classname
     :param allocator_name: Classname of allocator
     :return: Allocator class object
     """
-    allocators = list(filter(lambda x: (x.__name__ == allocator_name), available_allocators))
-    if len(allocators) == 0:
+    allocator_list = list(filter(lambda x: (x.__name__ == allocator_name), available_allocators))
+    if len(allocator_list) == 0:
         raise ValueError(f"Allocator '{allocator_name}' unknown")
-    return allocators[0]
+    return allocator_list[0]
 
 
-def bidding_strategy_from_name(allocator: Type[Allocator], strategy_name: str) -> Type[BiddingStrategy]:
+def bidding_strategy_from_name(allocator: Type["WebAllocator"], strategy_name: str) -> Type["WebBiddingStrategy"]:
     """
     Resolves the name of a bidding strategy to the BiddingStrategy class type. If the provided bidding
     strategy name is incompatible with the provided allocator class object, a ValueError is thrown.
-    :param allocator_name: Allocator Class that must match bidding strategy
-    :param bidding_strategy_name: Classname of bidding strategy
+    :param allocator: Allocator Class that must match bidding strategy
+    :param strategy_name: Classname of bidding strategy
     :return:
     """
     strategies = list(filter(lambda x: (x.__name__ == strategy_name), allocator.compatible_bidding_strategies()))
@@ -80,7 +80,7 @@ def bidding_strategy_from_name(allocator: Type[Allocator], strategy_name: str) -
     return strategies[0]
 
 
-def payment_rule_from_name(allocator: Type[Allocator], rule_name: str) -> Type[PaymentRule]:
+def payment_rule_from_name(allocator: Type["WebAllocator"], rule_name: str) -> Type["PaymentRule"]:
     """
     Resolves the name of a payment rule to the PaymentRule class type.The provided payment rule must
     be compatible with the given allocator.
@@ -100,8 +100,8 @@ def available_prefab_names() -> List[str]:
     Returns a list of available prefab simulation configurations
     :return: Prefab names
     """
-    files = glob.glob(f"{PREFAB_PATH}/*.json")
-    return [os.path.basename(file).split("-config")[0] for file in files]
+    file_list = glob.glob(f"{PREFAB_PATH}/*.json")
+    return [os.path.basename(file).split("-config")[0] for file in file_list]
 
 
 def available_allocator_names() -> List[str]:
@@ -150,14 +150,14 @@ def all_bidding_strategies_and_value_functions_str() -> str:
         s += f"{allocator.__name__}: [{', '.join(bidding_strategies)}]. "
         strategies.update(allocator.compatible_bidding_strategies())
     for strategy in strategies:
-        compatible_value_functions = [value_function.__name__ for value_function in
-                                      strategy.compatible_value_functions()]
-        s += f"{strategy.__name__}: [{', '.join(compatible_value_functions)}]. "
+        compatible_value_function_list = [value_function.__name__ for value_function in
+                                          strategy.compatible_value_functions()]
+        s += f"{strategy.__name__}: [{', '.join(compatible_value_function_list)}]. "
     return s
 
 
 # The config will be injected into this variable, either through loading it from disk or creating a new one
-model_config: APISimulationConfig | None = None
+model_config: Optional[APISimulationConfig] = None
 
 parser = argparse.ArgumentParser(description='Start a new Airspace Auction Simulation')
 parser.add_argument('-p', '--prefab', dest="prefab", type=str, metavar=f"[{', '.join(available_prefab_names())}]",
@@ -165,7 +165,8 @@ parser.add_argument('-p', '--prefab', dest="prefab", type=str, metavar=f"[{', '.
                          f'functionalities of the Simulator. By specifying the name of a prefab, you can load its '
                          f'configuration and run a simulation based of it. You can also save your own configurations '
                          f'as prefabs by placing them into the folder "/Prefabs". The File-name will become the prefab '
-                         f'name. Currently ,the following prefabs are available: {", ".join(available_prefab_names())}.')
+                         f'name. Currently ,the following prefabs are available: '
+                         f'{", ".join(available_prefab_names())}.')
 parser.add_argument('-l', '--load', dest="load_path", type=str,
                     help='You can load your previously saved configuration file by specifying the absolute path to '
                          'your *-config.json File.')
@@ -312,7 +313,7 @@ if model_config is None and not args.create:
 
 # No model was generated to this point - generate new model
 if model_config is None:
-    model_data = {
+    model_data: Dict[str, Any] = {
         "name": args.name,
         "description": args.description,
         "allocator": args.allocator,
@@ -443,21 +444,21 @@ if model_config is None:
         while add_owner:
             i = len(model_data["owners"]) + 1
 
-            owner = {
-                "color": color_generator(),
-                "name": "",
-                "agents": -1,
-                "biddingStrategy": None,
-                "valueFunction": "",
-            }
-
-            owner['name'] = inquirer.text(message=f"Owner {i} - Name:", validate=EmptyInputValidator()).execute()
-            owner['agents'] = int(inquirer.number(
+            owner_name = inquirer.text(message=f"Owner {i} - Name:", validate=EmptyInputValidator()).execute()
+            owner_agents = int(inquirer.number(
                 message=f"Owner {i} - Number of Agents:",
                 min_allowed=1,
                 max_allowed=100,
                 validate=EmptyInputValidator(),
             ).execute())
+
+            owner = {
+                "color": color_generator(),
+                "name": owner_name,
+                "agents": owner_agents,
+                "biddingStrategy": None,
+                "valueFunction": "",
+            }
 
             # Ask user for choice within bidding strategies that are compatible with selected allocator
             allocators = list(filter(lambda x: (x.__name__ == model_data["allocator"]), available_allocators))
@@ -498,29 +499,31 @@ if model_config is None:
 
 # Ask for model summary if user did not specify either --summary or --skip-summary
 if not args.skipSummary:
-    if not args.summary:
+    summarize = args.summary
+    if not summarize:
         summarize = inquirer.confirm(message="Print model summary?", default=True).execute()
-    if args.summary or summarize:
+    if summarize:
         print("===================== CONFIG SUMMARY ========================")
         print(yaml.dump(model_config.dict(), sort_keys=False))
         print("=============================================================")
 
 # Save config flow if user did not specify --skip-save-config
 if not args.skipSaveConfig:
+    save_model = args.saveConfigPath
     # Only ask the user for config path if he did not already specify one
-    if not args.saveConfigPath:
+    if not save_model:
         save_model = inquirer.confirm(message="Save model configuration?", default=True).execute()
     # Enter this flow if user provided a path or responded with "yes" in the previous step
-    if args.saveConfigPath or save_model:
+    if save_model:
+        dest_path = args.saveConfigPath
         # Ask user for config path if not already provided as input parameter
-        if not args.saveConfigPath:
-            input_path = inquirer.filepath(
+        if not dest_path:
+            dest_path = inquirer.filepath(
                 message="Folder:",
                 default=HOME_PATH,
                 validate=PathValidator(is_dir=True, message="Input is not a directory"),
                 only_directories=True,
             ).execute()
-        dest_path = args.saveConfigPath if args.saveConfigPath else input_path
         # Write config as to disk as json file
         with open(os.path.join(dest_path, f"{model_config.name}-config.json"), "w") as f:
             f.write(model_config.json())
@@ -528,41 +531,44 @@ if not args.skipSaveConfig:
 # Skip this flow if user provided --skip-simulation argument
 if not args.skipSimulation:
     # Ask user if simulation should be run if he provided neither --skip-simulation nor --simulate
+    simulate = True
     if not args.simulate:
         simulate = inquirer.confirm(message="Start Simulation?", default=True).execute()
     # Run actual simulation
-    if args.simulate or simulate:
+    if simulate:
         print("Running simulation. This may take a while!")
         generator, duration = run_from_config(model_config)
         print(f"-- Simulation Completed in {duration} seconds --")
-        simulation_json = build_json(model_config.dict(), generator.simulator, duration)
+        simulation_json = build_json(model_config.dict(), generator, duration)
 
         # Printing simulation summary flow if user did not provide --skip-summary flag
         if not args.skipSummary:
             # If user did neither provide --summary nor --skip-summary, ask for his input
-            if not args.summary:
+            summarize = args.summary
+            if not summarize:
                 summarize = inquirer.confirm(message="Print simulation summary?", default=True).execute()
             # Print summary as YAML (for better readability and more compact output)
-            if args.summary or summarize:
+            if summarize:
                 print("===================== SIMULATION SUMMARY ========================")
                 print(yaml.dump(simulation_json, sort_keys=False))
                 print("=================================================================")
 
         # Save simulation flow if --skip-save-simulation is not provided
         if not args.skipSaveSimulation:
+            save_simulation = args.saveSimulationPath
             # If user did neither provide --save-simulation-path nor --skip-save-simulation, ask for his input
-            if not args.saveSimulationPath:
+            if not save_simulation:
                 save_simulation = inquirer.confirm(message="Save simulation?", default=True).execute()
             # If path is present or user responded with 'yes', save simulation
-            if args.saveSimulationPath or save_simulation:
-                if not args.saveSimulationPath:
-                    input_path = inquirer.filepath(
+            if save_simulation:
+                dest_path = args.saveSimulationPath
+                if not dest_path:
+                    dest_path = inquirer.filepath(
                         message="Folder:",
                         default=HOME_PATH,
                         validate=PathValidator(is_dir=True, message="Input is not a directory"),
                         only_directories=True,
                     ).execute()
                 # Save simulation to disk
-                dest_path = args.saveSimulationPath if args.saveSimulationPath else input_path
                 with open(os.path.join(dest_path, f"{model_config.name}-simulation.json"), "w") as f:
                     json.dump(simulation_json, f, indent=4)

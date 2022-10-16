@@ -4,7 +4,6 @@ import {
   mdiSourceBranchCheck,
   mdiSourceBranchSync,
   mdiSourceBranchRemove,
-  mdiSkull,
 } from "@mdi/js";
 import { BRANCH_REASONS } from "@/API/enums";
 
@@ -25,6 +24,9 @@ export class FlightEvent {
     this.content = content;
   }
 
+  /**
+   * @returns {(function(FlightEvent, FlightEvent): number)}
+   */
   static get sortEventsFunction() {
     return (e1, e2) => {
       if (e1.tick === e2.tick) {
@@ -58,14 +60,44 @@ export class ArrivalEvent extends FlightEvent {
 }
 
 export class ReservationStartEvent extends FlightEvent {
+  /**
+   * @param {int} tick
+   * @param {int} start - Indicates when the reservation starts
+   */
+  constructor(tick, start = 1) {
+    super(`Reservation Start ${start > 1 ? "x" + start.toString() : ""}`, "default", mdiAirplaneLanding, tick);
+  }
+}
+
+export class ReReservationEvent extends FlightEvent {
   constructor(tick) {
-    super("Reservation Start", "default", mdiAirplaneLanding, tick);
+    super("Reservation changed", "warning", mdiSourceBranchSync, tick);
+  }
+}
+export class FirstReservationEvent extends FlightEvent {
+  /**
+   * @param {int} tick
+   */
+  constructor(tick) {
+    super("First Allocation", "warning", mdiSourceBranchCheck, tick);
+  }
+}
+export class FailedReservationEvent extends FlightEvent {
+  /**
+   * @param {int} tick
+   */
+  constructor(tick) {
+    super("Failed Allocation", "warning", mdiSourceBranchRemove, tick);
   }
 }
 
 export class ReservationEndEvent extends FlightEvent {
-  constructor(tick) {
-    super("Reservation End", "success", mdiAirplaneLanding, tick);
+  /**
+   * @param {int} tick
+   * @param {int} end - Indicates when the reservation ends
+   */
+  constructor(tick, end = 1) {
+    super(`Reservation End ${end > 1 ? "x" + end : ""}`, "success", mdiAirplaneLanding, tick);
   }
 }
 
@@ -105,7 +137,12 @@ export class FailedAllocationEvent extends FlightEvent {
   }
 }
 
-export function allocationEventFactory(reason) {
+/**
+ * Resolves a path reason to a flight event
+ * @param {string} reason
+ * @returns {FlightEvent}
+ */
+export function pathAllocationEventFactory(reason) {
   switch (reason) {
     case BRANCH_REASONS.FIRST_ALLOCATION:
       return FirstAllocationEvent;
@@ -113,6 +150,25 @@ export function allocationEventFactory(reason) {
       return ReallocationEvent;
     case BRANCH_REASONS.ALLOCATION_FAILED:
       return FailedAllocationEvent;
+    default:
+      console.error(`Unknown allocation reason: ${reason}`);
+      throw new Error("Unknown allocation reason");
+  }
+}
+
+/**
+ * Resolves a space allocation reason to a flight event
+ * @param {string} reason
+ * @returns {FlightEvent}
+ */
+export function spaceAllocationEventFactory(reason) {
+  switch (reason) {
+    case BRANCH_REASONS.FIRST_ALLOCATION:
+      return FirstReservationEvent;
+    case BRANCH_REASONS.REALLOCATION:
+      return ReReservationEvent;
+    case BRANCH_REASONS.ALLOCATION_FAILED:
+      return FailedReservationEvent;
     default:
       console.error(`Unknown allocation reason: ${reason}`);
       throw new Error("Unknown allocation reason");

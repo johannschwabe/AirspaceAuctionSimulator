@@ -1,8 +1,8 @@
 import random
 from typing import TYPE_CHECKING
 
-from Simulator import AgentType, BiddingStrategy
-from Simulator.Bids.SpaceBiddingStrategy import SpaceBiddingStrategy
+from API.WebClasses import WebSpaceBiddingStrategy
+from Simulator import AgentType
 from ..Bids.PrioritySpaceBid import PrioritySpaceBid
 from ..ValueFunction.PrioritySpaceValueFunction import PrioritySpaceValueFunction
 from ...FCFS.ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from Simulator import SpaceAgent, Environment
 
 
-class PrioritySpaceBiddingStrategy(BiddingStrategy, SpaceBiddingStrategy):
+class PrioritySpaceBiddingStrategy(WebSpaceBiddingStrategy):
     label = "Priority Space Bidding Strategy"
     description = "An Bidding Strategy for Priority Space Agents"
     min_locations = 1
@@ -21,7 +21,7 @@ class PrioritySpaceBiddingStrategy(BiddingStrategy, SpaceBiddingStrategy):
     @staticmethod
     def meta():
         return [
-            *SpaceBiddingStrategy.meta(),
+            *WebSpaceBiddingStrategy.meta(),
             {
                 "key": "priority",
                 "label": "Priority",
@@ -33,7 +33,13 @@ class PrioritySpaceBiddingStrategy(BiddingStrategy, SpaceBiddingStrategy):
         ]
 
     def generate_bid(self, agent: "SpaceAgent", _environment: "Environment", _time_step: int) -> "PrioritySpaceBid":
-        return PrioritySpaceBid(agent, agent.blocks, agent.config["priority"])
+        unsatisfied_blocks = []
+        for requested_segment in agent.blocks:
+            block_satisfied = any(
+                [requested_segment.index == allocated_segment.index for allocated_segment in agent.allocated_segments])
+            if not block_satisfied:
+                unsatisfied_blocks.append(requested_segment)
+        return PrioritySpaceBid(agent, unsatisfied_blocks, agent.config["priority"])
 
     @staticmethod
     def compatible_value_functions():

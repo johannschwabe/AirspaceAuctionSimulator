@@ -47,7 +47,7 @@ class CoordinatesTest(unittest.TestCase):
     def test_4D(self):
         aa = Coordinate4D(21, 1, 19, 8)
         self.assertDictEqual(aa.to_dict(), {"x": 21, "y": 1, "z": 19, "t": 8})
-        self.assertEqual(str(aa), "( 21.00,   1.00,  19.00,   8)")
+        self.assertEqual(str(aa), "( 21,   1,  19,   8)")
         bb = Coordinate4D(21, 1, 19, 8)
         self.assertEqual(aa, bb)
         cc = Coordinate4D(21, 1, 19, 9)

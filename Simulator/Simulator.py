@@ -1,5 +1,5 @@
 from time import time_ns
-from typing import List, TYPE_CHECKING, Dict
+from typing import Dict, List, TYPE_CHECKING
 
 from .History.History import History
 
@@ -63,6 +63,7 @@ class Simulator:
                 temporary_agents,
                 temporary_environment,
                 self.time_step)
+
             real_allocations = self.environment.create_real_allocations(list(temporary_allocations.values()),
                                                                         new_agents)
             self.environment.allocate_segments_for_agents(real_allocations, self.time_step)

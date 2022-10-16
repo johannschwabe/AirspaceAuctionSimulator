@@ -1,11 +1,12 @@
 import unittest
 
 from Demos.FCFS.BidTracker.FCFSBidTracker import FCFSBidTracker
-from Simulator import Environment, Coordinate4D, SpaceSegment, StaticBlocker, Coordinate3D
+from Simulator import Coordinate3D, Coordinate4D, Environment, SpaceSegment, StaticBlocker
 from Simulator.Blocker.DynamicBlocker import DynamicBlocker
 from Simulator.helpers.helpers import is_valid_for_path_allocation, setup_rtree
-from test.EnvHelpers import generate_path_agent, generate_path_segment, generate_space_agent, \
-    generate_path_allocation, generate_space_allocation
+from test.EnvHelpers import generate_path_agent, generate_path_allocation, generate_path_segment, \
+    generate_space_agent, \
+    generate_space_allocation
 
 
 class EnvironmentTest(unittest.TestCase):
@@ -13,8 +14,8 @@ class EnvironmentTest(unittest.TestCase):
         self.env = Environment(Coordinate4D(100, 100, 100, 1000))
 
     def test_rtree_setup(self):
-        newRTree = setup_rtree()
-        self.assertTrue(newRTree.properties.dimension == 4)
+        new_r_tree = setup_rtree()
+        self.assertTrue(new_r_tree.properties.dimension == 4)
 
     def test_get_blocker_id(self):
         self.assertTrue(self.env._blocker_id == 0)
@@ -37,12 +38,12 @@ class EnvironmentTest(unittest.TestCase):
         self.assertEqual(len(list(r_tree_single_voxel)), 1)
         self.assertEqual(len(list(r_tree_no_voxel)), 0)
         self.assertEqual(len(list(r_tree_double_voxel)), 1)
-        rTreeObject = list(r_tree_end_voxel)
-        self.assertEqual(rTreeObject[0].id, hash(agi.id))
+        r_tree_object = list(r_tree_end_voxel)
+        self.assertEqual(r_tree_object[0].id, hash(agi.id))
 
     def test_allocate_space_segment_for_agent(self):
         agi = generate_space_agent()
-        space_segment = SpaceSegment(Coordinate4D(40, 40, 40, 20), Coordinate4D(60, 60, 60, 70))
+        space_segment = SpaceSegment(Coordinate4D(40, 40, 40, 20), Coordinate4D(60, 60, 60, 70), 0)
         self.env.allocate_space_segment_for_agent(agi, space_segment)
 
         whole_block = self.env.tree.intersection([0, 0, 0, 0, 80, 80, 80, 80])
@@ -52,9 +53,9 @@ class EnvironmentTest(unittest.TestCase):
         self.assertEqual(len(list(whole_block)), 1)
         self.assertEqual(len(list(sub_block)), 1)
         self.assertEqual(len(list(off_block)), 0)
-        rTreeObject = list(block_obj)
-        self.assertEqual(len(rTreeObject), 1)
-        self.assertEqual(rTreeObject[0].id, hash(agi.id))
+        r_tree_object = list(block_obj)
+        self.assertEqual(len(r_tree_object), 1)
+        self.assertEqual(r_tree_object[0].id, hash(agi.id))
 
     def test_allocate_segments_for_agents(self):
         allocation = generate_path_allocation()

@@ -1,6 +1,7 @@
 /**
  * @typedef {Object} JSONResponse
  * @property {JSONConfig} config
+ * @property {OwnerMap} owner_map
  * @property {SimulationStatistics} statistics
  * @property {JSONSimulation} simulation
  * @property {int} statistics_compute_time
@@ -24,6 +25,16 @@
  */
 
 /**
+ * @typedef {{str: JSONConfigOwner}} OwnerMap
+ */
+
+/**
+ * @typedef {Object} JSONConfigOwner
+ * @property {string} name
+ * @property {string} color
+ */
+
+/**
  * @typedef {Object} JSONPath
  * @property {{int: JSONArrayCoordinate}} positions
  */
@@ -41,24 +52,28 @@
  */
 
 /**
+ * @typedef {Object} JSONBlock
+ * @property {int} tick
+ * @property {JSONSpace[]} spaces
+ */
+
+/**
  * @typedef {Object} JSONAgent
  * @property {string} agent_type
  * @property {string} id
+ * @property {JSONBranch[] | JSONBlock[]} [intermediate_allocations]
  * Space-Agent:
- * @property {JSONSpace[]} [spaces]
+ * @property {JSONSpace[]} [blocks]
  * Path-Agent:
  * @property {int} [speed]
  * @property {int} [near_radius]
  * @property {int} [battery]
  * @property {JSONPath[]} [paths]
- * @property {JSONBranch[]} [branches]
  */
 
 /**
  * @typedef {Object} JSONOwner
- * @property {string} name
  * @property {string} id
- * @property {string} color
  * @property {JSONAgent[]} agents
  */
 
@@ -83,11 +98,15 @@
 
 /**
  * @typedef {Object} SimulationStatistics
- * @property {OwnerStatistics[]} owners
+ * @property {OwnerStatistics[]} path_owners
+ * @property {OwnerStatistics[]} space_owners
  * @property {int} total_number_of_owners
  * @property {int} total_number_of_agents
- * @property {float} total_value
+ * @property {FinanceStatistics} value_stats
+ * @property {FinanceStatistics} payment_stats
+ * @property {FinanceStatistics} utility_stats
  * @property {float} total_non_colliding_value
+ * @property {float} total_non_colliding_utility
  * @property {int} total_number_of_violations
  * @property {int} total_number_of_reallocations
  * @property {{int: int}} step_compute_time
@@ -98,13 +117,16 @@
  * @property {string} id
  * @property {AgentStatistics[]} agents
  * @property {int} total_time_in_air
- * @property {ValueStatistics} values
- * @property {ValueStatistics} non_colliding_values
+ * @property {FinanceStatistics} values
+ * @property {FinanceStatistics} payments
+ * @property {FinanceStatistics} utilities
+ * @property {FinanceStatistics} non_colliding_values
+ * @property {FinanceStatistics} non_colliding_utility
  * @property {int} number_of_agents
  */
 
 /**
- * @typedef {Object} ValueStatistics
+ * @typedef {Object} FinanceStatistics
  * @property {float[]} values
  * @property {float} total
  * @property {float} mean
@@ -119,35 +141,47 @@
  * @typedef {Object} AgentStatistics
  * @property {string} id
  * @property {float} value
+ * @property {float} payment
+ * @property {float} utility
  * @property {float} non_colliding_value
+ * @property {float} non_colliding_utility
  * @property {ViolationStatistics} violations
  * @property {int} total_reallocations
- * Space-Agent:
- * @property {SpaceStatistics} [space]
- * Path-Agent:
- * @property {int} [time_in_air]
- * @property {PathStatistics} [path]
- * @property {RawAllocationStatistics[]} [allocations]
- * @property {int} battery_unused
- * @property {int[]} delayed_starts
- * @property {int[]} delayed_arrivals
- * @property {int[]} re_delayed_arrivals
+ * @property {?RawAllocationStatistics[]} allocations
+ **/
+
+/**
+ * @typedef {AgentStatistics} SpaceAgentStatistics
+ * @property {?SpaceStatistics} space
+ **/
+
+/**
+ * @typedef {AgentStatistics} PathAgentStatistics
+ * @property {?PathStatistics} path
+ * @property {?int} time_in_air
+ * @property {?int} battery_unused
+ * @property {?int[]} delayed_starts
+ * @property {?int[]} delayed_arrivals
+ * @property {?int[]} re_delayed_arrivals
  */
 
 /**
- * @typedef {{string: string|number}} RawBid
+ * @typedef {object} RawBid
+ * @property {Object<string: Any>} data
+ * @property {{string: string|number|boolean}} display
  */
 
 /**
  * @typedef {Object} RawAllocationStatistics
  * @property {int} tick
  * @property {float} value
+ * @property {float} payment
+ * @property {float} utility
  * @property {RawBid} bid
  * @property {string} reason
  * @property {string} explanation
- * @property {string} explanation
- * @property {{string: RawBid}} colliding_agent_bids
- * @property {{string: RawBid}} displacing_agent_bids
+ * @property {{string: RawBid}} colliding_agent_bids - maps agent_ids to bids
+ * @property {{string: RawBid}} displacing_agent_bids - maps agent_ids to bids
  * @property {int} compute_time
  * @property {PathStatistics} path
  * @property {SpaceStatistics} space
@@ -239,9 +273,9 @@
  * @property {string} name
  * @property {string} description
  * @property {string} allocator
- * @property {dimension} JSONTimeCoordinate
+ * @property {JSONTimeCoordinate} dimensions
  * @property {JSONMap} map
- * @property {JSONOwner[]} owners
+ * @property {JSONConfigOwner[]} owners
  * @property {string[]} availableAllocators
  * @property {JSONAvailableOwner[]} availableOwnersForAllocator
  */
@@ -249,5 +283,6 @@
 /**
  * @typedef {Object} JSONSimulation
  * @property {JSONEnvironment} environment
- * @property {JSONOwner[]} owners
+ * @property {JSONOwner[]} path_owners
+ * @property {JSONOwner[]} space_owners
  */

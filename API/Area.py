@@ -1,11 +1,13 @@
 import math
 from typing import TYPE_CHECKING, List
 
+from haversine import Direction, Unit, haversine, inverse_haversine
+
 from Simulator import Coordinate2D
 from .LongLatCoordinate import LongLatCoordinate
 
 if TYPE_CHECKING:
-    from .API import APIWorldCoordinates
+    from .Types import APIWorldCoordinates
 
 EARTH_RADIUS = 6371008.8
 
@@ -60,14 +62,26 @@ class Area:
         :param pos: LongLatCoordinate - coordinate to be converted
         :return: (delta_x, delta_y) - distances along axis
         """
-        delta_x = 2 * EARTH_RADIUS * math.asin(math.sqrt(
-            math.cos(math.radians(bottom_left.lat)) * math.cos(math.radians(pos.lat)) * math.sin(
-                math.radians((pos.long - bottom_left.long) / 2)) ** 2))
-        delta_y = 2 * EARTH_RADIUS * math.asin(math.sqrt(
-            math.sin(
-                math.radians((pos.lat - bottom_left.lat) / 2)) ** 2))
+        delta_x = haversine((bottom_left.lat, bottom_left.long), (bottom_left.lat, pos.long), unit=Unit.METERS)
+        delta_y = haversine((bottom_left.lat, bottom_left.long), (pos.lat, bottom_left.long), unit=Unit.METERS)
+
         if pos.long < bottom_left.long:
             delta_x *= -1
         if pos.lat < bottom_left.lat:
             delta_y *= -1
         return delta_x, delta_y
+
+    @staticmethod
+    def LCS_to_long_lat(bottom_left: "LongLatCoordinate", pos: "Coordinate2D", resolution: int) -> "LongLatCoordinate":
+        """
+        Calculates GCS from LCS
+        :param bottom_left:
+        :param pos:
+        :param resolution:
+        :return:
+        """
+        lat_corrected = inverse_haversine((bottom_left.lat, bottom_left.long), pos.z * resolution, Direction.NORTH,
+                                          unit=Unit.METERS)[0]
+        lat_long_corrected = inverse_haversine(lat_corrected, pos.x * resolution, Direction.EAST,
+                                               unit=Unit.METERS)[1]
+        return LongLatCoordinate(lat_long_corrected[1], lat_long_corrected[0])

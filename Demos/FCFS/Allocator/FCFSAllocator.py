@@ -1,9 +1,10 @@
+import random
 from time import time_ns
-from typing import List, Optional, Dict, TYPE_CHECKING, Tuple
+from typing import Dict, List, Optional, TYPE_CHECKING, Tuple
 
-from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, \
-    AllocationHistory, Agent
-from Simulator.helpers.helpers import find_valid_path_tick, find_valid_space_tick, is_valid_for_space_allocation
+from API.WebClasses import WebAllocator
+from Simulator import AStar, Agent, Allocation, AllocationHistory, AllocationReason, PathSegment, \
+    SpaceSegment, find_valid_path_tick, find_valid_space_tick, is_valid_for_space_allocation
 from ..BidTracker.FCFSBidTracker import FCFSBidTracker
 from ..BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
 from ..BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
     from Simulator import Environment
 
 
-class FCFSAllocator(Allocator):
+class FCFSAllocator(WebAllocator):
     """
     Allocates agents in the order they arrive.
     There is no given order for agents arriving during same tick.
@@ -42,7 +43,7 @@ class FCFSAllocator(Allocator):
     def allocate_path(self, bid: "FCFSPathBid", environment: "Environment", astar: "AStar",
                       tick: int) -> Tuple[Optional[List["PathSegment"]], str]:
         """
-        AAllocate a path for a given path-bid.
+        Allocate a path for a given path-bid.
         Returns `None` if no valid path could be allocated.
         :param bid:
         :param environment:
@@ -58,7 +59,7 @@ class FCFSAllocator(Allocator):
         count = 0
         optimal_path_segments = []
 
-        for b, stay in zip(bid.locations[1:], bid.stays):
+        for _index, b in enumerate(bid.locations[1:]):
 
             end = b.to_3D()
             b = b.clone()
@@ -69,12 +70,12 @@ class FCFSAllocator(Allocator):
             if environment.is_coordinate_blocked_forever(b, bid.agent.near_radius):
                 return None, f"Static blocker at target {b}."
 
-            a_t = find_valid_path_tick(tick, environment, self.bid_tracker, a, bid, tick, environment.dimension.t)
+            a_t = find_valid_path_tick(tick, environment, self.bid_tracker, a, bid.agent, tick, environment.dimension.t)
             if a_t is None:
                 return None, f"Start {a} is invalid until max tick {environment.dimension.t}."
             a.t = a_t
 
-            b_t = find_valid_path_tick(tick, environment, self.bid_tracker, b, bid, a.t, environment.dimension.t)
+            b_t = find_valid_path_tick(tick, environment, self.bid_tracker, b, bid.agent, a.t, environment.dimension.t)
             if b_t is None:
                 return None, f"Target {b} is invalid until max tick {environment.dimension.t}."
             b.t = b_t
@@ -100,7 +101,8 @@ class FCFSAllocator(Allocator):
             a = ab_path[-1]
             start = a.to_3D()
             a = a.clone()
-            a.t += stay
+            if len(bid.stays) > _index:
+                a.t += bid.stays[_index]
 
         return optimal_path_segments, "Path allocated."
 
@@ -117,11 +119,11 @@ class FCFSAllocator(Allocator):
         :return:
         """
         possible_space_segments = []
-        for block in bid.blocks:
-            lower = block[0].clone()
-            upper = block[1].clone()
+        for idx, block in enumerate(bid.blocks):
+            lower = block.min.clone()
+            upper = block.max.clone()
 
-            t = find_valid_space_tick(tick, environment, self.bid_tracker, lower, upper, bid, tick,
+            t = find_valid_space_tick(tick, environment, self.bid_tracker, lower, upper, bid.agent, tick,
                                       environment.dimension.t)
             if t is None:
                 continue
@@ -130,7 +132,7 @@ class FCFSAllocator(Allocator):
 
             valid, _ = is_valid_for_space_allocation(tick, environment, self.bid_tracker, lower, upper, bid.agent)
             if valid:
-                possible_space_segments.append(SpaceSegment(lower, upper))
+                possible_space_segments.append(SpaceSegment(lower, upper, idx))
 
         return possible_space_segments, "Space allocated."
 
@@ -144,6 +146,7 @@ class FCFSAllocator(Allocator):
         """
         astar = AStar(environment, self.bid_tracker, tick)
         allocations: Dict["Agent", "Allocation"] = {}
+        random.shuffle(agents)
 
         for agent in agents:
             print(f"allocating: {agent}")

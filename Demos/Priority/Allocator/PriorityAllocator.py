@@ -1,9 +1,9 @@
 from time import time_ns
-from typing import List, Tuple, Set, Optional, Dict, TYPE_CHECKING
+from typing import Dict, List, Optional, Set, TYPE_CHECKING, Tuple
 
-from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation, \
-    AllocationHistory, AStar, is_valid_for_path_allocation, is_valid_for_space_allocation
-from Simulator.helpers.helpers import find_valid_path_tick, find_valid_space_tick
+from API.WebClasses import WebAllocator
+from Simulator import AStar, Allocation, AllocationHistory, AllocationReason, PathSegment, SpaceSegment, \
+    find_valid_path_tick, find_valid_space_tick, is_valid_for_path_allocation, is_valid_for_space_allocation
 from ..BidTracker.PriorityBidTracker import PriorityBidTracker
 from ..BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStrategy
 from ..BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from Simulator import Environment, Agent
 
 
-class PriorityAllocator(Allocator):
+class PriorityAllocator(WebAllocator):
     """
     Allocates agents based on priority of the bid.
     Agents with higher priority bids can deallocate agents with lower priority bids.
@@ -67,7 +67,7 @@ class PriorityAllocator(Allocator):
         optimal_path_segments = []
         total_collisions = set()
 
-        for b, stay in zip(bid.locations[1:], bid.stays):
+        for _index, b in enumerate(bid.locations[1:]):
 
             end = b.to_3D()
             b = b.clone()
@@ -78,12 +78,12 @@ class PriorityAllocator(Allocator):
             if environment.is_coordinate_blocked_forever(b, bid.agent.near_radius):
                 return None, None, f"Static blocker at target {b}."
 
-            a_t = find_valid_path_tick(tick, environment, self.bid_tracker, a, bid, tick, environment.dimension.t)
+            a_t = find_valid_path_tick(tick, environment, self.bid_tracker, a, bid.agent, tick, environment.dimension.t)
             if a_t is None:
                 return None, None, f"Start {a} is invalid until max tick {environment.dimension.t}."
             a.t = a_t
 
-            b_t = find_valid_path_tick(tick, environment, self.bid_tracker, b, bid, a.t, environment.dimension.t)
+            b_t = find_valid_path_tick(tick, environment, self.bid_tracker, b, bid.agent, a.t, environment.dimension.t)
             if b_t is None:
                 return None, None, f"Target {b} is invalid until max tick {environment.dimension.t}."
             b.t = b_t
@@ -110,7 +110,8 @@ class PriorityAllocator(Allocator):
             a = ab_path[-1]
             start = a.to_3D()
             a = a.clone()
-            a.t += stay
+            if len(bid.stays) > _index:
+                a.t += bid.stays[_index]
 
         return optimal_path_segments, total_collisions, "Path allocated."
 
@@ -129,10 +130,10 @@ class PriorityAllocator(Allocator):
         possible_space_segments = []
         collisions = set()
         for block in bid.blocks:
-            lower = block[0].clone()
-            upper = block[1].clone()
+            lower = block.min.clone()
+            upper = block.max.clone()
 
-            t = find_valid_space_tick(tick, environment, self.bid_tracker, lower, upper, bid, tick,
+            t = find_valid_space_tick(tick, environment, self.bid_tracker, lower, upper, bid.agent, tick,
                                       environment.dimension.t)
             if t is None:
                 continue
@@ -143,7 +144,7 @@ class PriorityAllocator(Allocator):
                                                                     bid.agent)
             if valid:
                 collisions = collisions.union(block_collisions)
-                possible_space_segments.append(SpaceSegment(lower, upper))
+                possible_space_segments.append(SpaceSegment(lower, upper, block.index))
 
         return possible_space_segments, collisions, "Space allocated."
 
@@ -205,7 +206,7 @@ class PriorityAllocator(Allocator):
             # Deallocate collisions
             agents_to_allocate = agents_to_allocate.union(collisions)
             for agent_to_remove in collisions:
-                print(f"reallocating: {agent_to_remove.id}")
+                print(f"reallocating: {agent_to_remove}")
                 if agent_to_remove not in displacements:
                     displacements[agent_to_remove] = set()
                 displacements[agent_to_remove].add(agent)

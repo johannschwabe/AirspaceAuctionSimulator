@@ -1,42 +1,51 @@
 <template>
-  <div class="flex">
+  <div class="content">
     <div class="flex">
-      <n-button quaternary circle v-for="control in controls" @click="control.action">
-        <template #icon>
-          <n-icon :component="control.icon" />
-        </template>
-      </n-button>
-      <n-input-number
-        round
-        size="small"
-        :show-button="false"
-        :min="0"
-        :max="maxTick + 1"
-        :value="currentTick"
-        @update:value="updateTick"
-        style="max-width: 50px"
-      />
-    </div>
-    <div style="flex-grow: 1">
-      <vue-apex-charts ref="timelineChart" type="bar" height="75" :options="agentChartOptions" :series="agentSeries" />
-      <div style="margin-top: -30px">
-        <vue-apex-charts
-          ref="collisionsChart"
-          type="bar"
-          height="75"
-          :options="eventChartOptions"
-          :series="eventSeries"
-        />
-      </div>
-      <div style="padding: 0 15px 0 35px; margin-top: -85px; z-index: 100000">
-        <n-slider
+      <div class="flex">
+        <n-button quaternary circle v-for="control in controls" @click="control.action">
+          <template #icon>
+            <n-icon :component="control.icon" />
+          </template>
+        </n-button>
+        <n-input-number
+          round
+          size="small"
+          :show-button="false"
+          :min="0"
+          :max="maxTick + 1"
           :value="currentTick"
           @update:value="updateTick"
-          :min="0"
-          :max="maxTick"
-          show-tooltip
-          placement="bottom"
+          style="max-width: 50px"
         />
+      </div>
+      <div style="flex-grow: 1">
+        <vue-apex-charts
+          ref="timelineChart"
+          type="bar"
+          height="75"
+          :options="agentChartOptions"
+          :series="agentSeries"
+          style="margin-left: 10px; margin-right: 10px"
+        />
+        <div style="margin-top: -30px">
+          <vue-apex-charts
+            ref="collisionsChart"
+            type="bar"
+            height="75"
+            :options="eventChartOptions"
+            :series="eventSeries"
+          />
+        </div>
+        <div style="padding: 0 15px 0 35px; margin-top: -85px; z-index: 100000">
+          <n-slider
+            :value="currentTick"
+            @update:value="updateTick"
+            :min="0"
+            :max="maxTick"
+            show-tooltip
+            placement="bottom"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -47,8 +56,8 @@ import VueApexCharts from "vue3-apexcharts";
 import { reactive, ref, computed } from "vue";
 import { debounce } from "lodash-es";
 
-import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent } from "@/scripts/emitter.js";
-import { useSimulationSingleton } from "@/scripts/simulation.js";
+import { onAgentsSelected, onFocusOffAgent, onFocusOnAgent, onTick } from "@/scripts/emitter.js";
+import { useSimulationSingleton } from "@/scripts/simulationSingleton.js";
 
 import {
   PlayOutline,
@@ -64,7 +73,7 @@ const simulation = useSimulationSingleton();
 
 const timelineChart = ref(null);
 
-const maxTick = ref(simulation.maxTick - 1);
+const maxTick = ref(simulation.maxTick);
 const currentTick = ref(simulation.tick);
 
 let interval;
@@ -118,6 +127,8 @@ const agentChartOptions = {
   grid: { show: false },
   legend: { show: false },
   xaxis: {
+    min: 0,
+    max: simulation.maxTick,
     labels: { show: false },
     axisTicks: { show: false },
     axisBorder: { show: false },
@@ -279,8 +290,11 @@ onAgentsSelected(() => {
 function getTimelineColors(lightColor, darkColor) {
   return Array.from({ length: simulation.timeline.length }).map((_, i) => {
     if (simulation.agentInFocus)
-      if (i < simulation.agentInFocus.veryFirstTick || i > simulation.agentInFocus.veryLastTick) return darkColor;
-    return lightColor;
+      for (const element of simulation.agentInFocus.segmentsStartEnd) {
+        const [start, end] = element;
+        if (i > start && i < end) return lightColor;
+      }
+    return darkColor;
   });
 }
 function getBaselineColor() {
@@ -297,6 +311,9 @@ function baselineChartColor() {
     colors: getBaselineColor(),
   });
 }
+onTick(() => {
+  currentTick.value = simulation.tick;
+});
 onFocusOnAgent(() => {
   updateChartColor();
   agentFocussedEventSeries();

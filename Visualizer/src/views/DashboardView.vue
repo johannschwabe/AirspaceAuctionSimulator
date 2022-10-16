@@ -3,15 +3,15 @@
     <n-avatar :src="loadingGif" color="transparent" />
     <p>Loading...</p>
   </div>
-  <div v-else>
+  <div v-else id="dashbaord">
     <top-bar />
 
     <n-divider />
 
     <div class="nav-margin">
-      <n-grid cols="12" style="max-height: 1050px">
+      <n-grid cols="12">
         <!-- Left Part -->
-        <n-grid-item span="2">
+        <n-grid-item span="2" id="agent-selector">
           <n-grid cols="1">
             <n-grid-item>
               <agent-selector />
@@ -115,16 +115,17 @@
 import { nextTick, onUnmounted, ref, shallowRef } from "vue";
 import { useRouter } from "vue-router";
 import { useLoadingBar, useMessage } from "naive-ui";
+import PerfectScrollbar from "perfect-scrollbar";
 
 import loadingGif from "../assets/loading.gif";
 import TopBar from "../components/dashboard/TopBar.vue";
+import ThreeDMap from "../components/dashboard/Engine.vue";
+import Heatmap from "../components/dashboard/PlayfieldStatisticsPanel/Heatmap.vue";
+import Gantt from "../components/dashboard/GanttChart.vue";
+import Welfare from "../components/dashboard/PlayfieldStatisticsPanel/UtilityGraph.vue";
+import AgentInfo from "../components/dashboard/AgentPanel.vue";
 import AgentSelector from "../components/dashboard/AgentSelector.vue";
-import ThreeDMap from "../components/dashboard/ThreeDMap.vue";
-import Heatmap from "../components/dashboard/Heatmap.vue";
-import Gantt from "../components/dashboard/Gantt.vue";
-import Welfare from "../components/dashboard/Welfare.vue";
-import AgentInfo from "../components/dashboard/AgentInfo.vue";
-import OwnerInfo from "../components/dashboard/OwnerInfo.vue";
+import OwnerInfo from "../components/dashboard/OwnerPanel.vue";
 import Timeline from "../components/dashboard/Timeline.vue";
 import { offAll } from "../scripts/emitter.js";
 import {
@@ -132,8 +133,8 @@ import {
   loadSimulationConfig,
   loadSimulationSingleton,
   useSimulationSingleton,
-} from "../scripts/simulation.js";
-import { useSimulationStore } from "../stores/simulation.js";
+} from "../scripts/simulationSingleton.js";
+import { useSimulationOutputStore } from "../stores/simulationOutputStore.js";
 
 const router = useRouter();
 const message = useMessage();
@@ -142,7 +143,13 @@ const loadingBar = useLoadingBar();
 const loading = ref(true);
 const simulation = shallowRef({});
 
-const simulationStore = useSimulationStore();
+const simulationStore = useSimulationOutputStore();
+
+let agentScroller;
+onUnmounted(() => {
+  agentScroller.destroy();
+  agentScroller = null;
+});
 
 if (!hasSimulationSingleton()) {
   loadSimulationSingleton()
@@ -157,10 +164,12 @@ if (!hasSimulationSingleton()) {
       throw new Error(e);
     })
     .finally(() => {
+      loading.value = false;
       nextTick(() => {
+        const container = document.querySelector("#agent-selector");
+        agentScroller = new PerfectScrollbar(container);
         loadingBar.finish();
       });
-      loading.value = false;
     });
 } else {
   message.success("Simulation loaded!");
@@ -175,6 +184,10 @@ if (!hasSimulationSingleton()) {
     });
   });
   simulationStore.setSelectedAgentIDs(allAgentIds);
+  nextTick(() => {
+    const container = document.querySelector("#agent-selector");
+    agentScroller = new PerfectScrollbar(container);
+  });
 }
 
 onUnmounted(() => {
@@ -193,7 +206,7 @@ onUnmounted(() => {
   z-index: 2010;
 }
 .nav-margin {
-  margin-bottom: 80px;
+  margin-bottom: 100px;
 }
 #drawer-target {
   position: relative;
@@ -217,5 +230,10 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   color: #969696;
+}
+#agent-selector {
+  position: relative;
+  height: 950px;
+  overflow: hidden;
 }
 </style>

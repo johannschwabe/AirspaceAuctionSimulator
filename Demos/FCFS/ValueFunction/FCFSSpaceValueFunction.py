@@ -19,9 +19,9 @@ class FCFSSpaceValueFunction(ValueFunction):
                             (segment.max.t - segment.min.t)
         sum_blocks = 0.0
         for block in agent.blocks:
-            sum_blocks += (block[1].x - block[0].x) * \
-                          (block[1].y - block[0].y) * \
-                          (block[1].z - block[0].z) * \
-                          (block[1].t - block[0].t)
+            sum_blocks += (block.max.x - block.min.x) * \
+                          (block.max.y - block.min.y) * \
+                          (block.max.z - block.min.z) * \
+                          (block.max.t - block.min.t)
 
         return sum_segments / sum_blocks
