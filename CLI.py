@@ -18,7 +18,7 @@ from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.validator import EmptyInputValidator, PathValidator
 
-from API import APISimulationConfig, available_allocators, build_json, run_from_config
+from API import APISimulationConfig, available_allocators, build_json, run_from_config_for_cli
 from API.WebClasses import WebAllocator, WebBiddingStrategy
 from Development.playground import color_generator
 from Simulator import PaymentRule
@@ -537,7 +537,7 @@ if not args.skipSimulation:
     # Run actual simulation
     if simulate:
         print("Running simulation. This may take a while!")
-        generator, duration = run_from_config(model_config)
+        generator, duration = run_from_config_for_cli(model_config)
         print(f"-- Simulation Completed in {duration} seconds --")
         simulation_json = build_json(model_config.dict(), generator, duration)
 
