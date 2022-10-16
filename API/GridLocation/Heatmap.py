@@ -4,7 +4,6 @@ from typing import Dict, List, Optional
 from Simulator import Coordinate2D
 from .HeatmapType import HeatmapType
 
-
 class Heatmap:
     def __init__(self,
                  heatmap_type: str,
@@ -38,3 +37,9 @@ class Heatmap:
     def generate_coordinate(self):
         tombola = self.assemble_tombola()
         return random.choice(tombola)
+
+
+class SparseHeatmap(Heatmap):
+    def __init__(self, points: Optional[Dict[Coordinate2D, float]]):
+        super().__init__("sparse", sparse=points)
+

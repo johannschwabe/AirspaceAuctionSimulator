@@ -23,12 +23,12 @@ const router = useRouter();
 const prefabs = [
   {
     type: "group",
-    label: "Grossmünster",
-    key: "GB",
+    label: "Report",
+    key: "report",
     children: [
       {
-        label: "Grossmünster",
-        value: "Grossmünster-simulation",
+        label: "Report Demo Model",
+        value: "report-demo-output",
       },
     ],
   },
@@ -50,7 +50,7 @@ watch(selectedModel, () => {
     })
     .then(async (data) => {
       await persistSimulation(data);
-      const simulation = new Simulation(data.simulation, data.config, data.statistics);
+      const simulation = new Simulation(data.simulation, data.config, data.statistics, data.owner_map);
       await simulation.load();
       setSimulationSingleton(simulation);
       setSimulationConfig(data.config);
