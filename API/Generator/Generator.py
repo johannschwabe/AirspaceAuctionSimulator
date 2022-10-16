@@ -1,9 +1,13 @@
 import random
 from typing import Dict, List, Optional, TYPE_CHECKING
 
-from Simulator import Coordinate4D, GridLocation, GridLocationType, Heatmap, HeatmapType, Mechanism, Simulator
+from Simulator import Coordinate4D, Mechanism, Simulator
 from Simulator.IO.JSONS import JSONOwnerDescription
 from .EnvironmentGen import EnvironmentGen
+from ..GridLocation.GridLocation import GridLocation
+from ..GridLocation.GridLocationType import GridLocationType
+from ..GridLocation.Heatmap import Heatmap
+from ..GridLocation.HeatmapType import HeatmapType
 from ..WebClasses.Owners.WebPathOwner import WebPathOwner
 from ..WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
 

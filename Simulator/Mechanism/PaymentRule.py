@@ -27,4 +27,9 @@ class PaymentRule(ABC):
 
     @abstractmethod
     def calculate_final_payments(self, environment: "Environment", bid_tracker: "BidTracker") -> Dict[int, float]:
+        """
+        :param environment: the environment with allocated agents
+        :param bid_tracker: the bid tracker with all (relevant) past agent bids from the allocator
+        :return: A dictionary mapping agent hashes to payments
+        """
         pass

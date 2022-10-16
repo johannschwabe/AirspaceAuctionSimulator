@@ -36,4 +36,8 @@ class Mechanism:
         return allocations
 
     def calculate_final_payments(self, environment: "Environment") -> Dict[int, float]:
+        """
+        :param environment: the environment with allocated agents
+        :return: A dictionary mapping agent hashes to payments
+        """
         return self.payment_rule.calculate_final_payments(environment, self.allocator.get_bid_tracker())
