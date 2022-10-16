@@ -1,12 +1,12 @@
 from typing import List, Optional, TYPE_CHECKING
 
-from API.WebClasses.BiddingStrategies.WebPathBiddingStrategy import WebPathBiddingStrategy
 from API.WebClasses.Owners.WebPathOwner import WebPathOwner
 from API.WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
 from . import Area
 from .GridLocation.GridLocationType import GridLocationType
 from .LongLatCoordinate import LongLatCoordinate
 from .Types import APIBiddingStrategy, APILocations, APIMap, APIOwner, APISimulationConfig, APIWorldCoordinates
+from .WebClasses import WebBiddingStrategy
 
 if TYPE_CHECKING:
     from .Generator.MapTile import MapTile
@@ -45,7 +45,7 @@ def generate_config(simulator: "Simulator",
     for owner in simulator.owners:
         bidding_strategy = owner.bidding_strategy
         meta = []
-        assert isinstance(bidding_strategy, WebPathBiddingStrategy)
+        assert isinstance(bidding_strategy, WebBiddingStrategy)
         bs_meta = bidding_strategy.meta()
         if isinstance(owner, WebPathOwner):
             for meta_field in bs_meta:
