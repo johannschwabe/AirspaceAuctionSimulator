@@ -1,6 +1,6 @@
-from typing import List, TYPE_CHECKING, Dict, Any, Optional
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
-from Simulator import SpaceOwner, SpaceAgent,SpaceSegment
+from Simulator import SpaceAgent, SpaceOwner, SpaceSegment
 from .WebOwnerMixin import WebOwnerMixin
 
 if TYPE_CHECKING:

@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING
 
+from Simulator.Coordinates.Coordinate4D import Coordinate4D
 from .Blocker import Blocker
 from .BlockerType import BlockerType
-from ..Coordinates.Coordinate4D import Coordinate4D
 
 if TYPE_CHECKING:
-    from ..Coordinates.Coordinate3D import Coordinate3D
+    from Simulator.Coordinates.Coordinate3D import Coordinate3D
     from rtree import Index
 
 

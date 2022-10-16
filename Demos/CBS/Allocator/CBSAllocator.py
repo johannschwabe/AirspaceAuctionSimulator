@@ -3,14 +3,15 @@ Implementation of Conflict-based search based on Ashwin Bose (@atb033)'s impleme
 https://github.com/atb033/multi_agent_path_planning/blob/master/centralized/cbs/cbs.py
 """
 import abc
-from typing import List, Dict, TYPE_CHECKING, Set, Type, Iterator, Tuple, Optional
+from typing import Dict, Iterator, List, Optional, Set, TYPE_CHECKING, Tuple, Type
 
 from rtree import Index
 from rtree.index import Property
 
-from Simulator import PathAgent, Allocation, AllocationHistory, AllocationReason, Allocator, PathSegment
-from .CBSAllocatorHelpers import HighLevelNode, Conflict
-from .CBSCostFunctions import PathLength, CostFunction
+from API.WebClasses import WebAllocator
+from Simulator import Allocation, AllocationHistory, AllocationReason, PathAgent, PathSegment
+from .CBSAllocatorHelpers import Conflict, HighLevelNode
+from .CBSCostFunctions import CostFunction, PathLength
 from ..BidTracker.CBSBidTracker import CBSBidTracker
 from ..BiddingStrategy.CBSPathBiddingStrategy import CBSPathBiddingStrategy
 from ..Bids.CBSPathBid import CBSPathBid
@@ -18,12 +19,10 @@ from ..CBSAstar.CBSAstar import CBSAStar, find_valid_path_tick, is_valid_for_pat
 from ..PaymentRule.CBSPaymentRule import CBSPaymentRule
 
 if TYPE_CHECKING:
-    from Simulator.Coordinates.Coordinate4D import Coordinate4D
-    from Simulator.BidTracker.BidTracker import BidTracker
-    from Simulator.Environment.Environment import Environment
+    from Simulator import Coordinate4D, BidTracker, Environment
 
 
-class CBSAllocator(Allocator):
+class CBSAllocator(WebAllocator):
     """
     Finds the optimal allocation for a given cost function.
     Computationally very intensive: only for offline comparison
@@ -145,7 +144,7 @@ class CBSAllocator(Allocator):
 
     def allocate_path(self, agent: "PathAgent", constraints: "Set[Coordinate4D]", env: "Environment", tick,
                       astar: "CBSAStar") -> \
-        Tuple[Optional[List["PathSegment"]], str]:
+            Tuple[Optional[List["PathSegment"]], str]:
         """
         Allocate a path for a given path-bid.
         Returns `None` if no valid path could be allocated.
