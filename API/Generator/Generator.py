@@ -7,6 +7,7 @@ from .EnvironmentGen import EnvironmentGen
 from ..GridLocation.GridLocation import GridLocation
 from ..GridLocation.GridLocationType import GridLocationType
 from ..GridLocation.Heatmap import Heatmap
+from ..GridLocation.HeatmapType import HeatmapType
 from ..WebClasses.Owners.WebPathOwner import WebPathOwner
 from ..WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
 
