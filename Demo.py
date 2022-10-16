@@ -95,8 +95,8 @@ simulation_config = generate_config(
 # Generate simulation output that can be interpreted by API
 simulation_output = generate_output(simulator, simulation_time, simulation_config)
 
-with open('/Prefabs/configs/demo-config.json', 'w') as f:
+with open('./Prefabs/configs/demo-config.json', 'w') as f:
     f.write(json.dumps(simulation_config))
 
-with open('/Prefabs/outputs/demo-output.json', 'w') as f:
+with open('./Prefabs/outputs/demo-output.json', 'w') as f:
     f.write(json.dumps(simulation_output))

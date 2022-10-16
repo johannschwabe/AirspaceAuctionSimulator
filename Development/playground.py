@@ -146,9 +146,7 @@ if __name__ == "__main__":
     tot_time = time.time_ns() - start
     print()
     print(f"TOTAL: {tot_time / 6e10:2.2f} min")
-    sim_config = generate_config(simulatorAligator,
-                                 APISubselection(bottomLeft=bottom_left_coordinate, topRight=top_right_coordinate),
-                                 pre_environment.maptiles)
+    sim_config = generate_config(simulatorAligator, pre_environment)
     statistics_start_time = time.time_ns()
     statistics = get_statistics_dict(simulatorAligator)
     statistics_end_time = time.time_ns()

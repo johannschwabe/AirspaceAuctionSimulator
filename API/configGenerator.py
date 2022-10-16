@@ -1,12 +1,13 @@
 from typing import Optional, TYPE_CHECKING
 
-from API.WebClasses.BiddingStrategies.WebPathBiddingStrategy import WebPathBiddingStrategy
 from API.WebClasses.Owners.WebPathOwner import WebPathOwner
 from API.WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
 from . import Area
 from .GridLocation.GridLocationType import GridLocationType
-from .Types import APIBiddingStrategy, APILocations, APIMap, APIOwner, APISimulationConfig, APIWorldCoordinates
+from .Types import APIBiddingStrategy, APILocations, APIMap, APIOwner, APISimulationConfig, APIWorldCoordinates, \
+    APIWeightedCoordinate
 from .Types import APISubselection
+from .WebClasses.BiddingStrategies.WebBiddingStrategy import WebBiddingStrategy
 
 if TYPE_CHECKING:
     from .Generator.EnvironmentGen import EnvironmentGen
@@ -49,7 +50,7 @@ def generate_config(simulator: "Simulator",
     for owner in simulator.owners:
         bidding_strategy = owner.bidding_strategy
         meta = []
-        assert isinstance(bidding_strategy, WebPathBiddingStrategy)
+        assert isinstance(bidding_strategy, WebBiddingStrategy)
         bs_meta = bidding_strategy.meta()
         if isinstance(owner, WebPathOwner):
             for meta_field in bs_meta:
@@ -104,7 +105,8 @@ def generate_config(simulator: "Simulator",
                 locations.append(APILocations(type=stop.grid_location_type, points=[]))
             elif stop.grid_location_type == GridLocationType.POSITION.value:
                 posi = Area.LCS_to_long_lat(bottom_left, stop.position, resolution)
-                locations.append(APILocations(type=stop.grid_location_type, points=[posi]))
+                weighted_coordiante = APIWeightedCoordinate(lat=posi.lat, long=posi.long, value=1)
+                locations.append(APILocations(type=stop.grid_location_type, points=[weighted_coordiante]))
         new_owner = APIOwner(
             color=owner.color if isinstance(owner, WebPathOwner) or isinstance(owner, WebSpaceOwner) else hex(
                 hash(owner.id) % 0xFFFFFF)[2:].zfill(6),
