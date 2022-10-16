@@ -1,6 +1,6 @@
 import statistics
 from abc import ABC
-from typing import TYPE_CHECKING, List, Dict, Optional, Any, Tuple, Union
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, Tuple, Union
 
 from .Stringify import Stringify
 from ..Agents.PathAgent import PathAgent
@@ -565,7 +565,7 @@ class Statistics:
                     total_blocker_violations += segment_violations.total_blocker_violations
 
                 if len(agent.allocated_segments) > 0 and len(agent.allocated_segments[0].coordinates) > 0 and not \
-                    agent.allocated_segments[-1].max.inter_temporal_equal(agent.locations[-1]):
+                        agent.allocated_segments[-1].max.inter_temporal_equal(agent.locations[-1]):
                     incomplete_allocation = True
                     total_violations += 1
 

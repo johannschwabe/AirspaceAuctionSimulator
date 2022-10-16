@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict
+from typing import Dict, TYPE_CHECKING
 
 from Simulator import PaymentRule
 from Simulator.Agents.PathAgent import PathAgent

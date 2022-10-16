@@ -9,16 +9,26 @@ from Simulator.Agents.SpaceAgent import SpaceAgent
 
 if TYPE_CHECKING:
     from Simulator.Bids.BidTracker import BidTracker
-    from Simulator.Bids.Bid import Bid
     from Simulator.Coordinates.Coordinate4D import Coordinate4D
     from Simulator.Environment.Environment import Environment
 
 
 def find_valid_path_tick(tick: int, environment: "Environment", bid_tracker: "BidTracker", position: "Coordinate4D",
-                         bid: "Bid", min_tick: int, max_tick: int) -> Optional[int]:
+                         agent: "PathAgent", min_tick: int, max_tick: int) -> Optional[int]:
+    """
+    Checks if the given position is valid to allocate.
+    If not, it tries to find a later tick where an allocation is possible.
+    The returned tick is in the range [max{position.t, min_tick}, max_tick] or None if no valid tick is found.
+    :param tick: the current simulation tick
+    :param environment: the environment in which to find a valid allocation
+    :param bid_tracker: the bid-tracker to get past and new agent bids
+    :param position: the position at which to find a valid allocation tick
+    :param agent: the agent that should be allocated
+    :param min_tick: the minimum tick of the range in which the allocation must be
+    :param max_tick: the maximum tick of the range in which the allocation must be
+    :return:
+    """
     pos_clone = position.clone()
-    agent = bid.agent
-    assert isinstance(agent, PathAgent)
     if pos_clone.t < min_tick:
         pos_clone.t = min_tick
     while True:
@@ -32,15 +42,29 @@ def find_valid_path_tick(tick: int, environment: "Environment", bid_tracker: "Bi
 
 
 def find_valid_space_tick(tick: int, environment: "Environment", bid_tracker: "BidTracker",
-                          min_position: "Coordinate4D", max_position: "Coordinate4D", bid: "Bid", min_tick: int,
-                          max_tick: int) -> Optional[int]:
+                          min_position: "Coordinate4D", max_position: "Coordinate4D", agent: "SpaceAgent",
+                          min_tick: int, max_tick: int, avoid_blockers: bool = False) -> Optional[int]:
+    """
+    Checks if the given space is valid to allocate.
+    If not, it tries to find a later tick where an allocation is possible.
+    The returned tick is in the range [max{min_position.t, min_tick}, max_tick] or None if no valid tick is found.
+    :param tick: the current simulation tick
+    :param environment: the environment in which to find a valid allocation
+    :param bid_tracker: the bid-tracker to get past and new agent bids
+    :param min_position: the minimum coordinate of the space for which to find a valid allocation tick
+    :param max_position: the maximum coordinate of the space for which to find a valid allocation tick
+    :param agent: the agent that should be allocated
+    :param min_tick: the minimum tick of the range in which the allocation must be
+    :param max_tick: the maximum tick of the range in which the allocation must be
+    :param avoid_blockers: if True, it is not allowed to allocate space containing blocker
+    :return:
+    """
     min_pos_clone = min_position.clone()
-    agent = bid.agent
-    assert isinstance(agent, SpaceAgent)
     if min_pos_clone.t < min_tick:
         min_pos_clone.t = min_tick
     while True:
-        valid, _ = is_valid_for_space_allocation(tick, environment, bid_tracker, min_pos_clone, max_position, agent)
+        valid, _ = is_valid_for_space_allocation(tick, environment, bid_tracker, min_pos_clone, max_position, agent,
+                                                 avoid_blockers=avoid_blockers)
         if valid:
             break
         min_pos_clone.t += 1
@@ -173,6 +197,7 @@ def path_agent_can_escape(intersecting_coordinate: "Coordinate4D", escaping_agen
 def setup_rtree(data: Optional[Iterator["Item"]] = None) -> Index:
     """
     Returns a rtree instance with 4 dimensions.
+    Used internally by the Environment and Statistics modules.
     """
     props = Property()
     props.dimension = 4
