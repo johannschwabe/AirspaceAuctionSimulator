@@ -26,7 +26,7 @@ def find_valid_path_tick(tick: int, environment: "Environment", bid_tracker: "Bi
     :param agent: the agent that should be allocated
     :param min_tick: the minimum tick of the range in which the allocation must be
     :param max_tick: the maximum tick of the range in which the allocation must be
-    :return:
+    :return: tick in the range [max{position.t, min_tick}, max_tick] or None
     """
     pos_clone = position.clone()
     if pos_clone.t < min_tick:
@@ -47,7 +47,8 @@ def find_valid_space_tick(tick: int, environment: "Environment", bid_tracker: "B
     """
     Checks if the given space is valid to allocate.
     If not, it tries to find a later tick where an allocation is possible.
-    The returned tick is in the range [max{min_position.t, min_tick}, max_tick] or None if no valid tick is found.
+    The returned tick is in the range [max{min_position.t, min_tick}, min{max_position.t, max_tick}] or None if no
+    valid tick is found.
     :param tick: the current simulation tick
     :param environment: the environment in which to find a valid allocation
     :param bid_tracker: the bid-tracker to get past and new agent bids
@@ -57,7 +58,7 @@ def find_valid_space_tick(tick: int, environment: "Environment", bid_tracker: "B
     :param min_tick: the minimum tick of the range in which the allocation must be
     :param max_tick: the maximum tick of the range in which the allocation must be
     :param avoid_blockers: if True, it is not allowed to allocate space containing blocker
-    :return:
+    :return: tick in the range [max{min_position.t, min_tick}, min{max_position.t, max_tick}] or None
     """
     min_pos_clone = min_position.clone()
     if min_pos_clone.t < min_tick:
