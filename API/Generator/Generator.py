@@ -25,7 +25,7 @@ class Generator:
             allocator: "WebAllocator",
             map_playfield_area: "Area",
             payment_rule: "PaymentRule",
-            allocation_period: int = 50,
+            allocation_period: int,
             connection_manager: "Optional[ConnectionManager]" = None,
             client_id: "Optional[str]" = ""
     ):
@@ -36,9 +36,9 @@ class Generator:
         self.dimensions: "Coordinate4D" = dimensions
         self.owners: List["Owner"] = []
         self.allocator: "WebAllocator" = allocator
+        self.allocation_period: int = allocation_period
         self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles,
                                                          min_height=map_playfield_area.min_height,
-                                                         allocation_period=allocation_period,
                                                          map_area=map_playfield_area).generate()
         self.simulator: Optional["Simulator"] = None
         self.history: Optional["History"] = None
@@ -104,7 +104,7 @@ class Generator:
                                           api_owner.name,
                                           api_owner.color,
                                           stops,
-                                          self.creation_ticks(self.environment.allocation_period, api_owner.agents),
+                                          self.creation_ticks(self.allocation_period, api_owner.agents),
                                           bidding_strategy=selected_bidding_strategy,
                                           value_function=selected_value_functions,
                                           size=Coordinate4D(dim_x, dim_y, dim_z, dim_t),
@@ -123,7 +123,7 @@ class Generator:
                                          api_owner.name,
                                          api_owner.color,
                                          stops,
-                                         self.creation_ticks(self.environment.allocation_period, api_owner.agents),
+                                         self.creation_ticks(self.allocation_period, api_owner.agents),
                                          bidding_strategy=selected_bidding_strategy,
                                          value_function=selected_value_functions,
                                          near_radius=near_field,

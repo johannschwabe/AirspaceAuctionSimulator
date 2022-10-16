@@ -1,14 +1,14 @@
 import unittest
 
-from Demos.FCFS import FCFSPathBiddingStrategy, FCFSSpaceBiddingStrategy, FCFSPathValueFunction, FCFSSpaceValueFunction
-from Simulator import GridLocation, Heatmap, GridLocationType, Environment, Coordinate3D, Coordinate4D, StaticBlocker, \
-    Coordinate2D, HeatmapType, PathOwner, SpaceOwner
-from API import APIPathOwner, APISpaceOwner
+from API.WebClasses import WebPathOwner, WebSpaceOwner
+from Demos.FCFS import FCFSPathBiddingStrategy, FCFSPathValueFunction, FCFSSpaceBiddingStrategy, FCFSSpaceValueFunction
+from Simulator import Coordinate2D, Coordinate3D, Coordinate4D, Environment, GridLocation, GridLocationType, Heatmap, \
+    HeatmapType, PathOwner, SpaceOwner, StaticBlocker
 
 
 class OwnerTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.path_owner = APIPathOwner("Test Path Owner",
+        self.path_owner = WebPathOwner("Test Path Owner",
                                        "testosteroni",
                                        "#123456",
                                        [GridLocation(str(GridLocationType.RANDOM.value)),
@@ -17,7 +17,7 @@ class OwnerTest(unittest.TestCase):
                                        FCFSPathBiddingStrategy(),
                                        FCFSPathValueFunction(),
                                        1, 1000, 1, {})
-        self.space_owner = APISpaceOwner("Test Space Owner",
+        self.space_owner = WebSpaceOwner("Test Space Owner",
                                          "Bluberatus",
                                          "#654321",
                                          [GridLocation(str(GridLocationType.HEATMAP.value),
