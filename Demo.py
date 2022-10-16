@@ -8,11 +8,11 @@ from Demos.Priority import PriorityAllocator, PriorityPaymentRule, PriorityPathB
     PriorityPathValueFunction, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
 from Simulator import Simulator, Coordinate4D, Mechanism
 
-TIMESTEPS = 1000
+TIMESTEPS = 5000
 ALLOCATION_PERIOD = 100
 
 # Specifies a point in Zurich, Switzerland
-coordinate = APIWorldCoordinates(lat=47.37175967132577, long=8.542166566660185)
+coordinate = APIWorldCoordinates(long=8.542166566660185, lat=47.37175967132577)
 
 # Resolves open-streetmap tiles around specified coordinate in Zurich
 maptiles = MapTile.tiles_from_coordinates(coordinate)
@@ -25,7 +25,7 @@ area = Area(bottom_left_coordinate, top_right_coordinate)
 
 # Use area to find out play field resolution in voxels
 [x, z] = area.dimension
-y = 50 # Set map height to 50 voxels (which is also 50 meters since we have not specified a resolution)
+y = 50  # Set map height to 50 voxels (which is also 50 meters since we have not specified a resolution)
 
 # Define environment
 environment_generator = EnvironmentGen(
@@ -47,27 +47,29 @@ owners = [
         name="OwnerA",
         color="#ff0000",
         stops=[
-            GridLocation("position", area.point_to_coordinate2D(LongLatCoordinate(47.371352787296225, 8.540492789574389))),
-            GridLocation("position", area.point_to_coordinate2D(LongLatCoordinate(47.36562674969373, 8.546199997526907))),
+            GridLocation("position",
+                         area.point_to_coordinate2D(LongLatCoordinate(long=8.5440842, lat=47.3700998))),
+            GridLocation("position",
+                         area.point_to_coordinate2D(LongLatCoordinate(long=8.5409777, lat=47.3711154))),
         ],
-        creation_ticks=[randint(0, ALLOCATION_PERIOD) for _ in range(50)],
+        creation_ticks=[randint(0, ALLOCATION_PERIOD) for _ in range(10)],
         bidding_strategy=PriorityPathBiddingStrategy(),
         value_function=PriorityPathValueFunction(),
         near_radius=1,
-        battery=2000,
+        battery=5000,
         speed=1,
-        config={"priority": 1.0}
+        config={"priority": 0.5}
     ),
     WebSpaceOwner(
         owner_id="2",
         name="OwnerB",
         color="#00ff00",
         stops=[GridLocation("random")],
-        creation_ticks=[0, 0, 0, 10, 10, 10],
-        size=Coordinate4D(x=20, y=5, z=20, t=50),
+        creation_ticks=[0, 0, 0, 300, 400, 500],
+        size=Coordinate4D(x=20, y=50, z=20, t=100),
         bidding_strategy=PrioritySpaceBiddingStrategy(),
         value_function=PrioritySpaceValueFunction(),
-        config={"priority": 0.5}
+        config={"priority": 1.0}
     ),
 ]
 

@@ -110,7 +110,7 @@ def generate_config(simulator: "Simulator",
         new_owner = APIOwner(
             color=owner.color if isinstance(owner, WebPathOwner) or isinstance(owner, WebSpaceOwner) else hex(
                 hash(owner.id) % 0xFFFFFF)[2:].zfill(6),
-            name=owner.id,
+            name=owner.name,
             agents=len(owner.agents),
             biddingStrategy=bidding_strategy,
             locations=locations,
