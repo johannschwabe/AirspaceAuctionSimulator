@@ -1,18 +1,25 @@
 import math
 from typing import List, TYPE_CHECKING
 
-from shapely.geometry import Polygon, Point, box
+from shapely.geometry import Point, Polygon, box
 
 from .StaticBlocker import StaticBlocker
 
 if TYPE_CHECKING:
-    from ..Coordinates.Coordinate4D import Coordinate4D
-    from ..Coordinates.Coordinate3D import Coordinate3D
+    from Simulator.Coordinates.Coordinate4D import Coordinate4D
+    from Simulator.Coordinates.Coordinate3D import Coordinate3D
 
 
 class BuildingBlocker(StaticBlocker):
-    def __init__(self, vertices: List[List[float]], bounds: List["Coordinate3D"], holes: List[List[List[float]]],
+    def __init__(self,
+                 vertices: List[List[float]],
+                 bounds: List["Coordinate3D"],
+                 holes: List[List[List[float]]],
                  osm_id=None):
+        """
+        :param bounds: assert len(bounds) == 2
+        """
+        assert len(bounds) == 2
         super().__init__(bounds[0], bounds[1] - bounds[0])
         self.points = vertices
         self.holes = holes

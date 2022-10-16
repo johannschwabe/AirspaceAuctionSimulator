@@ -1,17 +1,17 @@
 import math
-from typing import Optional, Iterator, TYPE_CHECKING
+from typing import Iterator, Optional, TYPE_CHECKING
 
 from rtree import Index
 from rtree.index import Item, Property
 
-from ..Agents.PathAgent import PathAgent
-from ..Agents.SpaceAgent import SpaceAgent
+from Simulator.Agents.PathAgent import PathAgent
+from Simulator.Agents.SpaceAgent import SpaceAgent
 
 if TYPE_CHECKING:
-    from ..BidTracker.BidTracker import BidTracker
-    from ..Bids.Bid import Bid
-    from ..Coordinates.Coordinate4D import Coordinate4D
-    from ..Environment.Environment import Environment
+    from Simulator.Bids.BidTracker import BidTracker
+    from Simulator.Bids.Bid import Bid
+    from Simulator.Coordinates.Coordinate4D import Coordinate4D
+    from Simulator.Environment.Environment import Environment
 
 
 def find_valid_path_tick(tick: int, environment: "Environment", bid_tracker: "BidTracker", position: "Coordinate4D",

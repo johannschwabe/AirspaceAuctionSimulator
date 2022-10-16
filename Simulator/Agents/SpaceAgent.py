@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Dict, Optional, Any, Set
+from typing import Any, Dict, List, Optional, Set, TYPE_CHECKING
 
 from .Agent import Agent
 from .AgentType import AgentType
@@ -32,7 +32,8 @@ class SpaceAgent(Agent):
                 assert existing_segment.max.t + 1 == space_segment.min.t
                 existing_segment.max.t = space_segment.max.t
                 print(
-                    f"merged: {existing_segment.min},\n{existing_segment.max} \nfrom {space_segment.min},\n{space_segment.max}")
+                    f"merged: {existing_segment.min},\n{existing_segment.max} \nfrom {space_segment.min},"
+                    f"\n{space_segment.max}")
                 return
         self.allocated_segments.append(space_segment)
 

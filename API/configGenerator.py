@@ -1,27 +1,30 @@
 from typing import List, TYPE_CHECKING
 
-from API import Area
-from API.LongLatCoordinate import LongLatCoordinate
-from API.Types import APIMap, APISubselection, APISimulationConfig, APIWorldCoordinates, APIOwner, APIBiddingStrategy, \
-    APILocations
-from Simulator import Simulator
-from Simulator.Location.GridLocationType import GridLocationType
-from .Owners.WebOwnerMixin import WebOwnerMixin
-from .Owners.WebPathOwner import WebPathOwner
-from .Owners.WebSpaceOwner import WebSpaceOwner
+from API.WebClasses.BiddingStrategies.WebPathBiddingStrategy import WebPathBiddingStrategy
+from API.WebClasses.Owners import WebOwnerMixin
+from API.WebClasses.Owners.WebPathOwner import WebPathOwner
+from API.WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
+from Simulator import GridLocationType
+from . import Area
+from .LongLatCoordinate import LongLatCoordinate
+from .Types import APIBiddingStrategy, APILocations, APIMap, APIOwner, APISimulationConfig, APIWorldCoordinates
 
 if TYPE_CHECKING:
-    from API.Generator.MapTile import MapTile
+    from .Generator.MapTile import MapTile
+    from .Types import APISubselection
+    from Simulator import Simulator
 
 
-def generate_config(simulator: "Simulator", subselection: "APISubselection",
-                    mapTiles: "List[MapTile]", name: "str" = "Unknown"):
+def generate_config(simulator: "Simulator",
+                    subselection: "APISubselection",
+                    map_tiles: List["MapTile"],
+                    name: str = "Unknown"):
     bottom_left = LongLatCoordinate(subselection.bottomLeft.long, subselection.bottomLeft.lat)
     top_right = LongLatCoordinate(subselection.topRight.long, subselection.topRight.lat)
     dim = simulator.environment.dimension
     dim_m = Area.haversin_lon_lat(bottom_left, top_right)
     resolution = round(dim_m[0] / dim.x)  # rounding needed?
-    mapTileIds = [(tile.z, tile.x, tile.y) for tile in mapTiles]
+    map_tile_ids = [(tile.z, tile.x, tile.y) for tile in map_tiles]
     _map = APIMap(
         coordinates=APIWorldCoordinates(
             long=(bottom_left.long + top_right.long) / 2,
@@ -36,12 +39,13 @@ def generate_config(simulator: "Simulator", subselection: "APISubselection",
         minHeight=simulator.environment.min_height * resolution,
         allocationPeriod=simulator.environment.allocation_period,
         timesteps=dim.t,
-        tiles=mapTileIds
+        tiles=map_tile_ids
     )
     _owners = []
     for owner in simulator.owners:
         bs = owner.bidding_strategy
         meta = []
+        assert isinstance(bs, WebPathBiddingStrategy)
         bs_meta = bs.meta()
         if isinstance(owner, WebPathOwner):
 

@@ -1,9 +1,9 @@
 from time import time_ns
-from typing import List, Tuple, Set, Optional, Dict, TYPE_CHECKING
+from typing import Dict, List, Optional, Set, TYPE_CHECKING, Tuple
 
-from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation, \
-    AllocationHistory, AStar, is_valid_for_path_allocation, is_valid_for_space_allocation
-from Simulator.helpers.helpers import find_valid_path_tick, find_valid_space_tick
+from API.WebClasses import WebAllocator
+from Simulator import AStar, Allocation, AllocationHistory, AllocationReason, PathSegment, SpaceSegment, \
+    find_valid_path_tick, find_valid_space_tick, is_valid_for_path_allocation, is_valid_for_space_allocation
 from ..BidTracker.PriorityBidTracker import PriorityBidTracker
 from ..BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStrategy
 from ..BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from Simulator import Environment, Agent
 
 
-class PriorityAllocator(Allocator):
+class PriorityAllocator(WebAllocator):
     """
     Allocates agents based on priority of the bid.
     Agents with higher priority bids can deallocate agents with lower priority bids.
