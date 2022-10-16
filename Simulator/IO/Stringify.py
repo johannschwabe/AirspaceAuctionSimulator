@@ -42,7 +42,7 @@ class Stringify:
         """
         Converts an instance of any class into a dictionary recursively. Private attributes, whose name starting with
         an underscore, are ignored. Further, the key names specified under "ignore_keys" are also not being considered.
-        Datees are converted into strins following the specified syntax.
+        Dates are converted into strings following the specified syntax.
         :param obj: Any object that shall be converted to a dictionary
         :param ignore_keys: Keys that shall be ignored during conversion
         :param date_format: String format into which dates shall be converted

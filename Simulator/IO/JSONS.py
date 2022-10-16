@@ -152,16 +152,16 @@ def get_json_owners(simulation: "Simulator"):
         for agent in owner.agents:
 
             if isinstance(agent, PathAgent):
-                intermediate_allocations: List["JSONBranch"] = get_json_intermediate_path_allocations(agent,
-                                                                                                      simulation.history.allocations)
+                intermediate_allocations: List["JSONBranch"] = \
+                    get_json_intermediate_path_allocations(agent, simulation.history.allocations)
                 json_path_agents.append(JSONPathAgent(
                     agent,
                     intermediate_allocations,
                 ))
 
             elif isinstance(agent, SpaceAgent):
-                intermediate_allocations: List["JSONBlocks"] = get_json_intermediate_space_allocations(agent,
-                                                                                                       simulation.history.allocations)
+                intermediate_allocations: List["JSONBlocks"] = \
+                    get_json_intermediate_space_allocations(agent, simulation.history.allocations)
                 json_space_agents.append(JSONSpaceAgent(
                     agent,
                     intermediate_allocations,
