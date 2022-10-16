@@ -20,7 +20,7 @@ nr_agents = 30
 
 def setup_empty():
     blocker = StaticBlocker(Coordinate3D(10, 0, 10), Coordinate3D(20, 20, 20))
-    return Environment(dimensions, blockers=[blocker], allocation_period=allocation_period)
+    return Environment(dimensions, blockers=[blocker])
 
 
 resolution = 3
@@ -40,7 +40,7 @@ def setup_map():
                                   math.floor(map_height / area.resolution),
                                   math.floor(size[1]),
                                   time_steps)
-    return EnvironmentGen(map_dimensions, [MapTile([15, 17161, 11475], area)], area, 50, 10)
+    return EnvironmentGen(map_dimensions, [MapTile([15, 17161, 11475], area)], area, 10)
 
 
 def fcfs_simulation(_env: Environment):

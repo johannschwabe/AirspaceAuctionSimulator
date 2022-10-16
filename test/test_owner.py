@@ -1,14 +1,17 @@
 import unittest
 
-from Demos.FCFS import FCFSPathBiddingStrategy, FCFSSpaceBiddingStrategy, FCFSPathValueFunction, FCFSSpaceValueFunction
-from Simulator import GridLocation, Heatmap, GridLocationType, Environment, Coordinate3D, Coordinate4D, StaticBlocker, \
-    Coordinate2D, HeatmapType, PathOwner, SpaceOwner
-from API import APIPathOwner, APISpaceOwner
+from API.GridLocation.GridLocation import GridLocation
+from API.GridLocation.GridLocationType import GridLocationType
+from API.GridLocation.Heatmap import Heatmap
+from API.GridLocation.HeatmapType import HeatmapType
+from API.WebClasses import WebPathOwner, WebSpaceOwner
+from Demos.FCFS import FCFSPathBiddingStrategy, FCFSPathValueFunction, FCFSSpaceBiddingStrategy, FCFSSpaceValueFunction
+from Simulator import Coordinate2D, Coordinate3D, Coordinate4D, Environment, StaticBlocker
 
 
 class OwnerTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.path_owner = APIPathOwner("Test Path Owner",
+        self.path_owner = WebPathOwner("Test Path Owner",
                                        "testosteroni",
                                        "#123456",
                                        [GridLocation(str(GridLocationType.RANDOM.value)),
@@ -17,7 +20,7 @@ class OwnerTest(unittest.TestCase):
                                        FCFSPathBiddingStrategy(),
                                        FCFSPathValueFunction(),
                                        1, 1000, 1, {})
-        self.space_owner = APISpaceOwner("Test Space Owner",
+        self.space_owner = WebSpaceOwner("Test Space Owner",
                                          "Bluberatus",
                                          "#654321",
                                          [GridLocation(str(GridLocationType.HEATMAP.value),
@@ -37,7 +40,7 @@ class OwnerTest(unittest.TestCase):
         blocky.id = 3
         blocky.add_to_tree(self.env.blocker_tree, Coordinate4D(0, 0, 0, 100))
         self.env.blocker_dict[blocky.id] = blocky
-        stop = PathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)), self.env, 4, 1)
+        stop = WebPathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)), self.env, 4, 1)
         self.assertTrue(stop.y >= self.env.min_height)
         self.assertFalse(self.env.is_coordinate_blocked_forever(stop, 1))
 
@@ -46,7 +49,7 @@ class OwnerTest(unittest.TestCase):
         blocky.id = 4
         blocky.add_to_tree(self.env.blocker_tree, Coordinate4D(0, 0, 0, 1000))
         self.env.blocker_dict[blocky.id] = blocky
-        stop = PathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)), self.env, 4, 1)
+        stop = WebPathOwner.generate_stop_coordinate(GridLocation(str(GridLocationType.RANDOM.value)), self.env, 4, 1)
         self.assertTrue(self.env.is_coordinate_blocked_forever(stop, 1))
 
     def test_generate_agents_path(self):
@@ -61,13 +64,14 @@ class OwnerTest(unittest.TestCase):
                                     0].speed)
 
     def test_generate_stop_coordinate(self):
-        stop = SpaceOwner.generate_stop_coordinates(GridLocation(str(GridLocationType.HEATMAP.value),
-                                                                 heatmap=Heatmap(
-                                                                     heatmap_type=str(HeatmapType.INVERSE_SPARSE.value),
-                                                                     inverse_sparse={
-                                                                         0.1: [Coordinate2D(20, 20),
-                                                                               Coordinate2D(30, 30)]})),
-                                                    self.env, 10)
+        stop = WebSpaceOwner.generate_stop_coordinates(GridLocation(str(GridLocationType.HEATMAP.value),
+                                                                    heatmap=Heatmap(
+                                                                        heatmap_type=str(
+                                                                            HeatmapType.INVERSE_SPARSE.value),
+                                                                        inverse_sparse={
+                                                                            0.1: [Coordinate2D(20, 20),
+                                                                                  Coordinate2D(30, 30)]})),
+                                                       self.env, 10)
         self.assertIn(stop,
                       [Coordinate4D(20, self.env.min_height, 20, 11), Coordinate4D(30, self.env.min_height, 30, 11)])
 

@@ -1,20 +1,22 @@
 import random
 import time
-from typing import List, TYPE_CHECKING, Tuple
+from typing import List, Optional, TYPE_CHECKING, Tuple
 
 from Simulator import Coordinate4D
 from .Area import Area
 from .Generator.Generator import Generator
 from .Generator.MapTile import MapTile
+from .Types import APIWorldCoordinates
 from .config import available_allocators
 
 if TYPE_CHECKING:
-    from .API import APISimulationConfig, ConnectionManager
+    from .API import ConnectionManager
+    from .Types import APISimulationConfig
 
 
-async def run_from_config(config: "APISimulationConfig", connection_manager: "ConnectionManager", client_id: str) -> \
-Tuple[
-    Generator, int]:
+async def run_from_config(config: "APISimulationConfig",
+                          connection_manager: Optional["ConnectionManager"] = None,
+                          client_id: Optional[str] = None) -> Tuple[Generator, int]:
     """
     Runs an AirspaceAuctionSimulation using a config that is usually provided by the API or generated using the CLI.
     :param client_id:
@@ -27,20 +29,24 @@ Tuple[
     config.map.tiles = [tile.zxy for tile in maptiles]
 
     if config.map.subselection is not None and config.map.subselection.bottomLeft and config.map.subselection.topRight:
-        map_playfield_area = Area(config.map.subselection.bottomLeft, config.map.subselection.topRight,
-                                  config.map.resolution,
-                                  config.map.minHeight)
+        map_playing_field_area = Area(config.map.subselection.bottomLeft, config.map.subselection.topRight,
+                                      config.map.resolution,
+                                      config.map.minHeight)
     else:
         bottom_left_coordinate, top_right_coordinate = MapTile.bounding_box_from_maptiles_group(maptiles)
         config.map.bottomLeftCoordinate = bottom_left_coordinate.as_dict()
         config.map.topRightCoordinate = top_right_coordinate.as_dict()
-        map_playfield_area = Area(bottom_left_coordinate, top_right_coordinate, config.map.resolution,
-                                  config.map.minHeight)
+        map_playing_field_area = Area(APIWorldCoordinates(lat=bottom_left_coordinate.lat,
+                                                          long=bottom_left_coordinate.long),
+                                      APIWorldCoordinates(lat=top_right_coordinate.lat,
+                                                          long=top_right_coordinate.long),
+                                      config.map.resolution,
+                                      config.map.minHeight)
 
-    size = map_playfield_area.dimension
+    size = map_playing_field_area.dimension
 
     dimensions = Coordinate4D(size[0],
-                              config.map.height / map_playfield_area.resolution,
+                              config.map.height / map_playing_field_area.resolution,
                               size[1],
                               config.map.timesteps)
 
@@ -56,7 +62,7 @@ Tuple[
     selected_payment_rule = payment_rule[0]()
 
     random.seed(2)
-    generator = Generator(config.owners, dimensions, maptiles, allocator, map_playfield_area, selected_payment_rule,
+    generator = Generator(config.owners, dimensions, maptiles, allocator, map_playing_field_area, selected_payment_rule,
                           allocation_period=config.map.allocationPeriod, connection_manager=connection_manager,
                           client_id=client_id)
     start_time = time.time_ns()

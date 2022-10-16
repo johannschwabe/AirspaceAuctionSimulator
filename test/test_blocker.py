@@ -1,6 +1,6 @@
 import unittest
 
-from Simulator import StaticBlocker, BuildingBlocker, Environment, Coordinate3D, Coordinate4D, DynamicBlocker
+from Simulator import BuildingBlocker, Coordinate3D, Coordinate4D, DynamicBlocker, Environment, StaticBlocker
 
 
 class BlockerTest(unittest.TestCase):

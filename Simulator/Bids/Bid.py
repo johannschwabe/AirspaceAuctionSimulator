@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Dict, Any
+from typing import Any, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..Agents.Agent import Agent

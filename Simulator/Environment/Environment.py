@@ -1,5 +1,4 @@
-import math
-from typing import List, Dict, TYPE_CHECKING, Set, Iterator, Optional
+from typing import Dict, Iterator, List, Optional, Set, TYPE_CHECKING, cast
 
 from rtree import Index
 
@@ -21,15 +20,10 @@ class Environment:
     def __init__(self,
                  dimension: "Coordinate4D",
                  blockers: Optional[List["Blocker"]] = None,
-                 min_height: int = 0,
-                 allocation_period: Optional[int] = None):
+                 min_height: int = 0):
 
         self.dimension: "Coordinate4D" = dimension
         self.min_height = min_height
-
-        if allocation_period is None:
-            allocation_period = math.floor(dimension.t / 2)
-        self.allocation_period = allocation_period
 
         if blockers is None:
             blockers = []
@@ -160,11 +154,14 @@ class Environment:
             agent = allocation.agent
             segments = allocation.segments
             self.register_or_reset_agent(agent, time_step)
+
             if isinstance(agent, SpaceAgent):
-                self.allocate_space_for_agent(agent, segments)
+                space_segments: List[SpaceSegment] = cast(List[SpaceSegment], segments)
+                self.allocate_space_for_agent(agent, space_segments)
 
             elif isinstance(agent, PathAgent):
-                self.allocate_path_for_agent(agent, segments)
+                path_segments: List[PathSegment] = cast(List[PathSegment], segments)
+                self.allocate_path_for_agent(agent, path_segments)
 
             else:
                 raise Exception(f"Invalid Agent: {agent}")
@@ -326,9 +323,7 @@ class Environment:
         """
         Returns a new environment without any allocated agents.
         """
-        new_env = Environment(self.dimension,
-                              min_height=self.min_height,
-                              allocation_period=self.allocation_period)
+        new_env = Environment(self.dimension, min_height=self.min_height)
         new_env.blocker_dict = self.blocker_dict
         new_env._blocker_id = self._blocker_id
         new_env.blocker_tree = self.blocker_tree
@@ -345,9 +340,7 @@ class Environment:
         else:
             cloned_tree: "Index" = setup_rtree()
 
-        cloned = Environment(self.dimension,
-                             min_height=self.min_height,
-                             allocation_period=self.allocation_period)
+        cloned = Environment(self.dimension, min_height=self.min_height)
         cloned.blocker_dict = self.blocker_dict
         cloned._blocker_id = self._blocker_id
         cloned.tree = cloned_tree

@@ -1,7 +1,6 @@
-from typing import TYPE_CHECKING, Dict
+from typing import Dict, TYPE_CHECKING
 
-from Simulator import Allocation
-from Simulator import PaymentRule
+from Simulator import Allocation, PaymentRule
 
 if TYPE_CHECKING:
     from Demos.CBS.BidTracker.CBSBidTracker import CBSBidTracker

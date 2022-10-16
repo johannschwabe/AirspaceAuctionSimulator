@@ -4,7 +4,7 @@ import unittest
 from Demos.FCFS.BidTracker.FCFSBidTracker import FCFSBidTracker
 from Demos.FCFS.BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
 from Demos.FCFS.ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction
-from Simulator import StaticBlocker, SpaceAgent, SpaceSegment, Coordinate3D, Coordinate4D, Environment, AStar
+from Simulator import AStar, Coordinate3D, Coordinate4D, Environment, SpaceAgent, SpaceSegment, StaticBlocker
 from Simulator.helpers.helpers import is_valid_for_path_allocation
 from test.EnvHelpers import generate_path_agent
 
@@ -66,9 +66,9 @@ class AstarTest(unittest.TestCase):
         agi_2 = SpaceAgent(f"AgentName{random.randint(0, 100000)}",
                            FCFSSpaceBiddingStrategy(),
                            FCFSSpaceValueFunction(),
-                           [SpaceSegment(Coordinate4D(2, 0, 0, 0), Coordinate4D(6, 0, 2, 8))])
+                           [SpaceSegment(Coordinate4D(2, 0, 0, 0), Coordinate4D(6, 0, 2, 8), 0)])
         self.env.allocate_space_segment_for_agent(agi_2,
-                                                  SpaceSegment(Coordinate4D(2, 0, 0, 0), Coordinate4D(4, 0, 2, 8)))
+                                                  SpaceSegment(Coordinate4D(2, 0, 0, 0), Coordinate4D(4, 0, 2, 8), 0))
         self.env.add_agent(agi_2)
         res = self.astar.astar(Coordinate4D(0, 0, 5, 2), Coordinate4D(17, 0, 8, 25), agi)
         self.assertEqual(0, len(res[1]))

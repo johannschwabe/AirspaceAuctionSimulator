@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING, Dict
+from typing import Dict, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..Agents.Agent import Agent

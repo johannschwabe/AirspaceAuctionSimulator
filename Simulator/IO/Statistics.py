@@ -1,6 +1,6 @@
 import statistics
 from abc import ABC
-from typing import TYPE_CHECKING, List, Dict, Optional, Any, Tuple, Union
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, Tuple, Union, cast
 
 from .Stringify import Stringify
 from ..Agents.PathAgent import PathAgent
@@ -224,9 +224,11 @@ class Statistics:
         for tick, allocation in self.simulation.history.allocations[agent].items():
             path_statistics, space_statistics = None, None
             if isinstance(agent, PathAgent):
-                path_statistics = self.path_statistics(allocation.segments)
+                path_segments: List[PathSegment] = cast(List[PathSegment], allocation.segments)
+                path_statistics = self.path_statistics(path_segments)
             elif isinstance(agent, SpaceAgent):
-                space_statistics = self.spaces_statistics(allocation.segments)
+                space_segments: List[SpaceSegment] = cast(List[SpaceSegment], allocation.segments)
+                space_statistics = self.spaces_statistics(space_segments)
             else:
                 raise Exception(f"Invalid Agent: {agent}")
 
@@ -565,7 +567,7 @@ class Statistics:
                     total_blocker_violations += segment_violations.total_blocker_violations
 
                 if len(agent.allocated_segments) > 0 and len(agent.allocated_segments[0].coordinates) > 0 and not \
-                    agent.allocated_segments[-1].max.inter_temporal_equal(agent.locations[-1]):
+                        agent.allocated_segments[-1].max.inter_temporal_equal(agent.locations[-1]):
                     incomplete_allocation = True
                     total_violations += 1
 

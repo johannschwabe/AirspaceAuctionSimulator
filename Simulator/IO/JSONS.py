@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Dict, List, TYPE_CHECKING, Any
+from typing import Any, Dict, List, TYPE_CHECKING
 
 from .Stringify import Stringify
 from .. import Simulator
@@ -47,31 +47,20 @@ class JSONBlocks(Stringify):
 
 
 class JSONAgent(ABC):
-    def __init__(
-        self,
-        agent: "Agent",
-    ):
+    def __init__(self, agent: "Agent"):
         self.agent_type: str = agent.agent_type
         self.id: str = agent.id
 
 
 class JSONSpaceAgent(JSONAgent, Stringify):
-    def __init__(
-        self,
-        agent: "SpaceAgent",
-        blocks: List["JSONBlocks"],
-    ):
+    def __init__(self, agent: "SpaceAgent", blocks: List["JSONBlocks"]):
         super().__init__(agent)
         self.blocks = [JSONSpace(space) for space in agent.allocated_segments]
         self.intermediate_allocations = blocks
 
 
 class JSONPathAgent(JSONAgent, Stringify):
-    def __init__(
-        self,
-        agent: "PathAgent",
-        branches: List["JSONBranch"],
-    ):
+    def __init__(self, agent: "PathAgent", branches: List["JSONBranch"]):
         super().__init__(agent)
         self.speed: int = agent.speed
         self.near_radius: int = agent.near_radius
@@ -81,9 +70,7 @@ class JSONPathAgent(JSONAgent, Stringify):
 
 
 class JSONOwner(Stringify):
-    def __init__(self,
-                 owner: "Owner",
-                 agents: List["JSONAgent"]):
+    def __init__(self, owner: "Owner", agents: List["JSONAgent"]):
         self.id: str = owner.id
         self.agents: List["JSONAgent"] = agents
 
@@ -124,11 +111,7 @@ class JSONStatistics(Stringify):
 
 
 class JSONSimulation(Stringify):
-    def __init__(self,
-                 environment: "JSONEnvironment",
-                 path_owners: List["JSONOwner"],
-                 space_owners: List["JSONOwner"],
-                 ):
+    def __init__(self, environment: "JSONEnvironment", path_owners: List["JSONOwner"], space_owners: List["JSONOwner"]):
         self.environment: "JSONEnvironment" = environment
         self.path_owners: List["JSONOwner"] = path_owners
         self.space_owners: List["JSONOwner"] = space_owners
@@ -169,16 +152,16 @@ def get_json_owners(simulation: "Simulator"):
         for agent in owner.agents:
 
             if isinstance(agent, PathAgent):
-                intermediate_allocations: List["JSONBranch"] = get_json_intermediate_path_allocations(agent,
-                                                                                                      simulation.history.allocations)
+                intermediate_allocations: List["JSONBranch"] = \
+                    get_json_intermediate_path_allocations(agent, simulation.history.allocations)
                 json_path_agents.append(JSONPathAgent(
                     agent,
                     intermediate_allocations,
                 ))
 
             elif isinstance(agent, SpaceAgent):
-                intermediate_allocations: List["JSONBlocks"] = get_json_intermediate_space_allocations(agent,
-                                                                                                       simulation.history.allocations)
+                intermediate_allocations: List["JSONBlocks"] = \
+                    get_json_intermediate_space_allocations(agent, simulation.history.allocations)
                 json_space_agents.append(JSONSpaceAgent(
                     agent,
                     intermediate_allocations,
