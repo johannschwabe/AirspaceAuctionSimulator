@@ -7,7 +7,7 @@ import time
 import traceback
 from typing import Any, Dict, TYPE_CHECKING
 
-from fastapi import HTTPException, FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from websockets import ConnectionClosedError
 
@@ -148,5 +148,5 @@ async def websocket(_websocket: WebSocket, client_id: str):
             data = await _websocket.receive_text()
             print(data)
     except WebSocketDisconnect:
-        await cm.disconnect(client_id=client_id)
+        cm.disconnect(client_id=client_id)
         print(client_id + " disconnected")

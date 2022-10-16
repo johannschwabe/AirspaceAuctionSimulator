@@ -9,7 +9,7 @@ from ..WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
-    from Simulator import Allocator, Owner, Environment, History, PaymentRule, Coordinate2D, Statistics
+    from Simulator import Owner, Environment, History, PaymentRule, Coordinate2D, Statistics
     from ..Types import APIOwner
     from ..Area import Area
     from ..API import ConnectionManager
@@ -141,10 +141,11 @@ class Generator:
             self.environment,
         )
         while self.simulator.tick():
-            if self.connection_manager and not await self.connection_manager.tick(client_id=self.client_id,
-                                                                                  percentage=len(
-                                                                                      self.environment.agents) / self.total_agents):
-                break
+            if self.connection_manager:
+                tick = self.connection_manager.tick(client_id=self.client_id,
+                                                    percentage=len(self.environment.agents) / self.total_agents)
+                if not tick:
+                    break
 
         print(f"DONE!")
         print(f"STEP: {self.simulator.time_step}")

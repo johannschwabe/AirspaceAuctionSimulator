@@ -9,4 +9,4 @@ Shapely==1.8.2
 mpmath~=1.2.1
 uvicorn==0.18.3
 haversine==2.7.0
-uvicorn==0.18.3
+websockets==10.3
