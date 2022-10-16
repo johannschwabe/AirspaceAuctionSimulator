@@ -119,7 +119,7 @@ class FCFSAllocator(WebAllocator):
         :return:
         """
         possible_space_segments = []
-        for block in bid.blocks:
+        for idx, block in enumerate(bid.blocks):
             lower = block.min.clone()
             upper = block.max.clone()
 
@@ -132,7 +132,7 @@ class FCFSAllocator(WebAllocator):
 
             valid, _ = is_valid_for_space_allocation(tick, environment, self.bid_tracker, lower, upper, bid.agent)
             if valid:
-                possible_space_segments.append(SpaceSegment(lower, upper))
+                possible_space_segments.append(SpaceSegment(lower, upper, idx))
 
         return possible_space_segments, "Space allocated."
 

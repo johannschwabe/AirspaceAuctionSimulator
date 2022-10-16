@@ -6,6 +6,9 @@ if TYPE_CHECKING:
 
 
 class Segment(ABC):
+    def __init__(self, index: int):
+        self.index = index
+
     @abstractmethod
     def clone(self):
         pass

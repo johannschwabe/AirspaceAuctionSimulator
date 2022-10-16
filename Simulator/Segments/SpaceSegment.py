@@ -5,7 +5,8 @@ from ..Coordinates.Coordinate4D import Coordinate4D
 
 
 class SpaceSegment(Segment):
-    def __init__(self, min_coordinates: "Coordinate4D", max_coordinates: "Coordinate4D"):
+    def __init__(self, min_coordinates: "Coordinate4D", max_coordinates: "Coordinate4D", index: int):
+        super().__init__(index)
         self._min: "Coordinate4D" = min_coordinates
         self._max: "Coordinate4D" = max_coordinates
 
@@ -61,4 +62,4 @@ class SpaceSegment(Segment):
         return Coordinate4D(0, 0, 0, 0)
 
     def clone(self) -> "SpaceSegment":
-        return SpaceSegment(self.min.clone(), self.max.clone())
+        return SpaceSegment(self.min.clone(), self.max.clone(), self.index)
