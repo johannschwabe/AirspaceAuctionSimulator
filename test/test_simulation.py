@@ -1,11 +1,11 @@
 import unittest
 
+from API.GridLocation.GridLocation import GridLocation
+from API.GridLocation.GridLocationType import GridLocationType
 from API.WebClasses import WebPathOwner
 from Demos.Priority import PriorityAllocator, PriorityPathBiddingStrategy, PriorityPathValueFunction, \
     PriorityPaymentRule
-from Simulator import Coordinate2D, Coordinate3D, Coordinate4D, Environment, GridLocation, GridLocationType, \
-    Mechanism, \
-    Simulator, StaticBlocker
+from Simulator import Coordinate2D, Coordinate3D, Coordinate4D, Environment, Mechanism, Simulator, StaticBlocker
 
 
 class SimulationTest(unittest.TestCase):

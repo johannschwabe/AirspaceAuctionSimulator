@@ -5,7 +5,7 @@ from Demos.FCFS.BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBidding
 from Demos.FCFS.Bids.FCFSPathBid import FCFSPathBid
 from Demos.FCFS.ValueFunction.FCFSPathValueFunction import FCFSPathValueFunction
 from Demos.FCFS.ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction
-from Simulator import Allocation, AllocationReason, AllocationHistory, Coordinate4D, Coordinate3D, PathAgent, \
+from Simulator import Allocation, AllocationHistory, AllocationReason, Coordinate3D, Coordinate4D, PathAgent, \
     PathSegment, SpaceAgent, SpaceSegment
 
 
@@ -25,7 +25,7 @@ def generate_space_agent():
     return SpaceAgent(f"AgentName{random.randint(0, 100000)}",
                       FCFSSpaceBiddingStrategy(),
                       FCFSSpaceValueFunction(),
-                      [SpaceSegment(Coordinate4D(40, 40, 40, 20), Coordinate4D(60, 60, 60, 70))])
+                      [SpaceSegment(Coordinate4D(40, 40, 40, 20), Coordinate4D(60, 60, 60, 70), 0)])
 
 
 def generate_path_segment(base: Coordinate4D):
@@ -47,7 +47,7 @@ def generate_path_segment(base: Coordinate4D):
 
 
 def generate_space_segment(base: Coordinate4D):
-    return SpaceSegment(base, base + Coordinate4D(10, 10, 10, 40))
+    return SpaceSegment(base, base + Coordinate4D(10, 10, 10, 40), 0)
 
 
 def generate_allocation_statistics():
