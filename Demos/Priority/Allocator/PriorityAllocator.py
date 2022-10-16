@@ -1,9 +1,9 @@
 from time import time_ns
-from typing import List, Tuple, Set, Optional, Dict, TYPE_CHECKING
+from typing import Dict, List, Optional, Set, TYPE_CHECKING, Tuple
 
-from Simulator import Allocator, PathSegment, AllocationReason, SpaceSegment, Allocation, \
-    AllocationHistory, AStar, is_valid_for_path_allocation, is_valid_for_space_allocation
-from Simulator.helpers.helpers import find_valid_path_tick, find_valid_space_tick
+from API.WebClasses import WebAllocator
+from Simulator import AStar, Allocation, AllocationHistory, AllocationReason, PathSegment, SpaceSegment, \
+    find_valid_path_tick, find_valid_space_tick, is_valid_for_path_allocation, is_valid_for_space_allocation
 from ..BidTracker.PriorityBidTracker import PriorityBidTracker
 from ..BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStrategy
 from ..BiddingStrategy.PrioritySpaceBiddingStrategy import PrioritySpaceBiddingStrategy
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from Simulator import Environment, Agent
 
 
-class PriorityAllocator(Allocator):
+class PriorityAllocator(WebAllocator):
     """
     Allocates agents based on priority of the bid.
     Agents with higher priority bids can deallocate agents with lower priority bids.
@@ -144,7 +144,7 @@ class PriorityAllocator(Allocator):
                                                                     bid.agent)
             if valid:
                 collisions = collisions.union(block_collisions)
-                possible_space_segments.append(SpaceSegment(lower, upper))
+                possible_space_segments.append(SpaceSegment(lower, upper, block.index))
 
         return possible_space_segments, collisions, "Space allocated."
 
@@ -206,7 +206,7 @@ class PriorityAllocator(Allocator):
             # Deallocate collisions
             agents_to_allocate = agents_to_allocate.union(collisions)
             for agent_to_remove in collisions:
-                print(f"reallocating: {agent_to_remove.id}")
+                print(f"reallocating: {agent_to_remove}")
                 if agent_to_remove not in displacements:
                     displacements[agent_to_remove] = set()
                 displacements[agent_to_remove].add(agent)

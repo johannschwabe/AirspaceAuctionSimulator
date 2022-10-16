@@ -1,5 +1,5 @@
-from abc import abstractmethod, ABC
-from typing import List, TYPE_CHECKING, Dict, Any, Optional
+from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from ..Agents.AgentType import AgentType
 from ..Owners.Owner import Owner

@@ -1,15 +1,15 @@
-from typing import TYPE_CHECKING, Optional
+from typing import Optional, TYPE_CHECKING
 
+from API.WebClasses import WebPathBiddingStrategy
 from Demos.CBS.Bids.CBSPathBid import CBSPathBid
 from Demos.CBS.ValueFunction.CBSPathValueFunction import CBSPathValueFunction
-from Simulator import AgentType, BiddingStrategy
-from Simulator.Bids.PathBiddingStrategy import PathBiddingStrategy
+from Simulator import AgentType
 
 if TYPE_CHECKING:
     from Simulator import PathAgent, Environment
 
 
-class CBSPathBiddingStrategy(BiddingStrategy, PathBiddingStrategy):
+class CBSPathBiddingStrategy(WebPathBiddingStrategy):
     label = "CBS Path Bidding Strategy"
     description = "An Bidding Strategy for CBS Path Agents"
     min_locations = 2
@@ -18,7 +18,7 @@ class CBSPathBiddingStrategy(BiddingStrategy, PathBiddingStrategy):
 
     @staticmethod
     def meta():
-        return PathBiddingStrategy.meta()
+        return WebPathBiddingStrategy.meta()
 
     def generate_bid(self, agent: "PathAgent", _environment: "Environment",
                      time_step: int) -> Optional["CBSPathBid"]:

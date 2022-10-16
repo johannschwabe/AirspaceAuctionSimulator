@@ -1,10 +1,14 @@
 import math
 import random
+from abc import ABC
+from typing import Dict, List
+
+from .WebBiddingStrategy import WebBiddingStrategy
 
 
-class SpaceBiddingStrategy:
+class WebSpaceBiddingStrategy(WebBiddingStrategy, ABC):
     @staticmethod
-    def meta():
+    def meta() -> List[Dict]:
         return [
             {
                 "key": "size_x",

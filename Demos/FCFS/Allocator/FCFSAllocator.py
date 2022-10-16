@@ -1,10 +1,10 @@
 import random
 from time import time_ns
-from typing import List, Optional, Dict, TYPE_CHECKING, Tuple
+from typing import Dict, List, Optional, TYPE_CHECKING, Tuple
 
-from Simulator import Allocator, AStar, PathSegment, SpaceSegment, Allocation, AllocationReason, \
-    AllocationHistory, Agent
-from Simulator.helpers.helpers import find_valid_path_tick, find_valid_space_tick, is_valid_for_space_allocation
+from API.WebClasses import WebAllocator
+from Simulator import AStar, Agent, Allocation, AllocationHistory, AllocationReason, PathSegment, \
+    SpaceSegment, find_valid_path_tick, find_valid_space_tick, is_valid_for_space_allocation
 from ..BidTracker.FCFSBidTracker import FCFSBidTracker
 from ..BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
 from ..BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from Simulator import Environment
 
 
-class FCFSAllocator(Allocator):
+class FCFSAllocator(WebAllocator):
     """
     Allocates agents in the order they arrive.
     There is no given order for agents arriving during same tick.
@@ -119,7 +119,7 @@ class FCFSAllocator(Allocator):
         :return:
         """
         possible_space_segments = []
-        for block in bid.blocks:
+        for idx, block in enumerate(bid.blocks):
             lower = block.min.clone()
             upper = block.max.clone()
 
@@ -132,7 +132,7 @@ class FCFSAllocator(Allocator):
 
             valid, _ = is_valid_for_space_allocation(tick, environment, self.bid_tracker, lower, upper, bid.agent)
             if valid:
-                possible_space_segments.append(SpaceSegment(lower, upper))
+                possible_space_segments.append(SpaceSegment(lower, upper, idx))
 
         return possible_space_segments, "Space allocated."
 

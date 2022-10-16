@@ -1,6 +1,6 @@
 import random
-from abc import abstractmethod, ABC
-from typing import List, TYPE_CHECKING, Dict, Any, Optional
+from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from .Owner import Owner
 from ..Agents.AgentType import AgentType

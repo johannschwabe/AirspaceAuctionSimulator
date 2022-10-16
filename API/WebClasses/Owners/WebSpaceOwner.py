@@ -1,6 +1,6 @@
-from typing import List, TYPE_CHECKING, Dict, Any, Optional
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
-from Simulator import SpaceOwner, SpaceAgent,SpaceSegment
+from Simulator import SpaceAgent, SpaceOwner, SpaceSegment
 from .WebOwnerMixin import WebOwnerMixin
 
 if TYPE_CHECKING:
@@ -30,13 +30,13 @@ class WebSpaceOwner(WebOwnerMixin, SpaceOwner):
         res = []
         for _ in range(self.creation_ticks.count(t)):
             blocks: List["SpaceSegment"] = []
-            for stop in self.stops:
+            for idx, stop in enumerate(self.stops):
                 center = self.generate_stop_coordinates(stop, environment, t)
                 bottom_left = center.clone()
                 bottom_left.x -= round(self.size.x / 2)
                 bottom_left.z -= round(self.size.z / 2)
                 top_right = bottom_left + self.size
-                blocks.append(SpaceSegment(bottom_left, top_right))
+                blocks.append(SpaceSegment(bottom_left, top_right, idx))
             agent = self.initialize_agent(blocks)
             res.append(agent)
             print(f"{agent} {', '.join([str(block) for block in blocks])}")

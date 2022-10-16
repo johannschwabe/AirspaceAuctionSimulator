@@ -4,8 +4,8 @@ from .Blocker import Blocker
 from .BlockerType import BlockerType
 
 if TYPE_CHECKING:
-    from ..Coordinates.Coordinate4D import Coordinate4D
-    from ..Coordinates.Coordinate3D import Coordinate3D
+    from Simulator.Coordinates.Coordinate4D import Coordinate4D
+    from Simulator.Coordinates.Coordinate3D import Coordinate3D
     from rtree import Index
 
 

@@ -9,10 +9,9 @@ from .Agents.SpaceAgent import SpaceAgent
 from .Allocations.Allocation import Allocation
 from .Allocations.AllocationHistory import AllocationHistory
 from .Allocations.AllocationReason import AllocationReason
-# BidTracker
-from .BidTracker.BidTracker import BidTracker
 # Bids
 from .Bids.Bid import Bid
+from .Bids.BidTracker import BidTracker
 from .Bids.BiddingStrategy import BiddingStrategy
 # Blockers
 from .Blocker.BuildingBlocker import BuildingBlocker
@@ -27,8 +26,8 @@ from .Environment.Environment import Environment
 # History
 from .History.History import History
 # IO
-from .IO.JSONS import get_simulation_dict
-from .IO.Statistics import get_statistics_dict, Statistics
+from .IO.JSONS import JSONOwnerDescription, get_simulation_dict
+from .IO.Statistics import Statistics, get_statistics_dict
 # Location
 from .Location.GridLocation import GridLocation
 from .Location.GridLocationType import GridLocationType
@@ -51,7 +50,5 @@ from .Simulator import Simulator
 # Value Functions
 from .ValueFunction.ValueFunction import ValueFunction
 # helpers
-from .helpers.helpers import find_valid_path_tick
-from .helpers.helpers import find_valid_space_tick
-from .helpers.helpers import is_valid_for_path_allocation
-from .helpers.helpers import is_valid_for_space_allocation
+from .helpers.helpers import find_valid_path_tick, find_valid_space_tick, is_valid_for_path_allocation, \
+    is_valid_for_space_allocation

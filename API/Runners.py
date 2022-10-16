@@ -1,6 +1,6 @@
 import random
 import time
-from typing import List, Tuple, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Tuple
 
 from Simulator import Coordinate4D
 from .Area import Area
@@ -22,8 +22,8 @@ Tuple[
     :param config: Configuration object, defining all parameters of the Simulation
     :return: Simulated generator, simulation duration in seconds
     """
-    maptiles: List[MapTile] = MapTile.tiles_from_coordinates(config.map.coordinates, config.map.neighbouringTiles,
-                                                             config.map.resolution)
+    maptiles: List["MapTile"] = MapTile.tiles_from_coordinates(config.map.coordinates, config.map.neighbouringTiles,
+                                                               config.map.resolution)
     config.map.tiles = [tile.zxy for tile in maptiles]
 
     if config.map.subselection is not None and config.map.subselection.bottomLeft and config.map.subselection.topRight:

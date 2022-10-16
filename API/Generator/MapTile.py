@@ -3,12 +3,12 @@ from typing import List, TYPE_CHECKING, Tuple
 import cloudscraper
 import mpmath as mp
 
+from API.Area import Area
+from API.LongLatCoordinate import LongLatCoordinate
 from Simulator import BuildingBlocker, Coordinate3D
-from ..Area import Area
-from ..LongLatCoordinate import LongLatCoordinate
 
 if TYPE_CHECKING:
-    from ..Types import APIWorldCoordinates
+    from API.Types import APIWorldCoordinates
 
 
 class MapTile:
@@ -18,9 +18,9 @@ class MapTile:
     """
 
     def __init__(
-        self,
-        tile_ids: List[int],
-        area: "Area"
+            self,
+            tile_ids: List[int],
+            area: "Area"
     ):
         """
         :param tile_ids: int[3] - coordinates of the tile (In the tile-coordinate system)
@@ -54,7 +54,7 @@ class MapTile:
             has_height = building['properties']['height'] > 0
             is_polygon = building['geometry']['type'] == 'Polygon'
             has_coordinates = (
-                len(building['geometry']['coordinates']) > 0 and len(building['geometry']['coordinates'][0]) > 0
+                    len(building['geometry']['coordinates']) > 0 and len(building['geometry']['coordinates'][0]) > 0
             )
             if is_feature and has_height and is_polygon and has_coordinates:
                 coords = []
@@ -183,7 +183,8 @@ class MapTile:
         :param coordinates: Coordinate that will be covered by the maptile at the center of the array
         :param neighbouring_tiles:
         :param resolution:
-        :return: Array of maptiles, starting from the top-left tile, left-to-right, top-to-bottom flow: [[1,2,3], [4, 5, 6], [7, 8, 9]]
+        :return: Array of maptiles, starting from the top-left tile, left-to-right, top-to-bottom flow: [[1,2,3], [4,
+        5, 6], [7, 8, 9]]
                  The number of tiles returned is always (1 + (neighbouring_tiles * 2)^2
                  Hence: 0->1, 1->9, 2->25 etc.
         """

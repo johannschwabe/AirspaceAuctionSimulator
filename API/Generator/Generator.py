@@ -1,11 +1,11 @@
 import random
-from typing import List, Optional, TYPE_CHECKING, Dict
+from typing import Dict, List, Optional, TYPE_CHECKING
 
-from Simulator import GridLocationType, GridLocation, Heatmap, HeatmapType, Simulator, Mechanism, Coordinate4D
+from Simulator import Coordinate4D, GridLocation, GridLocationType, Heatmap, HeatmapType, Mechanism, Simulator
 from Simulator.IO.JSONS import JSONOwnerDescription
 from .EnvironmentGen import EnvironmentGen
-from ..Owners.WebPathOwner import WebPathOwner
-from ..Owners.WebSpaceOwner import WebSpaceOwner
+from ..WebClasses.Owners.WebPathOwner import WebPathOwner
+from ..WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
 
 if TYPE_CHECKING:
     from .MapTile import MapTile
@@ -13,20 +13,21 @@ if TYPE_CHECKING:
     from ..Types import APIOwner
     from ..Area import Area
     from ..API import ConnectionManager
+    from ..WebClasses.Allocators.WebAllocator import WebAllocator
 
 
 class Generator:
     def __init__(
-        self,
-        owners: List["APIOwner"],
-        dimensions: "Coordinate4D",
-        maptiles: List["MapTile"],
-        allocator: "Allocator",
-        map_playfield_area: "Area",
-        payment_rule: "PaymentRule",
-        allocation_period: int = 50,
-        connection_manager: "Optional[ConnectionManager]" = None,
-        client_id: "Optional[str]" = ""
+            self,
+            owners: List["APIOwner"],
+            dimensions: "Coordinate4D",
+            maptiles: List["MapTile"],
+            allocator: "WebAllocator",
+            map_playfield_area: "Area",
+            payment_rule: "PaymentRule",
+            allocation_period: int = 50,
+            connection_manager: "Optional[ConnectionManager]" = None,
+            client_id: "Optional[str]" = ""
     ):
         self.connection_manager = connection_manager
         self.client_id = client_id
@@ -34,11 +35,11 @@ class Generator:
         self.api_owners: List["APIOwner"] = owners
         self.dimensions: "Coordinate4D" = dimensions
         self.owners: List["Owner"] = []
-        self.allocator: "Allocator" = allocator
+        self.allocator: "WebAllocator" = allocator
         self.environment: "Environment" = EnvironmentGen(self.dimensions, maptiles,
                                                          min_height=map_playfield_area.min_height,
                                                          allocation_period=allocation_period,
-                                                         map_playfield_area=map_playfield_area).generate()
+                                                         map_area=map_playfield_area).generate()
         self.simulator: Optional["Simulator"] = None
         self.history: Optional["History"] = None
         self.statistics: Optional["Statistics"] = None
