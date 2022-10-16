@@ -1,7 +1,6 @@
-from typing import List, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
 
 from API.WebClasses.BiddingStrategies.WebPathBiddingStrategy import WebPathBiddingStrategy
-from API.WebClasses.Owners import WebOwnerMixin
 from API.WebClasses.Owners.WebPathOwner import WebPathOwner
 from API.WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
 from Simulator import GridLocationType
@@ -18,7 +17,8 @@ if TYPE_CHECKING:
 def generate_config(simulator: "Simulator",
                     subselection: "APISubselection",
                     map_tiles: List["MapTile"],
-                    name: str = "Unknown"):
+                    name: str = "Unknown",
+                    allocation_period: Optional[int] = None):
     bottom_left = LongLatCoordinate(subselection.bottomLeft.long, subselection.bottomLeft.lat)
     top_right = LongLatCoordinate(subselection.topRight.long, subselection.topRight.lat)
     dim = simulator.environment.dimension
@@ -37,18 +37,17 @@ def generate_config(simulator: "Simulator",
         resolution=resolution,
         height=dim.y * resolution,
         minHeight=simulator.environment.min_height * resolution,
-        allocationPeriod=simulator.environment.allocation_period,
+        allocationPeriod=allocation_period if allocation_period is not None else simulator.environment.dimension.t,
         timesteps=dim.t,
         tiles=map_tile_ids
     )
     _owners = []
     for owner in simulator.owners:
-        bs = owner.bidding_strategy
+        bidding_strategy = owner.bidding_strategy
         meta = []
-        assert isinstance(bs, WebPathBiddingStrategy)
-        bs_meta = bs.meta()
+        assert isinstance(bidding_strategy, WebPathBiddingStrategy)
+        bs_meta = bidding_strategy.meta()
         if isinstance(owner, WebPathOwner):
-
             for meta_field in bs_meta:
                 if meta_field["key"] == "near_field":
                     meta_field["value"] = owner.near_radius
@@ -88,22 +87,23 @@ def generate_config(simulator: "Simulator",
             for meta_field in bs_meta:
                 meta_field["value"] = owner.config[meta_field["key"]]
                 meta.append(meta_field)
-        bidding_strategy = APIBiddingStrategy(label=bs.label,
-                                              classname=bs.__class__.__name__,
-                                              description=bs.description,
-                                              allocationType=bs.allocation_type,
-                                              minLocations=bs.min_locations,
-                                              maxLocations=bs.max_locations,
+        bidding_strategy = APIBiddingStrategy(label=bidding_strategy.label,
+                                              classname=bidding_strategy.__class__.__name__,
+                                              description=bidding_strategy.description,
+                                              allocationType=bidding_strategy.allocation_type,
+                                              minLocations=bidding_strategy.min_locations,
+                                              maxLocations=bidding_strategy.max_locations,
                                               meta=meta)
         locations = []
         for stop in owner.stops:
-            if stop.stop_type == GridLocationType.RANDOM.value:
-                locations.append(APILocations(type=stop.stop_type, points=[]))
-            elif stop.stop_type == GridLocationType.POSITION.value:
+            if stop.grid_location_type == GridLocationType.RANDOM.value:
+                locations.append(APILocations(type=stop.grid_location_type, points=[]))
+            elif stop.grid_location_type == GridLocationType.POSITION.value:
                 posi = Area.LCS_to_long_lat(bottom_left, stop.position, resolution)
-                locations.append(APILocations(type=stop.stop_type, points=[posi]))
+                locations.append(APILocations(type=stop.grid_location_type, points=[posi]))
         new_owner = APIOwner(
-            color=owner.color if isinstance(owner, WebOwnerMixin) else hex(hash(owner.id) % 0xFFFFFF)[2:].zfill(6),
+            color=owner.color if isinstance(owner, WebPathOwner) or isinstance(owner, WebSpaceOwner) else hex(
+                hash(owner.id) % 0xFFFFFF)[2:].zfill(6),
             name=owner.id,
             agents=len(owner.agents),
             biddingStrategy=bidding_strategy,
