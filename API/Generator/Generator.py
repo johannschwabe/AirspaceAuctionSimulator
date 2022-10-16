@@ -70,7 +70,7 @@ class Generator:
                                                           inverse_sparse=heat_dict)))
         return stops
 
-    async def simulate(self):
+    def init_simulation(self):
         owner_id = 0
         for api_owner in self.api_owners:
             stops: List["GridLocation"] = self.extract_owner_stops(api_owner)
@@ -139,12 +139,23 @@ class Generator:
             mech,
             self.environment,
         )
+
+    async def simulate(self):
+        self.init_simulation()
         while self.simulator.tick():
             if self.connection_manager:
                 tick = await self.connection_manager.tick(client_id=self.client_id,
                                                           percentage=len(self.environment.agents) / self.total_agents)
                 if not tick:
                     break
+
+        print(f"DONE!")
+        print(f"STEP: {self.simulator.time_step}")
+
+    def simulate_cli(self):
+        self.init_simulation()
+        while self.simulator.tick():
+            pass
 
         print(f"DONE!")
         print(f"STEP: {self.simulator.time_step}")

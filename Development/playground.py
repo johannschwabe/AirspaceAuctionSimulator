@@ -3,15 +3,15 @@ import random
 import time
 
 from API import APISubselection, APIWorldCoordinates, Area, EnvironmentGen, MapTile, generate_config
+from API.GridLocation.GridLocation import GridLocation
+from API.GridLocation.GridLocationType import GridLocationType
 from API.WebClasses import WebPathOwner, WebSpaceOwner
 from Demos.FCFS import FCFSAllocator, FCFSPathBiddingStrategy, FCFSPathValueFunction, FCFSPaymentRule, \
     FCFSSpaceBiddingStrategy, FCFSSpaceValueFunction
 from Demos.Priority import PriorityAllocator, PriorityPathBiddingStrategy, PriorityPathValueFunction, \
     PriorityPaymentRule, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
-from Simulator import Coordinate3D, Coordinate4D, Environment, JSONOwnerDescription, \
-    Mechanism, Simulator, StaticBlocker, get_simulation_dict, get_statistics_dict
-from API.GridLocation.GridLocation import GridLocation
-from API.GridLocation.GridLocationType import GridLocationType
+from Simulator import Coordinate3D, Coordinate4D, Environment, JSONOwnerDescription, Mechanism, Simulator, \
+    StaticBlocker, get_simulation_dict, get_statistics_dict
 
 random.seed(4)
 dimensions = Coordinate4D(40, 40, 40, 1000)
@@ -125,7 +125,7 @@ def color_generator():
 
         if r + g + b > 350:
             break
-    return f"#{hex(r)[2:]:02}{hex(g)[2:]:02}{hex(b)[2:]:02}"
+    return f"#{hex(r)[2:]:2}{hex(g)[2:]:2}{hex(b)[2:]:2}"
 
 
 if __name__ == "__main__":

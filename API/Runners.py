@@ -14,16 +14,9 @@ if TYPE_CHECKING:
     from .Types import APISimulationConfig
 
 
-async def run_from_config(config: "APISimulationConfig",
-                          connection_manager: Optional["ConnectionManager"] = None,
-                          client_id: Optional[str] = None) -> Tuple[Generator, int]:
-    """
-    Runs an AirspaceAuctionSimulation using a config that is usually provided by the API or generated using the CLI.
-    :param client_id:
-    :param connection_manager:
-    :param config: Configuration object, defining all parameters of the Simulation
-    :return: Simulated generator, simulation duration in seconds
-    """
+def init_generator(config: "APISimulationConfig",
+                   connection_manager: Optional["ConnectionManager"] = None,
+                   client_id: Optional[str] = None) -> "Generator":
     maptiles: List["MapTile"] = MapTile.tiles_from_coordinates(config.map.coordinates, config.map.neighbouringTiles,
                                                                config.map.resolution)
     config.map.tiles = [tile.zxy for tile in maptiles]
@@ -65,8 +58,36 @@ async def run_from_config(config: "APISimulationConfig",
     generator = Generator(config.owners, dimensions, maptiles, allocator, map_playing_field_area, selected_payment_rule,
                           allocation_period=config.map.allocationPeriod, connection_manager=connection_manager,
                           client_id=client_id)
+    return generator
+
+
+async def run_from_config(config: "APISimulationConfig",
+                          connection_manager: Optional["ConnectionManager"] = None,
+                          client_id: Optional[str] = None) -> Tuple[Generator, int]:
+    """
+    Runs an AirspaceAuctionSimulation using a config that is provided by the API.
+    :param client_id:
+    :param connection_manager:
+    :param config: Configuration object, defining all parameters of the Simulation
+    :return: Simulated generator, simulation duration in seconds
+    """
+    generator = init_generator(config, connection_manager, client_id)
     start_time = time.time_ns()
     await generator.simulate()
+    end_time = time.time_ns()
+    duration = int((end_time - start_time) / 1e9)
+    return generator, duration
+
+
+def run_from_config_for_cli(config: "APISimulationConfig") -> Tuple[Generator, int]:
+    """
+    Runs an AirspaceAuctionSimulation using a config that is generated using the CLI.
+    :param config: Configuration object, defining all parameters of the Simulation
+    :return: Simulated generator, simulation duration in seconds
+    """
+    generator = init_generator(config)
+    start_time = time.time_ns()
+    generator.simulate_cli()
     end_time = time.time_ns()
     duration = int((end_time - start_time) / 1e9)
     return generator, duration
