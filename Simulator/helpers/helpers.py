@@ -1,5 +1,5 @@
 import math
-from typing import Iterator, Optional, TYPE_CHECKING
+from typing import Iterator, Optional, Set, TYPE_CHECKING, Tuple
 
 from rtree import Index
 from rtree.index import Item, Property
@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from Simulator.Bids.BidTracker import BidTracker
     from Simulator.Coordinates.Coordinate4D import Coordinate4D
     from Simulator.Environment.Environment import Environment
+    from Simulator.Agents.Agent import Agent
 
 
 def find_valid_path_tick(tick: int, environment: "Environment", bid_tracker: "BidTracker", position: "Coordinate4D",
@@ -74,9 +75,24 @@ def find_valid_space_tick(tick: int, environment: "Environment", bid_tracker: "B
     return min_pos_clone.t
 
 
-def is_valid_for_space_allocation(allocation_tick: int, environment: "Environment", bid_tracker: "BidTracker",
-                                  min_position: "Coordinate4D", max_position: "Coordinate4D",
-                                  space_agent: "SpaceAgent", avoid_blockers: bool = False):
+def is_valid_for_space_allocation(allocation_tick: int,
+                                  environment: "Environment",
+                                  bid_tracker: "BidTracker",
+                                  min_position: "Coordinate4D",
+                                  max_position: "Coordinate4D",
+                                  space_agent: "SpaceAgent",
+                                  avoid_blockers: bool = False) -> Tuple[bool, Optional[Set["Agent"]]]:
+    """
+    Checks if the given space is valid to allocate.
+    :param allocation_tick: the current simulation tick
+    :param environment: the environment in which to find a valid allocation
+    :param bid_tracker: the bid-tracker to get past and new agent bids
+    :param min_position: the minimum coordinate of the space for which to check for a valid allocation
+    :param max_position: the maximum coordinate of the space for which to check for a valid allocation
+    :param space_agent: the agent that should be allocated
+    :param avoid_blockers: if True, it is not allowed to allocate space containing blocker
+    :return: Whether the allocation is valid and a set of agents that need to be reallocated if valid.
+    """
     if min_position.t < allocation_tick:
         raise Exception(f"Cannot validate position in the past. Position: {min_position}, Tick: {allocation_tick}.")
 
@@ -123,8 +139,20 @@ def is_valid_for_space_allocation(allocation_tick: int, environment: "Environmen
     return True, true_intersecting_agents
 
 
-def is_valid_for_path_allocation(allocation_tick: int, environment: "Environment", bid_tracker: "BidTracker",
-                                 position: "Coordinate4D", path_agent: "PathAgent"):
+def is_valid_for_path_allocation(allocation_tick: int,
+                                 environment: "Environment",
+                                 bid_tracker: "BidTracker",
+                                 position: "Coordinate4D",
+                                 path_agent: "PathAgent") -> Tuple[bool, Optional[Set["Agent"]]]:
+    """
+    Checks if the given position is valid to allocate.
+    :param allocation_tick: the current simulation tick
+    :param environment: the environment in which to find a valid allocation
+    :param bid_tracker: the bid-tracker to get past and new agent bids
+    :param position: the position at which to check for a valid allocation
+    :param path_agent: the agent that should be allocated
+    :return: Whether the allocation is valid and a set of agents that need to be reallocated if valid.
+    """
     if position.t < allocation_tick:
         raise Exception(f"Cannot validate position in the past. Position: {position}, Tick: {allocation_tick}.")
 
@@ -152,9 +180,9 @@ def is_valid_for_path_allocation(allocation_tick: int, environment: "Environment
                 distance = position.distance(path_coordinate, l2=True)
                 if distance <= max_near_radius:
                     true_intersecting_agents.add(max_intersecting_agent)
-                    if not path_agent_can_escape(path_coordinate, max_intersecting_agent.speed, position,
-                                                 allocation_tick,
-                                                 max_near_radius):
+                    if not _path_agent_can_escape(path_coordinate, max_intersecting_agent.speed, position,
+                                                  allocation_tick,
+                                                  max_near_radius):
                         return False, None
 
         elif isinstance(max_intersecting_agent, SpaceAgent):
@@ -180,12 +208,14 @@ def is_valid_for_path_allocation(allocation_tick: int, environment: "Environment
     return True, true_intersecting_agents
 
 
-def path_agent_can_escape(intersecting_coordinate: "Coordinate4D", escaping_agent_speed: "int",
-                          new_agent_posi: "Coordinate4D", allocation_tick: int,
-                          max_near_radius: int):
+def _path_agent_can_escape(intersecting_coordinate: "Coordinate4D",
+                           escaping_agent_speed: "int",
+                           new_agent_position: "Coordinate4D",
+                           allocation_tick: int,
+                           max_near_radius: int):
     time_to_collision = intersecting_coordinate.t - allocation_tick
 
-    agent_distance = new_agent_posi.distance(intersecting_coordinate, l2=True)
+    agent_distance = new_agent_position.distance(intersecting_coordinate, l2=True)
     escape_distance = max_near_radius - agent_distance
     escape_steps = math.ceil(escape_distance * math.sqrt(2))
     if escape_steps < 0:

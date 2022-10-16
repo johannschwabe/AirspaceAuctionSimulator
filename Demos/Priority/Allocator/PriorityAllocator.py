@@ -133,7 +133,7 @@ class PriorityAllocator(WebAllocator):
             lower = block.min.clone()
             upper = block.max.clone()
 
-            t = find_valid_space_tick(tick, environment, self.bid_tracker, lower, upper, bid, tick,
+            t = find_valid_space_tick(tick, environment, self.bid_tracker, lower, upper, bid.agent, tick,
                                       environment.dimension.t)
             if t is None:
                 continue
