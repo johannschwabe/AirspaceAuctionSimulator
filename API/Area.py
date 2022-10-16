@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, List, Union
 from haversine import Direction, Unit, haversine, inverse_haversine
 
 from Simulator import Coordinate2D
+from Simulator.Coordinates.Coordinate3D import Coordinate3D
 from .LongLatCoordinate import LongLatCoordinate
 
 if TYPE_CHECKING:
@@ -53,6 +54,17 @@ class Area:
         """
         x, y = self.lon_lat_to_grid(point)
         return Coordinate2D(math.floor(x), math.floor(y))
+
+    def point_to_coordinate3D(self, point: "LongLatCoordinate | APIWeightedCoordinate", y: int):
+        """
+        Converts coordinates from longitude / latitude to our own "grid" Coordinate3D. Resulting coordinates
+        are integer that can be negative.
+        :param point: LongLatCoordinate | APIWeightedCoordinate - coordinate to be converted
+        :param y: int - y coordinate of resulting coordinate 3D
+        :return: Coordinate2D - converted point
+        """
+        coord2d = self.point_to_coordinate2D(point)
+        return Coordinate3D(x=coord2d.x, y=y, z=coord2d.z)
 
     @staticmethod
     def haversin_lon_lat(bottom_left: "LongLatCoordinate", pos):
