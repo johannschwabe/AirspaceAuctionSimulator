@@ -6,7 +6,8 @@ from Simulator import PathAgent, PathOwner
 from .WebOwnerMixin import WebOwnerMixin
 
 if TYPE_CHECKING:
-    from Simulator import GridLocation, BiddingStrategy, ValueFunction, Coordinate4D, Environment
+    from Simulator import BiddingStrategy, ValueFunction, Coordinate4D, Environment
+    from ...GridLocation.GridLocation import GridLocation
 
 
 class WebPathOwner(WebOwnerMixin, PathOwner):
@@ -37,6 +38,20 @@ class WebPathOwner(WebOwnerMixin, PathOwner):
                          battery=self.battery,
                          near_radius=self.near_radius,
                          config=self.config)
+
+    @staticmethod
+    def generate_stop_coordinate(stop: "GridLocation", env: "Environment", t: int,
+                                 near_radius: float) -> "Coordinate4D":
+        coord = stop.generate_coordinates(env, t + 1)
+
+        while coord.y < env.min_height or env.is_coordinate_blocked_forever(coord, near_radius):
+            coord.y += 1
+            if coord.y > env.dimension.y:
+                coord.y = env.min_height
+                print("BLOCKED")
+                break
+
+        return coord
 
     def generate_agents(self, t: int, environment: "Environment") -> List["PathAgent"]:
         res = []

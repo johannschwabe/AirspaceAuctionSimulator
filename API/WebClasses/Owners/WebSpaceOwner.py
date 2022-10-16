@@ -1,10 +1,12 @@
+import random
 from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from Simulator import SpaceAgent, SpaceOwner, SpaceSegment
 from .WebOwnerMixin import WebOwnerMixin
 
 if TYPE_CHECKING:
-    from Simulator import GridLocation, Coordinate4D, BiddingStrategy, ValueFunction, Environment
+    from Simulator import Coordinate4D, BiddingStrategy, ValueFunction, Environment
+    from ...GridLocation.GridLocation import GridLocation
 
 
 class WebSpaceOwner(WebOwnerMixin, SpaceOwner):
@@ -25,6 +27,11 @@ class WebSpaceOwner(WebOwnerMixin, SpaceOwner):
     def initialize_agent(self, blocks: List["SpaceSegment"]) -> "SpaceAgent":
         agent_id: str = self.get_agent_id()
         return SpaceAgent(agent_id, self.bidding_strategy, self.value_function, blocks, config=self.config)
+
+    @staticmethod
+    def generate_stop_coordinates(stop: "GridLocation", env: "Environment", t: int) -> "Coordinate4D":
+        coord = stop.generate_coordinates(env, t + random.randint(15, 30))
+        return coord
 
     def generate_agents(self, t: int, environment: "Environment") -> List["SpaceAgent"]:
         res = []

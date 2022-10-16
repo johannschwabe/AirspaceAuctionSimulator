@@ -23,11 +23,6 @@ from .Coordinates.Coordinate3D import Coordinate3D
 from .Coordinates.Coordinate4D import Coordinate4D
 # Environment
 from .Environment.Environment import Environment
-# GridLocation
-from .GridLocation.GridLocation import GridLocation
-from .GridLocation.GridLocationType import GridLocationType
-from .GridLocation.Heatmap import Heatmap
-from .GridLocation.HeatmapType import HeatmapType
 # History
 from .History.History import History
 # IO
