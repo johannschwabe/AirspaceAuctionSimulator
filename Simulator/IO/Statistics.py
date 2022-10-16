@@ -1,6 +1,6 @@
 import statistics
 from abc import ABC
-from typing import Any, Dict, List, Optional, TYPE_CHECKING, Tuple, Union
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, Tuple, Union, cast
 
 from .Stringify import Stringify
 from ..Agents.PathAgent import PathAgent
@@ -224,9 +224,11 @@ class Statistics:
         for tick, allocation in self.simulation.history.allocations[agent].items():
             path_statistics, space_statistics = None, None
             if isinstance(agent, PathAgent):
-                path_statistics = self.path_statistics(allocation.segments)
+                path_segments: List[PathSegment] = cast(List[PathSegment], allocation.segments)
+                path_statistics = self.path_statistics(path_segments)
             elif isinstance(agent, SpaceAgent):
-                space_statistics = self.spaces_statistics(allocation.segments)
+                space_segments: List[SpaceSegment] = cast(List[SpaceSegment], allocation.segments)
+                space_statistics = self.spaces_statistics(space_segments)
             else:
                 raise Exception(f"Invalid Agent: {agent}")
 
