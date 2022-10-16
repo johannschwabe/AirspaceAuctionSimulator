@@ -3,8 +3,8 @@ from typing import List, Optional, TYPE_CHECKING
 from API.WebClasses.BiddingStrategies.WebPathBiddingStrategy import WebPathBiddingStrategy
 from API.WebClasses.Owners.WebPathOwner import WebPathOwner
 from API.WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
-from Simulator import GridLocationType
 from . import Area
+from .GridLocation.GridLocationType import GridLocationType
 from .LongLatCoordinate import LongLatCoordinate
 from .Types import APIBiddingStrategy, APILocations, APIMap, APIOwner, APISimulationConfig, APIWorldCoordinates
 
