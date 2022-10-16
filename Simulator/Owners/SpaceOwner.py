@@ -7,7 +7,7 @@ from ..Agents.AgentType import AgentType
 
 if TYPE_CHECKING:
     from ..Agents.SpaceAgent import SpaceAgent
-    from ..Location.GridLocation import GridLocation
+    from ..GridLocation.GridLocation import GridLocation
     from ..Environment.Environment import Environment
     from ..Coordinates.Coordinate4D import Coordinate4D
     from ..Bids.BiddingStrategy import BiddingStrategy

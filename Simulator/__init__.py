@@ -23,16 +23,16 @@ from .Coordinates.Coordinate3D import Coordinate3D
 from .Coordinates.Coordinate4D import Coordinate4D
 # Environment
 from .Environment.Environment import Environment
+# GridLocation
+from .GridLocation.GridLocation import GridLocation
+from .GridLocation.GridLocationType import GridLocationType
+from .GridLocation.Heatmap import Heatmap
+from .GridLocation.HeatmapType import HeatmapType
 # History
 from .History.History import History
 # IO
 from .IO.JSONS import JSONOwnerDescription, get_simulation_dict
 from .IO.Statistics import Statistics, get_statistics_dict
-# Location
-from .Location.GridLocation import GridLocation
-from .Location.GridLocationType import GridLocationType
-from .Location.Heatmap import Heatmap
-from .Location.HeatmapType import HeatmapType
 # Mechanism
 from .Mechanism.Allocator import Allocator
 from .Mechanism.Mechanism import Mechanism

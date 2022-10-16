@@ -6,7 +6,7 @@ from ..Owners.Owner import Owner
 
 if TYPE_CHECKING:
     from ..Agents.PathAgent import PathAgent
-    from ..Location.GridLocation import GridLocation
+    from ..GridLocation.GridLocation import GridLocation
     from ..Environment.Environment import Environment
     from ..Coordinates.Coordinate4D import Coordinate4D
     from ..Bids.BiddingStrategy import BiddingStrategy

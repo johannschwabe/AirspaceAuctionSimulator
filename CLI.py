@@ -18,7 +18,8 @@ from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.validator import EmptyInputValidator, PathValidator
 
-from API import APISimulationConfig, WebAllocator, WebBiddingStrategy, available_allocators, build_json, run_from_config
+from API import APISimulationConfig, available_allocators, build_json, run_from_config
+from API.WebClasses import WebAllocator, WebBiddingStrategy
 from Development.playground import color_generator
 from Simulator import PaymentRule
 
