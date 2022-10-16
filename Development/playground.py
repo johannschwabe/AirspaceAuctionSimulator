@@ -8,8 +8,10 @@ from Demos.FCFS import FCFSAllocator, FCFSPathBiddingStrategy, FCFSPathValueFunc
     FCFSSpaceBiddingStrategy, FCFSSpaceValueFunction
 from Demos.Priority import PriorityAllocator, PriorityPathBiddingStrategy, PriorityPathValueFunction, \
     PriorityPaymentRule, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
-from Simulator import Coordinate3D, Coordinate4D, Environment, GridLocation, GridLocationType, JSONOwnerDescription, \
+from Simulator import Coordinate3D, Coordinate4D, Environment, JSONOwnerDescription, \
     Mechanism, Simulator, StaticBlocker, get_simulation_dict, get_statistics_dict
+from API.GridLocation.GridLocation import GridLocation
+from API.GridLocation.GridLocationType import GridLocationType
 
 random.seed(4)
 dimensions = Coordinate4D(40, 40, 40, 1000)

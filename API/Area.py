@@ -1,5 +1,5 @@
 import math
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Union
 
 from haversine import Direction, Unit, haversine, inverse_haversine
 
@@ -18,7 +18,7 @@ class Area:
     and the grid size in meters
     """
 
-    def __init__(self, bottom_left_ll: "APIWorldCoordinates", top_right_ll: "APIWorldCoordinates", resolution=1,
+    def __init__(self, bottom_left_ll: Union["APIWorldCoordinates", "LongLatCoordinate"], top_right_ll: Union["APIWorldCoordinates", "LongLatCoordinate"], resolution=1,
                  min_height: int = 0):
         self.bottom_left = LongLatCoordinate(bottom_left_ll.long, bottom_left_ll.lat)
         self.top_right = LongLatCoordinate(top_right_ll.long, top_right_ll.lat)
@@ -82,6 +82,6 @@ class Area:
         """
         lat_corrected = inverse_haversine((bottom_left.lat, bottom_left.long), pos.z * resolution, Direction.NORTH,
                                           unit=Unit.METERS)[0]
-        lat_long_corrected = inverse_haversine(lat_corrected, pos.x * resolution, Direction.EAST,
-                                               unit=Unit.METERS)[1]
+        lat_long_corrected = inverse_haversine((lat_corrected, bottom_left.long), pos.x * resolution, Direction.EAST,
+                                               unit=Unit.METERS)
         return LongLatCoordinate(lat_long_corrected[1], lat_long_corrected[0])

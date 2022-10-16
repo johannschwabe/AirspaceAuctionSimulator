@@ -1,15 +1,12 @@
-from math import floor
 from random import randint
 from time import time_ns
-
 import json
 
-from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, build_json
-from API.LongLatCoordinate import LongLatCoordinate
+from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, APISubselection, LongLatCoordinate, WebPathOwner, \
+    WebSpaceOwner, GridLocation, generate_config, generate_output
 from Demos.Priority import PriorityAllocator, PriorityPaymentRule, PriorityPathBiddingStrategy, \
     PriorityPathValueFunction, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
-from Simulator import Simulator, Coordinate4D, GridLocation, Mechanism, PathOwner, SpaceOwner
-from Simulator.Coordinates.Coordinate2D import Coordinate2D
+from Simulator import Simulator, Coordinate4D, Mechanism
 
 TIMESTEPS = 1000
 ALLOCATION_PERIOD = 100
@@ -31,13 +28,12 @@ area = Area(bottom_left_coordinate, top_right_coordinate)
 y = 50 # Set map height to 50 voxels (which is also 50 meters since we have not specified a resolution)
 
 # Define environment
-environment = EnvironmentGen(
+environment_generator = EnvironmentGen(
     dimensions=Coordinate4D(x, y, z, t=TIMESTEPS),
     maptiles=maptiles,
-    map_playfield_area=area,
-    allocation_period=ALLOCATION_PERIOD,
+    map_area=area,
     min_height=10
-).generate()
+)
 
 # Choose allocator, compatible payment rule and compatible mechanism
 allocator = PriorityAllocator()
@@ -46,7 +42,7 @@ mechanism = Mechanism(allocator, payment_rule)
 
 # Define owners that participate in simulation
 owners = [
-    PathOwner(
+    WebPathOwner(
         owner_id="0",
         name="OwnerA",
         color="#ff0000",
@@ -60,9 +56,9 @@ owners = [
         near_radius=1,
         battery=2000,
         speed=1,
-        meta={"priority": 1.0}
+        config={"priority": 1.0}
     ),
-    SpaceOwner(
+    WebSpaceOwner(
         owner_id="2",
         name="OwnerB",
         color="#00ff00",
@@ -71,9 +67,12 @@ owners = [
         size=Coordinate4D(x=20, y=5, z=20, t=50),
         bidding_strategy=PrioritySpaceBiddingStrategy(),
         value_function=PrioritySpaceValueFunction(),
-        meta={"priority": 0.5}
+        config={"priority": 0.5}
     ),
 ]
+
+# Generate environment
+environment = environment_generator.generate()
 
 # Create simulation
 simulator = Simulator(owners, mechanism, environment)
@@ -85,11 +84,19 @@ while simulator.tick():
 simulation_time = time_ns() - start
 
 # Generate config that can be interpreted by API
-config = {
-    "name": "MyModel",
-}
+simulation_config = generate_config(
+    simulator,
+    environment_generator,
+    name='Demo Model',
+    description='This model was generated u sing the Demo.py Script',
+    allocation_period=ALLOCATION_PERIOD,
+)
 
-# Save config to disk
-simulation_output = build_json(config, simulator, simulation_time)
-with open("simulation-output.json", "w") as f:
+# Generate simulation output that can be interpreted by API
+simulation_output = generate_output(simulator, simulation_time, simulation_config)
+
+with open('/Prefabs/configs/demo-config.json', 'w') as f:
+    f.write(json.dumps(simulation_config))
+
+with open('/Prefabs/outputs/demo-output.json', 'w') as f:
     f.write(json.dumps(simulation_output))

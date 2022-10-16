@@ -1,26 +1,30 @@
-from typing import List, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from API.WebClasses.BiddingStrategies.WebPathBiddingStrategy import WebPathBiddingStrategy
 from API.WebClasses.Owners.WebPathOwner import WebPathOwner
 from API.WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
 from . import Area
 from .GridLocation.GridLocationType import GridLocationType
-from .LongLatCoordinate import LongLatCoordinate
 from .Types import APIBiddingStrategy, APILocations, APIMap, APIOwner, APISimulationConfig, APIWorldCoordinates
+from .Types import APISubselection
 
 if TYPE_CHECKING:
-    from .Generator.MapTile import MapTile
-    from .Types import APISubselection
+    from .Generator.EnvironmentGen import EnvironmentGen
     from Simulator import Simulator
 
 
 def generate_config(simulator: "Simulator",
-                    subselection: "APISubselection",
-                    map_tiles: List["MapTile"],
-                    name: str = "Unknown",
+                    environment_generator: 'EnvironmentGen',
+                    name: str = "Unknown Model",
+                    description: str = "No Description provided",
                     allocation_period: Optional[int] = None):
-    bottom_left = LongLatCoordinate(subselection.bottomLeft.long, subselection.bottomLeft.lat)
-    top_right = LongLatCoordinate(subselection.topRight.long, subselection.topRight.lat)
+    map_tiles = environment_generator.maptiles
+    bottom_left = environment_generator.map_area.bottom_left
+    top_right = environment_generator.map_area.top_right
+    subselection = APISubselection(
+        bottomLeft=APIWorldCoordinates(long=bottom_left.long, lat=bottom_left.lat),
+        topRight=APIWorldCoordinates(long=top_right.long, lat=top_right.lat),
+    )
     dim = simulator.environment.dimension
     dim_m = Area.haversin_lon_lat(bottom_left, top_right)
     resolution = round(dim_m[0] / dim.x)  # rounding needed?
@@ -111,7 +115,7 @@ def generate_config(simulator: "Simulator",
             valueFunction=owner.value_function.__class__.__name__)
         _owners.append(new_owner)
     return APISimulationConfig(name=name,
-                               description="",
+                               description=description,
                                allocator=simulator.mechanism.allocator.__class__.__name__,
                                paymentRule=simulator.mechanism.payment_rule.__class__.__name__,
                                map=_map,

@@ -156,11 +156,11 @@ class Environment:
             self.register_or_reset_agent(agent, time_step)
 
             if isinstance(agent, SpaceAgent):
-                space_segments: List[SpaceSegment] = cast(List[SpaceSegment], segments)
+                space_segments: List['SpaceSegment'] = cast(List['SpaceSegment'], segments)
                 self.allocate_space_for_agent(agent, space_segments)
 
             elif isinstance(agent, PathAgent):
-                path_segments: List[PathSegment] = cast(List[PathSegment], segments)
+                path_segments: List['PathSegment'] = cast(List['PathSegment'], segments)
                 self.allocate_path_for_agent(agent, path_segments)
 
             else:
