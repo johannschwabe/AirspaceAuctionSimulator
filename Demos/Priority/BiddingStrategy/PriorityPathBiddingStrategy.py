@@ -52,9 +52,6 @@ class PriorityPathBiddingStrategy(WebPathBiddingStrategy):
                                 battery -= coordinate.t - segment.min.t
                                 start = coordinate.clone()
                                 break
-                        if start is None:
-                            print(time_step)
-                            print(", ".join([str(coord) for coord in segment.coordinates]))
                     else:
                         start = agent.locations[i].clone()
                         start.t = max(start.t, agent.allocated_segments[i - 1].max.t) + agent.stays[i - 1]
