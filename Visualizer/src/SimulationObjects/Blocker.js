@@ -2,7 +2,7 @@ import Coordinate3D from "./Coordinate3D.js";
 
 export default class Blocker {
   /**
-   * @param {RawBlocker} rawBlocker
+   * @param {JSONBlocker} rawBlocker
    */
   constructor(rawBlocker) {
     this.id = rawBlocker.id;

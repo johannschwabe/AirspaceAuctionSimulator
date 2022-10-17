@@ -32,7 +32,7 @@ export function useCamera({ x, y, z, scene, canvas }) {
   camera.setTarget(target);
   camera.setPosition(new Vector3(0, Math.max(x, y, z), -z));
   camera.lowerRadiusLimit = 5;
-  camera.upperRadiusLimit = 1000;
+  camera.upperRadiusLimit = 5000;
   new SSAORenderingPipeline("ssaopipeline", scene, { ssaoRatio: 1, combineRatio: 1 });
   scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("ssaopipeline", camera);
   return camera;

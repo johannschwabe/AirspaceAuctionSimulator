@@ -49,13 +49,13 @@ export default class Simulation {
      * @type {Blocker[]}
      */
     this.blockers = jsonSimulation.environment.blockers.map((blocker) => {
-      switch (blocker.blockerType) {
+      switch (blocker.blocker_type) {
         case BlockerType.DYNAMIC:
           return new DynamicBlocker(blocker);
         case BlockerType.STATIC:
           return new StaticBlocker(blocker, this.dimensions.t);
         default:
-          throw new Error("Invalid blocker type!");
+          throw new Error(`Invalid blocker type ${blocker.blockerType}!`);
       }
     });
 

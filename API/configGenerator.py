@@ -1,26 +1,30 @@
-from typing import List, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
-from API.WebClasses.Owners.WebPathOwner import WebPathOwner
-from API.WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
 from . import Area
 from .GridLocation.GridLocationType import GridLocationType
-from .LongLatCoordinate import LongLatCoordinate
-from .Types import APIBiddingStrategy, APILocations, APIMap, APIOwner, APISimulationConfig, APIWorldCoordinates
-from .WebClasses import WebBiddingStrategy
+from .Types import APIBiddingStrategy, APILocations, APIMap, APIOwner, APISimulationConfig, APISubselection, \
+    APIWeightedCoordinate, APIWorldCoordinates
+from .WebClasses.BiddingStrategies.WebBiddingStrategy import WebBiddingStrategy
+from .WebClasses.Owners.WebPathOwner import WebPathOwner
+from .WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
 
 if TYPE_CHECKING:
-    from .Generator.MapTile import MapTile
-    from .Types import APISubselection
+    from .Generator.EnvironmentGen import EnvironmentGen
     from Simulator import Simulator
 
 
 def generate_config(simulator: "Simulator",
-                    subselection: "APISubselection",
-                    map_tiles: List["MapTile"],
-                    name: str = "Unknown",
+                    environment_generator: 'EnvironmentGen',
+                    name: str = "Unknown Model",
+                    description: str = "No Description provided",
                     allocation_period: Optional[int] = None):
-    bottom_left = LongLatCoordinate(subselection.bottomLeft.long, subselection.bottomLeft.lat)
-    top_right = LongLatCoordinate(subselection.topRight.long, subselection.topRight.lat)
+    map_tiles = environment_generator.maptiles
+    bottom_left = environment_generator.map_area.bottom_left
+    top_right = environment_generator.map_area.top_right
+    subselection = APISubselection(
+        bottomLeft=APIWorldCoordinates(long=bottom_left.long, lat=bottom_left.lat),
+        topRight=APIWorldCoordinates(long=top_right.long, lat=top_right.lat),
+    )
     dim = simulator.environment.dimension
     dim_m = Area.haversin_lon_lat(bottom_left, top_right)
     resolution = round(dim_m[0] / dim.x)  # rounding needed?
@@ -100,18 +104,19 @@ def generate_config(simulator: "Simulator",
                 locations.append(APILocations(type=stop.grid_location_type, points=[]))
             elif stop.grid_location_type == GridLocationType.POSITION.value:
                 posi = Area.LCS_to_long_lat(bottom_left, stop.position, resolution)
-                locations.append(APILocations(type=stop.grid_location_type, points=[posi]))
+                weighted_coordiante = APIWeightedCoordinate(lat=posi.lat, long=posi.long, value=1)
+                locations.append(APILocations(type=stop.grid_location_type, points=[weighted_coordiante]))
         new_owner = APIOwner(
             color=owner.color if isinstance(owner, WebPathOwner) or isinstance(owner, WebSpaceOwner) else hex(
                 hash(owner.id) % 0xFFFFFF)[2:].zfill(6),
-            name=owner.id,
+            name=owner.name,
             agents=len(owner.agents),
             biddingStrategy=bidding_strategy,
             locations=locations,
             valueFunction=owner.value_function.__class__.__name__)
         _owners.append(new_owner)
     return APISimulationConfig(name=name,
-                               description="",
+                               description=description,
                                allocator=simulator.mechanism.allocator.__class__.__name__,
                                paymentRule=simulator.mechanism.payment_rule.__class__.__name__,
                                map=_map,

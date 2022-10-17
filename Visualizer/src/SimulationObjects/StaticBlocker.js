@@ -4,7 +4,7 @@ import Blocker from "./Blocker";
 export default class StaticBlocker extends Blocker {
   /**
    *
-   * @param {RawBlocker} rawBlocker
+   * @param {JSONBlocker} rawBlocker
    * @param {number} maxTick
    */
   constructor(rawBlocker, maxTick) {

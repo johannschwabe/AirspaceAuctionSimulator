@@ -3,7 +3,7 @@ import math
 import random
 import time
 
-from API import APISubselection, APIWorldCoordinates, Area, EnvironmentGen, MapTile, generate_config
+from API import APIWorldCoordinates, Area, EnvironmentGen, MapTile, generate_config
 from API.GridLocation.GridLocation import GridLocation
 from API.GridLocation.GridLocationType import GridLocationType
 from API.WebClasses import WebPathOwner, WebSpaceOwner
@@ -43,7 +43,7 @@ def setup_map():
                                   math.floor(map_height / area.resolution),
                                   math.floor(size[1]),
                                   time_steps)
-    return EnvironmentGen(map_dimensions, [MapTile([15, 17161, 11475], area)], area, 10)
+    return EnvironmentGen(map_dimensions, [MapTile([15, 17161, 11475], area)], area)
 
 
 def fcfs_simulation(_env: Environment):
@@ -147,9 +147,7 @@ if __name__ == "__main__":
     tot_time = time.time_ns() - start
     print()
     print(f"TOTAL: {tot_time / 6e10:2.2f} min")
-    sim_config = generate_config(simulatorAligator,
-                                 APISubselection(bottomLeft=bottom_left_coordinate, topRight=top_right_coordinate),
-                                 pre_environment.maptiles)
+    sim_config = generate_config(simulatorAligator, pre_environment)
     statistics_start_time = time.time_ns()
     statistics = get_statistics_dict(simulatorAligator)
     statistics_end_time = time.time_ns()

@@ -38,3 +38,18 @@ class Heatmap:
     def generate_coordinate(self):
         tombola = self.assemble_tombola()
         return random.choice(tombola)
+
+
+class SparseHeatmap(Heatmap):
+    def __init__(self, points: Dict["Coordinate2D", float]):
+        super().__init__(HeatmapType.SPARSE.value, sparse=points)
+
+
+class InverseSparseHeatmap(Heatmap):
+    def __init__(self, values: Dict[float, List["Coordinate2D"]]):
+        super().__init__(HeatmapType.INVERSE_SPARSE.value, inverse_sparse=values)
+
+
+class MatrixHeatmap(Heatmap):
+    def __init__(self, matrix: List[List[float]]):
+        super().__init__(HeatmapType.MATRIX.value, matrix=matrix)

@@ -40,7 +40,6 @@ class Generator:
         self.allocation_period: int = allocation_period
         self.environment: "Environment" = EnvironmentGen(dimensions,
                                                          maptiles,
-                                                         min_height=map_playing_field_area.min_height,
                                                          map_area=map_playing_field_area).generate()
         self.simulator: Optional["Simulator"] = None
         self.map_playing_field_area = map_playing_field_area
