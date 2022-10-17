@@ -1,6 +1,6 @@
 {
   "name": "Web Demo Long Paths",
-  "description": "This model was generated using the Web Interface",
+  "description": "This config was generated using the Web Interface, the output was created using the CLI through the 7_demo_long_paths.sh script",
   "allocator": "PriorityAllocator",
   "paymentRule": "PriorityPaymentRule",
   "map": {
@@ -35,7 +35,7 @@
   "owners": [
     {
       "color": "#00ff00",
-      "name": "Arvel Crynyd",
+      "name": "Owner A",
       "agents": 100,
       "biddingStrategy": {
         "label": "Priority Space Bidding Strategy",
@@ -3969,7 +3969,7 @@
     },
     {
       "color": "#ff0000",
-      "name": "Barriss Offee",
+      "name": "Owner B",
       "agents": 100,
       "biddingStrategy": {
         "label": "Priority Path Bidding Strategy",

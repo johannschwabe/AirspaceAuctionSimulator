@@ -105,7 +105,7 @@ simulation_config = generate_config(
     simulator,
     environment_generator,
     name='Report Weather Demo Model',
-    description='This model was generated u sing the 5_demo_weather.py Script',
+    description='This model was generated using the 5_demo_weather.py Script',
     allocation_period=ALLOCATION_PERIOD,
 )
 

@@ -139,11 +139,11 @@ for i in range(len(allocators)):
     # Generate simulation output that can be interpreted by API
     simulation_output = generate_output(simulator, simulation_time, simulation_config)
 
-    with open(f'./Prefabs/configs/6_report_demo_reallocations_{allocator.__class__.__name__.lower()}-config.json',
+    with open(f'./Prefabs/configs/6_report_demo_comparison_{allocator.__class__.__name__.lower()}-config.json',
               'w') as f:
         f.write(json.dumps(simulation_config))
 
-    with open(f'./Prefabs/outputs/6_report_demo_reallocations_{allocator.__class__.__name__.lower()}-output.json',
+    with open(f'./Prefabs/outputs/6_report_demo_comparison_{allocator.__class__.__name__.lower()}-output.json',
               'w') as f:
         f.write(json.dumps(simulation_output))
 

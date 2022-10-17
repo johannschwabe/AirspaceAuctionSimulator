@@ -524,8 +524,9 @@ if not args.skipSaveConfig:
                 validate=PathValidator(is_dir=True, message="Input is not a directory"),
                 only_directories=True,
             ).execute()
+        output_path = dest_path if dest_path.endswith(".json") else os.path.join(dest_path, f"{model_config.name}-config.json")
         # Write config as to disk as json file
-        with open(os.path.join(dest_path, f"{model_config.name}-config.json"), "w") as f:
+        with open(output_path, "w") as f:
             f.write(model_config.json())
 
 # Skip this flow if user provided --skip-simulation argument
