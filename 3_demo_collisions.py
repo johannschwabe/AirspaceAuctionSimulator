@@ -1,13 +1,15 @@
-from random import randint
-from time import time_ns
 import json
+from random import randint
 
-from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, LongLatCoordinate, WebPathOwner, \
-    WebSpaceOwner, GridLocation, generate_config, generate_output
-from API.GridLocation.Heatmap import SparseHeatmap
-from Demos.Priority import PriorityAllocator, PriorityPaymentRule, PriorityPathBiddingStrategy, \
-    PriorityPathValueFunction, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
-from Simulator import Simulator, Coordinate4D, Mechanism
+from API import APIWorldCoordinates, Area, EnvironmentGen, GridLocation, MapTile, WebPathOwner, WebSpaceOwner, \
+    generate_config, generate_output
+from Demos.Priority import PriorityAllocator, PriorityPathBiddingStrategy, PriorityPathValueFunction, \
+    PriorityPaymentRule, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
+from Simulator import Coordinate4D, Mechanism, Simulator
+
+"""
+Environment
+"""
 
 TIMESTEPS = 1000
 ALLOCATION_PERIOD = 100
@@ -18,7 +20,7 @@ coordinate = APIWorldCoordinates(long=8.307432008121799, lat=47.05155777805148)
 # Resolves open-streetmap tiles around specified coordinate in Zurich
 maptiles = MapTile.tiles_from_coordinates(coordinate)
 
-# Bounding-Box spanned by zurich tile, which is needed to determine the size of our playing area
+# Bounding-Box of our playing area inside the lucerne tile
 bottom_left_coordinate = APIWorldCoordinates(long=8.306168879343144, lat=47.050397249055735)
 top_right_coordinate = APIWorldCoordinates(long=8.309090737025008, lat=47.05278348678034)
 
@@ -27,7 +29,7 @@ area = Area(bottom_left_coordinate, top_right_coordinate)
 
 # Use area to find out play field resolution in voxels
 [x, z] = area.dimension
-y = 50  # Set map height to 100 voxels (which is also 50 meters since we have not specified a resolution)
+y = 50  # Set map height to 50 voxels (which is also 50 meters since we have not specified a resolution)
 
 # Define environment
 environment_generator = EnvironmentGen(
@@ -37,11 +39,21 @@ environment_generator = EnvironmentGen(
     min_height=0
 )
 
-# Choose allocator, compatible payment rule and compatible mechanism
+# Generate environment
+environment = environment_generator.generate()
+
+"""
+Mechanism
+"""
+
+# Choose allocator, compatible payment rule and combine them into a mechanism
 allocator = PriorityAllocator()
 payment_rule = PriorityPaymentRule()
 mechanism = Mechanism(allocator, payment_rule)
 
+"""
+Owners
+"""
 # Define owners that participate in simulation
 ownerA = WebPathOwner(
     owner_id="0",
@@ -71,17 +83,19 @@ ownerB = WebSpaceOwner(
 
 owners = [ownerA, ownerB]
 
-# Generate environment
-environment = environment_generator.generate()
+"""
+Simulation
+"""
 
 # Create simulation
 simulator = Simulator(owners, mechanism, environment)
 
 # Run simulation for as long as ticks are left
-start = time_ns()
-while simulator.tick():
-    pass
-simulation_time = time_ns() - start
+simulation_time = simulator.run()
+
+"""
+Output
+"""
 
 # Generate config that can be interpreted by API
 simulation_config = generate_config(
@@ -92,8 +106,12 @@ simulation_config = generate_config(
     allocation_period=ALLOCATION_PERIOD,
 )
 
-# Generate simulation output that can be interpreted by API
+# Generate simulation output that can be interpreted by the Visualizer
 simulation_output = generate_output(simulator, simulation_time, simulation_config)
+
+"""
+Save to file
+"""
 
 with open('./Prefabs/configs/3_report_demo_collisions-config.json', 'w') as f:
     f.write(json.dumps(simulation_config))

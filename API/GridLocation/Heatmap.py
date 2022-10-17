@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 from Simulator import Coordinate2D
 from .HeatmapType import HeatmapType
 
+
 class Heatmap:
     def __init__(self,
                  heatmap_type: str,
@@ -40,6 +41,15 @@ class Heatmap:
 
 
 class SparseHeatmap(Heatmap):
-    def __init__(self, points: Optional[Dict[Coordinate2D, float]]):
-        super().__init__("sparse", sparse=points)
+    def __init__(self, points: Dict["Coordinate2D", float]):
+        super().__init__(HeatmapType.SPARSE.value, sparse=points)
 
+
+class InverseSparseHeatmap(Heatmap):
+    def __init__(self, values: Dict[float, List["Coordinate2D"]]):
+        super().__init__(HeatmapType.INVERSE_SPARSE.value, inverse_sparse=values)
+
+
+class MatrixHeatmap(Heatmap):
+    def __init__(self, matrix: List[List[float]]):
+        super().__init__(HeatmapType.MATRIX.value, matrix=matrix)

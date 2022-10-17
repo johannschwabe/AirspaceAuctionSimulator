@@ -174,8 +174,9 @@ class MapTile:
         return float(lat)
 
     @staticmethod
-    def tiles_from_coordinates(coordinates: "APIWorldCoordinates", neighbouring_tiles=0, resolution=1) -> List[
-        "MapTile"]:
+    def tiles_from_coordinates(coordinates: "APIWorldCoordinates",
+                               neighbouring_tiles: int = 0,
+                               resolution: int = 1) -> List["MapTile"]:
         """
         Given an input coordinate, returns a list of MapTiles centering that coordinate, including neighbouring
         maptiles according to the input parameters
