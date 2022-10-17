@@ -57,6 +57,7 @@ class PriorityPathBiddingStrategy(WebPathBiddingStrategy):
                 else:
                     battery -= segment.max.t - segment.min.t
                     start = agent.locations[i + 1]
+                    start.t = max(start.t, agent.allocated_segments[i - 1].max.t) + agent.stays[i - 1]
                     index = i + 1
 
             locations = agent.locations[index + 1:]
