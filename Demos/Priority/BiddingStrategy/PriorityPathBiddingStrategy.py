@@ -39,8 +39,8 @@ class PriorityPathBiddingStrategy(WebPathBiddingStrategy):
         battery = agent.battery
         stays = agent.stays
         start = None
+        index = 0
         if len(agent.allocated_segments) > 0 and agent.allocated_segments[0].min.t <= time_step:
-            index = 0
             for i, segment in enumerate(agent.allocated_segments):
                 if segment.max.t >= time_step:
                     index = i
