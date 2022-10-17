@@ -25,7 +25,7 @@ maptiles = MapTile.tiles_from_coordinates(coordinate, resolution=RESOLUTION)
 bottom_left_coordinate, top_right_coordinate = MapTile.bounding_box_from_maptiles_group(maptiles)
 
 # Defines 2D area using both coordinates and given resolution (meters per voxel)
-area = Area(bottom_left_coordinate, top_right_coordinate, resolution=RESOLUTION, min_height=50 // RESOLUTION)
+area = Area(bottom_left_coordinate, top_right_coordinate, resolution=RESOLUTION, min_height=50)
 
 # Use area to find out play field resolution in voxels
 [x, z] = area.dimension
