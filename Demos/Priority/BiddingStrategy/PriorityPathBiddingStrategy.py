@@ -38,7 +38,7 @@ class PriorityPathBiddingStrategy(WebPathBiddingStrategy):
         locations = agent.locations
         battery = agent.battery
         stays = agent.stays
-        start = None
+        start = agent.locations[0]
         if len(agent.allocated_segments) > 0 and agent.allocated_segments[0].min.t <= time_step:
             index = 0
             for i, segment in enumerate(agent.allocated_segments):
@@ -55,10 +55,8 @@ class PriorityPathBiddingStrategy(WebPathBiddingStrategy):
                         start.t = max(start.t, agent.allocated_segments[i - 1].max.t) + agent.stays[i - 1]
                     break
                 else:
+                    start = agent.locations[i + 1]
                     battery -= segment.max.t - segment.min.t
-            if start is None:
-                print(f"Agent {agent} crashed.")
-                return None
 
             locations = agent.locations[index + 1:]
             locations.insert(0, start)
