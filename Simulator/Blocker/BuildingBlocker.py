@@ -1,6 +1,7 @@
 import math
 from typing import List, TYPE_CHECKING
 
+import shapely.errors
 from shapely.geometry import Point, Polygon, box
 
 from .StaticBlocker import StaticBlocker
@@ -39,7 +40,14 @@ class BuildingBlocker(StaticBlocker):
         else:
             corrected_radius = radius
         near_bound = point.buffer(corrected_radius)
-        return self.polygon.intersects(near_bound)
+        return self.intersects(near_bound)
+
+    def intersects(self, intersection):
+        try:
+            return self.polygon.intersects(intersection)
+        except shapely.errors.TopologicalError:
+            self.polygon = Polygon(self.points)
+            return self.polygon.intersects(intersection)
 
     def is_box_blocking(self, bottom_left: "Coordinate4D", top_right: "Coordinate4D") -> bool:
-        return self.polygon.intersects(box(bottom_left.x, bottom_left.z, top_right.x, top_right.z))
+        return self.intersects(box(bottom_left.x, bottom_left.z, top_right.x, top_right.z))

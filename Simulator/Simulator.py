@@ -25,6 +25,7 @@ class Simulator:
         :param environment:
         """
         self.owners: List["Owner"] = owners
+        assert len(set([owner.id for owner in owners])) == len(owners)  # Non unique owner names!
         self.mechanism: "Mechanism" = mechanism
         self.environment: "Environment" = environment
         self.history: "History" = History()

@@ -39,8 +39,8 @@ class PriorityPathBiddingStrategy(WebPathBiddingStrategy):
         battery = agent.battery
         stays = agent.stays
         start = agent.locations[0]
+        index = 0
         if len(agent.allocated_segments) > 0 and agent.allocated_segments[0].min.t <= time_step:
-            index = 0
             for i, segment in enumerate(agent.allocated_segments):
                 if segment.max.t >= time_step:
                     index = i
@@ -63,7 +63,7 @@ class PriorityPathBiddingStrategy(WebPathBiddingStrategy):
 
             stays = agent.stays[index:] if index < len(agent.stays) else []
 
-        return PriorityPathBid(agent, locations, stays, battery, agent.config["priority"], flying)
+        return PriorityPathBid(agent, locations, stays, battery, agent.config["priority"], index, flying)
 
     @staticmethod
     def compatible_value_functions():
