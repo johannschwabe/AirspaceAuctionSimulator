@@ -21,7 +21,7 @@ def setup():
                               math.floor(size[1]),
                               time_steps)
     print(dimensions)
-    environment = EnvironmentGen(dimensions, [MapTile([15, 17161, 11475], area)], area, 5).generate()
+    environment = EnvironmentGen(dimensions, [MapTile([15, 17161, 11475], area)], area).generate()
     return environment
 
 

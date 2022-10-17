@@ -36,7 +36,6 @@ environment_generator = EnvironmentGen(
     dimensions=Coordinate4D(x, y, z, t=TIMESTEPS),
     maptiles=maptiles,
     map_area=area,
-    min_height=50 // RESOLUTION
 )
 
 # Generate environment

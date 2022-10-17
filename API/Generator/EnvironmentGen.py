@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 from Simulator import Environment
 
@@ -15,18 +15,16 @@ class EnvironmentGen:
                  dimensions: "Coordinate4D",
                  maptiles: List["MapTile"],
                  map_area: "Area",
-                 min_height: int,
                  blockers: Optional[List["Blocker"]] = None
-             ):
+                 ):
         self.dimensions = dimensions
         self.maptiles = maptiles
         self.map_area = map_area
-        self.min_height = min_height
         self.blockers = [] if blockers is None else blockers
 
     def generate(self) -> "Environment":
         blockers = [*self.blockers]
         for tile in self.maptiles:
             blockers += tile.resolve_buildings(self.map_area)
-        env = Environment(self.dimensions, blockers, min_height=self.min_height)
+        env = Environment(self.dimensions, blockers, min_height=self.map_area.min_height)
         return env

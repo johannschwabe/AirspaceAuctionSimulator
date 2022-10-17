@@ -64,7 +64,7 @@ class PriorityPathBiddingStrategy(WebPathBiddingStrategy):
             locations.insert(0, start)
             stays = agent.stays[index:] if index < len(agent.stays) else []
 
-        return PriorityPathBid(agent, locations, stays, battery, agent.config["priority"], flying)
+        return PriorityPathBid(agent, locations, stays, battery, agent.config["priority"], index, flying)
 
     @staticmethod
     def compatible_value_functions():
