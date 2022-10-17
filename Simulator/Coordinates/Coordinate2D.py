@@ -73,3 +73,4 @@ class Coordinate2D:
 
     def __hash__(self):
         return hash((self.x, self.z))
+

@@ -102,7 +102,7 @@ class FCFSAllocator(WebAllocator):
             start = a.to_3D()
             a = a.clone()
             if len(bid.stays) > _index:
-                a.t += bid.stays[_index]
+                a.t = max(a.t, b.t) + bid.stays[_index]
 
         return optimal_path_segments, "Path allocated."
 

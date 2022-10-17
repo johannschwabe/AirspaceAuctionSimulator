@@ -1,13 +1,13 @@
 import math
-from typing import TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Union
 
 from haversine import Direction, Unit, haversine, inverse_haversine
 
-from Simulator import Coordinate2D
+from Simulator import Coordinate2D, Coordinate3D
 from .LongLatCoordinate import LongLatCoordinate
 
 if TYPE_CHECKING:
-    from .Types import APIWorldCoordinates
+    from .Types import APIWorldCoordinates, APIWeightedCoordinate
 
 EARTH_RADIUS = 6371008.8
 
@@ -18,7 +18,9 @@ class Area:
     and the grid size in meters
     """
 
-    def __init__(self, bottom_left_ll: "APIWorldCoordinates", top_right_ll: "APIWorldCoordinates", resolution: int,
+    def __init__(self, bottom_left_ll: Union["APIWorldCoordinates", "LongLatCoordinate"],
+                 top_right_ll: Union["APIWorldCoordinates", "LongLatCoordinate"],
+                 resolution: int = 1,
                  min_height: int = 0):
         self.bottom_left = LongLatCoordinate(bottom_left_ll.long, bottom_left_ll.lat)
         self.top_right = LongLatCoordinate(top_right_ll.long, top_right_ll.lat)
@@ -32,7 +34,7 @@ class Area:
     def dimension(self):
         return self.lon_lat_to_grid(self.top_right)
 
-    def lon_lat_to_grid(self, coords):
+    def lon_lat_to_grid(self, coords) -> List[float]:
         """
         Converts coordinates from longitude / latitude to our own "grid" coordinates. Resulting coordinates
         are floats that can be negative.
@@ -44,7 +46,7 @@ class Area:
         z = coords_m[1] / self.resolution
         return [x, z]
 
-    def point_to_coordinate2D(self, point: "LongLatCoordinate | APIWeightedCoordinate"):
+    def point_to_coordinate2D(self, point: Union["LongLatCoordinate", "APIWeightedCoordinate"]):
         """
         Converts coordinates from longitude / latitude to our own "grid" Coordinate2D. Resulting coordinates
         are integer that can be negative.
@@ -54,8 +56,19 @@ class Area:
         x, y = self.lon_lat_to_grid(point)
         return Coordinate2D(math.floor(x), math.floor(y))
 
+    def point_to_coordinate3D(self, point: Union["LongLatCoordinate", "APIWeightedCoordinate"], y: int):
+        """
+        Converts coordinates from longitude / latitude to our own "grid" Coordinate3D. Resulting coordinates
+        are integer that can be negative.
+        :param point: LongLatCoordinate | APIWeightedCoordinate - coordinate to be converted
+        :param y: int - y coordinate of resulting coordinate 3D
+        :return: Coordinate2D - converted point
+        """
+        coord2d = self.point_to_coordinate2D(point)
+        return Coordinate3D(x=coord2d.x, y=y, z=coord2d.z)
+
     @staticmethod
-    def haversin_lon_lat(bottom_left: "LongLatCoordinate", pos):
+    def haversin_lon_lat(bottom_left: "LongLatCoordinate", pos: "LongLatCoordinate"):
         """
         Calculates distance (delta-x, delta-y) in meters from bottom_left to pos
         :param bottom_left: LongLatCoordinate - origin of the playingfield in long/lat degrees
@@ -82,6 +95,6 @@ class Area:
         """
         lat_corrected = inverse_haversine((bottom_left.lat, bottom_left.long), pos.z * resolution, Direction.NORTH,
                                           unit=Unit.METERS)[0]
-        lat_long_corrected = inverse_haversine(lat_corrected, pos.x * resolution, Direction.EAST,
-                                               unit=Unit.METERS)[1]
+        lat_long_corrected = inverse_haversine((lat_corrected, bottom_left.long), pos.x * resolution, Direction.EAST,
+                                               unit=Unit.METERS)
         return LongLatCoordinate(lat_long_corrected[1], lat_long_corrected[0])
