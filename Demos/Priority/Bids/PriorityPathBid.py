@@ -1,11 +1,11 @@
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
-from Simulator import Bid, PathAgent, Coordinate4D
+from Simulator import Bid, Coordinate4D, PathAgent
 
 
 class PriorityPathBid(Bid):
     def __init__(self, agent: "PathAgent", locations: List["Coordinate4D"], stays: List[int], battery: int,
-                 priority: float, flying: bool):
+                 priority: float, index: int, flying: bool):
         super().__init__(agent)
         # overwrite agent for typing
         self.agent: "PathAgent" = agent
@@ -17,6 +17,8 @@ class PriorityPathBid(Bid):
         self.battery: int = battery
         # priority in collisions
         self.priority: float = priority
+        # the index of the first path segment requested in this bid
+        self.index = index
         # if the agent is currently in the air
         self.flying: bool = flying
 
@@ -42,6 +44,7 @@ class PriorityPathBid(Bid):
                 "stays": self.stays,
                 "battery": self.battery,
                 "priority": self.priority,
+                "index": self.index,
                 "flying": self.flying
             },
             "display": {
