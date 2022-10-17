@@ -23,12 +23,73 @@ const router = useRouter();
 const prefabs = [
   {
     type: "group",
-    label: "Report",
+    label: "Python Demos",
     key: "report",
     children: [
       {
-        label: "Report Demo Model",
-        value: "report-demo-output",
+        label: "HowTo Demo",
+        value: "1_python_demo_howto-output",
+      },
+      {
+        label: "Reallocations Demo",
+        value: "2_python_demo_reallocations-output",
+      },
+      {
+        label: "Collisions Demo",
+        value: "3_python_demo_collisions-output",
+      },
+      {
+        label: "Fast Demo",
+        value: "4_python_demo_fast-output",
+      },
+      {
+        label: "Weather Demo",
+        value: "5_python_demo_weather-output",
+      },
+    ],
+  },
+  {
+    type: "group",
+    label: "Python Comparison Demos",
+    key: "comparison",
+    children: [
+      {
+        label: "Compare FCSF Demo",
+        value: "6_python_demo_comparison_fcfsallocator-output",
+      },
+      {
+        label: "Compare Priority Demo",
+        value: "6_python_demo_comparison_priorityallocator-output",
+      },
+    ],
+  },
+  {
+    type: "group",
+    label: "Web Demos",
+    key: "web",
+    children: [
+      {
+        label: "Long Paths Demo",
+        value: "7_web_demo_long_paths-output",
+      },
+      {
+        label: "Flat Terrain Demo",
+        value: "8_web_demo_flat_terrain-output",
+      },
+    ],
+  },
+  {
+    type: "group",
+    label: "CLI Demos",
+    key: "cli",
+    children: [
+      {
+        label: "New York Demo",
+        value: "9_cli_demo_new_york-output",
+      },
+      {
+        label: "Tel Aviv Demo",
+        value: "10_cli_demo_tel_aviv-output",
       },
     ],
   },
