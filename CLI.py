@@ -570,5 +570,6 @@ if not args.skipSimulation:
                         only_directories=True,
                     ).execute()
                 # Save simulation to disk
-                with open(os.path.join(dest_path, f"{model_config.name}-simulation.json"), "w") as f:
+                output_path = dest_path if dest_path.endswith(".json") else f"{model_config.name}-simulation.json"
+                with open(os.path.join(dest_path, output_path), "w") as f:
                     json.dump(simulation_json, f, indent=4)

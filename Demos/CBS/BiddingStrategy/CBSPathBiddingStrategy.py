@@ -13,7 +13,7 @@ class CBSPathBiddingStrategy(WebPathBiddingStrategy):
     label = "CBS Path Bidding Strategy"
     description = "An Bidding Strategy for CBS Path Agents"
     min_locations = 2
-    max_locations = 5
+    max_locations = 10
     allocation_type = AgentType.PATH.value
 
     @staticmethod
