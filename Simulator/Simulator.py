@@ -75,3 +75,13 @@ class Simulator:
         self.time_step += 1
         return True
 
+    def run(self) -> int:
+        """
+        Runs the simulation and returns the simulation time in seconds.
+        :return: simulation time in seconds
+        """
+        start = time_ns()
+        while self.tick():
+            pass
+        simulation_time = int((time_ns() - start) // 1e9)
+        return simulation_time

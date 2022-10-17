@@ -68,7 +68,8 @@ def build_json(config: Dict[str, Any], generator: "Generator", simulation_durati
     statistics_start_time = time.time_ns()
     statistics = get_statistics_dict(generator.simulator)
     statistics_end_time = time.time_ns()
-    statistics_duration = statistics_end_time - statistics_start_time
+    statistics_duration = int((statistics_end_time - statistics_start_time) / 1e9)
+
     return {"config": config,
             "owner_map": generator.owner_map,
             "simulation": simulation_json,
