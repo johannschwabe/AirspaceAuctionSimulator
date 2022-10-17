@@ -29,7 +29,7 @@ area = Area(bottom_left_coordinate, top_right_coordinate)
 
 # Use area to find out play field resolution in voxels
 [x, z] = area.dimension
-y = 50  # Set map height to 100 voxels (which is also 50 meters since we have not specified a resolution)
+y = 50  # Set map height to 50 voxels (which is also 50 meters since we have not specified a resolution)
 
 # Define environment
 environment_generator = EnvironmentGen(

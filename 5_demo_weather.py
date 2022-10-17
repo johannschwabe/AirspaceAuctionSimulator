@@ -28,7 +28,7 @@ area = Area(bottom_left_coordinate, top_right_coordinate)
 
 # Use area to find out play field resolution in voxels
 [x, z] = area.dimension
-y = 100  # Set map height to 100 voxels (which is also 50 meters since we have not specified a resolution)
+y = 100  # Set map height to 100 voxels (which is also 100 meters since we have not specified a resolution)
 
 # Define static blockers
 st_peters_church = LongLatCoordinate(long=8.540776693388015, lat=47.3711851584472)
