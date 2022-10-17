@@ -111,7 +111,7 @@ class PriorityAllocator(WebAllocator):
             start = a.to_3D()
             a = a.clone()
             if len(bid.stays) > _index:
-                a.t += bid.stays[_index]
+                a.t = max(a.t, b.t) + bid.stays[_index]
 
         return optimal_path_segments, total_collisions, "Path allocated."
 
@@ -228,7 +228,8 @@ class PriorityAllocator(WebAllocator):
                                                            colliding_agent,
                                                            environment)
 
-            new_allocation = Allocation(agent, optimal_segments,
+            new_allocation = Allocation(agent,
+                                        optimal_segments,
                                         AllocationHistory(bid,
                                                           time_ns() - start_time,
                                                           reason,
