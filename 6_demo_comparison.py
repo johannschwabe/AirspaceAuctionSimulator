@@ -1,16 +1,16 @@
+import json
 from random import randint
 from time import time_ns
-import json
 
 from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, LongLatCoordinate, WebPathOwner, \
     WebSpaceOwner, GridLocation, generate_config, generate_output
 from API.GridLocation.Heatmap import SparseHeatmap
+from Demos.FCFS import FCFSAllocator, FCFSPathValueFunction, FCFSSpaceValueFunction
 from Demos.FCFS.BiddingStrategy.FCFSPathBiddingStrategy import FCFSPathBiddingStrategy
 from Demos.FCFS.BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBiddingStrategy
 from Demos.FCFS.PaymentRule.FCFSPaymentRule import FCFSPaymentRule
 from Demos.Priority import PriorityAllocator, PriorityPaymentRule, PriorityPathBiddingStrategy, \
     PriorityPathValueFunction, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
-from Demos.FCFS import FCFSAllocator, FCFSPathValueFunction, FCFSSpaceValueFunction
 from Simulator import Simulator, Coordinate4D, Mechanism
 
 TIMESTEPS = 4000
@@ -64,7 +64,8 @@ for i in range(len(allocators)):
         name="OwnerA",
         color="#ff0000",
         stops=[
-            GridLocation("position", area.point_to_coordinate2D(LongLatCoordinate(long=7.448472707397318, lat=46.94813991133983))),
+            GridLocation("position",
+                         area.point_to_coordinate2D(LongLatCoordinate(long=7.448472707397318, lat=46.94813991133983))),
             GridLocation("random"),
         ],
         creation_ticks=owner_a_ticks,
@@ -81,7 +82,8 @@ for i in range(len(allocators)):
         name="OwnerB",
         color="#00ff00",
         stops=[
-            GridLocation("position", area.point_to_coordinate2D(LongLatCoordinate(long=7.451935684146172, lat=46.9469169118693))),
+            GridLocation("position",
+                         area.point_to_coordinate2D(LongLatCoordinate(long=7.451935684146172, lat=46.9469169118693))),
             GridLocation("random"),
         ],
         creation_ticks=owner_b_ticks,
@@ -94,7 +96,7 @@ for i in range(len(allocators)):
     )
 
     ownerC = WebSpaceOwner(
-        owner_id="1",
+        owner_id="2",
         name="OwnerB",
         color="#00ff00",
         stops=[GridLocation("heatmap", heatmap=SparseHeatmap({
@@ -137,10 +139,12 @@ for i in range(len(allocators)):
     # Generate simulation output that can be interpreted by API
     simulation_output = generate_output(simulator, simulation_time, simulation_config)
 
-    with open(f'./Prefabs/configs/6_report_demo_reallocations_{allocator.__class__.__name__.lower()}-config.json', 'w') as f:
+    with open(f'./Prefabs/configs/6_report_demo_reallocations_{allocator.__class__.__name__.lower()}-config.json',
+              'w') as f:
         f.write(json.dumps(simulation_config))
 
-    with open(f'./Prefabs/outputs/6_report_demo_reallocations_{allocator.__class__.__name__.lower()}-output.json', 'w') as f:
+    with open(f'./Prefabs/outputs/6_report_demo_reallocations_{allocator.__class__.__name__.lower()}-output.json',
+              'w') as f:
         f.write(json.dumps(simulation_output))
 
     print("********************************")
