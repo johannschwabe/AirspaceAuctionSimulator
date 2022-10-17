@@ -155,7 +155,6 @@ def is_valid_for_path_allocation(allocation_tick: int,
     """
     # if position.t < allocation_tick:
     #     raise Exception(f"Cannot validate position in the past. Position: {position}, Tick: {allocation_tick}.")
-
     if environment.is_coordinate_blocked(position, path_agent):
         return False, None
 
