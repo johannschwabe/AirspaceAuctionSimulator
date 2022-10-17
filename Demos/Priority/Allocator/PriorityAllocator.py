@@ -63,7 +63,7 @@ class PriorityAllocator(WebAllocator):
             a.t += 1
 
         time = 0
-        count = 0
+        segment_index = bid.index
         optimal_path_segments = []
         total_collisions = set()
 
@@ -102,10 +102,10 @@ class PriorityAllocator(WebAllocator):
                 return None, None, f"Not enough battery left for path {a} -> {b}."
 
             optimal_path_segments.append(
-                PathSegment(start, end, count, ab_path))
+                PathSegment(start, end, segment_index, ab_path))
             total_collisions = total_collisions.union(path_collisions)
 
-            count += 1
+            segment_index += 1
 
             a = ab_path[-1]
             start = a.to_3D()
