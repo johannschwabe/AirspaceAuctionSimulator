@@ -1,12 +1,15 @@
 import json
 from random import randint
-from time import time_ns
 
 from API import APIWorldCoordinates, Area, EnvironmentGen, GridLocation, LongLatCoordinate, MapTile, WebPathOwner, \
     generate_config, generate_output
 from Demos.Priority import PriorityAllocator, PriorityPathBiddingStrategy, PriorityPathValueFunction, \
     PriorityPaymentRule
 from Simulator import Coordinate4D, Mechanism, Simulator
+
+"""
+Environment
+"""
 
 TIMESTEPS = 1000
 ALLOCATION_PERIOD = 250
@@ -17,7 +20,7 @@ coordinate = APIWorldCoordinates(long=8.542166566660185, lat=47.37175967132577)
 # Resolves open-streetmap tiles around specified coordinate in Zurich
 maptiles = MapTile.tiles_from_coordinates(coordinate)
 
-# Bounding-Box spanned by zurich tile, which is needed to determine the size of our playing area
+# Bounding-Box of our playing area inside the zurich tile
 bottom_left_coordinate = APIWorldCoordinates(long=8.543278203323961, lat=47.36954866470366)
 top_right_coordinate = APIWorldCoordinates(long=8.545048471709597, lat=47.370620437054555)
 
@@ -26,7 +29,7 @@ area = Area(bottom_left_coordinate, top_right_coordinate)
 
 # Use area to find out play field resolution in voxels
 [x, z] = area.dimension
-y = 100  # Set map height to 100 voxels (which is also 50 meters since we have not specified a resolution)
+y = 100  # Set map height to 100 voxels (which is also 100 meters since we have not specified a resolution)
 
 # Define environment
 environment_generator = EnvironmentGen(
@@ -36,10 +39,21 @@ environment_generator = EnvironmentGen(
     min_height=0
 )
 
-# Choose allocator, compatible payment rule and compatible mechanism
+# Generate environment
+environment = environment_generator.generate()
+
+"""
+Mechanism
+"""
+
+# Choose allocator, compatible payment rule and combine them into a mechanism
 allocator = PriorityAllocator()
 payment_rule = PriorityPaymentRule()
 mechanism = Mechanism(allocator, payment_rule)
+
+"""
+Owners
+"""
 
 # Define owners that participate in simulation
 ownerA = WebPathOwner(
@@ -100,18 +114,19 @@ ownerC = WebPathOwner(
 
 owners = [ownerA, ownerB, ownerC]
 
-# Generate environment
-environment = environment_generator.generate()
+"""
+Simulation
+"""
 
 # Create simulation
 simulator = Simulator(owners, mechanism, environment)
 
 # Run simulation for as long as ticks are left
-start = time_ns()
-while simulator.tick():
-    pass
-simulation_time = time_ns() - start
+simulation_time = simulator.run()
 
+"""
+Output
+"""
 # Generate config that can be interpreted by API
 simulation_config = generate_config(
     simulator,
@@ -121,9 +136,12 @@ simulation_config = generate_config(
     allocation_period=ALLOCATION_PERIOD,
 )
 
-# Generate simulation output that can be interpreted by API
+# Generate simulation output that can be interpreted by the Visualizer
 simulation_output = generate_output(simulator, simulation_time, simulation_config)
 
+"""
+Save to file
+"""
 with open('./Prefabs/configs/2_report_demo_reallocations-config.json', 'w') as f:
     f.write(json.dumps(simulation_config))
 

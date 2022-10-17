@@ -146,7 +146,7 @@ simulation_config = generate_config(
     allocation_period=ALLOCATION_PERIOD,
 )
 
-# Generate simulation output that can be interpreted by API
+# Generate simulation output that can be interpreted by the Visualizer
 simulation_output = generate_output(simulator, simulation_time, simulation_config)
 
 """

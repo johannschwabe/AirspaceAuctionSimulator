@@ -1,13 +1,15 @@
-from random import randint
-from time import time_ns
 import json
+from random import randint
 
-from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, LongLatCoordinate, WebPathOwner, \
-    GridLocation, generate_config, generate_output
-from Demos.Priority import PriorityAllocator, PriorityPaymentRule, PriorityPathBiddingStrategy, \
-    PriorityPathValueFunction
-from Simulator import Simulator, Coordinate4D, Mechanism, StaticBlocker, DynamicBlocker
-from Simulator.Coordinates.Coordinate3D import Coordinate3D
+from API import APIWorldCoordinates, Area, EnvironmentGen, GridLocation, LongLatCoordinate, MapTile, WebPathOwner, \
+    generate_config, generate_output
+from Demos.Priority import PriorityAllocator, PriorityPathBiddingStrategy, PriorityPathValueFunction, \
+    PriorityPaymentRule
+from Simulator import Coordinate3D, Coordinate4D, DynamicBlocker, Mechanism, Simulator, StaticBlocker
+
+"""
+Environment
+"""
 
 TIMESTEPS = 5000
 ALLOCATION_PERIOD = 500
@@ -40,7 +42,8 @@ static_blockers = [
 
 # Define dynamic (weather) blockers
 dynamic_blockers = [
-    DynamicBlocker([Coordinate4D(25 + (t // 2), 0, 400, t) for t in range(TIMESTEPS)], dimension=Coordinate3D(50, 100, 300))
+    DynamicBlocker([Coordinate4D(25 + (t // 2), 0, 400, t) for t in range(TIMESTEPS)],
+                   dimension=Coordinate3D(50, 100, 300))
 ]
 
 # Define environment
@@ -52,20 +55,28 @@ environment_generator = EnvironmentGen(
     blockers=[*static_blockers, *dynamic_blockers],
 )
 
-# Choose allocator, compatible payment rule and compatible mechanism
+# Generate environment
+environment = environment_generator.generate()
+
+"""
+Mechanism
+"""
+
+# Choose allocator, compatible payment rule and combine them into a mechanism
 allocator = PriorityAllocator()
 payment_rule = PriorityPaymentRule()
 mechanism = Mechanism(allocator, payment_rule)
+
+"""
+Owners
+"""
 
 # Define owners that participate in simulation
 ownerA = WebPathOwner(
     owner_id="0",
     name="OwnerA",
     color="#ff0000",
-    stops=[
-        GridLocation("random"),
-        GridLocation("random"),
-    ],
+    stops=[GridLocation("random"), GridLocation("random")],
     creation_ticks=[randint(0, ALLOCATION_PERIOD) for _ in range(100)],
     bidding_strategy=PriorityPathBiddingStrategy(),
     value_function=PriorityPathValueFunction(),
@@ -77,18 +88,19 @@ ownerA = WebPathOwner(
 
 owners = [ownerA]
 
-# Generate environment
-environment = environment_generator.generate()
+"""
+Simulation
+"""
 
 # Create simulation
 simulator = Simulator(owners, mechanism, environment)
 
 # Run simulation for as long as ticks are left
-start = time_ns()
-while simulator.tick():
-    pass
-simulation_time = time_ns() - start
+simulation_time = simulator.run()
 
+"""
+Output
+"""
 # Generate config that can be interpreted by API
 simulation_config = generate_config(
     simulator,
@@ -98,9 +110,12 @@ simulation_config = generate_config(
     allocation_period=ALLOCATION_PERIOD,
 )
 
-# Generate simulation output that can be interpreted by API
+# Generate simulation output that can be interpreted by the Visualizer
 simulation_output = generate_output(simulator, simulation_time, simulation_config)
 
+"""
+Save to file
+"""
 with open('./Prefabs/configs/5_report_demo_weather-config.json', 'w') as f:
     f.write(json.dumps(simulation_config))
 
