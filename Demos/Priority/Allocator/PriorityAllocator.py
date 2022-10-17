@@ -65,7 +65,7 @@ class PriorityAllocator(WebAllocator):
                     a) and idx < bid.agent.speed:
                     idx += 1
                 print(f"moved start for agent {bid.agent} from {a} to {allocated_segments[-1].coordinates[-idx].t} ")
-                a.t -= allocated_segments[-1].coordinates[-idx].t
+                a.t = allocated_segments[-1].coordinates[-idx].t
 
             valid, _ = is_valid_for_path_allocation(tick, environment, self.bid_tracker, a, bid.agent)
             if not valid:
@@ -187,9 +187,12 @@ class PriorityAllocator(WebAllocator):
         allocations: Dict["Agent", "Allocation"] = {}
         displacements: Dict["Agent", Set["Agent"]] = {}
         agents_to_allocate = set(agents)
-        while len(list(agents_to_allocate)) > 0:
+        while len(agents_to_allocate) > 0:
             start_time = time_ns()
-            agent = max(agents_to_allocate, key=lambda _agent: self.priority(_agent, tick, environment))
+            max_prio = max([self.priority(_agent, tick, environment) for _agent in agents_to_allocate])
+            agent = max(
+                [_agent for _agent in agents_to_allocate if self.priority(_agent, tick, environment) == max_prio],
+                key=lambda _agent: hash(_agent))
             agents_to_allocate.remove(agent)
             print(f"allocating: {agent}")
             bid = self.bid_tracker.request_new_bid(tick, agent, environment)

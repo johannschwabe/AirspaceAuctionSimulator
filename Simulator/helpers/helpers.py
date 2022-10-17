@@ -30,8 +30,8 @@ def find_valid_path_tick(tick: int, environment: "Environment", bid_tracker: "Bi
     :return: tick in the range [max{position.t, min_tick}, max_tick] or None
     """
     pos_clone = position.clone()
-    if pos_clone.t < min_tick:
-        pos_clone.t = min_tick
+    # if pos_clone.t < min_tick:
+    #     pos_clone.t = min_tick
     while True:
         valid, _ = is_valid_for_path_allocation(tick, environment, bid_tracker, pos_clone, agent)
         if valid:

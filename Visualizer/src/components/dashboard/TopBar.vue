@@ -143,7 +143,9 @@ const stats = computed(() => {
     },
     {
       label: "Failed Allocations",
-      value: simulation.agents.filter((a) => a.events.some((e) => e instanceof FailedAllocationEvent)).length,
+      value: simulation.agents.filter(
+        (a) => a.events.some((e) => e instanceof FailedAllocationEvent) && a.time_in_air > 0
+      ).length,
       icon: Ban,
     },
 
