@@ -61,3 +61,6 @@ class PathSegment(Segment):
         second_segment._coordinates = second_segment.coordinates[t_index + 1:]
 
         return first_segment, second_segment
+
+    def __str__(self):
+        return f"PathSegment: {self.min} -> {self.max}"

@@ -63,3 +63,6 @@ class SpaceSegment(Segment):
 
     def clone(self) -> "SpaceSegment":
         return SpaceSegment(self.min.clone(), self.max.clone(), self.index)
+
+    def __str__(self):
+        return f"SpaceSegment: {self.min} -> {self.max}"

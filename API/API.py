@@ -70,7 +70,7 @@ def build_json(config: Dict[str, Any], generator: "Generator", simulation_durati
     statistics_end_time = time.time_ns()
     statistics_duration = statistics_end_time - statistics_start_time
     return {"config": config,
-            "owner_map": generator.owner_map,
+            "owner_map": [{owner[0]: owner[1].as_dict()} for owner in generator.owner_map.items()],
             "simulation": simulation_json,
             "statistics": statistics,
             "statistics_compute_time": statistics_duration,
