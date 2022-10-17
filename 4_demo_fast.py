@@ -57,7 +57,7 @@ Owners
 
 # Create stops for the path owner
 st_peters_church = LongLatCoordinate(long=8.540776693388015, lat=47.3711851584472)
-grossmuenster = LongLatCoordinate(long=8.544415750020427, lat=47.37011572741992)
+grossmuenster = LongLatCoordinate(long=8.544297219387094, lat=47.37038702952557)
 
 # Translate real world coordinates to grid-locations
 st_peters_church_stop = GridLocation("position", area.point_to_coordinate2D(st_peters_church))
