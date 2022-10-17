@@ -115,9 +115,9 @@ class AStar:
               end: "Coordinate4D",
               agent: "PathAgent") -> Tuple[List["Coordinate4D"], set["Agent"]]:
 
-        if start.t < self.tick:
-            print(f"Too late to allocate start {start} at tick {self.tick}.")
-            return [], set()
+        # if start.t < self.tick:
+        #     print(f"Too late to allocate start {start} at tick {self.tick}.")
+        #     return [], set()
 
         distance = start.distance(end)
         time_left = self.environment.dimension.t - start.t
@@ -132,15 +132,6 @@ class AStar:
         if not valid:
             print(f"ASTAR failed: Start {start} is not valid.")
             return [], set()
-
-        if len(agent.allocated_segments) > 1 and len(agent.allocated_segments[-1].coordinates) > 1 \
-                and agent.allocated_segments[-1].coordinates[-1].inter_temporal_equal(start) \
-                and agent.allocated_segments[-1].coordinates[-1].t + 1 == start.t:
-            idx = 1
-            while len(agent.allocated_segments[-1].coordinates) > idx \
-                    and agent.allocated_segments[-1].coordinates[-idx].inter_temporal_equal(start):
-                idx += 1
-            start.t -= idx
 
         path, steps, collisions = self.astar_loop(start, end, agent, start_collisions)
 

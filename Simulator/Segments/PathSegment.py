@@ -18,6 +18,8 @@ class PathSegment(Segment):
         join_index = 0
         if other.min == self.max:
             join_index = 1
+        elif other.min.inter_temporal_equal(self.max):
+            join_index = other.min.t - self.max.t
         else:
             print(f"other: {other.min.t}, self: {self.max.t}")
             assert other.min.t == self.max.t + 1

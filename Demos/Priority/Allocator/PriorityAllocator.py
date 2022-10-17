@@ -53,10 +53,30 @@ class PriorityAllocator(WebAllocator):
 
         if bid.flying:
             if a.t != tick:
+                print(f"not next tick{bid.agent} - {tick}")
                 return None, None, f"Cannot teleport to {a} at tick {tick}."
+            allocated_segments = bid.agent.allocated_segments
+            if bid.agent.id == "2-16":
+                print("----------------------------")
+                print(len(allocated_segments))
+                print(len(allocated_segments[-1].coordinates))
+                print(allocated_segments[-1].coordinates[-1].inter_temporal_equal(a))
+                print(allocated_segments[-1].coordinates[-1].t)
+                print(a.t)
+                print("============================")
+            if len(allocated_segments) > 0 and len(allocated_segments[-1].coordinates) > 0 \
+                    and allocated_segments[-1].coordinates[-1].inter_temporal_equal(a) \
+                    and allocated_segments[-1].coordinates[-1].t == a.t:
+                idx = 1
+                while len(allocated_segments[-1].coordinates) > idx \
+                        and allocated_segments[-1].coordinates[-idx].inter_temporal_equal(a):
+                    idx += 1
+                print(f"moved start for agent {bid.agent} from {start} to {a.t - idx}")
+                a.t -= idx
 
             valid, _ = is_valid_for_path_allocation(tick, environment, self.bid_tracker, a, bid.agent)
             if not valid:
+                print(f"no valid re-start {bid.agent} - {tick} - {a}")
                 return None, None, f"Cannot escape {a}."
 
         elif a.t == tick:
