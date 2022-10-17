@@ -1,13 +1,12 @@
+import json
 from random import randint
 from time import time_ns
-import json
 
-from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, LongLatCoordinate, WebPathOwner, \
-    WebSpaceOwner, GridLocation, generate_config, generate_output
-from API.GridLocation.Heatmap import SparseHeatmap
-from Demos.Priority import PriorityAllocator, PriorityPaymentRule, PriorityPathBiddingStrategy, \
-    PriorityPathValueFunction, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
-from Simulator import Simulator, Coordinate4D, Mechanism
+from API import APIWorldCoordinates, Area, EnvironmentGen, GridLocation, LongLatCoordinate, MapTile, WebPathOwner, \
+    generate_config, generate_output
+from Demos.Priority import PriorityAllocator, PriorityPathBiddingStrategy, PriorityPathValueFunction, \
+    PriorityPaymentRule
+from Simulator import Coordinate4D, Mechanism, Simulator
 
 TIMESTEPS = 1000
 ALLOCATION_PERIOD = 250
@@ -48,8 +47,10 @@ ownerA = WebPathOwner(
     name="OwnerA",
     color="#ff0000",
     stops=[
-        GridLocation("position", area.point_to_coordinate2D(LongLatCoordinate(long=8.544116112079278, lat=47.37037820591456))),
-        GridLocation("position", area.point_to_coordinate2D(LongLatCoordinate(long=8.544689042330303, lat=47.36991197930435))),
+        GridLocation("position",
+                     area.point_to_coordinate2D(LongLatCoordinate(long=8.544116112079278, lat=47.37037820591456))),
+        GridLocation("position",
+                     area.point_to_coordinate2D(LongLatCoordinate(long=8.544689042330303, lat=47.36991197930435))),
     ],
     creation_ticks=[randint(0, ALLOCATION_PERIOD) for _ in range(50)],
     bidding_strategy=PriorityPathBiddingStrategy(),
@@ -65,8 +66,10 @@ ownerB = WebPathOwner(
     name="OwnerB",
     color="#00ff00",
     stops=[
-        GridLocation("position", area.point_to_coordinate2D(LongLatCoordinate(long=8.543771724602369, lat=47.36996647691119))),
-        GridLocation("position", area.point_to_coordinate2D(LongLatCoordinate(long=8.544431552514409, lat=47.37040971861829))),
+        GridLocation("position",
+                     area.point_to_coordinate2D(LongLatCoordinate(long=8.543771724602369, lat=47.36996647691119))),
+        GridLocation("position",
+                     area.point_to_coordinate2D(LongLatCoordinate(long=8.544431552514409, lat=47.37040971861829))),
     ],
     creation_ticks=[randint(0, ALLOCATION_PERIOD) for _ in range(50)],
     bidding_strategy=PriorityPathBiddingStrategy(),
@@ -82,7 +85,8 @@ ownerC = WebPathOwner(
     name="OwnerC",
     color="#0000ff",
     stops=[
-        GridLocation("position", area.point_to_coordinate2D(LongLatCoordinate(long=8.544399364191872, lat=47.37012270163643))),
+        GridLocation("position",
+                     area.point_to_coordinate2D(LongLatCoordinate(long=8.544399364191872, lat=47.37012270163643))),
         GridLocation("random"),
     ],
     creation_ticks=[randint(0, ALLOCATION_PERIOD) for _ in range(50)],

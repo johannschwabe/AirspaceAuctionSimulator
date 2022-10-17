@@ -1,13 +1,13 @@
+import json
 from random import randint
 from time import time_ns
-import json
 
-from API import Area, APIWorldCoordinates, EnvironmentGen, MapTile, LongLatCoordinate, WebPathOwner, \
-    WebSpaceOwner, GridLocation, generate_config, generate_output
+from API import APIWorldCoordinates, Area, EnvironmentGen, GridLocation, LongLatCoordinate, MapTile, WebPathOwner, \
+    WebSpaceOwner, generate_config, generate_output
 from API.GridLocation.Heatmap import SparseHeatmap
-from Demos.Priority import PriorityAllocator, PriorityPaymentRule, PriorityPathBiddingStrategy, \
-    PriorityPathValueFunction, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
-from Simulator import Simulator, Coordinate4D, Mechanism
+from Demos.Priority import PriorityAllocator, PriorityPathBiddingStrategy, PriorityPathValueFunction, \
+    PriorityPaymentRule, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
+from Simulator import Coordinate4D, Mechanism, Simulator
 
 RESOLUTION = 5
 TIMESTEPS = 5000
@@ -23,7 +23,7 @@ maptiles = MapTile.tiles_from_coordinates(coordinate, resolution=RESOLUTION)
 bottom_left_coordinate, top_right_coordinate = MapTile.bounding_box_from_maptiles_group(maptiles)
 
 # Defines 2D area using both coordinates and given resolution (meters per voxel)
-area = Area(bottom_left_coordinate, top_right_coordinate, resolution=RESOLUTION, min_height=50//RESOLUTION)
+area = Area(bottom_left_coordinate, top_right_coordinate, resolution=RESOLUTION, min_height=50 // RESOLUTION)
 
 # Use area to find out play field resolution in voxels
 [x, z] = area.dimension
@@ -57,7 +57,7 @@ ownerA = WebPathOwner(
     creation_ticks=[randint(0, ALLOCATION_PERIOD) for _ in range(10)],
     bidding_strategy=PriorityPathBiddingStrategy(),
     value_function=PriorityPathValueFunction(),
-    near_radius=5//RESOLUTION,
+    near_radius=5 // RESOLUTION,
     battery=5000,
     speed=1,
     config={"priority": 0.5}
@@ -75,7 +75,7 @@ ownerB = WebSpaceOwner(
         area.point_to_coordinate2D(LongLatCoordinate(long=8.543771783498224, lat=47.37002462827945)): 0.2,
     }))],
     creation_ticks=[0, 0, 0, 300, 300, 400, 400, 500, 500, 600, 600, 700, 700, 800, 800, 900, 900],
-    size=Coordinate4D(x=15//RESOLUTION, y=50//RESOLUTION, z=15//RESOLUTION, t=100),
+    size=Coordinate4D(x=15 // RESOLUTION, y=50 // RESOLUTION, z=15 // RESOLUTION, t=100),
     bidding_strategy=PrioritySpaceBiddingStrategy(),
     value_function=PrioritySpaceValueFunction(),
     config={"priority": 1.0}
@@ -94,7 +94,7 @@ ownerC = WebPathOwner(
     creation_ticks=[randint(0, ALLOCATION_PERIOD) for _ in range(50)],
     bidding_strategy=PriorityPathBiddingStrategy(),
     value_function=PriorityPathValueFunction(),
-    near_radius=10//RESOLUTION,
+    near_radius=10 // RESOLUTION,
     battery=10_000,
     speed=1,
     config={"priority": 0.15}
