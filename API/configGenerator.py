@@ -1,13 +1,12 @@
 from typing import Optional, TYPE_CHECKING
 
-from API.WebClasses.Owners.WebPathOwner import WebPathOwner
-from API.WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
 from . import Area
 from .GridLocation.GridLocationType import GridLocationType
-from .Types import APIBiddingStrategy, APILocations, APIMap, APIOwner, APISimulationConfig, APIWorldCoordinates, \
-    APIWeightedCoordinate
-from .Types import APISubselection
+from .Types import APIBiddingStrategy, APILocations, APIMap, APIOwner, APISimulationConfig, APISubselection, \
+    APIWeightedCoordinate, APIWorldCoordinates
 from .WebClasses.BiddingStrategies.WebBiddingStrategy import WebBiddingStrategy
+from .WebClasses.Owners.WebPathOwner import WebPathOwner
+from .WebClasses.Owners.WebSpaceOwner import WebSpaceOwner
 
 if TYPE_CHECKING:
     from .Generator.EnvironmentGen import EnvironmentGen
