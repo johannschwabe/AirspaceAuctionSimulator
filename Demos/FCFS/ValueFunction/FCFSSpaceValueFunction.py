@@ -13,15 +13,10 @@ class FCFSSpaceValueFunction(ValueFunction):
     def value_for_segments(self, segments: List["Segment"], agent: "SpaceAgent"):
         sum_segments = 0.0
         for segment in segments:
-            sum_segments += (segment.max.x - segment.min.x) * \
-                            (segment.max.y - segment.min.y) * \
-                            (segment.max.z - segment.min.z) * \
-                            (segment.max.t - segment.min.t)
+            sum_segments += segment.nr_voxels
+
         sum_blocks = 0.0
         for block in agent.blocks:
-            sum_blocks += (block.max.x - block.min.x) * \
-                          (block.max.y - block.min.y) * \
-                          (block.max.z - block.min.z) * \
-                          (block.max.t - block.min.t)
+            sum_blocks += block.nr_voxels
 
-        return sum_segments / sum_blocks
+        return sum_segments * 0.00006 - (sum_blocks - sum_segments) * 0.0000105
