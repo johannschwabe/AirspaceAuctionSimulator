@@ -16,7 +16,7 @@ class PriorityPaymentRule(PaymentRule):
 
     label = "Priority Payment"
 
-    def __init__(self, path_voxel_multiplier: float = 0.002, space_voxel_multiplier: float = 0.0001):
+    def __init__(self, path_voxel_multiplier: float = 0.2, space_voxel_multiplier: float = 0.00005):
         """
         Configurable multipliers.
         :param path_voxel_multiplier:

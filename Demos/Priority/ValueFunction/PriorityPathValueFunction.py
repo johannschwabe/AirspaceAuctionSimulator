@@ -5,6 +5,8 @@ from Simulator import ValueFunction
 if TYPE_CHECKING:
     from Simulator import PathAgent, Segment
 
+violationValue = - 20
+
 
 class PriorityPathValueFunction(ValueFunction):
     label = "PrioPath"
@@ -16,21 +18,26 @@ class PriorityPathValueFunction(ValueFunction):
 
         if len(segments) != len(agent.locations) - 1:
             print(f"Crash {agent}: Not all locations reached")
-            return -1.
+            return violationValue
 
-        value = 1.
+        expected_distance = 0
+        _iter = agent.locations[0]
+        for location in agent.locations[1:]:
+            expected_distance += _iter.distance(location) * 1.1
+            _iter = location
+        value = expected_distance * 2 * agent.config["priority"]
         time = 0
         for path, location in zip(segments, agent.locations[1:]):
             destination = path.max
             if not destination.inter_temporal_equal(location):
                 print(f"Crash {agent}: no further path found")
-                return -1.
+                return violationValue
 
             time += destination.t - path.min.t
             value -= max(destination.t - location.t, 0) / 100
 
         if time > agent.battery:
             print(f"Crash {self}: empty battery")
-            return -1.
+            return violationValue
 
         return round(max(0., value), 2)
