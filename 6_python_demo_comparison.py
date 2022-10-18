@@ -1,4 +1,5 @@
 import json
+import random
 from random import randint
 from time import time_ns
 
@@ -12,6 +13,8 @@ from Demos.FCFS.PaymentRule.FCFSPaymentRule import FCFSPaymentRule
 from Demos.Priority import PriorityAllocator, PriorityPaymentRule, PriorityPathBiddingStrategy, \
     PriorityPathValueFunction, PrioritySpaceBiddingStrategy, PrioritySpaceValueFunction
 from Simulator import Simulator, Coordinate4D, Mechanism
+
+random.seed(3)
 
 TIMESTEPS = 4000
 ALLOCATION_PERIOD = 1000

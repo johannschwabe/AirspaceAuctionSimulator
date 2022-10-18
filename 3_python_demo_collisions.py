@@ -1,4 +1,5 @@
 import json
+import random
 from random import randint
 
 from API import APIWorldCoordinates, Area, EnvironmentGen, GridLocation, LongLatCoordinate, MapTile, WebPathOwner, \
@@ -6,6 +7,8 @@ from API import APIWorldCoordinates, Area, EnvironmentGen, GridLocation, LongLat
 from Demos.Priority import PriorityAllocator, PriorityPathBiddingStrategy, PriorityPathValueFunction, \
     PriorityPaymentRule
 from Simulator import Coordinate4D, Mechanism, Simulator
+
+random.seed(3)
 
 """
 Environment
