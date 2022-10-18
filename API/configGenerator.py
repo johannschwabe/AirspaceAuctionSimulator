@@ -1,7 +1,9 @@
 from typing import Optional, TYPE_CHECKING
 
+from Simulator.Coordinates.Coordinate2D import Coordinate2D
 from . import Area
 from .GridLocation.GridLocationType import GridLocationType
+from .GridLocation.HeatmapType import HeatmapType
 from .Types import APIBiddingStrategy, APILocations, APIMap, APIOwner, APISimulationConfig, APISubselection, \
     APIWeightedCoordinate, APIWorldCoordinates
 from .WebClasses.BiddingStrategies.WebBiddingStrategy import WebBiddingStrategy
@@ -101,11 +103,32 @@ def generate_config(simulator: "Simulator",
         locations = []
         for stop in owner.stops:
             if stop.grid_location_type == GridLocationType.RANDOM.value:
-                locations.append(APILocations(type=stop.grid_location_type, points=[]))
+                locations.append(APILocations(type=GridLocationType.RANDOM.value, points=[]))
             elif stop.grid_location_type == GridLocationType.POSITION.value:
                 posi = Area.LCS_to_long_lat(bottom_left, stop.position, resolution)
                 weighted_coordiante = APIWeightedCoordinate(lat=posi.lat, long=posi.long, value=1)
                 locations.append(APILocations(type=stop.grid_location_type, points=[weighted_coordiante]))
+            elif stop.grid_location_type == GridLocationType.HEATMAP.value:
+                posis = []
+                if stop.heatmap.heatmap_type == HeatmapType.SPARSE.value:
+                    for posi, value in stop.heatmap.sparse.items():
+                        conv_posi = Area.LCS_to_long_lat(bottom_left, posi, resolution)
+                        posis.append(APIWeightedCoordinate(lat=conv_posi.lat, long=conv_posi.long, value=value))
+                elif stop.heatmap.heatmap_type == HeatmapType.INVERSE_SPARSE.value:
+                    for value, _posis in stop.heatmap.inverse_sparse.items():
+                        for posi in _posis:
+                            conv_posi = Area.LCS_to_long_lat(bottom_left, posi, resolution)
+                            posis.append(
+                                APIWeightedCoordinate(lat=conv_posi.lat, long=conv_posi.long, value=float(value)))
+                elif stop.heatmap.heatmap_type == HeatmapType.MATRIX.value:
+                    for x, row in enumerate(stop.heatmap.matrix):
+                        for z, val in enumerate(row):
+                            if val > 0:
+                                conv_posi = Area.LCS_to_long_lat(bottom_left, Coordinate2D(x, z), resolution)
+                                posis.append(
+                                    APIWeightedCoordinate(lat=conv_posi.lat, long=conv_posi.long, value=val))
+                locations.append(APILocations(type=GridLocationType.HEATMAP.value, points=posis))
+
         new_owner = APIOwner(
             color=owner.color if isinstance(owner, WebPathOwner) or isinstance(owner, WebSpaceOwner) else hex(
                 hash(owner.id) % 0xFFFFFF)[2:].zfill(6),

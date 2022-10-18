@@ -10,6 +10,7 @@ import argparse
 import glob
 import json
 import os
+import random
 from typing import Any, Dict, List, Optional, Type
 
 import requests
@@ -25,6 +26,7 @@ from Simulator import PaymentRule
 
 PREFAB_PATH = "./Prefabs/configs"
 HOME_PATH = "~/" if os.name == "posix" else "C:\\"
+random.seed(3)
 
 
 def random_locations_for_bidding_strategy(bidding_strategy: Type["WebBiddingStrategy"]) -> List:
@@ -524,8 +526,10 @@ if not args.skipSaveConfig:
                 validate=PathValidator(is_dir=True, message="Input is not a directory"),
                 only_directories=True,
             ).execute()
+        output_path = dest_path if dest_path.endswith(".json") else os.path.join(dest_path,
+                                                                                 f"{model_config.name}-config.json")
         # Write config as to disk as json file
-        with open(os.path.join(dest_path, f"{model_config.name}-config.json"), "w") as f:
+        with open(output_path, "w") as f:
             f.write(model_config.json())
 
 # Skip this flow if user provided --skip-simulation argument
@@ -570,5 +574,6 @@ if not args.skipSimulation:
                         only_directories=True,
                     ).execute()
                 # Save simulation to disk
-                with open(os.path.join(dest_path, f"{model_config.name}-simulation.json"), "w") as f:
+                output_path = dest_path if dest_path.endswith(".json") else f"{model_config.name}-simulation.json"
+                with open(os.path.join(dest_path, output_path), "w") as f:
                     json.dump(simulation_json, f, indent=4)
