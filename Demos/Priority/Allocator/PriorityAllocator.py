@@ -91,7 +91,8 @@ class PriorityAllocator(WebAllocator):
             if environment.is_coordinate_blocked_forever(b, bid.agent.near_radius):
                 return None, None, f"Static blocker at target {b}."
 
-            a_t = find_valid_path_tick(tick, environment, self.bid_tracker, a, bid.agent, tick, environment.dimension.t)
+            a_t = find_valid_path_tick(tick, environment, self.bid_tracker, a, bid.agent, tick - bid.agent.speed,
+                                       environment.dimension.t)
             if a_t is None:
                 return None, None, f"Start {a} is invalid until max tick {environment.dimension.t}."
             a.t = a_t
