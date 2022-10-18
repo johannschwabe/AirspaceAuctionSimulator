@@ -56,13 +56,12 @@ class PriorityPathBiddingStrategy(WebPathBiddingStrategy):
                     break
                 else:
                     battery -= segment.max.t - segment.min.t
-            if start is None:
-                print(f"Agent {agent} crashed.")
-                return None
+                    start = agent.locations[i + 1]
+                    start.t = max(start.t, agent.allocated_segments[i - 1].max.t) + agent.stays[i - 1]
+                    index = i + 1
 
             locations = agent.locations[index + 1:]
             locations.insert(0, start)
-
             stays = agent.stays[index:] if index < len(agent.stays) else []
 
         return PriorityPathBid(agent, locations, stays, battery, agent.config["priority"], index, flying)
