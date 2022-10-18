@@ -92,7 +92,7 @@ ownerB = WebSpaceOwner(
     name="OwnerB",
     color="#00ff00",
     stops=[heatmap_stop],
-    creation_ticks=[0, 0, 0, 300, 300, 400],
+    creation_ticks=[0, 0, 0, 300, 300, 400, 400, 500, 500, 600, 600, 700, 700, 800, 800, 900, 900],
     size=Coordinate4D(x=15, y=50, z=15, t=100),
     bidding_strategy=PrioritySpaceBiddingStrategy(),
     value_function=PrioritySpaceValueFunction(),
@@ -121,8 +121,7 @@ ownerC = WebPathOwner(
     config={"priority": 0.15}
 )
 
-# owners = [ownerA, ownerB, ownerC]
-owners = [ownerB]
+owners = [ownerA, ownerB, ownerC]
 
 """
 Simulation
