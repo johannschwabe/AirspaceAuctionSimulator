@@ -1,6 +1,6 @@
 {
   "name": "University Hospital Zurich USZ",
-  "description": "Simulating Drones from TH, UZH and USZ interacting over the campus of the university hospital, with helicopters blocking the delivery place from time to time.",
+  "description": "Simulating Drones from ETH, UZH and USZ interacting over the campus of the university hospital, with helicopters blocking the delivery place from time to time.",
   "allocator": "PriorityAllocator",
   "paymentRule": "PriorityPaymentRule",
   "map": {
@@ -570,7 +570,7 @@
       "valueFunction": "PriorityPathValueFunction"
     },
     {
-      "color": "#8E6713",
+      "color": "#d80f55",
       "name": "USZ Drones",
       "agents": 100,
       "biddingStrategy": {

@@ -80,7 +80,7 @@ ownerA = WebPathOwner(
 ownerB = WebPathOwner(
     owner_id="1",
     name="OwnerB",
-    color="#00ff00",
+    color="#0000ff",
     stops=[
         GridLocation("position",
                      area.point_to_coordinate2D(LongLatCoordinate(long=8.543771724602369, lat=47.36996647691119))),

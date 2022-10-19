@@ -83,7 +83,7 @@ for i in range(len(allocators)):
     ownerB = WebPathOwner(
         owner_id="1",
         name="OwnerB",
-        color="#00ff00",
+        color="#0000ff",
         stops=[
             GridLocation("position",
                          area.point_to_coordinate2D(LongLatCoordinate(long=7.451935684146172, lat=46.9469169118693))),
@@ -101,7 +101,7 @@ for i in range(len(allocators)):
     ownerC = WebSpaceOwner(
         owner_id="2",
         name="OwnerB",
-        color="#00ff00",
+        color="#0000ff",
         stops=[GridLocation("heatmap", heatmap=SparseHeatmap({
             area.point_to_coordinate2D(LongLatCoordinate(long=7.448352457867829, lat=46.948238408893694)): 0.2,
             area.point_to_coordinate2D(LongLatCoordinate(long=7.455951717980163, lat=46.94747502165524)): 0.5,

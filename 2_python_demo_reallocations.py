@@ -74,7 +74,7 @@ ownerA = WebPathOwner(
 ownerB = WebSpaceOwner(
     owner_id="1",
     name="OwnerB",
-    color="#00ff00",
+    color="#0000ff",
     stops=[GridLocation("random")],
     creation_ticks=[randint(0, ALLOCATION_PERIOD) for _ in range(100)],
     size=Coordinate4D(x=25, y=50, z=25, t=20),

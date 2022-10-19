@@ -94,7 +94,7 @@ heatmap_stop = GridLocation("heatmap", heatmap=heatmap)
 ownerB = WebSpaceOwner(
     owner_id="1",
     name="OwnerB",
-    color="#00ff00",
+    color="#0000ff",
     stops=[heatmap_stop],
     creation_ticks=[0, 0, 0, 300, 300, 400, 400, 500, 500, 600, 600, 700, 700, 800, 800, 900, 900],
     size=Coordinate4D(x=15 // RESOLUTION, y=50 // RESOLUTION, z=15 // RESOLUTION, t=100),
