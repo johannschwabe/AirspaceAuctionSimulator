@@ -34,7 +34,6 @@ time_steps = 1000
 
 
 def setup_map():
-    random.seed(0)
     area = Area(bottom_left_coordinate,
                 top_right_coordinate,
                 resolution)

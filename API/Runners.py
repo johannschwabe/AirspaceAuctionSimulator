@@ -1,4 +1,3 @@
-import random
 import time
 from typing import List, Optional, TYPE_CHECKING, Tuple
 
@@ -54,7 +53,6 @@ def init_generator(config: "APISimulationConfig",
         raise Exception(f"{len(payment_rule)} payment functions found")
     selected_payment_rule = payment_rule[0]()
 
-    random.seed(2)
     generator = Generator(config.owners, dimensions, maptiles, allocator, map_playing_field_area, selected_payment_rule,
                           allocation_period=config.map.allocationPeriod, connection_manager=connection_manager,
                           client_id=client_id)
