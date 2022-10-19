@@ -61,7 +61,7 @@ Owners
 ownerA = WebPathOwner(
     owner_id="0",
     name="OwnerA",
-    color="#ff0000",
+    color="#e53935",
     stops=[
         GridLocation("position",
                      area.point_to_coordinate2D(LongLatCoordinate(long=8.544116112079278, lat=47.37037820591456))),
@@ -80,7 +80,7 @@ ownerA = WebPathOwner(
 ownerB = WebPathOwner(
     owner_id="1",
     name="OwnerB",
-    color="#0000ff",
+    color="#43a047",
     stops=[
         GridLocation("position",
                      area.point_to_coordinate2D(LongLatCoordinate(long=8.543771724602369, lat=47.36996647691119))),
@@ -99,7 +99,7 @@ ownerB = WebPathOwner(
 ownerC = WebPathOwner(
     owner_id="2",
     name="OwnerC",
-    color="#0000ff",
+    color="#1e88e5",
     stops=[
         GridLocation("position",
                      area.point_to_coordinate2D(LongLatCoordinate(long=8.544399364191872, lat=47.37012270163643))),

@@ -53,7 +53,6 @@ for i in range(len(allocators)):
         dimensions=Coordinate4D(x, y, z, t=TIMESTEPS),
         maptiles=maptiles,
         map_area=area,
-        min_height=0
     )
 
     # Choose allocator, compatible payment rule and compatible mechanism
@@ -65,7 +64,7 @@ for i in range(len(allocators)):
     ownerA = WebPathOwner(
         owner_id="0",
         name="OwnerA",
-        color="#ff0000",
+        color="#e53935",
         stops=[
             GridLocation("position",
                          area.point_to_coordinate2D(LongLatCoordinate(long=7.448472707397318, lat=46.94813991133983))),
@@ -83,7 +82,7 @@ for i in range(len(allocators)):
     ownerB = WebPathOwner(
         owner_id="1",
         name="OwnerB",
-        color="#0000ff",
+        color="#43a047",
         stops=[
             GridLocation("position",
                          area.point_to_coordinate2D(LongLatCoordinate(long=7.451935684146172, lat=46.9469169118693))),
@@ -101,7 +100,7 @@ for i in range(len(allocators)):
     ownerC = WebSpaceOwner(
         owner_id="2",
         name="OwnerB",
-        color="#0000ff",
+        color="#1e88e5",
         stops=[GridLocation("heatmap", heatmap=SparseHeatmap({
             area.point_to_coordinate2D(LongLatCoordinate(long=7.448352457867829, lat=46.948238408893694)): 0.2,
             area.point_to_coordinate2D(LongLatCoordinate(long=7.455951717980163, lat=46.94747502165524)): 0.5,

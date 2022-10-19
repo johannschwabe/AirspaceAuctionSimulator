@@ -34,7 +34,7 @@
   },
   "owners": [
     {
-      "color": "#00ff00",
+      "color": "#e53935",
       "name": "Owner A",
       "agents": 100,
       "biddingStrategy": {
@@ -3968,7 +3968,7 @@
       "valueFunction": "PrioritySpaceValueFunction"
     },
     {
-      "color": "#ff0000",
+      "color": "#1e88e5",
       "name": "Owner B",
       "agents": 100,
       "biddingStrategy": {
