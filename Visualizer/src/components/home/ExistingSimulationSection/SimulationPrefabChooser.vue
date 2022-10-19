@@ -76,6 +76,10 @@ const prefabs = [
         label: "Flat Terrain Demo",
         value: "8_web_demo_flat_terrain-output",
       },
+      {
+        label: "University Hospital Zurich",
+        value: "9_web_demo_university_hospital_zurich-output",
+      },
     ],
   },
   {
@@ -84,12 +88,12 @@ const prefabs = [
     key: "cli",
     children: [
       {
-        label: "New York Demo",
-        value: "9_cli_demo_new_york-output",
-      },
-      {
         label: "Tel Aviv Demo",
         value: "10_cli_demo_tel_aviv-output",
+      },
+      {
+        label: "New York Demo",
+        value: "11_cli_demo_new_york-output",
       },
     ],
   },
