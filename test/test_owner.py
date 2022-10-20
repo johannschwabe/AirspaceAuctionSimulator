@@ -72,8 +72,9 @@ class OwnerTest(unittest.TestCase):
                                                                             0.1: [Coordinate2D(20, 20),
                                                                                   Coordinate2D(30, 30)]})),
                                                        self.env, 10)
-        self.assertIn(stop,
-                      [Coordinate4D(20, self.env.min_height, 20, 11), Coordinate4D(30, self.env.min_height, 30, 11)])
+        self.assertTrue(
+            stop.inter_temporal_equal(Coordinate4D(20, self.env.min_height, 20, 11)) or stop.inter_temporal_equal(
+                Coordinate4D(30, self.env.min_height, 30, 11)))
 
     def test_generate_agents_space(self):
         agents = self.space_owner.generate_agents(10, self.env)
