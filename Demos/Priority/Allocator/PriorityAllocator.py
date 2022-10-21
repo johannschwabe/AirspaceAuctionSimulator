@@ -67,10 +67,13 @@ class PriorityAllocator(WebAllocator):
                         and allocated_segments[-1].coordinates[-(idx + 1)].inter_temporal_equal(a) \
                         and idx < bid.agent.speed:
                     idx += 1
+                print(f"moved start for agent {bid.agent} from {a} to {allocated_segments[-1].coordinates[-idx].t} ")
                 a.t = allocated_segments[-1].coordinates[-idx].t
 
             valid, _ = is_valid_for_path_allocation(tick, environment, self.bid_tracker, a, bid.agent)
             if not valid:
+                valid, _ = is_valid_for_path_allocation(tick, environment, self.bid_tracker, a, bid.agent)
+
                 print(f"no valid re-start {bid.agent} - {tick} - {a}")
                 return None, None, f"Cannot escape {a}."
 

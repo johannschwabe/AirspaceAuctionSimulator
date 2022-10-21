@@ -172,7 +172,8 @@ def is_valid_for_path_allocation(allocation_tick: int,
     for max_intersecting_agent in max_intersecting_agents:
         if isinstance(max_intersecting_agent, PathAgent):
             max_near_radius = max(path_agent.near_radius, max_intersecting_agent.near_radius)
-            path_coordinates = max_intersecting_agent.get_positions_at_ticks(position.t, position.t + path_agent.speed)
+            path_coordinates = max_intersecting_agent.get_positions_at_ticks(position.t,
+                                                                             position.t + path_agent.speed - 1)
             assert len(path_coordinates) > 0
             for path_coordinate in path_coordinates:
                 distance = position.distance(path_coordinate, l2=True)
