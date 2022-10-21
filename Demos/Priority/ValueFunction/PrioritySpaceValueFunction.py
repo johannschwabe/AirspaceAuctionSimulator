@@ -24,4 +24,6 @@ class PrioritySpaceValueFunction(ValueFunction):
                           (block.max.z - block.min.z) * \
                           (block.max.t - block.min.t)
 
+        if sum_blocks == 0:
+            return 0
         return sum_segments / sum_blocks

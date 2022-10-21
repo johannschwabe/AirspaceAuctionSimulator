@@ -15,7 +15,7 @@ class PriorityPathBiddingStrategy(WebPathBiddingStrategy):
     label = "Priority Path Bidding Strategy"
     description = "An Bidding Strategy for Priority Path Agents"
     min_locations = 2
-    max_locations = 5
+    max_locations = 10
     allocation_type = AgentType.PATH.value
 
     @staticmethod
