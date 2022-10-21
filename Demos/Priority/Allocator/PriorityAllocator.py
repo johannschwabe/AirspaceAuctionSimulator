@@ -72,8 +72,6 @@ class PriorityAllocator(WebAllocator):
 
             valid, _ = is_valid_for_path_allocation(tick, environment, self.bid_tracker, a, bid.agent)
             if not valid:
-                valid, _ = is_valid_for_path_allocation(tick, environment, self.bid_tracker, a, bid.agent)
-
                 print(f"no valid re-start {bid.agent} - {tick} - {a}")
                 return None, None, f"Cannot escape {a}."
 
