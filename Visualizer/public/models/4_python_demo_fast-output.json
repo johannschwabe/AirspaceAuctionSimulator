@@ -111,7 +111,7 @@
                 "valueFunction": "PriorityPathValueFunction"
             },
             {
-                "color": "#00ff00",
+                "color": "#0000ff",
                 "name": "OwnerB",
                 "agents": 17,
                 "biddingStrategy": {
@@ -236,7 +236,7 @@
             "name": "OwnerA"
         },
         "1": {
-            "color": "#00ff00",
+            "color": "#0000ff",
             "name": "OwnerB"
         },
         "2": {

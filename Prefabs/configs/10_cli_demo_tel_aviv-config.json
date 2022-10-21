@@ -142,7 +142,7 @@
     },
     {
       "color": "#be2cac",
-      "name": "OwnerB",
+      "name": "OwnerC",
       "agents": 500,
       "biddingStrategy": {
         "minLocations": 1,

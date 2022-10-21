@@ -77,7 +77,7 @@ Owners
 ownerA = WebPathOwner(
     owner_id="0",
     name="OwnerA",
-    color="#ff0000",
+    color="#1e88e5",
     stops=[GridLocation("random"), GridLocation("random")],
     creation_ticks=[randint(0, ALLOCATION_PERIOD) for _ in range(100)],
     bidding_strategy=PriorityPathBiddingStrategy(),

@@ -69,7 +69,7 @@ grossmuenster_stop = GridLocation("position", area.point_to_coordinate2D(grossmu
 ownerA = WebPathOwner(
     owner_id="0",
     name="OwnerA",
-    color="#ff0000",
+    color="#e53935",
     stops=[st_peters_church_stop, grossmuenster_stop],
     creation_ticks=[randint(0, ALLOCATION_PERIOD) for _ in range(10)],
     bidding_strategy=PriorityPathBiddingStrategy(),
@@ -94,7 +94,7 @@ heatmap_stop = GridLocation("heatmap", heatmap=heatmap)
 ownerB = WebSpaceOwner(
     owner_id="1",
     name="OwnerB",
-    color="#00ff00",
+    color="#43a047",
     stops=[heatmap_stop],
     creation_ticks=[0, 0, 0, 300, 300, 400, 400, 500, 500, 600, 600, 700, 700, 800, 800, 900, 900],
     size=Coordinate4D(x=15 // RESOLUTION, y=50 // RESOLUTION, z=15 // RESOLUTION, t=100),
@@ -114,7 +114,7 @@ random_stop = GridLocation("random")
 ownerC = WebPathOwner(
     owner_id="2",
     name="OwnerC",
-    color="#0000ff",
+    color="#1e88e5",
     stops=[fraumuenster_stop, random_stop],
     creation_ticks=[randint(0, ALLOCATION_PERIOD) for _ in range(50)],
     bidding_strategy=PriorityPathBiddingStrategy(),

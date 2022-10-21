@@ -60,7 +60,7 @@ Owners
 ownerA = WebPathOwner(
     owner_id="0",
     name="OwnerA",
-    color="#ff0000",
+    color="#e53935",
     stops=[GridLocation("random"), GridLocation("random"), GridLocation("random")],
     creation_ticks=[randint(0, ALLOCATION_PERIOD) for _ in range(50)],
     bidding_strategy=PriorityPathBiddingStrategy(),
@@ -74,7 +74,7 @@ ownerA = WebPathOwner(
 ownerB = WebSpaceOwner(
     owner_id="1",
     name="OwnerB",
-    color="#00ff00",
+    color="#1e88e5",
     stops=[GridLocation("random")],
     creation_ticks=[randint(0, ALLOCATION_PERIOD) for _ in range(100)],
     size=Coordinate4D(x=25, y=50, z=25, t=20),
