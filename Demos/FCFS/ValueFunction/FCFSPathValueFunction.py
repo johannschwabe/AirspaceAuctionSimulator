@@ -13,6 +13,13 @@ class FCFSPathValueFunction(ValueFunction):
     description = "Magic"
 
     def value_for_segments(self, segments: List["Segment"], agent: "PathAgent"):
+        """
+        This Value function is not realistic and purely to produce illustrative results.
+        To truly compare mechanisms a scenario dependant value function is needed
+        :param segments:
+        :param agent:
+        :return:
+        """
         if len(segments) == 0:
             return 0.
 

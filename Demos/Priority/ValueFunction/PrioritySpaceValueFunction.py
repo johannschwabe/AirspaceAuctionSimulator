@@ -11,6 +11,13 @@ class PrioritySpaceValueFunction(ValueFunction):
     description = "Magic"
 
     def value_for_segments(self, segments: List["Segment"], agent: "SpaceAgent"):
+        """
+        This Value function is not realistic and purely to produce illustrative results.
+        To truly compare mechanisms a scenario dependant value function is needed
+        :param segments:
+        :param agent:
+        :return:
+        """
         sum_segments = 0.0
         for segment in segments:
             sum_segments += segment.nr_voxels
