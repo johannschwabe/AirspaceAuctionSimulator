@@ -6,7 +6,7 @@ from Simulator.Blocker.DynamicBlocker import DynamicBlocker
 from Simulator.helpers.helpers import is_valid_for_path_allocation, setup_rtree
 from test.EnvHelpers import generate_path_agent, generate_path_allocation, generate_path_segment, \
     generate_space_agent, \
-    generate_space_allocation
+    generate_space_allocation, generate_space_segment
 
 
 class EnvironmentTest(unittest.TestCase):
@@ -269,6 +269,61 @@ class EnvironmentTest(unittest.TestCase):
         new_clear = self.env.clone()
         agi_2 = generate_path_agent()
         self.assertTrue(new_clear.is_coordinate_blocked(Coordinate4D(4, 4, 4, 4), agi_2))
+
+    def test_deallocate_space_agent_1(self):
+        alloc = generate_space_allocation()
+        alloc.segments[0]._min.t = 30
+        alloc.segments[0]._max.t = 40
+        alloc.segments[1].min.t = 2
+        alloc.segments[1]._max.t = 7
+        self.env.allocate_segments_for_agents([alloc], 1)
+        self.env.deallocate_space_agent(alloc.agent, 12)
+        self.assertTrue(
+            1 == len(
+                list(self.env.tree.intersection(alloc.segments[1].min.list_rep() + alloc.segments[1].max.list_rep()))))
+        self.assertTrue(
+            0 == len(
+                list(self.env.tree.intersection(alloc.segments[0].min.list_rep() + alloc.segments[0].max.list_rep()))))
+        self.assertTrue(
+            1 == len(
+                list(self.env.tree.intersection(
+                    alloc.segments[2].min.list_rep() + Coordinate4D(20, 20, 20, 12).list_rep()))))
+        self.assertTrue(
+            0 == len(
+                list(self.env.tree.intersection(Coordinate4D(20, 20, 20, 13).list_rep()))))
+
+    def test_is_space_blocked_forever(self):
+        blocky = StaticBlocker(Coordinate3D(3, 3, 3), Coordinate3D(7, 7, 7))
+        blocky.id = 3
+        blocky2 = DynamicBlocker([
+            Coordinate4D(0, 0, 0, 0),
+            Coordinate4D(1, 1, 1, 1),
+            Coordinate4D(2, 2, 2, 2),
+            Coordinate4D(3, 3, 3, 3),
+        ], dimension=Coordinate3D(2, 2, 2))
+        blocky2.id = 22
+        self.env.blocker_dict[blocky.id] = blocky
+        blocky.add_to_tree(self.env.blocker_tree, Coordinate4D(0, 0, 0, 100))
+        self.assertTrue(self.env.is_space_blocked_forever(Coordinate4D(1, 1, 1, 1), Coordinate4D(3, 6, 3, 1)))
+        self.assertFalse(self.env.is_space_blocked_forever(Coordinate4D(1, 1, 1, 1), Coordinate4D(2, 2, 2, 1)))
+        self.assertFalse(self.env.is_space_blocked_forever(Coordinate4D(11, 11, 11, 1), Coordinate4D(12, 12, 12, 9)))
+
+    def test_intersect_space_coordinates(self):
+        alloc = generate_space_allocation()
+        self.env.allocate_segments_for_agents([alloc], 1)
+        agi_2 = generate_space_agent()
+        res = self.env.intersect_space_coordinates(Coordinate4D(4, 5, 6, 12), Coordinate4D(5, 6, 6, 14), agi_2)
+        self.assertTrue(1 == len(res))
+        res2 = self.env.intersect_space_coordinates(Coordinate4D(70, 70, 70, 12), Coordinate4D(71, 71, 71, 14), agi_2)
+        self.assertTrue(0 == len(res2))
+
+    def test_interstect_space_segment(self):
+        alloc = generate_space_allocation()
+        self.env.allocate_segments_for_agents([alloc], 1)
+        segi = generate_space_segment(Coordinate4D(10, 10, 10, 10), 0)
+        agi_2 = generate_space_agent()
+        res = self.env.intersect_space_segment(segi, agi_2)
+        self.assertTrue(1 == len(res))
 
 
 if __name__ == '__main__':
