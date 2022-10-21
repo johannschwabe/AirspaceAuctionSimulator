@@ -115,10 +115,6 @@ class AStar:
               end: "Coordinate4D",
               agent: "PathAgent") -> Tuple[List["Coordinate4D"], set["Agent"]]:
 
-        if start.t < self.tick:
-            print(f"Too late to allocate start {start} at tick {self.tick}.")
-            return [], set()
-
         distance = start.distance(end)
         time_left = self.environment.dimension.t - start.t
 

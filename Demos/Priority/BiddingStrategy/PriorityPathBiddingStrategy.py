@@ -46,10 +46,12 @@ class PriorityPathBiddingStrategy(WebPathBiddingStrategy):
                     index = i
                     if segment.min.t <= time_step:
                         flying = True
+
                         for coordinate in segment.coordinates:
                             if coordinate.t == time_step:
                                 battery -= coordinate.t - segment.min.t
                                 start = coordinate.clone()
+                                break
                     else:
                         start = agent.locations[i].clone()
                         start.t = max(start.t, agent.allocated_segments[i - 1].max.t) + agent.stays[i - 1]

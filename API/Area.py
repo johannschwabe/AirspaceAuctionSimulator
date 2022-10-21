@@ -25,7 +25,7 @@ class Area:
         self.bottom_left = LongLatCoordinate(bottom_left_ll.long, bottom_left_ll.lat)
         self.top_right = LongLatCoordinate(top_right_ll.long, top_right_ll.lat)
         self.resolution = resolution
-        self.min_height = min_height
+        self.min_height = min_height // resolution
 
     def __repr__(self):
         return f"Area<tr={self.top_right}, bl={self.bottom_left}, r={self.resolution}>"

@@ -153,8 +153,6 @@ def is_valid_for_path_allocation(allocation_tick: int,
     :param path_agent: the agent that should be allocated
     :return: Whether the allocation is valid and a set of agents that need to be reallocated if valid.
     """
-    if position.t < allocation_tick:
-        raise Exception(f"Cannot validate position in the past. Position: {position}, Tick: {allocation_tick}.")
 
     if environment.is_coordinate_blocked(position, path_agent):
         return False, None
@@ -174,7 +172,8 @@ def is_valid_for_path_allocation(allocation_tick: int,
     for max_intersecting_agent in max_intersecting_agents:
         if isinstance(max_intersecting_agent, PathAgent):
             max_near_radius = max(path_agent.near_radius, max_intersecting_agent.near_radius)
-            path_coordinates = max_intersecting_agent.get_positions_at_ticks(position.t, position.t + path_agent.speed)
+            path_coordinates = max_intersecting_agent.get_positions_at_ticks(position.t,
+                                                                             position.t + path_agent.speed - 1)
             assert len(path_coordinates) > 0
             for path_coordinate in path_coordinates:
                 distance = position.distance(path_coordinate, l2=True)

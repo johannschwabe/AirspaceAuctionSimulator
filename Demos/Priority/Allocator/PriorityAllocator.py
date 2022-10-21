@@ -53,10 +53,26 @@ class PriorityAllocator(WebAllocator):
 
         if bid.flying:
             if a.t != tick:
+                print(f"not next tick{bid.agent} - {tick}")
                 return None, None, f"Cannot teleport to {a} at tick {tick}."
+            allocated_segments = bid.agent.allocated_segments
+
+            # If an agents already waited at a position for already part of his speed he can start his allocation
+            # in the past and thus wait at most his speed
+            if len(allocated_segments) > 0 and len(allocated_segments[-1].coordinates) > 0 \
+                    and allocated_segments[-1].coordinates[-1].inter_temporal_equal(a) \
+                    and allocated_segments[-1].index == bid.index:
+                idx = 1
+                while len(allocated_segments[-1].coordinates) > idx \
+                        and allocated_segments[-1].coordinates[-(idx + 1)].inter_temporal_equal(a) \
+                        and idx < bid.agent.speed:
+                    idx += 1
+                print(f"moved start for agent {bid.agent} from {a} to {allocated_segments[-1].coordinates[-idx].t} ")
+                a.t = allocated_segments[-1].coordinates[-idx].t
 
             valid, _ = is_valid_for_path_allocation(tick, environment, self.bid_tracker, a, bid.agent)
             if not valid:
+                print(f"no valid re-start {bid.agent} - {tick} - {a}")
                 return None, None, f"Cannot escape {a}."
 
         elif a.t == tick:
@@ -78,7 +94,8 @@ class PriorityAllocator(WebAllocator):
             if environment.is_coordinate_blocked_forever(b, bid.agent.near_radius):
                 return None, None, f"Static blocker at target {b}."
 
-            a_t = find_valid_path_tick(tick, environment, self.bid_tracker, a, bid.agent, tick, environment.dimension.t)
+            a_t = find_valid_path_tick(tick, environment, self.bid_tracker, a, bid.agent, tick - bid.agent.speed,
+                                       environment.dimension.t)
             if a_t is None:
                 return None, None, f"Start {a} is invalid until max tick {environment.dimension.t}."
             a.t = a_t
@@ -174,9 +191,14 @@ class PriorityAllocator(WebAllocator):
         allocations: Dict["Agent", "Allocation"] = {}
         displacements: Dict["Agent", Set["Agent"]] = {}
         agents_to_allocate = set(agents)
-        while len(list(agents_to_allocate)) > 0:
+        while len(agents_to_allocate) > 0:
             start_time = time_ns()
-            agent = max(agents_to_allocate, key=lambda _agent: self.priority(_agent, tick, environment))
+
+            # Enforce consistent ordering of agents by firstly sorting by priority and secondly by hash
+            max_prio = max([self.priority(_agent, tick, environment) for _agent in agents_to_allocate])
+            agent = max(
+                [_agent for _agent in agents_to_allocate if self.priority(_agent, tick, environment) == max_prio],
+                key=lambda _agent: hash(_agent))
             agents_to_allocate.remove(agent)
             print(f"allocating: {agent}")
             bid = self.bid_tracker.request_new_bid(tick, agent, environment)
