@@ -20,7 +20,7 @@
     },
     "subselection": {},
     "resolution": 1,
-    "height": 20,
+    "height": 15,
     "minHeight": 0,
     "allocationPeriod": 60,
     "timesteps": 1000,
