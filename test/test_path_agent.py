@@ -72,10 +72,10 @@ class PathAgentTest(unittest.TestCase):
         segment2.index = 1
         self.agent.add_allocated_segment(segment)
         self.agent.locations[-1] = Coordinate4D(6, 6, 6, 14)
-        self.assertEqual(1, self.agent.get_allocated_value())
+        self.assertEqual(19.8, self.agent.get_allocated_value())
         self.agent.locations.append(Coordinate4D(9, 9, 9, 31))
         self.agent.add_allocated_segment(segment2)
-        self.assertEqual(1, self.agent.get_allocated_value())
+        self.assertEqual(34.65, self.agent.get_allocated_value())
 
     def test_get_bid(self):
         env = Environment(Coordinate4D(100, 100, 100, 1000))

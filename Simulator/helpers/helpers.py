@@ -34,11 +34,12 @@ def find_valid_path_tick(tick: int, environment: "Environment", bid_tracker: "Bi
         pos_clone.t = min_tick
     while True:
         valid, _ = is_valid_for_path_allocation(tick, environment, bid_tracker, pos_clone, agent)
+        if pos_clone.t > max_tick:
+            return None
         if valid:
             break
         pos_clone.t += 1
-        if pos_clone.t > max_tick:
-            return None
+
     return pos_clone.t
 
 
@@ -65,13 +66,14 @@ def find_valid_space_tick(tick: int, environment: "Environment", bid_tracker: "B
     if min_pos_clone.t < min_tick:
         min_pos_clone.t = min_tick
     while True:
+        if min_pos_clone.t > max_tick or min_pos_clone.t > max_position.t:
+            return None
         valid, _ = is_valid_for_space_allocation(tick, environment, bid_tracker, min_pos_clone, max_position, agent,
                                                  avoid_blockers=avoid_blockers)
         if valid:
             break
         min_pos_clone.t += 1
-        if min_pos_clone.t > max_tick or min_pos_clone.t > max_position.t:
-            return None
+
     return min_pos_clone.t
 
 

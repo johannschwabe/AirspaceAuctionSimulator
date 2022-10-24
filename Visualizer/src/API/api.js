@@ -10,7 +10,8 @@ const apiServer = axios.create({
 });
 
 export const client_id = `ci_${Math.round(Math.random() * 1000)}`;
-export const ws = new WebSocket(`ws://localhost:8000/ws/${client_id}`);
+const ws_base_url = import.meta.env.VITE_WS_API || "ws://localhost:8000/ws";
+export const ws = new WebSocket(`${ws_base_url}/${client_id}`);
 
 const STORAGE_KEY = "simulation_db";
 const SIMULATION_STORAGE_KEY = "simulation";
