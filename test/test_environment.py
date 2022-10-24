@@ -1,11 +1,12 @@
 import unittest
 
 from Demos.FCFS.BidTracker.FCFSBidTracker import FCFSBidTracker
-from Simulator import Environment, Coordinate4D, SpaceSegment, StaticBlocker, Coordinate3D
+from Simulator import Coordinate3D, Coordinate4D, Environment, SpaceSegment, StaticBlocker
 from Simulator.Blocker.DynamicBlocker import DynamicBlocker
 from Simulator.helpers.helpers import is_valid_for_path_allocation, setup_rtree
-from test.EnvHelpers import generate_path_agent, generate_path_segment, generate_space_agent, \
-    generate_path_allocation, generate_space_allocation
+from test.EnvHelpers import generate_path_agent, generate_path_allocation, generate_path_segment, \
+    generate_space_agent, \
+    generate_space_allocation, generate_space_segment
 
 
 class EnvironmentTest(unittest.TestCase):
@@ -13,8 +14,8 @@ class EnvironmentTest(unittest.TestCase):
         self.env = Environment(Coordinate4D(100, 100, 100, 1000))
 
     def test_rtree_setup(self):
-        newRTree = setup_rtree()
-        self.assertTrue(newRTree.properties.dimension == 4)
+        new_r_tree = setup_rtree()
+        self.assertTrue(new_r_tree.properties.dimension == 4)
 
     def test_get_blocker_id(self):
         self.assertTrue(self.env._blocker_id == 0)
@@ -37,12 +38,12 @@ class EnvironmentTest(unittest.TestCase):
         self.assertEqual(len(list(r_tree_single_voxel)), 1)
         self.assertEqual(len(list(r_tree_no_voxel)), 0)
         self.assertEqual(len(list(r_tree_double_voxel)), 1)
-        rTreeObject = list(r_tree_end_voxel)
-        self.assertEqual(rTreeObject[0].id, hash(agi.id))
+        r_tree_object = list(r_tree_end_voxel)
+        self.assertEqual(r_tree_object[0].id, hash(agi.id))
 
     def test_allocate_space_segment_for_agent(self):
         agi = generate_space_agent()
-        space_segment = SpaceSegment(Coordinate4D(40, 40, 40, 20), Coordinate4D(60, 60, 60, 70))
+        space_segment = SpaceSegment(Coordinate4D(40, 40, 40, 20), Coordinate4D(60, 60, 60, 70), 0)
         self.env.allocate_space_segment_for_agent(agi, space_segment)
 
         whole_block = self.env.tree.intersection([0, 0, 0, 0, 80, 80, 80, 80])
@@ -52,9 +53,9 @@ class EnvironmentTest(unittest.TestCase):
         self.assertEqual(len(list(whole_block)), 1)
         self.assertEqual(len(list(sub_block)), 1)
         self.assertEqual(len(list(off_block)), 0)
-        rTreeObject = list(block_obj)
-        self.assertEqual(len(rTreeObject), 1)
-        self.assertEqual(rTreeObject[0].id, hash(agi.id))
+        r_tree_object = list(block_obj)
+        self.assertEqual(len(r_tree_object), 1)
+        self.assertEqual(r_tree_object[0].id, hash(agi.id))
 
     def test_allocate_segments_for_agents(self):
         allocation = generate_path_allocation()
@@ -268,6 +269,61 @@ class EnvironmentTest(unittest.TestCase):
         new_clear = self.env.clone()
         agi_2 = generate_path_agent()
         self.assertTrue(new_clear.is_coordinate_blocked(Coordinate4D(4, 4, 4, 4), agi_2))
+
+    def test_deallocate_space_agent_1(self):
+        alloc = generate_space_allocation()
+        alloc.segments[0]._min.t = 30
+        alloc.segments[0]._max.t = 40
+        alloc.segments[1].min.t = 2
+        alloc.segments[1]._max.t = 7
+        self.env.allocate_segments_for_agents([alloc], 1)
+        self.env.deallocate_space_agent(alloc.agent, 12)
+        self.assertTrue(
+            1 == len(
+                list(self.env.tree.intersection(alloc.segments[1].min.list_rep() + alloc.segments[1].max.list_rep()))))
+        self.assertTrue(
+            0 == len(
+                list(self.env.tree.intersection(alloc.segments[0].min.list_rep() + alloc.segments[0].max.list_rep()))))
+        self.assertTrue(
+            1 == len(
+                list(self.env.tree.intersection(
+                    alloc.segments[2].min.list_rep() + Coordinate4D(20, 20, 20, 12).list_rep()))))
+        self.assertTrue(
+            0 == len(
+                list(self.env.tree.intersection(Coordinate4D(20, 20, 20, 13).list_rep()))))
+
+    def test_is_space_blocked_forever(self):
+        blocky = StaticBlocker(Coordinate3D(3, 3, 3), Coordinate3D(7, 7, 7))
+        blocky.id = 3
+        blocky2 = DynamicBlocker([
+            Coordinate4D(0, 0, 0, 0),
+            Coordinate4D(1, 1, 1, 1),
+            Coordinate4D(2, 2, 2, 2),
+            Coordinate4D(3, 3, 3, 3),
+        ], dimension=Coordinate3D(2, 2, 2))
+        blocky2.id = 22
+        self.env.blocker_dict[blocky.id] = blocky
+        blocky.add_to_tree(self.env.blocker_tree, Coordinate4D(0, 0, 0, 100))
+        self.assertTrue(self.env.is_space_blocked_forever(Coordinate4D(1, 1, 1, 1), Coordinate4D(3, 6, 3, 1)))
+        self.assertFalse(self.env.is_space_blocked_forever(Coordinate4D(1, 1, 1, 1), Coordinate4D(2, 2, 2, 1)))
+        self.assertFalse(self.env.is_space_blocked_forever(Coordinate4D(11, 11, 11, 1), Coordinate4D(12, 12, 12, 9)))
+
+    def test_intersect_space_coordinates(self):
+        alloc = generate_space_allocation()
+        self.env.allocate_segments_for_agents([alloc], 1)
+        agi_2 = generate_space_agent()
+        res = self.env.intersect_space_coordinates(Coordinate4D(4, 5, 6, 12), Coordinate4D(5, 6, 6, 14), agi_2)
+        self.assertTrue(1 == len(res))
+        res2 = self.env.intersect_space_coordinates(Coordinate4D(70, 70, 70, 12), Coordinate4D(71, 71, 71, 14), agi_2)
+        self.assertTrue(0 == len(res2))
+
+    def test_interstect_space_segment(self):
+        alloc = generate_space_allocation()
+        self.env.allocate_segments_for_agents([alloc], 1)
+        segi = generate_space_segment(Coordinate4D(10, 10, 10, 10), 0)
+        agi_2 = generate_space_agent()
+        res = self.env.intersect_space_segment(segi, agi_2)
+        self.assertTrue(1 == len(res))
 
 
 if __name__ == '__main__':

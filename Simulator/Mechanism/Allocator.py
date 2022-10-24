@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Type, Dict
+from typing import Dict, List, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..Agents.Agent import Agent
-    from ..Allocations.Allocation import Allocation
-    from ..Environment.Environment import Environment
-    from ..Bids.BiddingStrategy import BiddingStrategy
-    from ..BidTracker.BidTracker import BidTracker
+    from Simulator.Agents.Agent import Agent
+    from Simulator.Allocations.Allocation import Allocation
+    from Simulator.Environment.Environment import Environment
+    from Simulator.Bids.BidTracker import BidTracker
 
 
 class Allocator(ABC):
@@ -32,16 +31,6 @@ class Allocator(ABC):
         :param tick:
         :return:
         """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def compatible_bidding_strategies() -> List[Type["BiddingStrategy"]]:
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def compatible_payment_functions():
         pass
 
     @staticmethod

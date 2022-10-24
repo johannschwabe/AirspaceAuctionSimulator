@@ -1,6 +1,6 @@
 import "../API/typedefs.js";
 
-import { useSimulationStore } from "../stores/simulation.js";
+import { useSimulationOutputStore } from "../stores/simulationOutputStore.js";
 
 import Coordinate4D from "./Coordinate4D";
 import Statistics from "./Statistics";
@@ -18,9 +18,10 @@ export default class Simulation {
    * @param {JSONSimulation} jsonSimulation
    * @param {JSONConfig} jsonConfig
    * @param {SimulationStatistics} simulationStats
+   * @param {OwnerMap} ownerMap
    */
-  constructor(jsonSimulation, jsonConfig, simulationStats) {
-    this._simulationStore = useSimulationStore();
+  constructor(jsonSimulation, jsonConfig, simulationStats, ownerMap) {
+    this._simulationStore = useSimulationOutputStore();
 
     this.name = jsonConfig.name;
     this.description = jsonConfig.description;
@@ -54,18 +55,31 @@ export default class Simulation {
         case BlockerType.STATIC:
           return new StaticBlocker(blocker, this.dimensions.t);
         default:
-          throw new Error("Invalid blocker type!");
+          throw new Error(`Invalid blocker type ${blocker.blockerType}!`);
       }
     });
 
     /**
-     * All owners that were simulated
+     * Path owners that were simulated
      * @type {Owner[]}
      */
-    this.owners = jsonSimulation.owners.map((owner) => {
-      const ownerStats = simulationStats.owners.find((ownerStat) => ownerStat.id === owner.id);
-      return new Owner(owner, this, ownerStats);
-    });
+    this.path_owners = jsonSimulation.path_owners
+      .sort((o1, o2) => parseInt(o1.id, 10) - parseInt(o2.id, 10))
+      .map((owner) => {
+        const ownerStats = simulationStats.path_owners.find((ownerStat) => ownerStat.id === owner.id);
+        return new Owner(owner, this, ownerStats, ownerMap[owner.id]);
+      });
+
+    /**
+     * Path owners that were simulated
+     * @type {Owner[]}
+     */
+    this.space_owners = jsonSimulation.space_owners
+      .sort((o1, o2) => parseInt(o1.id, 10) - parseInt(o2.id, 10))
+      .map((owner) => {
+        const ownerStats = simulationStats.space_owners.find((ownerStat) => ownerStat.id === owner.id);
+        return new Owner(owner, this, ownerStats, ownerMap[owner.id]);
+      });
 
     /**
      * Flattened list of all agents belonging to any owner
@@ -146,6 +160,12 @@ export default class Simulation {
     this.timelineViolations = [];
 
     /**
+     * Stores how many agents violated the airspace of a blocker at each possible tick
+     * @type {int[]}
+     */
+    this.timelineBlockerViolations = [];
+
+    /**
      * The maximum tick at which any active agent is still active / flying
      * @type {number}
      */
@@ -158,18 +178,38 @@ export default class Simulation {
     this.updateTimeline();
   }
 
+  /**
+   * @returns {Owner[]}
+   */
+  get owners() {
+    return [...this.path_owners, ...this.space_owners]
+      .sort((o1, o2) => parseInt(o1.id, 10) - parseInt(o2.id, 10));
+  }
+
+  /**
+   * @returns {int}
+   */
   get tick() {
     return this._simulationStore.tick;
   }
 
+  /**
+   * @param {int} tick
+   */
   set tick(tick) {
     this._simulationStore.updateTick(tick);
   }
 
+  /**
+   * @returns {string[]}
+   */
   get activeAgentIDs() {
     return this.activeAgents.map((agent) => agent.id);
   }
 
+  /**
+   * @returns {string[]}
+   */
   get activeBlockerIDs() {
     return this.activeBlockers.map((blocker) => blocker.id);
   }
@@ -230,7 +270,7 @@ export default class Simulation {
     const activeBlockerIndex = {};
     this.blockers.forEach((blocker) => {
       blocker.ticksInAir.forEach((tick) => {
-        if (!(tick in activeBlockerIndex)) {
+        if (!(tick.toString() in activeBlockerIndex)) {
           activeBlockerIndex[tick] = [];
         }
         activeBlockerIndex[tick].push(blocker);
@@ -239,10 +279,16 @@ export default class Simulation {
     return activeBlockerIndex;
   }
 
+  /**
+   * Updates selected agent IDs according to data from store
+   */
   updateSelectedAgents() {
     this.selectedAgents = this.agents.filter((agent) => this._simulationStore.selectedAgentIDs.includes(agent.id));
   }
 
+  /**
+   * Update active agents according to data from store
+   */
   updateActiveAgents() {
     const currentActiveAgents = this.flyingAgentsPerTickIndex[this.tick] || [];
     this.activeAgents = currentActiveAgents.filter((agent) => {
@@ -250,14 +296,22 @@ export default class Simulation {
     });
   }
 
+  /**
+   * Update active blockers according to data from store
+   */
   updateActiveBlockers() {
     this.activeBlockers = this.activeBlockersPerTickIndex[this.tick] || [];
   }
 
+  /**
+   * Build datastructure that holds timely event information, such as number of active
+   * agents or re-allocation / violation events
+   */
   updateTimeline() {
     const agentsPerTick = {};
     const reAllocationsPerTick = {};
     const violationsPerTick = {};
+    const blockerViolationsPerTick = {};
     let maxTick = 0;
     this.selectedAgents.forEach((agent) => {
       agent.flyingTicks.forEach((tick) => {
@@ -281,10 +335,18 @@ export default class Simulation {
         }
         violationsPerTick[tick] += 1;
       });
+
+      agent.blockerViolationsTimesteps.forEach((tick) => {
+        if (!(tick in blockerViolationsPerTick)) {
+          blockerViolationsPerTick[tick] = 0;
+        }
+        blockerViolationsPerTick[tick] += 1;
+      });
     });
     const timeline = Array(maxTick).fill(0);
     const timelineReAllocations = Array(maxTick).fill(0);
     const timelineViolations = Array(maxTick).fill(0);
+    const timelineBlockerViolations = Array(maxTick).fill(0);
     Object.entries(agentsPerTick).forEach(([tick, numberOfAgents]) => {
       timeline[tick] = numberOfAgents;
     });
@@ -294,9 +356,13 @@ export default class Simulation {
     Object.entries(violationsPerTick).forEach(([tick, numberOfViolations]) => {
       timelineViolations[tick] = numberOfViolations;
     });
+    Object.entries(blockerViolationsPerTick).forEach(([tick, numberOfViolations]) => {
+      timelineBlockerViolations[tick] = numberOfViolations;
+    });
     this.timeline = timeline;
     this.timelineReAllocations = timelineReAllocations;
     this.timelineViolations = timelineViolations;
+    this.timelineBlockerViolations = timelineBlockerViolations;
     this.maxTick = maxTick;
   }
 
@@ -316,6 +382,9 @@ export default class Simulation {
     emitFocusOnAgent(agent, previousAgentInFocus);
   }
 
+  /**
+   * Deactivate focus mode
+   */
   focusOff() {
     emitFocusOffAgent(this.agentInFocus);
     this._simulationStore.agentInFocus = false;

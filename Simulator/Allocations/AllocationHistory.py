@@ -1,4 +1,4 @@
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 from Simulator.Allocations.AllocationReason import AllocationReason
 from Simulator.Bids.Bid import Bid
@@ -9,7 +9,11 @@ class AllocationHistory:
     Information about an allocation collected for statistics.
     """
 
-    def __init__(self, bid: "Bid", compute_time: int, reason: "AllocationReason", explanation: str,
+    def __init__(self,
+                 bid: "Bid",
+                 compute_time: int,
+                 reason: "AllocationReason",
+                 explanation: str,
                  colliding_agent_bids: Optional[Dict[str, "Bid"]] = None,
                  displacing_agent_bids: Optional[Dict[str, "Bid"]] = None):
         """

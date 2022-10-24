@@ -1,11 +1,11 @@
-from abc import abstractmethod, ABC
-from typing import TYPE_CHECKING, Dict
+from abc import ABC, abstractmethod
+from typing import Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..Allocations.Allocation import Allocation
-    from ..BidTracker.BidTracker import BidTracker
-    from ..Agents.Agent import Agent
-    from ..Environment.Environment import Environment
+    from Simulator.Allocations.Allocation import Allocation
+    from Simulator.Bids.BidTracker import BidTracker
+    from Simulator.Agents.Agent import Agent
+    from Simulator.Environment.Environment import Environment
 
 
 class PaymentRule(ABC):
@@ -26,5 +26,10 @@ class PaymentRule(ABC):
         pass
 
     @abstractmethod
-    def calculate_final_payments(self, environment: "Environment", bid_tracker: "BidTracker"):
+    def calculate_final_payments(self, environment: "Environment", bid_tracker: "BidTracker") -> Dict[int, float]:
+        """
+        :param environment: the environment with allocated agents
+        :param bid_tracker: the bid tracker with all (relevant) past agent bids from the allocator
+        :return: A dictionary mapping agent hashes to payments
+        """
         pass

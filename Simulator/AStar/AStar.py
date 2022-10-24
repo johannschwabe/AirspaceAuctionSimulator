@@ -1,15 +1,15 @@
 import heapq
-from typing import List, TYPE_CHECKING, Set, Tuple
+from typing import List, Set, TYPE_CHECKING, Tuple
 
+from Simulator.Agents.PathAgent import PathAgent
+from Simulator.helpers.helpers import is_valid_for_path_allocation
 from .Node import Node
-from ..Agents.PathAgent import PathAgent
-from ..helpers.helpers import is_valid_for_path_allocation
 
 if TYPE_CHECKING:
-    from ..Environment.Environment import Environment
-    from ..Coordinates.Coordinate4D import Coordinate4D
-    from ..Agents.Agent import Agent
-    from ..BidTracker.BidTracker import BidTracker
+    from Simulator.Environment.Environment import Environment
+    from Simulator.Coordinates.Coordinate4D import Coordinate4D
+    from Simulator.Agents.Agent import Agent
+    from Simulator.Bids.BidTracker import BidTracker
 
 
 class AStar:
@@ -114,10 +114,6 @@ class AStar:
               start: "Coordinate4D",
               end: "Coordinate4D",
               agent: "PathAgent") -> Tuple[List["Coordinate4D"], set["Agent"]]:
-
-        if start.t < self.tick:
-            print(f"Too late to allocate start {start} at tick {self.tick}.")
-            return [], set()
 
         distance = start.distance(end)
         time_left = self.environment.dimension.t - start.t

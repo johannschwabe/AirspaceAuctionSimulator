@@ -1,5 +1,5 @@
 from time import time_ns
-from typing import List, TYPE_CHECKING, Dict
+from typing import Dict, List, TYPE_CHECKING
 
 from .History.History import History
 
@@ -25,6 +25,7 @@ class Simulator:
         :param environment:
         """
         self.owners: List["Owner"] = owners
+        assert len(set([owner.id for owner in owners])) == len(owners)  # Non unique owner names!
         self.mechanism: "Mechanism" = mechanism
         self.environment: "Environment" = environment
         self.history: "History" = History()
@@ -63,6 +64,7 @@ class Simulator:
                 temporary_agents,
                 temporary_environment,
                 self.time_step)
+
             real_allocations = self.environment.create_real_allocations(list(temporary_allocations.values()),
                                                                         new_agents)
             self.environment.allocate_segments_for_agents(real_allocations, self.time_step)
@@ -73,3 +75,14 @@ class Simulator:
 
         self.time_step += 1
         return True
+
+    def run(self) -> int:
+        """
+        Runs the simulation and returns the simulation time in seconds.
+        :return: simulation time in seconds
+        """
+        start = time_ns()
+        while self.tick():
+            pass
+        simulation_time = int((time_ns() - start) // 1e9)
+        return simulation_time

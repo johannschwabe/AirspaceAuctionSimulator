@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Dict, Optional, Any
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..Segments.Segment import Segment
@@ -12,7 +12,8 @@ if TYPE_CHECKING:
 class Agent(ABC):
     agent_type: str
 
-    def __init__(self, agent_id: str,
+    def __init__(self,
+                 agent_id: str,
                  bidding_strategy: "BiddingStrategy",
                  value_function: "ValueFunction",
                  config: Optional[Dict[str, Any]] = None,

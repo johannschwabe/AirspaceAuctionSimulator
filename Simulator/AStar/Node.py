@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional, Set
+from typing import List, Optional, Set, TYPE_CHECKING
 
 from ..Coordinates.Coordinate4D import Coordinate4D
 

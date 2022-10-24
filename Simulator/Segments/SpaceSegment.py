@@ -5,11 +5,12 @@ from ..Coordinates.Coordinate4D import Coordinate4D
 
 
 class SpaceSegment(Segment):
-    def __init__(self, min_coordinates: "Coordinate4D", max_coordinates: "Coordinate4D"):
+    def __init__(self, min_coordinates: "Coordinate4D", max_coordinates: "Coordinate4D", index: int):
+        super().__init__(index)
         self._min: "Coordinate4D" = min_coordinates
         self._max: "Coordinate4D" = max_coordinates
 
-    def tree_rep(self) -> List[int]:
+    def tree_rep(self) -> List[float]:
         return self.min.list_rep() + self.max.list_rep()
 
     def split_temporal(self, t: int) -> Tuple["SpaceSegment", "SpaceSegment"]:
@@ -22,7 +23,7 @@ class SpaceSegment(Segment):
         return first_segment, second_segment
 
     @property
-    def nr_voxels(self) -> int:
+    def nr_voxels(self) -> float:
         return abs(self.min.x - self.max.x) * abs(self.min.y - self.max.y) * abs(self.min.z - self.max.z) * abs(
             self.min.t - self.max.t)
 
@@ -61,4 +62,7 @@ class SpaceSegment(Segment):
         return Coordinate4D(0, 0, 0, 0)
 
     def clone(self) -> "SpaceSegment":
-        return SpaceSegment(self.min.clone(), self.max.clone())
+        return SpaceSegment(self.min.clone(), self.max.clone(), self.index)
+
+    def __str__(self):
+        return f"SpaceSegment: {self.min} -> {self.max}"

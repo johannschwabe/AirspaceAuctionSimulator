@@ -1,23 +1,30 @@
-from typing import List
+from typing import List, Optional, TYPE_CHECKING
 
-from Simulator import Coordinate4D, Environment
-from .MapTile import MapTile
-from ..Area import Area
+from Simulator import Environment
+
+if TYPE_CHECKING:
+    from Simulator.Blocker.Blocker import Blocker
+    from Simulator import Coordinate4D
+    from .MapTile import MapTile
+    from API.Area import Area
 
 
 class EnvironmentGen:
 
-    def __init__(self, dimensions: "Coordinate4D", maptiles: List["MapTile"], map_playfield_area: Area, allocation_period: int, min_height: int):
+    def __init__(self,
+                 dimensions: "Coordinate4D",
+                 maptiles: List["MapTile"],
+                 map_area: "Area",
+                 blockers: Optional[List["Blocker"]] = None
+                 ):
         self.dimensions = dimensions
         self.maptiles = maptiles
-        self.allocation_period = allocation_period
-        self.map_playfield_area = map_playfield_area
-        self.min_height = min_height
+        self.map_area = map_area
+        self.blockers = [] if blockers is None else blockers
 
     def generate(self) -> "Environment":
-        blockers = []
+        blockers = [*self.blockers]
         for tile in self.maptiles:
-            blockers += tile.resolve_buildings(self.map_playfield_area)
-        env = Environment(self.dimensions, blockers, allocation_period=self.allocation_period,
-                          min_height=self.min_height)
+            blockers += tile.resolve_buildings(self.map_area)
+        env = Environment(self.dimensions, blockers, min_height=self.map_area.min_height)
         return env

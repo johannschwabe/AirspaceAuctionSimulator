@@ -1,10 +1,8 @@
 .DS_Store
 .idea
-Development/playground.json
+Development/*.json
 playground.json
-Development/config.json
 config.json
-Development/test_sim.json
 test_sim.json
 
 # Byte-compiled / optimized / DLL files

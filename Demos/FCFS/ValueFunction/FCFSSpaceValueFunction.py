@@ -11,17 +11,19 @@ class FCFSSpaceValueFunction(ValueFunction):
     description = "Allocated Voxel / Requested Voxel"
 
     def value_for_segments(self, segments: List["Segment"], agent: "SpaceAgent"):
+        """
+        This Value function is not realistic and purely to produce illustrative results.
+        To truly compare mechanisms a scenario dependant value function is needed
+        :param segments:
+        :param agent:
+        :return:
+        """
         sum_segments = 0.0
         for segment in segments:
-            sum_segments += (segment.max.x - segment.min.x) * \
-                            (segment.max.y - segment.min.y) * \
-                            (segment.max.z - segment.min.z) * \
-                            (segment.max.t - segment.min.t)
+            sum_segments += segment.nr_voxels
+
         sum_blocks = 0.0
         for block in agent.blocks:
-            sum_blocks += (block[1].x - block[0].x) * \
-                          (block[1].y - block[0].y) * \
-                          (block[1].z - block[0].z) * \
-                          (block[1].t - block[0].t)
+            sum_blocks += block.nr_voxels
 
-        return sum_segments / sum_blocks
+        return sum_segments * 0.00006 - (sum_blocks - sum_segments) * 0.0000105

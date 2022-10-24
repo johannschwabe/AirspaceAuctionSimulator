@@ -11,12 +11,15 @@ export default class Coordinate3D {
   }
 
   /**
-   * @returns {int[]}
+   * @returns {[int, int, int]}
    */
   toArrayCoordinate() {
     return [this.x, this.y, this.z];
   }
 
+  /**
+   * @returns {number}
+   */
   get xyz() {
     return parseInt(`${this.x}${this.y}${this.z}`, 10);
   }

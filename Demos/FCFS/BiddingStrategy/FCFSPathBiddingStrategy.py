@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
-from Simulator import AgentType, BiddingStrategy
-from Simulator.Bids.PathBiddingStrategy import PathBiddingStrategy
+from API.WebClasses import WebPathBiddingStrategy
+from Simulator import AgentType
 from ..Bids.FCFSPathBid import FCFSPathBid
 from ..ValueFunction.FCFSPathValueFunction import FCFSPathValueFunction
 
@@ -9,16 +9,16 @@ if TYPE_CHECKING:
     from Simulator import PathAgent, Environment
 
 
-class FCFSPathBiddingStrategy(BiddingStrategy, PathBiddingStrategy):
+class FCFSPathBiddingStrategy(WebPathBiddingStrategy):
     label = "FCFS Path Bidding Strategy"
     description = "An Bidding Strategy for FCFS Path Agents"
     min_locations = 2
-    max_locations = 5
+    max_locations = 10
     allocation_type = AgentType.PATH.value
 
     @staticmethod
     def meta():
-        return PathBiddingStrategy.meta()
+        return WebPathBiddingStrategy.meta()
 
     def generate_bid(self, agent: "PathAgent", _environment: "Environment", _time_step: int) -> "FCFSPathBid":
         return FCFSPathBid(agent, agent.locations, agent.stays, agent.battery)

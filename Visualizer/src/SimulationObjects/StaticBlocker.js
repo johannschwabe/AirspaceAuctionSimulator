@@ -4,7 +4,7 @@ import Blocker from "./Blocker";
 export default class StaticBlocker extends Blocker {
   /**
    *
-   * @param {RawBlocker} rawBlocker
+   * @param {JSONBlocker} rawBlocker
    * @param {number} maxTick
    */
   constructor(rawBlocker, maxTick) {
@@ -13,10 +13,16 @@ export default class StaticBlocker extends Blocker {
     this.location = new Coordinate3D(rawBlocker.location.x, rawBlocker.location.y, rawBlocker.location.z);
   }
 
+  /**
+   * @returns {Coordinate3D}
+   */
   positionAtTick() {
     return this.location;
   }
 
+  /**
+   * @returns {number[]}
+   */
   get ticksInAir() {
     return [...Array(this.maxTick).keys()];
   }

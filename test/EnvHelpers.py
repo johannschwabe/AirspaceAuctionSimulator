@@ -5,7 +5,7 @@ from Demos.FCFS.BiddingStrategy.FCFSSpaceBiddingStrategy import FCFSSpaceBidding
 from Demos.FCFS.Bids.FCFSPathBid import FCFSPathBid
 from Demos.FCFS.ValueFunction.FCFSPathValueFunction import FCFSPathValueFunction
 from Demos.FCFS.ValueFunction.FCFSSpaceValueFunction import FCFSSpaceValueFunction
-from Simulator import Allocation, AllocationReason, AllocationHistory, Coordinate4D, Coordinate3D, PathAgent, \
+from Simulator import Allocation, AllocationHistory, AllocationReason, Coordinate3D, Coordinate4D, PathAgent, \
     PathSegment, SpaceAgent, SpaceSegment
 
 
@@ -18,14 +18,14 @@ def generate_path_agent():
                      FCFSPathBiddingStrategy(),
                      FCFSPathValueFunction(),
                      [Coordinate4D(2, 2, 2, 2), Coordinate4D(30, 30, 30, 30)],
-                     [0], )
+                     [], )
 
 
 def generate_space_agent():
     return SpaceAgent(f"AgentName{random.randint(0, 100000)}",
                       FCFSSpaceBiddingStrategy(),
                       FCFSSpaceValueFunction(),
-                      [[Coordinate4D(40, 40, 40, 20), Coordinate4D(60, 60, 60, 70)]])
+                      [SpaceSegment(Coordinate4D(40, 40, 40, 20), Coordinate4D(60, 60, 60, 70), 0)])
 
 
 def generate_path_segment(base: Coordinate4D):
@@ -46,8 +46,8 @@ def generate_path_segment(base: Coordinate4D):
     ])
 
 
-def generate_space_segment(base: Coordinate4D):
-    return SpaceSegment(base, base + Coordinate4D(10, 10, 10, 40))
+def generate_space_segment(base: Coordinate4D, idx):
+    return SpaceSegment(base, base + Coordinate4D(10, 10, 10, 40), idx)
 
 
 def generate_allocation_statistics():
@@ -65,8 +65,8 @@ def generate_path_allocation():
 
 def generate_space_allocation():
     agi = generate_space_agent()
-    first_segment = generate_space_segment(Coordinate4D(3, 3, 3, 10))
-    second_segment = generate_space_segment(Coordinate4D(40, 40, 40, 10))
-    third_segment = generate_space_segment(Coordinate4D(10, 10, 10, 10))
+    first_segment = generate_space_segment(Coordinate4D(3, 3, 3, 10), 0)
+    second_segment = generate_space_segment(Coordinate4D(40, 40, 40, 10), 1)
+    third_segment = generate_space_segment(Coordinate4D(10, 10, 10, 10), 2)
     stats = generate_allocation_statistics()
     return Allocation(agi, [first_segment, second_segment, third_segment], stats)

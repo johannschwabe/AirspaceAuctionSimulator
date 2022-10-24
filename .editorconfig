@@ -11,6 +11,8 @@ insert_final_newline = true
 
 [*.py]
 indent_size = 4
+ij_python_continuation_indent_size = 8
+ij_continuation_indent_size = 8
 
 [*.md]
 trim_trailing_whitespace = false

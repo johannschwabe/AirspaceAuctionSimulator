@@ -1,7 +1,7 @@
-from enum import Enum
-from typing import Tuple
 import json
 from datetime import datetime
+from enum import Enum
+from typing import Tuple
 
 
 class Stringify:
@@ -42,7 +42,7 @@ class Stringify:
         """
         Converts an instance of any class into a dictionary recursively. Private attributes, whose name starting with
         an underscore, are ignored. Further, the key names specified under "ignore_keys" are also not being considered.
-        Datees are converted into strins following the specified syntax.
+        Dates are converted into strings following the specified syntax.
         :param obj: Any object that shall be converted to a dictionary
         :param ignore_keys: Keys that shall be ignored during conversion
         :param date_format: String format into which dates shall be converted
@@ -50,16 +50,14 @@ class Stringify:
         :return:
         """
         recall = lambda o: Stringify.to_dict(o, ignore_keys=ignore_keys, date_format=date_format)
-        valid_entry = lambda k, v: not callable(v) and (isinstance(k, int) or not k.startswith('_')) and k not in ignore_keys
+        valid_entry = lambda k, v: not callable(v) and (
+            isinstance(k, int) or not k.startswith('_')) and k not in ignore_keys
         # Call .json() for Stringifys
         if not stop_recursion and isinstance(obj, Stringify):
             return obj.as_dict(ignore_keys=ignore_keys, date_format=date_format)
         # Convert dates to strings
         if isinstance(obj, datetime):
             return obj.strftime(date_format)
-        # Convert tick
-        if isinstance(obj, int):
-            return int(obj)
         # Convert enumerations
         if isinstance(obj, Enum):
             return obj.name

@@ -35,7 +35,7 @@ class SegmentsTest(unittest.TestCase):
         self.assertRaises(AssertionError, self.segment.join, other)
 
     def test_space_split(self):
-        space_segment = SpaceSegment(Coordinate4D(2, 3, 4, 5), Coordinate4D(10, 30, 40, 50))
+        space_segment = SpaceSegment(Coordinate4D(2, 3, 4, 5), Coordinate4D(10, 30, 40, 50), 0)
         first, second = space_segment.split_temporal(30)
         self.assertEqual(first.max.t, 30)
         self.assertEqual(second.min.t, 31)

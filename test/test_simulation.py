@@ -1,11 +1,11 @@
 import unittest
 
-from Demos.Priority.Allocator.PriorityAllocator import PriorityAllocator
-from Demos.Priority.BiddingStrategy.PriorityPathBiddingStrategy import PriorityPathBiddingStrategy
-from Demos.Priority.PaymentRule.PriorityPaymentRule import PriorityPaymentRule
-from Demos.Priority.ValueFunction.PriorityPathValueFunction import PriorityPathValueFunction
-from Simulator import Environment, StaticBlocker, GridLocationType, GridLocation, Coordinate4D, Coordinate3D, \
-    Coordinate2D, PathOwner, Mechanism, Simulator
+from API.GridLocation.GridLocation import GridLocation
+from API.GridLocation.GridLocationType import GridLocationType
+from API.WebClasses import WebPathOwner
+from Demos.Priority import PriorityAllocator, PriorityPathBiddingStrategy, PriorityPathValueFunction, \
+    PriorityPaymentRule
+from Simulator import Coordinate2D, Coordinate3D, Coordinate4D, Environment, Mechanism, Simulator, StaticBlocker
 
 
 class SimulationTest(unittest.TestCase):
@@ -15,28 +15,28 @@ class SimulationTest(unittest.TestCase):
         self.env = Environment(Coordinate4D(10, 1, 10, 200), self.blockers)
 
     def test_tick(self):
-        owners = [PathOwner("po_1",
-                            "Ghettobox",
-                            "#123456",
-                            [GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(3, 3)),
-                             GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(7, 7))],
-                            [3],
-                            PriorityPathBiddingStrategy(),
-                            PriorityPathValueFunction(),
-                            near_radius=1,
-                            battery=100,
-                            speed=1,
-                            meta={"priority": 0.1}),
-                  PathOwner("po_2", "SCHMITTAG", "#654321",
-                            [GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(6, 7)),
-                             GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(3, 3))],
-                            [4], PriorityPathBiddingStrategy(), PriorityPathValueFunction(), near_radius=1,
-                            battery=100, speed=1, meta={"priority": 0.2}),
-                  PathOwner("po_3", "EHHHH", "#999999",
-                            [GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(1, 8)),
-                             GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(4, 0))],
-                            [5], PriorityPathBiddingStrategy(), PriorityPathValueFunction(), near_radius=1,
-                            battery=100, speed=5, meta={"priority": 0.2})
+        owners = [WebPathOwner("po_1",
+                               "Ghettobox",
+                               "#123456",
+                               [GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(3, 3)),
+                                GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(7, 7))],
+                               [3],
+                               PriorityPathBiddingStrategy(),
+                               PriorityPathValueFunction(),
+                               near_radius=1,
+                               battery=100,
+                               speed=1,
+                               config={"priority": 0.1}),
+                  WebPathOwner("po_2", "SCHMITTAG", "#654321",
+                               [GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(6, 7)),
+                                GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(3, 3))],
+                               [4], PriorityPathBiddingStrategy(), PriorityPathValueFunction(), near_radius=1,
+                               battery=100, speed=1, config={"priority": 0.2}),
+                  WebPathOwner("po_3", "EHHHH", "#999999",
+                               [GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(1, 8)),
+                                GridLocation(str(GridLocationType.POSITION.value), position=Coordinate2D(4, 0))],
+                               [5], PriorityPathBiddingStrategy(), PriorityPathValueFunction(), near_radius=1,
+                               battery=100, speed=5, config={"priority": 0.2})
                   ]
         mechi = Mechanism(PriorityAllocator(), PriorityPaymentRule(0.02))
         simi = Simulator(owners, mechi, self.env)

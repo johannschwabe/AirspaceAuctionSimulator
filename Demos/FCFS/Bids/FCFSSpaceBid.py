@@ -1,16 +1,18 @@
-import json
-from typing import List, Dict
+from typing import List, Dict, Any, TYPE_CHECKING
 
-from Simulator import Bid, SpaceAgent, Coordinate4D
+from Simulator import Bid, SpaceAgent
+
+if TYPE_CHECKING:
+    from Simulator.Segments.SpaceSegment import SpaceSegment
 
 
 class FCFSSpaceBid(Bid):
-    def __init__(self, agent: "SpaceAgent", blocks: List[List["Coordinate4D"]]):
+    def __init__(self, agent: "SpaceAgent", blocks: List["SpaceSegment"]):
         super().__init__(agent)
         # overwrite agent for typing
         self.agent: "SpaceAgent" = agent
         # requested blocks
-        self.blocks: List[List["Coordinate4D"]] = blocks
+        self.blocks: List["SpaceSegment"] = blocks
 
     def __gt__(self, other):
         return False
@@ -27,8 +29,15 @@ class FCFSSpaceBid(Bid):
     def __eq__(self, other):
         return True
 
-    def to_dict(self) -> Dict[str, str | int | float]:
+    def to_dict(self) -> Dict[str, Any]:
         return {
-            "blocks": json.dumps([{"min": [block[0].x, block[0].y, block[0].z, block[0].t],
-                                   "max": [block[1].x, block[1].y, block[1].z, block[1].t]} for block in self.blocks]),
+            "data": {
+                "blocks": [{"min": [block.min.x, block.min.y, block.min.z, block.min.t],
+                            "max": [block.max.x, block.max.y, block.max.z, block.max.t]} for block in self.blocks],
+            },
+            "display": {
+                "area": "<br>".join([
+                    f"min: {int(block.min.x)}, {int(block.min.y)}, {int(block.min.z)}, {block.min.t}, max: {int(block.max.x)}, {int(block.max.y)}, {int(block.max.z)}, {block.max.t}"
+                    for block in self.blocks])
+            }
         }

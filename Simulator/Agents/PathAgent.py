@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Dict, Optional, Any
+from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from .Agent import Agent
 from .AgentType import AgentType
@@ -28,8 +28,15 @@ class PathAgent(Agent):
                  battery: Optional[int] = None,
                  near_radius: Optional[float] = None,
                  _is_clone: bool = False):
-
+        """
+        :param locations:   assert len(locations) > 1
+        :param stays:       assert len(stays) == len(locations) - 2
+        :param near_radius: assert near_radius >= 1
+        """
         super().__init__(agent_id, bidding_strategy, value_function, config, _is_clone=_is_clone)
+
+        assert len(locations) > 1
+        assert len(stays) == len(locations) - 2
 
         self.locations: List["Coordinate4D"] = locations
         self.stays: List[int] = stays
