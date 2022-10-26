@@ -141,7 +141,7 @@ def compatible_payment_rules(allocator):
             selected_allocator.compatible_payment_functions()]
 
 
-@app.websocket("/ws/{client_id}")
+@app.websocket("/api/ws/{client_id}")
 async def websocket(_websocket: WebSocket, client_id: str):
     await cm.connect(_websocket, client_id)
     try:
