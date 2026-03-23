@@ -1,7 +1,7 @@
 import { Scene } from "@babylonjs/core/scene";
 import { Color4, Vector3 } from "@babylonjs/core/Maths/math";
 import { ArcRotateCamera } from "@babylonjs/core/Cameras/arcRotateCamera";
-import { SSAORenderingPipeline } from "@babylonjs/core";
+import { SSAORenderingPipeline } from "@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/ssaoRenderingPipeline";
 
 /**
  * Creates a new babylon scene

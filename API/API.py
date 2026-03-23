@@ -9,7 +9,7 @@ from typing import Any, Dict, TYPE_CHECKING
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from websockets import ConnectionClosedError
+from websockets.exceptions import ConnectionClosedError
 
 from Simulator import get_simulation_dict, get_statistics_dict
 from .Runners import run_from_config
@@ -24,10 +24,7 @@ app = FastAPI()
 random.seed(2)
 
 origins = [
-    "http://localhost:3000",
-    "http://localhost:8080",
-    "http://localhost:5050",
-    "*",  # REMOVE for production
+    "https://airspace.schwabe.dev",
 ]
 
 app.add_middleware(
@@ -128,7 +125,7 @@ async def simulate(config: "APISimulationConfig", client_id: str):
     print("--Simulation Completed--")
     if generator.simulator.time_step != generator.simulator.environment.dimension.t + 1:
         raise HTTPException(status_code=400, detail="Client aborted: Websocket disconnected")
-    return build_json(config.dict(), generator, duration)
+    return build_json(config.model_dump(), generator, duration)
 
 
 @app.get("/paymentRules/{allocator}")

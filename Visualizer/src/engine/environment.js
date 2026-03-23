@@ -1,10 +1,12 @@
-import { DirectionalLight, HemisphericLight } from "@babylonjs/core/Lights";
+import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
+import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
 import { Color3, Vector3 } from "@babylonjs/core/Maths/math";
 import { HEMISPHERE_LIGHT_INTENSITY, MAIN_LIGHT_INTENSITY } from "@/engine/constants";
 import { CreateGround, CreateLines } from "@babylonjs/core/Meshes/Builders";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { AxesViewer } from "@babylonjs/core/Debug/axesViewer";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/shadowGenerator";
+import "@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent";
 
 /**
  * Creates a directional light to illuminate the scene

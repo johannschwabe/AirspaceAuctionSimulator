@@ -506,7 +506,7 @@ if not args.skipSummary:
         summarize = inquirer.confirm(message="Print model summary?", default=True).execute()
     if summarize:
         print("===================== CONFIG SUMMARY ========================")
-        print(yaml.dump(model_config.dict(), sort_keys=False))
+        print(yaml.dump(model_config.model_dump(), sort_keys=False))
         print("=============================================================")
 
 # Save config flow if user did not specify --skip-save-config
@@ -530,7 +530,7 @@ if not args.skipSaveConfig:
                                                                                  f"{model_config.name}-config.json")
         # Write config as to disk as json file
         with open(output_path, "w") as f:
-            f.write(model_config.json())
+            f.write(model_config.model_dump_json())
 
 # Skip this flow if user provided --skip-simulation argument
 if not args.skipSimulation:
@@ -543,7 +543,7 @@ if not args.skipSimulation:
         print("Running simulation. This may take a while!")
         generator, duration = run_from_config_for_cli(model_config)
         print(f"-- Simulation Completed in {duration} seconds --")
-        simulation_json = build_json(model_config.dict(), generator, duration)
+        simulation_json = build_json(model_config.model_dump(), generator, duration)
 
         # Printing simulation summary flow if user did not provide --skip-summary flag
         if not args.skipSummary:

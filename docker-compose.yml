@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  airspace-backend:
+    image: localhost:5000/airspace-backend:latest
+    networks:
+      - traefik_traefik-network
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.airspace-api.rule=Host(`airspace-api.schwabe.dev`)
+        - traefik.http.routers.airspace-api.entrypoints=websecure
+        - traefik.http.routers.airspace-api.tls=true
+        - traefik.http.routers.airspace-api.tls.certresolver=letsencrypt
+        - traefik.http.routers.airspace-api.middlewares=airspace-api-ratelimit
+        - traefik.http.services.airspace-backend.loadbalancer.server.port=8000
+        - traefik.docker.network=traefik_traefik-network
+        # 60 requests/minute per IP, burst of 20
+        - traefik.http.middlewares.airspace-api-ratelimit.ratelimit.average=60
+        - traefik.http.middlewares.airspace-api-ratelimit.ratelimit.burst=20
+        - traefik.http.middlewares.airspace-api-ratelimit.ratelimit.period=1m
+
+  airspace-frontend:
+    image: localhost:5000/airspace-frontend:latest
+    networks:
+      - traefik_traefik-network
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.airspace.rule=Host(`airspace.schwabe.dev`)
+        - traefik.http.routers.airspace.entrypoints=websecure
+        - traefik.http.routers.airspace.tls=true
+        - traefik.http.routers.airspace.tls.certresolver=letsencrypt
+        - traefik.http.services.airspace-frontend.loadbalancer.server.port=80
+        - traefik.docker.network=traefik_traefik-network
+
+networks:
+  traefik_traefik-network:
+    external: true

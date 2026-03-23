@@ -1,6 +1,6 @@
 from typing import List, Optional, Dict, Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from pydantic.fields import Field
 
 
@@ -26,6 +26,8 @@ class APILocations(BaseModel):
 
 
 class APIBiddingStrategy(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     minLocations: int
     maxLocations: int
     allocationType: str
@@ -36,7 +38,7 @@ class APIBiddingStrategy(BaseModel):
 class APIOwner(BaseModel):
     color: str
     name: str
-    agents: int
+    agents: int = Field(ge=1, le=50)
     biddingStrategy: APIBiddingStrategy
     locations: List[APILocations]
     valueFunction: str
@@ -45,16 +47,16 @@ class APIOwner(BaseModel):
 class APIMap(BaseModel):
     coordinates: APIWorldCoordinates
     locationName: str
-    neighbouringTiles: int
-    subselection: Optional[APISubselection]
-    resolution: int
-    height: int
-    timesteps: int
-    bottomLeftCoordinate: Optional[APIWorldCoordinates]
-    topRightCoordinate: Optional[APIWorldCoordinates]
-    tiles: Optional[List[List[int]]]
-    minHeight: int
-    allocationPeriod: int
+    neighbouringTiles: int = Field(ge=0, le=3)
+    subselection: Optional[APISubselection] = None
+    resolution: int = Field(ge=1, le=50)
+    height: int = Field(ge=1, le=200)
+    timesteps: int = Field(ge=1, le=500)
+    bottomLeftCoordinate: Optional[APIWorldCoordinates] = None
+    topRightCoordinate: Optional[APIWorldCoordinates] = None
+    tiles: Optional[List[List[int]]] = None
+    minHeight: int = Field(ge=0, le=100)
+    allocationPeriod: int = Field(ge=1, le=100)
 
 
 class APISimulationConfig(BaseModel):
@@ -62,5 +64,5 @@ class APISimulationConfig(BaseModel):
     description: str
     allocator: str
     map: APIMap
-    owners: List[APIOwner]
+    owners: List[APIOwner] = Field(min_length=1, max_length=20)
     paymentRule: str

@@ -1,0 +1,22 @@
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+COPY Visualizer/package*.json ./
+RUN npm ci
+
+COPY Visualizer/ .
+
+ARG VITE_API=https://airspace-api.schwabe.dev
+ARG VITE_WS_API=wss://airspace-api.schwabe.dev/api/ws
+ENV VITE_API=$VITE_API
+ENV VITE_WS_API=$VITE_WS_API
+
+RUN npm run build
+
+FROM nginx:alpine
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80

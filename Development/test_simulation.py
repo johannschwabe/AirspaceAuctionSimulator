@@ -14,7 +14,7 @@ f.close()
 
 generator, duration = asyncio.run(run_from_config(config))
 print("--Simulation Completed--")
-simulation_output = generate_output(generator.simulator, duration, config.dict())
+simulation_output = generate_output(generator.simulator, duration, config.model_dump())
 
 f = open("test_sim.json", "w")
 f.write(json.dumps(simulation_output))

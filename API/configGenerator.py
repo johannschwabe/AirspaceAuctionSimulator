@@ -30,7 +30,7 @@ def generate_config(simulator: "Simulator",
     dim = simulator.environment.dimension
     dim_m = Area.haversin_lon_lat(bottom_left, top_right)
     resolution = round(dim_m[0] / dim.x)  # rounding needed?
-    map_tile_ids = [(tile.z, tile.x, tile.y) for tile in map_tiles]
+    map_tile_ids = [[tile.z, tile.x, tile.y] for tile in map_tiles]
     _map = APIMap(
         coordinates=APIWorldCoordinates(
             long=(bottom_left.long + top_right.long) / 2,
@@ -143,4 +143,4 @@ def generate_config(simulator: "Simulator",
                                allocator=simulator.mechanism.allocator.__class__.__name__,
                                paymentRule=simulator.mechanism.payment_rule.__class__.__name__,
                                map=_map,
-                               owners=_owners).dict()
+                               owners=_owners).model_dump()

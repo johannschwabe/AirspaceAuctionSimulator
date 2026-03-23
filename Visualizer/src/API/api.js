@@ -9,7 +9,7 @@ const apiServer = axios.create({
   timeout: 60 * 60 * 1000, // 1h
 });
 
-export const client_id = `ci_${Math.round(Math.random() * 1000)}`;
+export const client_id = crypto.randomUUID();
 const ws_base_url = import.meta.env.VITE_WS_API || "ws://localhost:8000/ws";
 export const ws = new WebSocket(`${ws_base_url}/${client_id}`);
 

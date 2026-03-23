@@ -29,9 +29,15 @@ const props = defineProps({
   meta: String,
 });
 
-const notification = useNotification();
+let notification;
+try {
+  notification = useNotification();
+} catch (e) {
+  notification = null;
+}
 
 const showMore = () => {
+  if (!notification) return;
   const n = notification.create({
     title: `Help: ${props.title}`,
     description: props.abstract,

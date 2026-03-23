@@ -1,15 +1,13 @@
 import { defineStore } from "pinia";
-import { useStorage } from "@vueuse/core";
 import { emitAgentsSelectedEvent, emitTickEvent } from "@/scripts/emitter.js";
 
-export const useSimulationOutputStore = defineStore({
-  id: "simulationOutputStore",
+export const useSimulationOutputStore = defineStore("simulationOutputStore", {
   state: () => ({
-    selectedAgentIDs: useStorage("simulation-selected-agent-ids", []),
+    selectedAgentIDs: [],
     agentInFocus: false,
     agentInFocusId: -1,
     ownerInFocusId: -1,
-    tick: useStorage("simulation-tick", 0),
+    tick: 0,
   }),
   actions: {
     updateTick(tick) {

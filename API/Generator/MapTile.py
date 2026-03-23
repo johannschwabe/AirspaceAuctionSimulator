@@ -1,6 +1,6 @@
 from typing import List, TYPE_CHECKING, Tuple
 
-import cloudscraper
+import requests
 import mpmath as mp
 
 from API.Area import Area
@@ -9,6 +9,10 @@ from Simulator import BuildingBlocker, Coordinate3D
 
 if TYPE_CHECKING:
     from API.Types import APIWorldCoordinates
+
+OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+DEFAULT_BUILDING_HEIGHT_M = 10
+METERS_PER_LEVEL = 3
 
 
 class MapTile:
@@ -33,64 +37,103 @@ class MapTile:
         self.area = area
 
     @property
-    def url(self):
-        return f"https://a.data.osmbuildings.org/0.2/anonymous/tile/{self.z}/{self.x}/{self.y}.json"
+    def overpass_query(self) -> str:
+        s = self.area.bottom_left.lat
+        w = self.area.bottom_left.long
+        n = self.area.top_right.lat
+        e = self.area.top_right.long
+        return (
+            f"[out:json][timeout:30];"
+            f"(way[\"building\"]({s},{w},{n},{e});"
+            f"relation[\"building\"][\"type\"=\"multipolygon\"]({s},{w},{n},{e}););"
+            f"out geom;"
+        )
+
+    @staticmethod
+    def _parse_height(tags: dict) -> float:
+        if tags.get("height"):
+            try:
+                h = float(tags["height"])
+                if h > 0:
+                    return h
+            except (ValueError, TypeError):
+                pass
+        if tags.get("building:levels"):
+            try:
+                levels = float(tags["building:levels"])
+                if levels > 0:
+                    return levels * METERS_PER_LEVEL
+            except (ValueError, TypeError):
+                pass
+        return DEFAULT_BUILDING_HEIGHT_M
+
+    def _geom_to_grid(self, geom: list, map_playfield_area: Area) -> list:
+        return [
+            map_playfield_area.lon_lat_to_grid(LongLatCoordinate(pt["lon"], pt["lat"]))
+            for pt in geom
+            if "lat" in pt and "lon" in pt
+        ]
+
+    def _build_blocker(self, coords: list, holes: list, height_m: float,
+                       map_playfield_area: Area, element_id: int):
+        if len(coords) < 3:
+            return None
+        min_x = min(c[0] for c in coords)
+        max_x = max(c[0] for c in coords)
+        min_z = min(c[1] for c in coords)
+        max_z = max(c[1] for c in coords)
+        height_grid = height_m / map_playfield_area.resolution
+        bounds = [Coordinate3D(min_x, 0, min_z), Coordinate3D(max_x, height_grid, max_z)]
+        dimension = map_playfield_area.dimension
+        if dimension[0] < min_x or dimension[1] < min_z or max_x < 0 or max_z < 0:
+            return None
+        return BuildingBlocker(coords, bounds, holes, element_id)
 
     def resolve_buildings(self, map_playfield_area: Area):
         """
-        Extract building information from tile and convert them to building blockers
+        Extract building information via Overpass API and convert to building blockers.
         :return: BuildingBlocker[]
         """
         if len(self.blockers) > 0:
             return self.blockers
-        raw_data = cloudscraper.create_scraper().get(self.url)
-        if raw_data.status_code != 200:
-            print(raw_data.status_code)
-            return []
-        data = raw_data.json()
-        res = []
-        for building in data["features"]:
-            is_feature = building["type"] == 'Feature'
-            has_height = building['properties']['height'] > 0
-            is_polygon = building['geometry']['type'] == 'Polygon'
-            has_coordinates = (
-                    len(building['geometry']['coordinates']) > 0 and len(building['geometry']['coordinates'][0]) > 0
+        try:
+            resp = requests.post(
+                OVERPASS_URL,
+                data={"data": self.overpass_query},
+                timeout=35,
             )
-            if is_feature and has_height and is_polygon and has_coordinates:
-                coords = []
-                holes = []
-                min_x = 100000
-                max_x = -100000
-                min_z = 100000
-                max_z = -100000
-                for coord in building['geometry']['coordinates'][0]:
-                    translated_coords = map_playfield_area.lon_lat_to_grid(LongLatCoordinate(coord[0], coord[1]))
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception as e:
+            print(f"Overpass API error: {e}")
+            return []
 
-                    coords.append(translated_coords)
-                    x = translated_coords[0]
-                    z = translated_coords[1]
-                    if min_x > x:
-                        min_x = x
-                    if min_z > z:
-                        min_z = z
-                    if max_x < x:
-                        max_x = x
-                    if max_z < z:
-                        max_z = z
+        res = []
+        for element in data.get("elements", []):
+            tags = element.get("tags", {})
+            height_m = self._parse_height(tags)
+            element_id = element.get("id", 0)
 
-                for hole in building['geometry']['coordinates'][1:]:
-                    holes.append(
-                        [map_playfield_area.lon_lat_to_grid(LongLatCoordinate(hole_coord[0], hole_coord[1]))
-                         for hole_coord in hole])
+            if element["type"] == "way":
+                geom = element.get("geometry", [])
+                coords = self._geom_to_grid(geom, map_playfield_area)
+                blocker = self._build_blocker(coords, [], height_m, map_playfield_area, element_id)
 
-                bounds = [Coordinate3D(min_x, 0, min_z),
-                          Coordinate3D(max_x, building['properties']['height'] / map_playfield_area.resolution, max_z)]
-
-                dimension = map_playfield_area.dimension
-                if dimension[0] < min_x or dimension[1] < min_z or max_x < 0 or max_z < 0:
+            elif element["type"] == "relation":
+                members = element.get("members", [])
+                outers = [m for m in members if m.get("role") == "outer" and m.get("geometry")]
+                inners = [m for m in members if m.get("role") == "inner" and m.get("geometry")]
+                if not outers:
                     continue
-                new_blocker = BuildingBlocker(coords, bounds, holes, building["id"])
-                res.append(new_blocker)
+                coords = self._geom_to_grid(outers[0]["geometry"], map_playfield_area)
+                holes = [self._geom_to_grid(m["geometry"], map_playfield_area) for m in inners]
+                blocker = self._build_blocker(coords, holes, height_m, map_playfield_area, element_id)
+
+            else:
+                continue
+
+            if blocker is not None:
+                res.append(blocker)
 
         self.blockers = res
         return res
